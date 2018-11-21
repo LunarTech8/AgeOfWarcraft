@@ -1,0 +1,31 @@
+package Ability_Harvest
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.harvest)
+    // Ability specific data:
+    ..presetDamage((int lvl) -> 0.)
+    // Art:
+    ..setAnimationNames("attack")
+    ..presetButtonPosNormal(1, 2)
+    ..setIconNormal(Icons.bTNGatherGold)
+    ..setMissileArt("")
+    ..setMissileSpeed(0)
+    // Stats:
+    ..presetBuffs(AbilityIdsCustom.emptyBuff)
+    ..presetCastRange(32.)
+    ..presetCooldown(1.)
+    ..presetDuration(.01)
+    ..setHeroAbility(false)
+    ..setLevels(1)
+    ..presetManaCost(0)
+    ..setRace(Race.Other)
+    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.tree)
+    // Text:
+    ..setHotkeyNormal("H")
+    ..presetNameAndTooltips("Harvest", "Harvest a ware of the target resource.")

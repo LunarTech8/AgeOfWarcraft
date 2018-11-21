@@ -1,0 +1,22 @@
+package Unit_AltarOfKings
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.altarOfKings, UnitIds.altarofkings)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(0.65)
+    ..setSelectionScale(2.5)
+    ..setShadowTextureBuilding(Textures.shadowHouse)
+    // Pathing:
+    ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Altar of Kings", "Religion structure.")

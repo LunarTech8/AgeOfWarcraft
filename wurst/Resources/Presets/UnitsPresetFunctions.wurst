@@ -1,0 +1,67 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Adds additional preset functions to UnitOrBuildingOrHeroDefinition for unit, building and hero defintion packages.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package UnitsPresetFunctions
+import UnitObjEditing
+import ObjectIds
+
+
+// --------------------
+// Data code
+// --------------------
+
+class AbilityIdsMissing
+	static constant repairHuman = 'Ahrp'
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public function UnitOrBuildingOrHeroDefinition.presetNormalAbilities(vararg int abilityIds)
+	var abilityString = ""
+	for abilityId in abilityIds
+		abilityString += abilityId.toRawCode() + ","
+	if abilityString != ""
+		abilityString = abilityString.substring(0, abilityString.length()-1)
+	this.setNormalAbilities(abilityString)
+
+public function UnitOrBuildingOrHeroDefinition.presetNameAndTooltips(bool isBuilding, string name, string tooltipExtended)
+	this.setName(name)
+	if isBuilding
+		this.setTooltipBasic("Build " + name)
+	else
+		this.setTooltipBasic("Train " + name)
+	this.setTooltipExtended(tooltipExtended)
+public function UnitOrBuildingOrHeroDefinition.presetNameAndTooltips(bool isBuilding, string name, string suffix, string tooltipExtended)
+	this.setNameEditorSuffix(suffix)
+	this.presetNameAndTooltips(isBuilding, name, tooltipExtended)
+
+public function UnitOrBuildingOrHeroDefinition.presetAttackRange(bool isAttack1, int range, real rangeMotionBuffer)
+	if isAttack1
+		this.setAttack1Range(range)
+		this.setAttack1RangeMotionBuffer(rangeMotionBuffer)
+	else
+		this.setAttack2Range(range)
+		this.setAttack2RangeMotionBuffer(rangeMotionBuffer)
+
+public function UnitOrBuildingOrHeroDefinition.presetNoGoldAndLumber()
+	this.setGoldBountyAwardedBase(0)
+	this.setGoldBountyAwardedNumberofDice(0)
+	this.setGoldBountyAwardedSidesperDie(0)
+	this.setGoldCost(0)
+	this.setLumberCost(0)
+	this.setRepairGoldCost(0)
+	this.setRepairLumberCost(0)
+
+public function UnitOrBuildingOrHeroDefinition.presetMaximumAngles(real pitch, real roll)
+	this.setMaximumPitchAngledegrees(pitch)
+	this.setMaximumRollAngledegrees(roll)

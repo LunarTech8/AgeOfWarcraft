@@ -1,0 +1,9 @@
+---
+projectName: "AgeOfWarcraft"
+dependencies:
+- "https://github.com/wurstscript/wurstStdlib2"
+buildMapData:
+  name: "Age of Warcraft - DivideAndConquer"
+  fileName: "AgeOfWarcraft_DivideAndConquer"
+  author: "MassiveMaster"
+  playerCount: 1

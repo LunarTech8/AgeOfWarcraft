@@ -1,0 +1,19 @@
+package Unit_ArcaneSanctum
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.arcaneSanctum, UnitIds.arcanesanctum)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.2)
+    ..setSelectionScale(4.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Arcane Sanctum", "Primary magic training structure.")

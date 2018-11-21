@@ -1,0 +1,28 @@
+package Unit_Peasant
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.peasant, UnitIds.peasant)
+    // Abilities:
+    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.transferWares, AbilityIdsMissing.repairHuman)
+    // Art:
+    ..setScalingValue(.5)
+    ..setSelectionScale(.5)
+    ..presetShadowImage(20., 50.)
+    // Combat:
+    ..presetAttackRange(true, 30, 100.)
+    // Movement:
+    ..setSpeedBase(80)
+    // Pathing:
+    ..setCollisionSize(12.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetStructuresBuilt(UnitIdsCustom.townHall, UnitIdsCustom.farm, UnitIdsCustom.barracks, UnitIdsCustom.blacksmith, UnitIdsCustom.scoutTower, UnitIdsCustom.altarOfKings, UnitIdsCustom.workshop, UnitIdsCustom.arcaneSanctum, UnitIdsCustom.lumberMill, UnitIdsCustom.gryphonAviary, UnitIdsCustom.arcaneVault)
+    // Text:
+    ..presetNameAndTooltips(false, "Peasant", "Basic worker unit.")

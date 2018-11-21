@@ -1,0 +1,18 @@
+package Unit_GuardTower
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.guardTower, UnitIds.guardtower)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "GuardTower", "Advanced defence structure.")

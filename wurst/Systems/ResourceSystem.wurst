@@ -1,0 +1,112 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Gives predefined unit types resources wares that can be extracted by workers via the harvest ability.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package ResourceSystem
+import LinkedList
+import HashMap
+import ConstantDataSystem
+import MultiboardPrioritySystem
+import StorageSystem
+
+
+// --------------------
+// Data code
+// --------------------
+
+let countPlayers = 12  // Highest player slot in use
+
+function getDefaultWares(int unitTypeId) returns Ware
+	switch unitTypeId
+		case UnitIdsCustom.beechVar1
+			return Ware(WareType.Wood, GetRandomInt(6, 8))
+		default
+			return Ware(WareType.Empty, 0)
+
+function isKilledWhenDepleted(int unitTypeId) returns bool
+	switch unitTypeId
+		case UnitIdsCustom.beechVar1
+			return true
+		default
+			return false
+
+	
+// --------------------
+// Functional code
+// --------------------
+
+let resourceMap = new HashMap<unit, Resource>
+
+class Resource
+	private unit resourceUnit
+	private bool isKilledWhenDepleted
+	private LinkedList<WareObject> wares
+
+	static class WareObject
+		Ware data
+	
+		construct(Ware ware)
+			data = ware
+	
+	construct(unit resourceUnit, bool isKilledWhenDepleted, Ware defaultWares)
+		this.resourceUnit = resourceUnit
+		this.isKilledWhenDepleted = isKilledWhenDepleted
+		wares = new LinkedList<WareObject>()
+		wares.add(new WareObject(defaultWares))
+
+	ondestroy
+		destroy wares
+
+	function getWare(int index) returns Ware
+		if index >= wares.size()
+			Log.error("ERROR: Index has to be smaller than list size")
+		return wares.get(index).data
+		
+	function getAmountOfWareTypes() returns int
+		return wares.size()
+
+
+public function getResource(unit targetUnit) returns Resource
+	if resourceMap.has(targetUnit)
+		return resourceMap.get(targetUnit)
+	else
+		return null
+
+public function addResource(unit targetUnit) returns Resource
+	if resourceMap.has(targetUnit)
+		return resourceMap.get(targetUnit)
+	var unitType = GetUnitTypeId(targetUnit)
+	var wares = getDefaultWares(unitType)
+	if wares.wareType != WareType.Empty
+		var resource = new Resource(targetUnit, isKilledWhenDepleted(unitType), wares)
+		resourceMap.put(targetUnit, resource)
+		return resource
+	else
+		return null
+
+/** Sets system relevant infos for given object in target multiboard */
+public function setObjectInfoMultiboard(multiboard targetMultiboard, Resource resource) returns bool
+	addMultiboardLine(targetMultiboard, "Resource:", BaseIconType.Headline.getIconPath())
+	for i = 0 to (resource.getAmountOfWareTypes() - 1)
+		var ware = resource.getWare(i)
+		addMultiboardLine(targetMultiboard, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+	return true
+	
+init
+	// Add every appropriate existing unit as resource:
+	for playerNumber = 0 to countPlayers - 1
+		group allPlayerUnits = GetUnitsOfPlayerAll(Player(playerNumber))
+		for u in allPlayerUnits
+			var unitType = GetUnitTypeId(u)
+			var wares = getDefaultWares(unitType)
+			if wares.wareType != WareType.Empty
+				resourceMap.put(u, new Resource(u, isKilledWhenDepleted(unitType), wares))
+		allPlayerUnits.destr()
+	// TODO: add every appropriate new unit as resource

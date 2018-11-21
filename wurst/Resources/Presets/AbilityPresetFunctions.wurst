@@ -1,0 +1,74 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Adds additional preset functions to AbilityDefinition for ability defintion packages.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package AbilityPresetFunctions
+import LinkedList
+import StringUtils
+import ObjectIds
+import BuffObjEditing
+import public Assets
+import public ConstantDataSystem
+import public AbilityObjEditing
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+	new BuffDefinition(AbilityIdsCustom.emptyBuff, 'Basl')  // Buff based on tornado aura
+	..setName(1, "Empty Buff")
+	..setTooltipNormal(1, "")
+	..setTooltipNormalExtended(1, "")
+	..setIcon("")
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public function AbilityDefinition.presetNameAndTooltips(string name, string tooltipExtended)
+	this.setName(name)
+	this.presetTooltipNormal((int lvl) -> name)
+	this.presetTooltipNormalExtended((int lvl) -> tooltipExtended)
+
+public function AbilityDefinition.presetDuration(real duration)
+	this.presetDurationNormal((int lvl) -> duration)
+	this.presetDurationHero((int lvl) -> duration)
+
+public function AbilityDefinition.presetCooldown(real cooldown)
+	this.presetCooldown((int lvl) -> cooldown)
+
+public function AbilityDefinition.presetManaCost(int manaCost)
+	this.presetManaCost((int lvl) -> manaCost)
+
+public function AbilityDefinition.presetCastRange(real castRange)
+	this.presetCastRange((int lvl) -> castRange)
+
+public function AbilityDefinition.presetBuffs(string buffs)
+	this.presetBuffs((int lvl) -> buffs)
+public function AbilityDefinition.presetBuffs(vararg int buffIds)
+	var buffString = ""
+	for buffId in buffIds
+		buffString += buffId.toRawCode() + ","
+	if buffString != ""
+		buffString = buffString.substring(0, buffString.length()-1)
+	this.presetBuffs(buffString)
+	
+public function AbilityDefinition.presetTargetsAllowed(vararg string targetsAllowed)
+	let list = new LinkedList<string>
+	for target in targetsAllowed
+		list.add(target)
+	let result = list.joinBy(",")
+	destroy list
+	this.presetTargetsAllowed((int lvl) -> result)
+
+public function AbilityDefinition.presetAreaofEffect(real areaOfEffect)
+	this.presetAreaofEffect((int lvl) -> areaOfEffect)

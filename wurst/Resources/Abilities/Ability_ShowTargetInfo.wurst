@@ -1,0 +1,31 @@
+package Ability_ShowTargetInfo
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.showTargetInfo)
+    // Ability specific data:
+    ..presetDamage((int lvl) -> 0.)
+    // Art:
+    ..setAnimationNames("")
+    ..presetButtonPosNormal(0, 2)
+    ..setIconNormal(Icons.bTNSnazzyScroll)
+    ..setMissileArt("")
+    ..setMissileSpeed(0)
+    // Stats:
+    ..presetBuffs(AbilityIdsCustom.emptyBuff)
+    ..presetCastRange(99999.)
+    ..presetCooldown(1.)
+    ..presetDuration(.01)
+    ..setHeroAbility(false)
+    ..setLevels(1)
+    ..presetManaCost(0)
+    ..setRace(Race.Other)
+    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.air)
+    // Text:
+    ..setHotkeyNormal("S")
+    ..presetNameAndTooltips("Show Target Info", "Get informations about the target.")

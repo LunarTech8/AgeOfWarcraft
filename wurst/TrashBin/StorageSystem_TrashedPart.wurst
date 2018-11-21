@@ -1,0 +1,118 @@
+// class Ware
+// 	private WareType wareType
+// 	private int count
+
+// 	construct(WareType wareType, int count)
+// 		if count <= 0
+// 			Log.error("ERROR: Ware count has to be bigger than 0")
+// 		this.wareType = wareType
+// 		this.count = count
+// 	construct(WareType wareType)
+// 		this.wareType = wareType
+// 		this.count = 1
+
+// 	function hasSameType(Ware ware) returns bool
+// 		return (wareType == ware.wareType)
+
+// 	function getIconPath() returns string
+// 		return wareType.getIconPath()
+
+// 	function getCount() returns int
+// 		return count
+
+// 	function changeCount(int change) returns bool
+// 		if change >= 0
+// 			increaseCount(change)
+// 			return false
+// 		else
+// 			return decreaseCount(change)
+// 	function changeCount(int change, bool allowPartialReduction) returns int
+// 		if change >= 0
+// 			increaseCount(change)
+// 			return -count
+// 		else
+// 			return decreaseCount(change, allowPartialReduction)
+
+// 	function increaseCount(int addition)
+// 		count += addition
+	
+// 	function decreaseCount(int reduction) returns bool
+// 		if count - reduction < 0
+// 			Log.error("ERROR: Ware count can't be negative")
+// 		count -= reduction
+// 		return count == 0
+// 	function decreaseCount(int reduction, bool allowPartialReduction) returns int
+// 		if count - reduction < 0
+// 			if allowPartialReduction
+// 				var shortage = -(count - reduction)
+// 				count = 0
+// 				return shortage
+// 			else
+// 				return reduction
+// 		else
+// 			count -= reduction
+// 			return -count
+	
+// 	function toString(bool upperCase) returns string
+// 		if upperCase
+// 			return wareType.toString().firstUpper()
+// 		else
+// 			return wareType.toString()
+
+// class Storage
+// 	private unit storageUnit
+// 	private int maxCapacity
+// 	private int usedCapacity
+// 	private LinkedList<Ware> wares
+
+// 	construct(unit storageUnit, int maxCapacity)
+// 		this.storageUnit = storageUnit
+// 		this.maxCapacity = maxCapacity
+// 		usedCapacity = 0
+// 		wares = new LinkedList<Ware>()
+
+// 	function getWare(int index) returns Ware
+// 			return wares.get(index)
+		
+// 	function getWareCount() returns int
+// 		return wares.size()
+
+// 	function getMaxCapacity() returns int
+// 		return maxCapacity
+	
+// 	function getUsedCapacity() returns int
+// 		return usedCapacity
+	
+// 	private function addWare(Ware ware) returns int
+// 		// Check and adjust storage capacity:
+// 		int excessWareCount = 0
+// 		if ware.getCount() > maxCapacity - usedCapacity
+// 			excessWareCount = ware.getCount() - (maxCapacity - usedCapacity)
+// 			ware.increaseCount(-excessWareCount)
+// 		usedCapacity += ware.getCount()
+// 		// Adjust storage wares:
+// 		for iWare in wares
+// 			if iWare.hasSameType(ware)
+// 				iWare.increaseCount(ware.getCount())
+// 				return excessWareCount
+// 		wares.add(ware)
+// 		return excessWareCount
+// 	function addWare(WareType wareType, int count) returns int
+// 		return addWare(new Ware(wareType, count))
+	
+// 	private function removeWare(Ware ware) returns int
+// 		// Adjust storage wares:
+// 		var wareCount = ware.getCount()
+// 		for iWare in wares
+// 			if iWare.hasSameType(ware)
+// 				var shortage = iWare.decreaseCount(wareCount, true)
+// 				// Check and adjust storage capacity:
+// 				if shortage <= 0
+// 					wares.remove(iWare)
+// 					usedCapacity -= wareCount - shortage
+// 				else
+// 					usedCapacity -= wareCount
+// 				return shortage
+// 		return wareCount
+// 	function removeWare(WareType wareType, int count) returns int
+// 		return removeWare(new Ware(wareType, count))

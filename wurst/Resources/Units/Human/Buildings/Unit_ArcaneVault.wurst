@@ -1,0 +1,21 @@
+package Unit_ArcaneVault
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.arcaneVault, UnitIds.arcanevault)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(0.8)
+    ..setSelectionScale(4.)
+    // Pathing:
+    ..setPathingMap("PathTextures\\6x6SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Arcane Vault", "Magic structure.")

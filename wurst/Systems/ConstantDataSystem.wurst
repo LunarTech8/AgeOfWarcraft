@@ -1,0 +1,69 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+This system contains all custom global constant data like ids, paths etc. stored as better readable static constants in sorted classes for other systems to use.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package ConstantDataSystem
+import ObjectIdGenerator
+
+
+// --------------------
+// Data code
+// --------------------
+
+public class UnitIdsCustom
+	//--------------
+	// Human
+	//--------------
+	// Units:
+	static constant peasant = compiletime(UNIT_ID_GEN.next())
+	static constant footman = compiletime(UNIT_ID_GEN.next())
+	static constant knight = compiletime(UNIT_ID_GEN.next())
+	static constant rifleman = compiletime(UNIT_ID_GEN.next())
+	static constant mortarTeam = compiletime(UNIT_ID_GEN.next())
+	static constant flyingMachine = compiletime(UNIT_ID_GEN.next())
+	static constant gryphonRider = compiletime(UNIT_ID_GEN.next())
+	static constant priest = compiletime(UNIT_ID_GEN.next())
+	static constant sorceress = compiletime(UNIT_ID_GEN.next())
+	static constant siegeEngine = compiletime(UNIT_ID_GEN.next())
+	static constant spellBreaker = compiletime(UNIT_ID_GEN.next())
+	static constant dragonhawkRider = compiletime(UNIT_ID_GEN.next())
+	static constant elvenLady = compiletime(UNIT_ID_GEN.next())
+	static constant peasantGirl = compiletime(UNIT_ID_GEN.next())
+	// Buildings:
+	static constant townHall = compiletime(UNIT_ID_GEN.next())
+	static constant keep = compiletime(UNIT_ID_GEN.next())
+	static constant castle = compiletime(UNIT_ID_GEN.next())
+	static constant farm = compiletime(UNIT_ID_GEN.next())
+	static constant altarOfKings = compiletime(UNIT_ID_GEN.next())
+	static constant barracks = compiletime(UNIT_ID_GEN.next())
+	static constant lumberMill = compiletime(UNIT_ID_GEN.next())
+	static constant blacksmith = compiletime(UNIT_ID_GEN.next())
+	static constant workshop = compiletime(UNIT_ID_GEN.next())
+	static constant arcaneSanctum = compiletime(UNIT_ID_GEN.next())
+	static constant gryphonAviary = compiletime(UNIT_ID_GEN.next())
+	static constant scoutTower = compiletime(UNIT_ID_GEN.next())
+	static constant guardTower = compiletime(UNIT_ID_GEN.next())
+	static constant cannonTower = compiletime(UNIT_ID_GEN.next())
+	static constant arcaneTower = compiletime(UNIT_ID_GEN.next())
+	static constant arcaneVault = compiletime(UNIT_ID_GEN.next())
+	//--------------
+	// Nature
+	//--------------
+	// Trees:
+	static constant beechVar1 = compiletime(UNIT_ID_GEN.next())
+
+public abstract class AbilityIdsCustom
+	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
+	static constant showTargetInfo = compiletime(ABIL_ID_GEN.next())
+	static constant harvest = compiletime(ABIL_ID_GEN.next())
+	static constant transferWares = compiletime(ABIL_ID_GEN.next())
+
+public abstract class ImportPaths
+	static constant beechVar1 = "Trees\\Buche0.mdl"

@@ -1,0 +1,226 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+This system manages the "storages" and "wares" of every unit or building. Wares have a standardized size called "capacity" that can't be split.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package StorageSystem
+import RegisterEvents
+import LinkedList
+import HashMap
+import Icons
+import ConstantDataSystem
+import MultiboardPrioritySystem
+
+
+// --------------------
+// Data code
+// --------------------
+	
+let countPlayers = 12  // Highest player slot in use
+
+function getMaxCapacity(int unitTypeId) returns int
+	switch unitTypeId
+		case UnitIdsCustom.peasant
+			return 10
+		default
+			return 0
+
+enum WareType
+	Empty
+	Wood
+	Stone
+	Food
+	WoodenBoard
+	WoodenStick
+	Straw
+
+function WareType.toString() returns string
+	switch this
+		case Wood
+			return "wood"
+		case Stone
+			return "stone"
+		case Food
+			return "food"
+		case Straw
+			return "straw"
+		default
+			return "undefined ware"
+	
+function WareType.getIconPath() returns string
+	switch this
+		case Wood
+			return Icons.bTNBundleOfLumber
+		case Stone
+			return "Icons\\BTNINV_Stone_12.blp"
+		case Food
+			return Icons.bTNMonsterLure
+		case WoodenBoard
+			return Icons.bTNHumanLumberUpgrade2
+		case WoodenStick
+			return Icons.bTNHumanLumberUpgrade1
+		case Straw
+			return "Icons\\BTNStrawBunch.blp"
+		default
+			return null
+
+
+// --------------------
+// Functional code
+// --------------------
+
+let storageMap = new HashMap<unit, Storage>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+
+public tuple Ware(WareType wareType, int count)
+
+public function Ware.hasSameType(Ware otherWare) returns bool
+	return (this.wareType == otherWare.wareType)
+
+public function Ware.toString(bool upperCase) returns string
+	if upperCase
+		return this.wareType.toString().firstUpper()
+	else
+		return this.wareType.toString()
+
+public function Ware.getIconPath() returns string
+	return this.wareType.getIconPath()
+
+public function Ware.changeCount(int change) returns Ware
+	return Ware(this.wareType, this.count + change)
+
+class Storage
+	private unit storageUnit
+	private int maxCapacity
+	private int usedCapacity
+	private LinkedList<WareObject> wares  // TODO: probably replace LinkedList with ArrayList so that the WareObject class can be omitted
+
+	static class WareObject
+		Ware data
+	
+		construct(Ware ware)
+			data = ware
+	
+	construct(unit storageUnit, int maxCapacity)
+		this.storageUnit = storageUnit
+		this.maxCapacity = maxCapacity
+		usedCapacity = 0
+		wares = new LinkedList<WareObject>()
+
+	ondestroy
+		destroy wares
+
+	function getWare(int index) returns Ware
+		if index >= wares.size()
+			Log.error("ERROR: Index has to be smaller than list size")
+		return wares.get(index).data
+		
+	function getAmountOfWareTypes() returns int
+		return wares.size()
+
+	function getMaxCapacity() returns int
+		return maxCapacity
+	
+	function getUsedCapacity() returns int
+		return usedCapacity
+
+	function getFreeCapacity() returns int
+		return maxCapacity - usedCapacity
+
+	function addWare(Ware ware) returns int
+		// Check and adjust capacity:
+		var excess = 0
+		if ware.count > maxCapacity - usedCapacity
+			excess = ware.count - (maxCapacity - usedCapacity)
+		usedCapacity += ware.count - excess
+		// Adjust ware object:
+		for iWare in wares
+			if iWare.data.hasSameType(ware)
+				iWare.data.count += ware.count - excess
+				// Return excess count:
+				return excess
+		wares.add(new WareObject(ware.changeCount(-excess)))
+		// Return excess count:
+		return excess
+	
+	function removeWare(Ware ware) returns int
+		for iWare in wares
+			if iWare.data.hasSameType(ware)
+				var shortage = 0
+				// Check and adjust ware object:
+				if iWare.data.count < ware.count
+					shortage = ware.count - iWare.data.count
+					wares.remove(iWare)
+				else
+					iWare.data.count -= ware.count
+				// Adjust capacity:
+				usedCapacity -= ware.count - shortage
+				// Return shortage count:
+				return shortage
+		// Return shortage count:
+		return ware.count
+
+
+public function getStorage(unit targetUnit) returns Storage
+	if storageMap.has(targetUnit)
+		return storageMap.get(targetUnit)
+	else
+		return null
+
+public function addStorage(unit targetUnit) returns Storage  // TODO: maybe this should be automated rather than be definable manually by other systems
+	if storageMap.has(targetUnit)
+		return storageMap.get(targetUnit)
+	var maxCapacity = getMaxCapacity(GetUnitTypeId(targetUnit))
+	if maxCapacity > 0
+		var storage = new Storage(targetUnit, maxCapacity)
+		storageMap.put(targetUnit, storage)
+		return storage
+	else
+		return null
+
+/** Returns the amount of wares that couldn't be transfered */
+public function transferWares(unit sourceUnit, unit targetUnit) returns int  // TODO: 0 count wares are possible, fix
+	// Check if wares can be transfered:
+	if storageMap.has(sourceUnit) and storageMap.has(targetUnit)
+		var sourceStorage = storageMap.get(sourceUnit)
+		var targetStorage = storageMap.get(targetUnit)
+		// Transfere wares:
+		while sourceStorage.getAmountOfWareTypes() > 0
+			var ware = sourceStorage.getWare(0)
+			var excess = targetStorage.addWare(ware)
+			ware.count -= excess
+			sourceStorage.removeWare(ware)
+			if excess > 0
+				return sourceStorage.getUsedCapacity()
+		return 0
+	else
+		return -1
+
+/** Sets system relevant infos for given object in target multiboard */
+public function setObjectInfoMultiboard(multiboard targetMultiboard, Storage storage) returns bool
+	addMultiboardLine(targetMultiboard, "Storage:", BaseIconType.Headline.getIconPath())
+	addMultiboardLine(targetMultiboard, "Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), BaseIconType.Capacity.getIconPath())
+	for i = 0 to (storage.getAmountOfWareTypes() - 1)
+		var ware = storage.getWare(i)
+		addMultiboardLine(targetMultiboard, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+	return true
+
+init
+	// Add a storage to every appropriate existing unit:
+	for playerNumber = 0 to countPlayers - 1
+		group allPlayerUnits = GetUnitsOfPlayerAll(Player(playerNumber))
+		for u in allPlayerUnits
+			var maxCapacity = getMaxCapacity(GetUnitTypeId(u))
+			if maxCapacity > 0
+				storageMap.put(u, new Storage(u, maxCapacity))
+		allPlayerUnits.destr()
+	// TODO: add a storage to every appropriate new unit
+	// Register transferWares spell:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
+		if GetSpellAbilityId() == AbilityIdsCustom.transferWares
+			transferWares(GetTriggerUnit(), GetSpellTargetUnit())

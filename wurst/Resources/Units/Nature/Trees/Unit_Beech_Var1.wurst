@@ -1,0 +1,35 @@
+package Unit_Beech_Var1
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.beechVar1, UnitIds.murlochut0)
+    // Art:
+    ..setDeathTimeseconds(2.)
+    ..setGroundTexture("")
+    ..setIconGameInterface(Icons.bTNNightElfBuild)
+    ..presetMaximumAngles(0., 0.)
+    ..setModelFile(ImportPaths.beechVar1)
+    ..setProjectileImpactZ(20.)
+    ..setScalingValue(0.72)
+    ..setSelectionScale(0.8)
+    ..setShadowTextureBuilding(Textures.shadowCage)
+    // Editor:
+    ..setCanDropItemsOnDeath(false)
+    ..setCategorizationSpecial(false)
+    ..setTilesets("*")  // All
+    // Pathing:
+    ..setCollisionSize(32.)
+    ..setPathingMap("PathTextures\\2x2Default.tga")
+    // Sound:
+    ..setUnitSoundSet("")
+    // Stats:
+    ..setHitPointsMaximumBase(100)
+    ..setRace(Race.Critters)
+    ..setUnitClassification("ancient")
+    // Text:
+    ..presetNameAndTooltips(true, "Beech", "(Variation 1)", "Fast growing leaf tree.")

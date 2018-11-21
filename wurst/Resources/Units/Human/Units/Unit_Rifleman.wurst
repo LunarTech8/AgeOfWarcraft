@@ -1,0 +1,26 @@
+package Unit_Rifleman
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.rifleman, UnitIds.rifleman)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(.4)
+    ..setSelectionScale(.5)
+    ..presetShadowImage(22.5, 50.)
+    // Combat:
+    ..presetAttackRange(true, 200, 125.)
+    // Movement:
+    ..setSpeedBase(60)
+    // Pathing:
+    ..setCollisionSize(12.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(false, "Rifleman", "Adcanced ranged unit.")

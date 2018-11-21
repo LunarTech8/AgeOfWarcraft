@@ -1,0 +1,36 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Preset class based on BuildingDefinition that adds additional preset functions for building defintion packages.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package BuildingPreset
+import UnitObjEditing
+import ObjectIds
+import public Assets
+import public ConstantDataSystem
+import public UnitsPresetFunctions
+import public ObjEditingCommons
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public class BuildingPreset extends BuildingDefinition
+
+	construct(int newId, int originId)
+		super(newId, originId)
+
+	function presetUpgradesTo(vararg int buildingIds)
+		var buildingString = ""
+		for buildingId in buildingIds
+			buildingString += buildingId.toRawCode() + ","
+		if buildingString != ""
+			buildingString = buildingString.substring(0, buildingString.length()-1)
+		this.setUpgradesTo(buildingString)

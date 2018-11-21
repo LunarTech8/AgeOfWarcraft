@@ -1,0 +1,275 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Provides generic lists based on dynamic arrays.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package ArrayList
+
+
+// --------------------
+// Functional code
+// --------------------
+
+interface IArrayList<T>
+	function getSize() returns int
+	function getUsedSlots() returns int
+	function getElem(int index) returns T
+	function setElem(T elem, int index)
+	function add(T elem)
+	function add(T elem, int index)
+	function remove(int index)
+	function getIndex(T elem) returns int
+
+class ArrayListBase<T>
+	protected var usedSlots = 0
+
+	protected function checkSlot(int index, int size)
+		if index > size
+			Log.error("ERROR: Given index (" + index.toString() + ") is bigger than size of ArrayList (" + size.toString() + ")")
+		else if index > usedSlots
+			Log.error("ERROR: Size of ArrayList has to be bigger than 0")
+
+class ArrayListSize2<T> extends ArrayListBase implements IArrayList<T>
+	private let size = 2
+	private T array[size] data
+
+	override function getSize() returns int
+		return size
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index, size)
+		return data[index]
+
+	override function setElem(T elem, int index)
+		checkSlot(index, size)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		data[usedSlots] = elem
+
+	override function add(T elem, int index)
+		usedSlots++
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		for i = index to usedSlots - 2
+			data[i] = data[i + 1]
+		usedSlots--
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return 0
+
+class ArrayListSize4<T> extends ArrayListBase implements IArrayList<T>
+	private let size = 4
+	private T array[size] data
+
+	override function getSize() returns int
+		return size
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index, size)
+		return data[index]
+
+	override function setElem(T elem, int index)
+		checkSlot(index, size)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		data[usedSlots] = elem	
+		
+	override function add(T elem, int index)
+		usedSlots++
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		for i = index to usedSlots - 2
+			data[i] = data[i + 1]
+		usedSlots--
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return 0
+
+class ArrayListSize8<T> extends ArrayListBase implements IArrayList<T>
+	private let size = 8
+	private T array[size] data
+
+	override function getSize() returns int
+		return size
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index, size)
+		return data[index]
+
+	override function setElem(T elem, int index)
+		checkSlot(index, size)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		data[usedSlots] = elem	
+		
+	override function add(T elem, int index)
+		usedSlots++
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		for i = index to usedSlots - 2
+			data[i] = data[i + 1]
+		usedSlots--
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return 0
+		
+public class ArrayList<T>
+	private let minSize = 2
+	private let maxSize = 8
+	private IArrayList<T> data
+
+	construct(int startSize)
+		data = createData(validizeSize(startSize))
+
+	ondestroy
+		destroy data
+
+	private function createData(int validatedSize) returns IArrayList<T>
+		switch validatedSize
+			case 2
+				return new ArrayListSize2<T>()
+			case 4
+				return new ArrayListSize4<T>()	
+			case 8
+				return new ArrayListSize8<T>()
+		return null
+
+	private function validizeSize(int size) returns int
+		if size <= 0
+			Log.error("ERROR: Size of ArrayList has to be bigger than 0")
+		else if size > maxSize
+			Log.error("ERROR: Size of ArrayList can't be bigger than " + maxSize.toString())
+		var validatedSize = minSize
+		while size > validatedSize
+			validatedSize *= 2
+		return validatedSize
+
+	private function copyData(IArrayList<T> srcData, IArrayList<T> trgData) returns IArrayList<T>
+		for i = 0 to srcData.getUsedSlots()
+			trgData.setElem(srcData.getElem(i), i)
+		return trgData
+
+	private function resize(int newSize)
+		let validatedSize = validizeSize(newSize)
+		if validatedSize == data.getSize()
+			return
+		if validatedSize < data.getUsedSlots()
+			Log.error("ERROR: Can't resize ArrayList to " + validatedSize.toString() + " because it is smaller than the used slots " + data.getUsedSlots().toString())
+		data = copyData(data, createData(validatedSize))
+	
+	/** Get the size of the list */	
+	function size() returns int
+		return data.getUsedSlots()
+
+	/** Return whether the list is empty */
+	function isEmpty() returns bool
+		return data.getUsedSlots() == 0
+		
+	/** Return whether the element exists in the list */
+	function has(T elem) returns bool
+		return data.getIndex(elem) != 0
+
+	/** Set an existing element at the given position to a new value */
+	function set(int index, T elem)
+		data.setElem(elem, index)
+
+	/** Get the last element from this list */
+	function get() returns T
+		return data.getElem(data.getUsedSlots())
+	/** Get the element at the given index from this list */
+	function get(int index) returns T
+		return data.getElem(index)
+
+	/** Add elements to the end of the list */
+	function add(vararg T elems)
+		let size = data.getSize()
+		for elem in elems
+			if data.getUsedSlots() >= size
+				resize(size + 1)
+			data.add(elem)
+	/** Adds the given element directly at the given index shifting the following elements towards the back */
+	function add(T elem, int index)
+		let size = data.getSize()
+		if data.getUsedSlots() >= size
+			resize(size + 1)
+		data.add(elem, index)
+
+	/** Remove the first occurence of the element from this list */
+	function remove(T elem)
+		remove(data.getIndex(elem))
+	/** Remove the element at the given index */
+	function remove(int index)
+		let newUsedSlots = data.getUsedSlots() - 1
+		data.remove(index)
+		if validizeSize(newUsedSlots) < data.getSize()
+			resize(newUsedSlots)
+			
+	/** Remove all elements from this list without destroying it */
+	function clear()
+		destroy data
+		data = createData(minSize)
+
+			
+// --------------------
+// Test code
+// --------------------
+ 
+@test function testCreate()
+	ArrayList<int> a = new ArrayList<int>(4)
+	a.add(5)
+	var b = new ArrayList<int>(3)
+	b.add(7)
+	a = b
+	a.get().assertEquals(7)
+	a.get().assertEquals(6)
+	
+@test function testAddAndGet()
+	var a = new ArrayList<int>(1)
+	a.add(5)
+	if a.get(1) != 5
+		testFail("a")
+	a.add(8)
+	if a.get(2) != 8
+		testFail("b")
+	a.add(7)
+	if a.get(3) != 7
+		testFail("c")

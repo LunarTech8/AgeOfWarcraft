@@ -1,0 +1,89 @@
+// package CustomAbilitiesAddSystem
+// import RegisterEvents
+// import HashMap
+// import AbilityIds
+// import ObjectIdSystem
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// let abilityIdMap = new HashMap<int, IAbilityIds>
+
+// function initAbilityIdMap()
+// 	abilityIdMap.put(UnitIdsCustom.peasant, new AbilityIdsSize1(AbilityIdsCustom.harvest))
+// 	// TEST START
+// 	abilityIdMap.put(UnitIdsCustom.footman, new AbilityIdsSize3(AbilityIds.bloodlust, AbilityIds.ensnare, AbilityIdsCustom.showTargetInfo))
+// 	// TEST END
+
+
+// // --------------------
+// // Functional code
+// // --------------------
+
+// interface IAbilityIds
+// 	function addAbilities(unit targetUnit)
+
+// class AbilityIdsSize1 implements IAbilityIds
+// 	let size = 1
+// 	constant int array[size] abilityIds
+
+// 	construct(int abilityId01)
+// 		this.abilityIds[0] = abilityId01
+
+// 	override function addAbilities(unit targetUnit)
+// 		for i = 0 to size - 1
+// 			targetUnit.addAbility(abilityIds[i])
+
+// class AbilityIdsSize2 implements IAbilityIds
+// 	let size = 2
+// 	constant int array[size] abilityIds
+
+// 	construct(int abilityId01, int abilityId02)
+// 		this.abilityIds[0] = abilityId01
+// 		this.abilityIds[1] = abilityId02
+
+// 	override function addAbilities(unit targetUnit)
+// 		for i = 0 to size - 1
+// 			targetUnit.addAbility(abilityIds[i])
+
+// class AbilityIdsSize3 implements IAbilityIds
+// 	let size = 3
+// 	constant int array[size] abilityIds
+
+// 	construct(int abilityId01, int abilityId02, int abilityId03)
+// 		this.abilityIds[0] = abilityId01
+// 		this.abilityIds[1] = abilityId02
+// 		this.abilityIds[2] = abilityId03
+
+// 	override function addAbilities(unit targetUnit)
+// 		for i = 0 to size - 1
+// 			targetUnit.addAbility(abilityIds[i])
+
+// function addCustomAbilities(unit targetUnit) returns unit
+// 	let unitId = targetUnit.getTypeId()
+// 	if abilityIdMap.has(unitId)
+// 		abilityIdMap.get(unitId).addAbilities(targetUnit)
+// 	return targetUnit
+
+// public function createUnit(player p, int unitId, vec2 pos, angle facing, bool customUnit) returns unit
+// 	if customUnit
+// 		return addCustomAbilities(createUnit(p, unitId, pos, facing))
+// 	return createUnit(p, unitId, pos, facing)
+// public function createUnit(player p, int unitId, vec3 pos, angle facing, bool customUnit) returns unit
+// 	if customUnit
+// 		return addCustomAbilities(createUnit(p, unitId, pos, facing))
+// 	return createUnit(p, unitId, pos, facing)
+
+// init
+// 	initAbilityIdMap()
+// 	// Add custom abilities to new units:
+// 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_TRAIN_FINISH) -> 
+// 		addCustomAbilities(GetTrainedUnit())
+// 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_FINISH) -> 
+// 		addCustomAbilities(GetConstructedStructure())
+// 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH) -> 
+// 		addCustomAbilities(GetTriggerUnit())
+// 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SUMMON) -> 
+// 		addCustomAbilities(GetSummonedUnit())

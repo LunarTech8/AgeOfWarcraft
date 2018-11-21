@@ -1,0 +1,177 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+This system shows each player informations about his currently targeted object in a multiboard and periodically refreshes these informations.
+Objects can be targeted by using the "Show Target Info" ability on it. Units are also targeted by simply selecting them.
+The currently supported object types are: Units and destructables (Adjust the "Show Target Info" ability adequately)
+
+Other systems can show system relevant info through a public function setObjectInfoMultiboard that should be called and priorized through the createMultiboardLines function.
+These other systems can set the relevant info through the use of the addMultiboardLine function that is defined in the MultiboardPrioritySystem package.
+
+Add new lines with "AddMultiboardline" with a text and an icon input.
+Add head/subhead lines by setting the icon path of a line to "UI\\Minimap\\MinimapIconCreepLoc2.blp"/"UI\\Minimap\\MinimapIconCreepLoc2.blp".
+You can show different types of informations depending on the targeted object by adding if-else conditions, etc.
+Use "AddArrow" to mark objects that are linked in a way to the current targeted object.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package ObjectInfoSystem
+import RegisterEvents
+import TimerUtils
+import MultiboardPrioritySystem
+import StorageSystem
+import ResourceSystem
+import ConstantDataSystem
+
+
+// --------------------
+// Data code
+// --------------------
+
+let countPlayers = 12  // Highest player slot in use
+let multiboardPriority = 1
+let adjustingTime = 0.5
+
+	
+// --------------------
+// Functional code
+// --------------------
+
+Dataset array datasets
+
+class Dataset
+	private constant int playerID
+	private multiboard usedMultiboard
+	private timer adjustingTimer
+	unit targetedUnit  // TODO: make private and handle the variable over public functions instead
+	destructable targetedDestructable  // TODO: make private and handle the variable over public functions instead
+
+	construct(int playerID)
+		this.playerID = playerID
+		usedMultiboard = null
+		adjustingTimer = getTimer()
+		targetedUnit = null
+		targetedDestructable = null
+
+	ondestroy
+		DestroyMultiboard(usedMultiboard)
+		adjustingTimer.release()
+
+	function getMultiboard() returns multiboard
+		if usedMultiboard == null
+			// Initialize multiboard:
+			usedMultiboard = CreateMultiboard()
+			MultiboardSetTitleText(usedMultiboard, "Object Informations")
+			MultiboardSetColumnCount(usedMultiboard, 1)
+			MultiboardMinimize(usedMultiboard, false)
+		return usedMultiboard
+
+	function resetMultiboard()
+		if usedMultiboard != null
+			DestroyMultiboard(usedMultiboard)  // Use destroy because clear doesn't remove the lines
+			usedMultiboard = null
+			
+	function displayMultiboard(integer playerID, boolean show)
+		if usedMultiboard != null
+			if GetLocalPlayer() == Player(playerID)
+				// Use only local code (no net traffic) within this block to avoid desyncs.
+				MultiboardDisplay(usedMultiboard, show)
+		else if show
+			Log.error("ERROR: Empty multiboard can't be displayed")
+
+	function setTimer(real adjustingTime)
+		if adjustingTime > 0.
+			adjustingTimer.setData(playerID)
+			adjustingTimer.startPeriodic(adjustingTime, () -> showObjectInfo(GetExpiredTimer().getData()))
+		else
+			adjustingTimer.pause()
+
+/** Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system */
+function createMultiboardLines(integer playerID) returns boolean
+	// Check info sources that require ownerhsip by the given player:
+	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
+		var storage = getStorage(datasets[playerID].targetedUnit)
+		if storage != null
+			return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), storage)
+	// Check info sources that do not require specific ownerhsip:
+	var resource = getResource(datasets[playerID].targetedUnit)
+	if resource != null
+		return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), resource)
+	return false
+
+function showObjectInfo(integer playerID)
+	var dataset = datasets[playerID]
+	// Check if unit is still selected:
+	if dataset.targetedUnit != null and IsUnitSelected(dataset.targetedUnit, Player(playerID)) == false
+		// Hide multiboard:
+		dataset.setTimer(0.)
+		dataset.targetedUnit = null
+		if deactivateMultiboard(playerID, "ObjectInfoSystem")
+			dataset.displayMultiboard(playerID, false)
+	// Activate multiboard for this system if possible:
+	else if activateMultiboard(playerID, multiboardPriority, "ObjectInfoSystem")
+		// Reset multiboard data:
+		dataset.resetMultiboard()
+		// Get object informations:
+		if createMultiboardLines(playerID)
+			// Show multiboard:
+			dataset.displayMultiboard(playerID, true)
+		else
+			// Hide multiboard:
+			dataset.setTimer(0.)
+			dataset.targetedUnit = null
+			dataset.targetedDestructable = null
+			if deactivateMultiboard(playerID, "ObjectInfoSystem")
+				dataset.displayMultiboard(playerID, false)
+	// Stop timer because multiboard couldn't be used:
+	else
+		dataset.setTimer(0.)
+	
+init
+	// Init variables:
+	for i = 0 to countPlayers - 1
+		datasets[i] = new Dataset(i)
+		if datasets[i] == null
+			Log.error("ERROR: InfoBoard struct cap exceeded")
+	// Register unit selections:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED) ->
+		var playerID = GetPlayerId(GetTriggerPlayer())
+		var dataset = datasets[playerID]
+		// Remove old informations:
+		dataset.setTimer(0.)
+		// Get new unit informations:
+		dataset.targetedUnit = GetTriggerUnit()
+		if dataset.targetedUnit != null
+			dataset.targetedDestructable = null
+			dataset.setTimer(adjustingTime)
+			showObjectInfo(playerID)
+	// Register showTargetInfo spell:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
+		if GetSpellAbilityId() == AbilityIdsCustom.showTargetInfo
+			var playerID = GetPlayerId(GetTriggerPlayer())
+			var targetUnit = GetSpellTargetUnit()
+			var dataset = datasets[playerID]
+			// TEST START
+			print("SHOW_TARGET_INFO cast")
+			// TEST END
+			// Remove old informations:
+			dataset.setTimer(0.)
+			if GetLocalPlayer() == Player(playerID)
+				// Use only local code (no net traffic) within this block to avoid desyncs.
+				ClearSelection()
+			// Get new object informations:
+			if targetUnit != null
+				if GetLocalPlayer() == Player(playerID)
+					// Use only local code (no net traffic) within this block to avoid desyncs.
+					SelectUnit(targetUnit, true)
+			else
+				dataset.targetedDestructable = GetSpellTargetDestructable()
+				if dataset.targetedDestructable != null
+					dataset.targetedUnit = null
+					dataset.setTimer(adjustingTime)
+					showObjectInfo(playerID)
+	

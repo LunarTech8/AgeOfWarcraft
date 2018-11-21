@@ -1,0 +1,47 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Preset class based on UnitDefinition that adds additional preset functions for unit defintion packages.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package UnitPreset
+import UnitObjEditing
+import ObjectIds
+import public Assets
+import public ConstantDataSystem
+import public UnitsPresetFunctions
+import public ObjEditingCommons
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public class UnitPreset extends UnitDefinition
+	
+	construct(int newId, int originId)
+		super(newId, originId)
+	
+	function presetStructuresBuilt(vararg int buildingIds)
+		var buildingString = ""
+		for buildingId in buildingIds
+			buildingString += buildingId.toRawCode() + ","
+		if buildingString != ""
+			buildingString = buildingString.substring(0, buildingString.length()-1)
+		setStructuresBuilt(buildingString)
+
+	function presetShadowImage(real centerX, real centerY, real width, real height)
+		setShadowImageCenterX(centerX)
+		setShadowImageCenterY(centerY)
+		setShadowImageWidth(width)
+		setShadowImageHeight(height)
+	function presetShadowImage(real centerXAndY, real widthAndHeight)
+		setShadowImageCenterX(centerXAndY)
+		setShadowImageCenterY(centerXAndY)
+		setShadowImageWidth(widthAndHeight)
+		setShadowImageHeight(widthAndHeight)

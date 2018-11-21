@@ -1,0 +1,86 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Tracks the priority and name of the currently used multiboard for every player.
+Checks if a new multiboard can be used through the return value of activateMultiboard.
+Also provides standardized multiboard utility functions.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package MultiboardPrioritySystem
+	
+
+// --------------------
+// Data code
+// --------------------
+
+let countPlayers = 12  // Highest player slot in use
+
+enum BaseIconType
+	Headline
+	SubHeadline
+	Capacity
+
+public function BaseIconType.getIconPath() returns string
+	switch this
+		case Headline
+			return "UI\\Minimap\\MinimapIconCreepLoc2.blp"
+		case SubHeadline
+			return "UI\\Minimap\\MinimapIconCreepLoc.blp"
+		case Capacity
+			return "ReplaceableTextures\\CommandButtons\\BTNSnazzyScroll.blp"
+		default
+			return null
+
+
+// --------------------
+// Functional code
+// --------------------
+
+MultiboardDataset array multiboardDatasets
+
+class MultiboardDataset
+	int priority
+	string name
+
+	construct()
+		priority = 0
+		name = null
+
+public function activateMultiboard(integer playerID, integer priority, string name) returns boolean
+	if (priority >= multiboardDatasets[playerID].priority)
+		multiboardDatasets[playerID].priority = priority
+		multiboardDatasets[playerID].name = name
+		return true
+	return false
+
+public function deactivateMultiboard(integer playerID, string name) returns boolean
+	if (name == multiboardDatasets[playerID].name)
+		multiboardDatasets[playerID].priority = 0
+		multiboardDatasets[playerID].name = null
+		return true
+	return false
+
+public function addMultiboardLine(multiboard targetMultiboard, string text, string iconPath)
+	var lineNumber = MultiboardGetRowCount(targetMultiboard) + 1
+	MultiboardSetRowCount(targetMultiboard, lineNumber)
+	let multiboardItem = MultiboardGetItem(targetMultiboard, lineNumber - 1, 0)
+	MultiboardSetItemValue(multiboardItem, text)
+	MultiboardSetItemIcon(multiboardItem, iconPath)
+	if iconPath == BaseIconType.Headline.getIconPath()
+		MultiboardSetItemValueColor(multiboardItem, 255, 0, 0, 255)
+	else if iconPath == BaseIconType.SubHeadline.getIconPath()
+		MultiboardSetItemValueColor(multiboardItem, 255, 200, 0, 255)
+	MultiboardSetItemWidth(multiboardItem, 0.15)
+	MultiboardReleaseItem(multiboardItem)
+
+init
+	// Init variables:
+	for i = 0 to countPlayers - 1
+		multiboardDatasets[i] = new MultiboardDataset()
+		if multiboardDatasets[i] == null
+			Log.error("ERROR: MultiboardInfo struct cap exceeded")

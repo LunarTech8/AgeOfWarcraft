@@ -1,0 +1,20 @@
+package Unit_ScoutTower
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.scoutTower, UnitIds.scouttower)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUpgradesTo(UnitIdsCustom.guardTower, UnitIdsCustom.cannonTower, UnitIdsCustom.arcaneTower)
+    // Text:
+    ..presetNameAndTooltips(true, "ScoutTower", "Basic defence structure.")

@@ -1,0 +1,26 @@
+package Unit_Knight
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.knight, UnitIds.knight)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(.5)
+    ..setSelectionScale(.7)
+    ..presetShadowImage(37.5, 95.)
+    // Combat:
+    ..presetAttackRange(true, 40, 100.)
+    // Movement:
+    ..setSpeedBase(200)
+    // Pathing:
+    ..setCollisionSize(16.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(false, "Knight", "Mounted soldier unit.")

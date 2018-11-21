@@ -1,0 +1,20 @@
+package Unit_TownHall
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.townHall, UnitIds.townhall)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUpgradesTo(UnitIdsCustom.keep)
+    // Text:
+    ..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")

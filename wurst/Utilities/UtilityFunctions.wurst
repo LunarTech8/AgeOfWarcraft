@@ -1,0 +1,34 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Contains generic utility functions that aren't tied directly to a specific system.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package UtilityFunctions
+import StorageSystem
+import ResourceSystem
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public function getRandomAngle() returns angle
+	return angle(GetRandomReal(0., PI2))
+public function getRandomAngle(real min, real max) returns angle
+	if min < 0. or max > PI2 or min > max
+		Log.error("ERROR: Invalid min and/or max value")
+	return angle(GetRandomReal(min, max))
+
+public function createUnit(player p, int unitId, vec2 pos, angle facing, bool addToRelevantSystems) returns unit  // TODO: maybe this can improved so it does not require addToRelevantSystems
+	var newUnit = createUnit(p, unitId, pos, facing)
+	if addToRelevantSystems
+		addStorage(newUnit)
+		addResource(newUnit)
+	return newUnit
+	

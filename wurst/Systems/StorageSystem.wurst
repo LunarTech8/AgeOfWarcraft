@@ -11,6 +11,7 @@ Initial version.
 -------------------------------------------------------------*/
 package StorageSystem
 import RegisterEvents
+import ArrayList
 import LinkedList
 import HashMap
 import Icons
@@ -120,6 +121,9 @@ class Storage
 			Log.error("ERROR: Index has to be smaller than list size")
 		return wares.get(index).data
 		
+	function getLastWare() returns Ware
+		return wares.peek().data
+		
 	function getAmountOfWareTypes() returns int
 		return wares.size()
 
@@ -133,27 +137,33 @@ class Storage
 		return maxCapacity - usedCapacity
 
 	function addWare(Ware ware) returns int
-		// Check and adjust capacity:
 		var excess = 0
-		if ware.count > maxCapacity - usedCapacity
-			excess = ware.count - (maxCapacity - usedCapacity)
-		usedCapacity += ware.count - excess
-		// Adjust ware object:
-		for iWare in wares
-			if iWare.data.hasSameType(ware)
-				iWare.data.count += ware.count - excess
-				// Return excess count:
-				return excess
-		wares.add(new WareObject(ware.changeCount(-excess)))
-		// Return excess count:
-		return excess
+		var freeCapacity = getFreeCapacity()
+		if freeCapacity > 0
+			// Check and adjust capacity:
+			if ware.count > freeCapacity
+				excess = ware.count - freeCapacity
+			usedCapacity += ware.count - excess
+			// Adjust ware object:
+			for iWare in wares
+				if iWare.data.hasSameType(ware)
+					iWare.data.count += ware.count - excess
+					// Return excess count:
+					return excess
+			// Add new ware object if none exists of that type yet:
+			wares.add(new WareObject(ware.changeCount(-excess)))
+			// Return excess count:
+			return excess
+		else
+			// Return excess count:
+			return ware.count
 	
 	function removeWare(Ware ware) returns int
 		for iWare in wares
 			if iWare.data.hasSameType(ware)
 				var shortage = 0
 				// Check and adjust ware object:
-				if iWare.data.count < ware.count
+				if iWare.data.count <= ware.count
 					shortage = ware.count - iWare.data.count
 					wares.remove(iWare)
 				else
@@ -184,17 +194,18 @@ public function addStorage(unit targetUnit) returns Storage  // TODO: maybe this
 		return null
 
 /** Returns the amount of wares that couldn't be transfered */
-public function transferWares(unit sourceUnit, unit targetUnit) returns int  // TODO: 0 count wares are possible, fix
+public function transferWares(unit sourceUnit, unit targetUnit) returns int
 	// Check if wares can be transfered:
 	if storageMap.has(sourceUnit) and storageMap.has(targetUnit)
 		var sourceStorage = storageMap.get(sourceUnit)
 		var targetStorage = storageMap.get(targetUnit)
 		// Transfere wares:
 		while sourceStorage.getAmountOfWareTypes() > 0
-			var ware = sourceStorage.getWare(0)
+			var ware = sourceStorage.getLastWare()
 			var excess = targetStorage.addWare(ware)
-			ware.count -= excess
-			sourceStorage.removeWare(ware)
+			if excess < ware.count
+				ware.count -= excess
+				sourceStorage.removeWare(ware)
 			if excess > 0
 				return sourceStorage.getUsedCapacity()
 		return 0

@@ -157,6 +157,8 @@ public class ArrayList<T>
 	private let maxSize = 8
 	private IArrayList<T> data
 
+	construct()
+		data = createData(validizeSize(minSize))
 	construct(int startSize)
 		data = createData(validizeSize(startSize))
 
@@ -212,13 +214,22 @@ public class ArrayList<T>
 	function set(int index, T elem)
 		data.setElem(elem, index)
 
-	/** Get the last element from this list */
-	function get() returns T
-		return data.getElem(data.getUsedSlots())
 	/** Get the element at the given index from this list */
 	function get(int index) returns T
 		return data.getElem(index)
 
+	/** Get the first element from this list */
+	function getFirst() returns T
+		if isEmpty()
+			return null
+		return data.getElem(0)
+		
+	/** Get the last element from this list */
+	function getLast() returns T
+		if isEmpty()
+			return null
+		return data.getElem(data.getUsedSlots())
+		
 	/** Add elements to the end of the list */
 	function add(vararg T elems)
 		let size = data.getSize()
@@ -248,7 +259,34 @@ public class ArrayList<T>
 		destroy data
 		data = createData(minSize)
 
-			
+	/** Get an iterator for this list */
+	function iterator() returns ALIterator<T>
+		return new ALIterator(this)	
+				
+public class ALIterator<T>
+	protected int i = 0
+	protected ArrayList<T> list
+
+	construct(ArrayList<T> list)
+		this.list = list
+		
+	function hasNext() returns boolean
+		return i < list.size()
+		
+	function lookahead() returns T
+		T retVal = null
+		if hasNext()
+			retVal = list.get(i)
+		return retVal
+		
+	function next() returns T
+		i++
+		return list.get(i-1)
+
+	function close()
+		destroy this
+
+		
 // --------------------
 // Test code
 // --------------------
@@ -259,8 +297,8 @@ public class ArrayList<T>
 	var b = new ArrayList<int>(3)
 	b.add(7)
 	a = b
-	a.get().assertEquals(7)
-	a.get().assertEquals(6)
+	a.getLast().assertEquals(7)
+	a.getLast().assertEquals(6)
 	
 @test function testAddAndGet()
 	var a = new ArrayList<int>(1)

@@ -8,8 +8,8 @@ init
 	// Create player units:
 	var p = Player(0)
 	for i = 1 to 5
-		var u = createUnit(p, UnitIdsCustom.peasant, originVec, angle(0.))
-		var storage = addStorage(u)
+		var u = createUnit(p, UnitIdsCustom.peasant, originVec, angle(0.), true)
+		var storage = getStorage(u)
 		if storage != null
 			storage.addWare(Ware(WareType.Food, GetRandomInt(1, 10)))
 	createUnit(p, UnitIdsCustom.footman, originVec, angle(0.))

@@ -23,12 +23,12 @@ import StorageSystem
 
 let countPlayers = 12  // Highest player slot in use
 
-function getDefaultWares(int unitTypeId) returns Ware
+function getDefaultWares(int unitTypeId) returns ware
 	switch unitTypeId
 		case UnitIdsCustom.beechVar1
-			return Ware(WareType.Wood, GetRandomInt(6, 8))
+			return ware(WareType.Wood, GetRandomInt(6, 8))
 		default
-			return Ware(WareType.Empty, 0)
+			return ware(WareType.Empty, 0)
 
 function isKilledWhenDepleted(int unitTypeId) returns bool
 	switch unitTypeId
@@ -50,12 +50,12 @@ class Resource
 	private LinkedList<WareObject> wares
 
 	static class WareObject
-		Ware data
+		ware data
 	
-		construct(Ware ware)
+		construct(ware ware)
 			data = ware
 	
-	construct(unit resourceUnit, bool isKilledWhenDepleted, Ware defaultWares)
+	construct(unit resourceUnit, bool isKilledWhenDepleted, ware defaultWares)
 		this.resourceUnit = resourceUnit
 		this.isKilledWhenDepleted = isKilledWhenDepleted
 		wares = new LinkedList<WareObject>()
@@ -64,7 +64,7 @@ class Resource
 	ondestroy
 		destroy wares
 
-	function getWare(int index) returns Ware
+	function getWare(int index) returns ware
 		if index >= wares.size()
 			Log.error("ERROR: Index has to be smaller than list size")
 		return wares.get(index).data

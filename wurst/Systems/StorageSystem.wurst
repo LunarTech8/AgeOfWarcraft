@@ -24,6 +24,7 @@ import MultiboardPrioritySystem
 // --------------------
 	
 let countPlayers = 12  // Highest player slot in use
+let wareMaxCount = 99999  // Is limited to allow tuple to be converted into a single int
 
 function getMaxCapacity(int unitTypeId) returns int
 	switch unitTypeId
@@ -78,33 +79,41 @@ function WareType.getIconPath() returns string
 
 let storageMap = new HashMap<unit, Storage>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
-public tuple Ware(WareType wareType, int count)
+public tuple ware(WareType wareType, int count)
 
-public function Ware.hasSameType(Ware otherWare) returns bool
+function wareToIndex(ware w) returns int
+	return w.count + (w.wareType castTo int) * (wareMaxCount + 1)
+
+function wareFromIndex(int index) returns ware
+	let count = index mod (wareMaxCount + 1)
+	let wareType = ((index - count) div (wareMaxCount + 1)) castTo WareType
+	return ware(wareType, count)
+
+public function ware.hasSameType(ware otherWare) returns bool
 	return (this.wareType == otherWare.wareType)
 
-public function Ware.toString(bool upperCase) returns string
+public function ware.toString(bool upperCase) returns string
 	if upperCase
 		return this.wareType.toString().firstUpper()
 	else
 		return this.wareType.toString()
 
-public function Ware.getIconPath() returns string
+public function ware.getIconPath() returns string
 	return this.wareType.getIconPath()
 
-public function Ware.changeCount(int change) returns Ware
-	return Ware(this.wareType, this.count + change)
+public function ware.changeCount(int change) returns ware
+	return ware(this.wareType, this.count + change)
 
 class Storage
 	private unit storageUnit
 	private int maxCapacity
 	private int usedCapacity
-	private LinkedList<WareObject> wares  // TODO: probably replace LinkedList with ArrayList so that the WareObject class can be omitted
+	private LinkedList<WareObject> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
 
 	static class WareObject
-		Ware data
+		ware data
 	
-		construct(Ware ware)
+		construct(ware ware)
 			data = ware
 	
 	construct(unit storageUnit, int maxCapacity)
@@ -116,12 +125,12 @@ class Storage
 	ondestroy
 		destroy wares
 
-	function getWare(int index) returns Ware
+	function getWare(int index) returns ware
 		if index >= wares.size()
 			Log.error("ERROR: Index has to be smaller than list size")
 		return wares.get(index).data
 		
-	function getLastWare() returns Ware
+	function getLastWare() returns ware
 		return wares.peek().data
 		
 	function getAmountOfWareTypes() returns int
@@ -136,7 +145,7 @@ class Storage
 	function getFreeCapacity() returns int
 		return maxCapacity - usedCapacity
 
-	function addWare(Ware ware) returns int
+	function addWare(ware ware) returns int
 		var excess = 0
 		var freeCapacity = getFreeCapacity()
 		if freeCapacity > 0
@@ -158,7 +167,7 @@ class Storage
 			// Return excess count:
 			return ware.count
 	
-	function removeWare(Ware ware) returns int
+	function removeWare(ware ware) returns int
 		for iWare in wares
 			if iWare.data.hasSameType(ware)
 				var shortage = 0

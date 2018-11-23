@@ -11,7 +11,7 @@ init
 		var u = createUnit(p, UnitIdsCustom.peasant, originVec, angle(0.), true)
 		var storage = getStorage(u)
 		if storage != null
-			storage.addWare(Ware(WareType.Food, GetRandomInt(1, 10)))
+			storage.addWare(ware(WareType.Food, GetRandomInt(1, 10)))
 	createUnit(p, UnitIdsCustom.footman, originVec, angle(0.))
 	// Create nature:
 	p = Player(PLAYER_NEUTRAL_PASSIVE)

@@ -81,10 +81,10 @@ let storageMap = new HashMap<unit, Storage>  // TODO: maybe make a general unit 
 
 public tuple ware(WareType wareType, int count)
 
-function wareToIndex(ware w) returns int
+public function wareToIndex(ware w) returns int
 	return w.count + (w.wareType castTo int) * (wareMaxCount + 1)
 
-function wareFromIndex(int index) returns ware
+public function wareFromIndex(int index) returns ware
 	let count = index mod (wareMaxCount + 1)
 	let wareType = ((index - count) div (wareMaxCount + 1)) castTo WareType
 	return ware(wareType, count)
@@ -101,26 +101,24 @@ public function ware.toString(bool upperCase) returns string
 public function ware.getIconPath() returns string
 	return this.wareType.getIconPath()
 
-public function ware.changeCount(int change) returns ware
-	return ware(this.wareType, this.count + change)
+public function ware.changedCopy(int countChange) returns ware
+	return ware(this.wareType, this.count + countChange)
+public function ware.changedCopy(WareType newWareType) returns ware
+	return ware(newWareType, this.count)
+public function ware.changedCopy(WareType newWareType, int countChange) returns ware
+	return ware(newWareType, this.count + countChange)
 
 class Storage
 	private unit storageUnit
 	private int maxCapacity
 	private int usedCapacity
-	private LinkedList<WareObject> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
+	private LinkedList<ware> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
 
-	static class WareObject
-		ware data
-	
-		construct(ware ware)
-			data = ware
-	
 	construct(unit storageUnit, int maxCapacity)
 		this.storageUnit = storageUnit
 		this.maxCapacity = maxCapacity
 		usedCapacity = 0
-		wares = new LinkedList<WareObject>()
+		wares = new LinkedList<ware>()
 
 	ondestroy
 		destroy wares
@@ -128,10 +126,10 @@ class Storage
 	function getWare(int index) returns ware
 		if index >= wares.size()
 			Log.error("ERROR: Index has to be smaller than list size")
-		return wares.get(index).data
+		return wares.get(index)
 		
 	function getLastWare() returns ware
-		return wares.peek().data
+		return wares.peek()
 		
 	function getAmountOfWareTypes() returns int
 		return wares.size()
@@ -155,12 +153,12 @@ class Storage
 			usedCapacity += ware.count - excess
 			// Adjust ware object:
 			for iWare in wares
-				if iWare.data.hasSameType(ware)
-					iWare.data.count += ware.count - excess
+				if iWare.hasSameType(ware)
+					wares.replace(iWare, iWare.changedCopy(ware.count - excess))
 					// Return excess count:
 					return excess
 			// Add new ware object if none exists of that type yet:
-			wares.add(new WareObject(ware.changeCount(-excess)))
+			wares.add(ware.changedCopy(-excess))
 			// Return excess count:
 			return excess
 		else
@@ -169,14 +167,14 @@ class Storage
 	
 	function removeWare(ware ware) returns int
 		for iWare in wares
-			if iWare.data.hasSameType(ware)
+			if iWare.hasSameType(ware)
 				var shortage = 0
 				// Check and adjust ware object:
-				if iWare.data.count <= ware.count
-					shortage = ware.count - iWare.data.count
+				if iWare.count <= ware.count
+					shortage = ware.count - iWare.count
 					wares.remove(iWare)
 				else
-					iWare.data.count -= ware.count
+					wares.replace(iWare, iWare.changedCopy(-ware.count))
 				// Adjust capacity:
 				usedCapacity -= ware.count - shortage
 				// Return shortage count:

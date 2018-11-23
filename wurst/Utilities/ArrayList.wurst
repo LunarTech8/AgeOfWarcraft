@@ -20,9 +20,9 @@ interface IArrayList<T>
 	function getSize() returns int
 	function getUsedSlots() returns int
 	function getElem(int index) returns T
-	function setElem(T elem, int index)
+	function setElem(int index, T elem)
 	function add(T elem)
-	function add(T elem, int index)
+	function add(int index, T elem)
 	function remove(int index)
 	function getIndex(T elem) returns int
 
@@ -49,7 +49,7 @@ class ArrayListSize2<T> extends ArrayListBase implements IArrayList<T>
 		checkSlot(index, size)
 		return data[index]
 
-	override function setElem(T elem, int index)
+	override function setElem(int index, T elem)
 		checkSlot(index, size)
 		data[index] = elem
 
@@ -57,7 +57,7 @@ class ArrayListSize2<T> extends ArrayListBase implements IArrayList<T>
 		usedSlots++
 		data[usedSlots] = elem
 
-	override function add(T elem, int index)
+	override function add(int index, T elem)
 		usedSlots++
 		for i = usedSlots - 1 downto index + 1
 			data[i] = data[i - 1]
@@ -88,15 +88,15 @@ class ArrayListSize4<T> extends ArrayListBase implements IArrayList<T>
 		checkSlot(index, size)
 		return data[index]
 
-	override function setElem(T elem, int index)
+	override function setElem(int index, T elem)
 		checkSlot(index, size)
 		data[index] = elem
 
 	override function add(T elem)
 		usedSlots++
-		data[usedSlots] = elem	
-		
-	override function add(T elem, int index)
+		data[usedSlots] = elem
+
+	override function add(int index, T elem)
 		usedSlots++
 		for i = usedSlots - 1 downto index + 1
 			data[i] = data[i - 1]
@@ -127,15 +127,15 @@ class ArrayListSize8<T> extends ArrayListBase implements IArrayList<T>
 		checkSlot(index, size)
 		return data[index]
 
-	override function setElem(T elem, int index)
+	override function setElem(int index, T elem)
 		checkSlot(index, size)
 		data[index] = elem
 
 	override function add(T elem)
 		usedSlots++
-		data[usedSlots] = elem	
-		
-	override function add(T elem, int index)
+		data[usedSlots] = elem
+
+	override function add(int index, T elem)
 		usedSlots++
 		for i = usedSlots - 1 downto index + 1
 			data[i] = data[i - 1]
@@ -153,7 +153,7 @@ class ArrayListSize8<T> extends ArrayListBase implements IArrayList<T>
 		return 0
 		
 public class ArrayList<T>
-	private let minSize = 2
+	private let minSize = 8 //2
 	private let maxSize = 8
 	private IArrayList<T> data
 
@@ -185,18 +185,17 @@ public class ArrayList<T>
 			validatedSize *= 2
 		return validatedSize
 
-	private function copyData(IArrayList<T> srcData, IArrayList<T> trgData) returns IArrayList<T>
-		for i = 0 to srcData.getUsedSlots()
-			trgData.setElem(srcData.getElem(i), i)
-		return trgData
-
 	private function resize(int newSize)
 		let validatedSize = validizeSize(newSize)
 		if validatedSize == data.getSize()
 			return
 		if validatedSize < data.getUsedSlots()
 			Log.error("ERROR: Can't resize ArrayList to " + validatedSize.toString() + " because it is smaller than the used slots " + data.getUsedSlots().toString())
-		data = copyData(data, createData(validatedSize))
+		let newData = createData(validatedSize)
+		for i = 0 to data.getUsedSlots()
+			newData.add(data.getElem(i))
+		destroy data
+		data = newData
 	
 	/** Get the size of the list */	
 	function size() returns int
@@ -212,7 +211,7 @@ public class ArrayList<T>
 
 	/** Set an existing element at the given position to a new value */
 	function set(int index, T elem)
-		data.setElem(elem, index)
+		data.setElem(index, elem)
 
 	/** Get the element at the given index from this list */
 	function get(int index) returns T
@@ -230,19 +229,24 @@ public class ArrayList<T>
 			return null
 		return data.getElem(data.getUsedSlots())
 		
+	/** Equal to getLast function (available for compability) */
+	function peek() returns T
+		return getLast()
+		
 	/** Add elements to the end of the list */
 	function add(vararg T elems)
-		let size = data.getSize()
+		var size = data.getSize()
 		for elem in elems
 			if data.getUsedSlots() >= size
 				resize(size + 1)
+				size = data.getSize()
 			data.add(elem)
 	/** Adds the given element directly at the given index shifting the following elements towards the back */
 	function add(T elem, int index)
 		let size = data.getSize()
 		if data.getUsedSlots() >= size
 			resize(size + 1)
-		data.add(elem, index)
+		data.add(index, elem)
 
 	/** Remove the first occurence of the element from this list */
 	function remove(T elem)
@@ -253,6 +257,14 @@ public class ArrayList<T>
 		data.remove(index)
 		if validizeSize(newUsedSlots) < data.getSize()
 			resize(newUsedSlots)
+
+	/** Replaces the first occurence of 'whichElement' with 'newElement' */
+	function replace(T whichElement, T newElement) returns boolean
+		let index = data.getIndex(whichElement)
+		if index == 0
+			return false
+		data.setElem(index, newElement)
+		return true
 			
 	/** Remove all elements from this list without destroying it */
 	function clear()
@@ -281,7 +293,7 @@ public class ALIterator<T>
 		
 	function next() returns T
 		i++
-		return list.get(i-1)
+		return list.get(i - 1)
 
 	function close()
 		destroy this

@@ -10,6 +10,8 @@ Contains generic utility functions that aren't tied directly to a specific syste
 Initial version.
 -------------------------------------------------------------*/
 package UtilityFunctions
+import Interpolation
+import Array2D
 import StorageSystem
 import ResourceSystem
 
@@ -31,4 +33,106 @@ public function createUnit(player p, int unitId, vec2 pos, angle facing, bool ad
 		addStorage(newUnit)
 		addResource(newUnit)
 	return newUnit
-	
+
+/** Throws an exception if the absolute of the given value is smaller than epsilon, else returns the value. */
+public function divByZeroProt(real value, real epsilon) returns real
+	if value.abs() <= epsilon
+		Log.error("Invalid divisor value (" + value.toString() + ")")
+	return value
+/** Throws an exception if the absolute of the given value is smaller than 10^-7, else returns the value. */
+public function divByZeroProt(real value) returns real
+	return divByZeroProt(value, 0.0000001)
+/** Throws an exception if the given value is 0, else returns the value. */
+public function divByZeroProt(int value) returns int
+	if value == 0
+		Log.error("Invalid divisor value (" + value.toString() + ")")
+	return value
+
+public function generateRandomNoise(int width, int height) returns Array2D<real>
+	let baseNoise = new Array2D<real>(width, height)
+	// Create base noise map:
+	for i = 0 to width - 1
+		for j = 0 to height - 1
+			baseNoise.set(i, j, GetRandomReal(0., 1.))
+	return baseNoise
+
+public function generateSmoothNoise(Array2D<real> baseNoise, int octave, string interpolation) returns Array2D<real>
+	// Check interpolation method:
+	var interpolationMethod = 0
+	if interpolation == "Linear"
+		interpolationMethod = 0
+	else if interpolation == "Cosine"
+		interpolationMethod = 1
+	else
+		Log.error("Invalid interpolation method")
+	// Create smooth noise map:
+	let width = baseNoise.sizeX()
+	let height = baseNoise.sizeY()
+	let smoothNoise = new Array2D<real>(width, height)
+	let samplePeriod = (2).pow(octave)
+	let sampleFrequency = 1. / samplePeriod
+	for i = 0 to width - 1
+		// Calculate the horizontal sampling indices:
+		var horizontalSampleA = (i div samplePeriod) * samplePeriod
+		var horizontalSampleB = (horizontalSampleA + samplePeriod) mod width  // Wrap around
+		var horizontalBlend = (i - horizontalSampleA) * sampleFrequency
+		if interpolationMethod == 1
+			horizontalBlend = (1 - Cos(horizontalBlend * PI)) * 0.5
+		for j = 0 to height - 1
+			// Calculate the vertical sampling indices:
+			var verticalSampleA = (j div samplePeriod) * samplePeriod
+			var verticalSampleB = (verticalSampleA + samplePeriod) mod height  // Wrap around
+			var verticalBlend = (j - verticalSampleA) * sampleFrequency
+			if interpolationMethod == 1
+				verticalBlend = (1 - Cos(verticalBlend * PI)) * 0.5
+			// Blend the top two corners:
+			var top = linear(baseNoise.get(horizontalSampleA, verticalSampleA), baseNoise.get(horizontalSampleB, verticalSampleA), horizontalBlend)
+			// Blend the bottom two corners:
+			var bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
+			// Final blend:
+			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
+	return smoothNoise
+
+/** Generates perlin map of given size (width, height) with values between 0 and 1.
+	High octave counts gernerate maps with bigger plateaus.
+	Persistance defines the smoothness of the map. Low values towards 0 give very smooth maps.
+	Available distributions: Default = "Bell shaped", Slope = "Half bell shaped, peak at 0", Uniform = "Evenly distributed, no peak" */
+public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2D<real>
+	let perlinNoise = new Array2D<real>(width, height)
+	// Blend noise together:
+	var amplitude = 1.
+	var totalAmplitude = 0.
+	for octave = octaveCount - 1 downto 0
+		var smoothNoise = generateSmoothNoise(generateRandomNoise(width, height), octave, interpolation)
+		amplitude *= persistance
+		totalAmplitude += amplitude
+		for i = 0 to width - 1
+			for j = 0 to height - 1
+				perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
+	// Normalisation:
+	for i = 0 to width - 1
+		for j = 0 to height - 1
+			perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
+	// Postprocessing:
+	if distribution == "Default"  // Standard bell shaped curve
+		return perlinNoise
+	else if distribution == "Slope"  // Half bell shaped curve with peak at 0
+		for i = 0 to width - 1
+			for j = 0 to height - 1
+				perlinNoise.set(i, j, (perlinNoise.get(i, j) * 2 - 1).abs())
+	else if distribution == "Uniform"  // Horizontal curve with no peak
+		if width % 2 != 0
+			Log.error("width (=" + width.toString() + ") has to be even for Uniform distribution")
+		for i = 0 to (width div 2) - 1
+			for j = 0 to height - 1
+				// Reverse Box–Muller transformation:
+				var z1 = perlinNoise.get(i, j)
+				var z2 = perlinNoise.get(width - 1 - i, j)
+				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
+				var acosInput = z1 / divByZeroProt(z1 * z1 + z2 * z2)
+				if acosInput.abs() > 1  // TODO: maybe this isn't need as Acos already throws an error, check
+					Log.error("Acos only allows numbers between -1 and 1")
+				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
+	return perlinNoise
+public function generatePerlinNoise(int width, int height, int octaveCount) returns Array2D<real>
+	return generatePerlinNoise(width, height, octaveCount, .5, "Linear", "Default")

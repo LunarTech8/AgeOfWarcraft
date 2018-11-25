@@ -1,0 +1,54 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Provides a two dimensional array.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package Array2D
+
+
+// --------------------
+// Functional code
+// --------------------
+
+tuple slot2(int x, int y)
+
+function slot2.checkBoundaries(int sizeX, int sizeY)
+	if this.x >= sizeX or this.x < 0 or this.y >= sizeY or this.y < 0
+		Log.error("ERROR: Slot is outside boundaries")
+
+function slot2.toArraySlot(int sizeX) returns int
+	return this.x + sizeX * this.y
+
+public class Array2D<T>
+	private let size = 8190  // TODO: allow different sizes like in ArrayList
+	private T array[size] data
+	private constant int sizeX
+	private constant int sizeY
+
+	construct(int sizeX, int sizeY)
+		if sizeX * sizeY > size
+			Log.error("ERROR: Sizes of Array2D are too big")
+		this.sizeX = sizeX
+		this.sizeY = sizeY
+
+	function sizeX() returns int
+		return sizeX
+	
+	function sizeY() returns int
+		return sizeY
+
+	function get(int x, int y) returns T
+		let s = slot2(x, y)
+		s.checkBoundaries(sizeX, sizeY)
+		return data[s.toArraySlot(sizeX)]
+
+	function set(int x, int y, T elem)
+		let s = slot2(x, y)
+		s.checkBoundaries(sizeX, sizeY)
+		data[s.toArraySlot(sizeX)] = elem

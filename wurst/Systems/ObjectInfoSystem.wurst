@@ -36,7 +36,7 @@ let countPlayers = 12  // Highest player slot in use
 let multiboardPriority = 1
 let adjustingTime = 0.5
 
-	
+
 // --------------------
 // Functional code
 // --------------------

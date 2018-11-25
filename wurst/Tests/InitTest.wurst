@@ -1,7 +1,10 @@
 package InitTest
+import TerrainUtils
+import Interpolation
 import ConstantDataSystem
 import StorageSystem
 import UtilityFunctions
+import Array2D
 
 init
 	let originVec = vec2(0., 0.)
@@ -25,3 +28,14 @@ init
 			let minTreeDist = 0.
 			let maxTreeDist = 384.
 			createUnit(p, UnitIdsCustom.beechVar1, centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle(), true)
+	// Create terrain:
+	let mapWidth = 16
+	let mapHeight = 16
+	let tileDistance = 128.
+	let minTerrainHeight = -128.
+	let maxTerrainHeight = 512.
+	// let heightMap = generatePerlinNoise(mapWidth, mapHeight, 5)
+	let heightMap = generateRandomNoise(mapWidth, mapHeight)  // TODO: fix generatePerlinNoise and use that instead
+	for	x = 0 to mapWidth - 1
+		for	y = 0 to mapHeight - 1
+			originVec.add(x * tileDistance, y * tileDistance).addTerrainHeight(linear(minTerrainHeight, maxTerrainHeight, heightMap.get(x, y)))

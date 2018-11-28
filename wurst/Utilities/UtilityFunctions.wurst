@@ -48,15 +48,7 @@ public function divByZeroProt(int value) returns int
 		Log.error("Invalid divisor value (" + value.toString() + ")")
 	return value
 
-public function generateRandomNoise(int width, int height) returns Array2D<real>
-	let baseNoise = new Array2D<real>(width, height)
-	// Create base noise map:
-	for i = 0 to width - 1
-		for j = 0 to height - 1
-			baseNoise.set(i, j, GetRandomReal(0., 1.))
-	return baseNoise
-
-public function generateSmoothNoise(Array2D<real> baseNoise, int octave, string interpolation) returns Array2D<real>
+function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) returns Array2D<real>
 	// Check interpolation method:
 	var interpolationMethod = 0
 	if interpolation == "Linear"
@@ -93,26 +85,46 @@ public function generateSmoothNoise(Array2D<real> baseNoise, int octave, string 
 			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
 	return smoothNoise
 
-/** Generates perlin map of given size (width, height) with values between 0 and 1.
-	High octave counts gernerate maps with bigger plateaus.
-	Persistance defines the smoothness of the map. Low values towards 0 give very smooth maps.
-	Available distributions: Default = "Bell shaped", Slope = "Half bell shaped, peak at 0", Uniform = "Evenly distributed, no peak" */
-public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2D<real>
-	let perlinNoise = new Array2D<real>(width, height)
-	// Blend noise together:
-	var amplitude = 1.
-	var totalAmplitude = 0.
-	for octave = octaveCount - 1 downto 0
-		var smoothNoise = generateSmoothNoise(generateRandomNoise(width, height), octave, interpolation)
-		amplitude *= persistance
-		totalAmplitude += amplitude
-		for i = 0 to width - 1
-			for j = 0 to height - 1
-				perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
-	// Normalisation:
+/** Generates random noise map of given size (width, height) with values between 0 and 1. */
+public function generateRandomNoise(int width, int height) returns Array2D<real>
+	let baseNoise = new Array2D<real>(width, height)
+	// Create base noise map:
 	for i = 0 to width - 1
 		for j = 0 to height - 1
-			perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
+			baseNoise.set(i, j, GetRandomReal(0., 1.))
+	return baseNoise
+	
+/** Generates perlin noise map of given size (width, height) with values between 0 and 1.
+	High octave counts gernerate maps with bigger plateaus. Values below 2 will return an unsmoothed random noise map.
+	Persistance defines the smoothness of the map. Low values towards 0 give very smooth maps.
+	Available interpolations: Linear, Cosine
+	Available distributions: Default = "Bell shaped", Slope = "Half bell shaped, peak at 0", Uniform = "Evenly distributed, no peak" */
+public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2D<real>
+	Array2D<real> perlinNoise
+	if octaveCount > 1
+		let baseNoise = generateRandomNoise(width, height)
+		var amplitude = 1.
+		var totalAmplitude = 0.
+		// Blend noise together:
+		perlinNoise = new Array2D<real>(width, height)
+		for octave = octaveCount - 1 downto 0
+			var smoothNoise = smoothNoise(baseNoise, interpolation, octave)
+			amplitude *= persistance
+			totalAmplitude += amplitude
+			for i = 0 to width - 1
+				for j = 0 to height - 1
+					if octave == octaveCount - 1
+						perlinNoise.set(i, j, smoothNoise.get(i, j) * amplitude)
+					else
+						perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
+			destroy smoothNoise
+		destroy baseNoise
+		// Normalisation:
+		for i = 0 to width - 1
+			for j = 0 to height - 1
+				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
+	else
+		perlinNoise = generateRandomNoise(width, height)
 	// Postprocessing:
 	if distribution == "Default"  // Standard bell shaped curve
 		return perlinNoise
@@ -133,6 +145,10 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				if acosInput.abs() > 1  // TODO: maybe this isn't need as Acos already throws an error, check
 					Log.error("Acos only allows numbers between -1 and 1")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
+	else
+		Log.error("Invalid distribution method")
 	return perlinNoise
+public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation) returns Array2D<real>
+	return generatePerlinNoise(width, height, octaveCount, persistance, interpolation, "Default")
 public function generatePerlinNoise(int width, int height, int octaveCount) returns Array2D<real>
-	return generatePerlinNoise(width, height, octaveCount, .5, "Linear", "Default")
+	return generatePerlinNoise(width, height, octaveCount, .5, "Linear")

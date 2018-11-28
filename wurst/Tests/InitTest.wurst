@@ -6,36 +6,71 @@ import StorageSystem
 import UtilityFunctions
 import Array2D
 
+
+// --------------------
+// Data code
+// --------------------
+
+let originVec = vec2(0., 0.)
+let userPlayer = Player(0)
+let startPeasantCount = 5
+
+let naturePlayer = Player(PLAYER_NEUTRAL_PASSIVE)
+let minForestDist = 512.
+let maxForestDist = 5120.
+let minTreeDist = 0.
+let maxTreeDist = 384.
+
+let mapWidth = 16
+let mapHeight = 16
+let tileDistance = 128.
+let minTerrainHeight = -128.
+let maxTerrainHeight = 512.
+
+
+// --------------------
+// Functional code
+// --------------------
+
+Array2D<real> heightMap
+// TEST begin
+var a = 1
+// TEST end
+
 init
-	let originVec = vec2(0., 0.)
 	// Create player units:
-	var p = Player(0)
-	for i = 1 to 5
-		var u = createUnit(p, UnitIdsCustom.peasant, originVec, angle(0.), true)
+	for i = 1 to startPeasantCount
+		var u = createUnit(userPlayer, UnitIdsCustom.peasant, originVec, angle(0.), true)
 		var storage = getStorage(u)
 		if storage != null
 			storage.addWare(ware(WareType.Food, GetRandomInt(1, 10)))
-	createUnit(p, UnitIdsCustom.footman, originVec, angle(0.))
+	createUnit(userPlayer, UnitIdsCustom.footman, originVec, angle(0.))
 	// Create nature:
-	p = Player(PLAYER_NEUTRAL_PASSIVE)
-	let minForestDist = 512.
-	let maxForestDist = 5120.
 	let forestsCount = GetRandomInt(4, 6)
 	for	i = 1 to forestsCount
 		var centerVec = originVec.polarOffset(getRandomAngle(), GetRandomReal(minForestDist, maxForestDist))
 		var treesCount = GetRandomInt(8, 12)
 		for j = 1 to treesCount
-			let minTreeDist = 0.
-			let maxTreeDist = 384.
-			createUnit(p, UnitIdsCustom.beechVar1, centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle(), true)
+			createUnit(naturePlayer, UnitIdsCustom.beechVar1, centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle(), true)
 	// Create terrain:
-	let mapWidth = 16
-	let mapHeight = 16
-	let tileDistance = 128.
-	let minTerrainHeight = -128.
-	let maxTerrainHeight = 512.
-	// let heightMap = generatePerlinNoise(mapWidth, mapHeight, 5)
-	let heightMap = generateRandomNoise(mapWidth, mapHeight)  // TODO: fix generatePerlinNoise and use that instead
+	generateHeightMap()
+	// TEST begin
+	print(a)
+	// TEST end
 	for	x = 0 to mapWidth - 1
 		for	y = 0 to mapHeight - 1
 			originVec.add(x * tileDistance, y * tileDistance).addTerrainHeight(linear(minTerrainHeight, maxTerrainHeight, heightMap.get(x, y)))
+
+@compiletime function generateHeightMap()
+	// DEBUG: Bigger maps causes the init function to exit early without finishing
+	// heightMap = generatePerlinNoise(mapWidth, mapHeight, 5, 0.6, "Cosine")
+	heightMap = generatePerlinNoise(mapWidth, mapHeight, 3)  // DEBUG: Generation at compiletime doesn't seem to work.
+	// TEST begin
+	if compiletime
+		a += 10
+		print("compiletime")
+	else
+		a += 100
+		print("runtime")
+	// TEST end
+	

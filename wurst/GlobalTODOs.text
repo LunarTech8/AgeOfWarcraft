@@ -29,7 +29,8 @@ Work status:
 !- Maybe the addition of resources to units should be automated rather than be definable manually by other systems
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
-!!!- Fix generatePerlinNoise and use it in InitTest
+!!!- Fix perlin noise map generation in InitTest during compiletime
+!- Maybe use the PreloadIO package to store/load generated maps into/from a file
 
 
 // -------------

@@ -17,6 +17,14 @@ import ResourceSystem
 
 
 // --------------------
+// Data code
+// --------------------
+
+let maxComputationCostPerCycle = 10000.//1200.
+let minTriggerSleepTime = 0.01
+
+
+// --------------------
 // Functional code
 // --------------------
 
@@ -48,7 +56,17 @@ public function divByZeroProt(int value) returns int
 		Log.error("Invalid divisor value (" + value.toString() + ")")
 	return value
 
+public function checkComputationCost(real currentCompCost) returns real
+	if currentCompCost >= maxComputationCostPerCycle
+		if currentCompCost >= 2 * maxComputationCostPerCycle
+			Log.warn("DEBUG: Bad placement of checkComputationCost (Residual cost of " + (currentCompCost - maxComputationCostPerCycle).toString() + ")")
+		TriggerSleepAction(minTriggerSleepTime)
+		Log.debug("checkComputationCost uses TriggerSleepAction")  // DEBUG
+		return 0.
+	return currentCompCost
+
 function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) returns Array2D<real>
+	var compCost = 0.
 	// Check interpolation method:
 	var interpolationMethod = 0
 	if interpolation == "Linear"
@@ -83,15 +101,20 @@ function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) 
 			var bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
 			// Final blend:
 			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
+			compCost += 0.3
+		compCost = checkComputationCost(compCost)
 	return smoothNoise
 
 /** Generates random noise map of given size (width, height) with values between 0 and 1. */
 public function generateRandomNoise(int width, int height) returns Array2D<real>
+	var compCost = 0.
 	let baseNoise = new Array2D<real>(width, height)
 	// Create base noise map:
 	for i = 0 to width - 1
 		for j = 0 to height - 1
 			baseNoise.set(i, j, GetRandomReal(0., 1.))
+			compCost += 0.1
+		compCost = checkComputationCost(compCost)
 	return baseNoise
 	
 /** Generates perlin noise map of given size (width, height) with values between 0 and 1.
@@ -100,15 +123,18 @@ public function generateRandomNoise(int width, int height) returns Array2D<real>
 	Available interpolations: Linear, Cosine
 	Available distributions: Default = "Bell shaped", Slope = "Half bell shaped, peak at 0", Uniform = "Evenly distributed, no peak" */
 public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2D<real>
+	var compCost = 0.
 	Array2D<real> perlinNoise
 	if octaveCount > 1
 		let baseNoise = generateRandomNoise(width, height)
+		compCost += (width * height * 0.1) % maxComputationCostPerCycle  // Factor in residual computation cost
 		var amplitude = 1.
 		var totalAmplitude = 0.
 		// Blend noise together:
 		perlinNoise = new Array2D<real>(width, height)
 		for octave = octaveCount - 1 downto 0
 			var smoothNoise = smoothNoise(baseNoise, interpolation, octave)
+			compCost += (width * height * 0.3) % maxComputationCostPerCycle  // Factor in residual computation cost
 			amplitude *= persistance
 			totalAmplitude += amplitude
 			for i = 0 to width - 1
@@ -117,14 +143,19 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 						perlinNoise.set(i, j, smoothNoise.get(i, j) * amplitude)
 					else
 						perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
+					compCost += 0.1
+				compCost = checkComputationCost(compCost)
 			destroy smoothNoise
 		destroy baseNoise
 		// Normalisation:
 		for i = 0 to width - 1
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
+				compCost += 0.1
+			compCost = checkComputationCost(compCost)
 	else
 		perlinNoise = generateRandomNoise(width, height)
+		compCost += (width * height * 0.1) % maxComputationCostPerCycle  // Factor in residual computation cost
 	// Postprocessing:
 	if distribution == "Default"  // Standard bell shaped curve
 		return perlinNoise
@@ -132,6 +163,8 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		for i = 0 to width - 1
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, (perlinNoise.get(i, j) * 2 - 1).abs())
+				compCost += 0.1
+			compCost = checkComputationCost(compCost)
 	else if distribution == "Uniform"  // Horizontal curve with no peak
 		if width % 2 != 0
 			Log.error("width (=" + width.toString() + ") has to be even for Uniform distribution")
@@ -145,6 +178,8 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				if acosInput.abs() > 1  // TODO: maybe this isn't need as Acos already throws an error, check
 					Log.error("Acos only allows numbers between -1 and 1")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
+				compCost += 0.2
+			compCost = checkComputationCost(compCost)
 	else
 		Log.error("Invalid distribution method")
 	return perlinNoise

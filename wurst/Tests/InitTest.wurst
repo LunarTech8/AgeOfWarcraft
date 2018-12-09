@@ -5,6 +5,8 @@ import ConstantDataSystem
 import StorageSystem
 import UtilityFunctions
 import Array2D
+import Execute
+import ClosureTimers
 
 
 // --------------------
@@ -32,13 +34,18 @@ let maxTerrainHeight = 512.
 // Functional code
 // --------------------
 
-Array2D<real> heightMap
-// TEST begin
-var a = 1
-// TEST end
+string currentInitStatus = null
 
-init
+function newInitStatus(string statusName)
+	if currentInitStatus != null
+		print("Initialisation: Finished " + currentInitStatus)
+	currentInitStatus = statusName
+	if currentInitStatus != null
+		print("Initialisation: Starting " + currentInitStatus)
+
+function generateWorld()
 	// Create player units:
+	newInitStatus("player units creation")
 	for i = 1 to startPeasantCount
 		var u = createUnit(userPlayer, UnitIdsCustom.peasant, originVec, angle(0.), true)
 		var storage = getStorage(u)
@@ -46,6 +53,7 @@ init
 			storage.addWare(ware(WareType.Food, GetRandomInt(1, 10)))
 	createUnit(userPlayer, UnitIdsCustom.footman, originVec, angle(0.))
 	// Create nature:
+	newInitStatus("nature creation")
 	let forestsCount = GetRandomInt(4, 6)
 	for	i = 1 to forestsCount
 		var centerVec = originVec.polarOffset(getRandomAngle(), GetRandomReal(minForestDist, maxForestDist))
@@ -53,24 +61,16 @@ init
 		for j = 1 to treesCount
 			createUnit(naturePlayer, UnitIdsCustom.beechVar1, centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle(), true)
 	// Create terrain:
-	generateHeightMap()
-	// TEST begin
-	print(a)
-	// TEST end
+	newInitStatus("terrain creation")
+	// Array2D<real> heightMap = generatePerlinNoise(mapWidth, mapHeight, 5, 0.6, "Cosine")
+	Array2D<real> heightMap = generatePerlinNoise(mapWidth, mapHeight, 3, 0.6, "Cosine")  // DEBUG: use of TriggerSleepAction inside callback or getting over op-limit seems to cause error/crash
 	for	x = 0 to mapWidth - 1
 		for	y = 0 to mapHeight - 1
 			originVec.add(x * tileDistance, y * tileDistance).addTerrainHeight(linear(minTerrainHeight, maxTerrainHeight, heightMap.get(x, y)))
+	// Initialisation finished:
+	newInitStatus(null)
+	print("Finished initialisation")
 
-@compiletime function generateHeightMap()
-	// DEBUG: Bigger maps causes the init function to exit early without finishing
-	// heightMap = generatePerlinNoise(mapWidth, mapHeight, 5, 0.6, "Cosine")
-	heightMap = generatePerlinNoise(mapWidth, mapHeight, 3)  // DEBUG: Generation at compiletime doesn't seem to work.
-	// TEST begin
-	if compiletime
-		a += 10
-		print("compiletime")
-	else
-		a += 100
-		print("runtime")
-	// TEST end
-	
+init
+	doAfter(0.) ->
+		execute(() -> generateWorld())

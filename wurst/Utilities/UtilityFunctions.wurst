@@ -20,7 +20,7 @@ import ResourceSystem
 // Data code
 // --------------------
 
-let maxComputationCostPerCycle = 10000.//1200.
+let maxComputationCostPerCycle = 256.
 let minTriggerSleepTime = 0.01
 
 
@@ -61,7 +61,6 @@ public function checkComputationCost(real currentCompCost) returns real
 		if currentCompCost >= 2 * maxComputationCostPerCycle
 			Log.warn("DEBUG: Bad placement of checkComputationCost (Residual cost of " + (currentCompCost - maxComputationCostPerCycle).toString() + ")")
 		TriggerSleepAction(minTriggerSleepTime)
-		Log.debug("checkComputationCost uses TriggerSleepAction")  // DEBUG
 		return 0.
 	return currentCompCost
 

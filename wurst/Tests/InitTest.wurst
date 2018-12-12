@@ -5,8 +5,6 @@ import ConstantDataSystem
 import StorageSystem
 import UtilityFunctions
 import Array2D
-import Execute
-import ClosureTimers
 
 
 // --------------------
@@ -27,7 +25,7 @@ let mapWidth = 16
 let mapHeight = 16
 let tileDistance = 128.
 let minTerrainHeight = -128.
-let maxTerrainHeight = 512.
+let maxTerrainHeight = 256.
 
 
 // --------------------
@@ -62,8 +60,7 @@ function generateWorld()
 			createUnit(naturePlayer, UnitIdsCustom.beechVar1, centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle(), true)
 	// Create terrain:
 	newInitStatus("terrain creation")
-	// Array2D<real> heightMap = generatePerlinNoise(mapWidth, mapHeight, 5, 0.6, "Cosine")
-	Array2D<real> heightMap = generatePerlinNoise(mapWidth, mapHeight, 3, 0.6, "Cosine")  // DEBUG: use of TriggerSleepAction inside callback or getting over op-limit seems to cause error/crash
+	Array2D<real> heightMap = generatePerlinNoise(mapWidth, mapHeight, 5, 0.6, "Cosine")
 	for	x = 0 to mapWidth - 1
 		for	y = 0 to mapHeight - 1
 			originVec.add(x * tileDistance, y * tileDistance).addTerrainHeight(linear(minTerrainHeight, maxTerrainHeight, heightMap.get(x, y)))
@@ -72,5 +69,7 @@ function generateWorld()
 	print("Finished initialisation")
 
 init
-	doAfter(0.) ->
-		execute(() -> generateWorld())
+	// Use a trigger to allow the use of TriggerSleepAction:
+	CreateTrigger()
+	..addAction(function generateWorld)
+	..execute()

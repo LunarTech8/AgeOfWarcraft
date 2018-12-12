@@ -30,7 +30,7 @@ Work status:
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
->!!!- Fix perlin noise map generation in InitTest during compiletime
+!!- Fix problem that water doesn't show properly after terrain deformation
 
 
 // -------------

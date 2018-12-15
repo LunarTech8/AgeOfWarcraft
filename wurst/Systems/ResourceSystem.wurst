@@ -15,6 +15,8 @@ import HashMap
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import StorageSystem
+import UtilityFunctions
+import OnUnitEnterLeave
 
 
 // --------------------
@@ -25,14 +27,14 @@ let countPlayers = 12  // Highest player slot in use
 
 function getDefaultWares(int unitTypeId) returns ware
 	switch unitTypeId
-		case UnitIdsCustom.beechVar1
+		case UnitIdsCustom.beech
 			return ware(WareType.Wood, GetRandomInt(6, 8))
 		default
 			return ware(WareType.Empty, 0)
 
 function isKilledWhenDepleted(int unitTypeId) returns bool
 	switch unitTypeId
-		case UnitIdsCustom.beechVar1
+		case UnitIdsCustom.beech
 			return true
 		default
 			return false
@@ -42,7 +44,7 @@ function isKilledWhenDepleted(int unitTypeId) returns bool
 // Functional code
 // --------------------
 
-let resourceMap = new HashMap<unit, Resource>
+let resourceMap = new HashMap<unit, Resource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
 class Resource
 	private unit resourceUnit
@@ -73,21 +75,22 @@ class Resource
 		return wares.size()
 
 
+function addResource(unit targetUnit)
+	if resourceMap.has(targetUnit) == false
+		var unitType = getUnitId(targetUnit)
+		var wares = getDefaultWares(unitType)
+		if wares.wareType != WareType.Empty
+			var resource = new Resource(targetUnit, isKilledWhenDepleted(unitType), wares)
+			resourceMap.put(targetUnit, resource)
+	
+function removeResource(unit targetUnit)
+	if resourceMap.has(targetUnit)
+		resourceMap.remove(targetUnit)
+
+/** Returns the resource of given unit */
 public function getResource(unit targetUnit) returns Resource
 	if resourceMap.has(targetUnit)
 		return resourceMap.get(targetUnit)
-	else
-		return null
-
-public function addResource(unit targetUnit) returns Resource
-	if resourceMap.has(targetUnit)
-		return resourceMap.get(targetUnit)
-	var unitType = GetUnitTypeId(targetUnit)
-	var wares = getDefaultWares(unitType)
-	if wares.wareType != WareType.Empty
-		var resource = new Resource(targetUnit, isKilledWhenDepleted(unitType), wares)
-		resourceMap.put(targetUnit, resource)
-		return resource
 	else
 		return null
 
@@ -100,13 +103,9 @@ public function setObjectInfoMultiboard(multiboard targetMultiboard, Resource re
 	return true
 	
 init
-	// Add every appropriate existing unit as resource:
-	for playerNumber = 0 to countPlayers - 1
-		group allPlayerUnits = GetUnitsOfPlayerAll(Player(playerNumber))
-		for u in allPlayerUnits
-			var unitType = GetUnitTypeId(u)
-			var wares = getDefaultWares(unitType)
-			if wares.wareType != WareType.Empty
-				resourceMap.put(u, new Resource(u, isKilledWhenDepleted(unitType), wares))
-		allPlayerUnits.destr()
-	// TODO: add every appropriate new unit as resource
+	// Add resource to every appropriate new unit:
+	onEnter() -> 
+		addResource(getEnterLeaveUnit())
+	// Remove resource from every appropriate removed unit:
+	onLeave() -> 
+		removeResource(getEnterLeaveUnit())

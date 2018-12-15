@@ -57,7 +57,11 @@ public class UnitIdsCustom
 	// Nature
 	//--------------
 	// Trees:
-	static constant beechVar1 = compiletime(UNIT_ID_GEN.next())
+	static constant beech = compiletime(UNIT_ID_GEN.next())
+	static constant beech_Var1 = compiletime(UNIT_ID_GEN.next())
+	static constant beech_Var2 = compiletime(UNIT_ID_GEN.next())
+	static constant beech_Var3 = compiletime(UNIT_ID_GEN.next())
+	static constant beech_Var4 = compiletime(UNIT_ID_GEN.next())
 
 public abstract class AbilityIdsCustom
 	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
@@ -66,4 +70,8 @@ public abstract class AbilityIdsCustom
 	static constant transferWares = compiletime(ABIL_ID_GEN.next())
 
 public abstract class ImportPaths
-	static constant beechVar1 = "Trees\\Buche0.mdl"
+	// Trees:
+	static constant beech_Var1 = "Trees\\Buche0.mdl"
+	static constant beech_Var2 = "Trees\\Buche1.mdl"
+	static constant beech_Var3 = "Trees\\Buche2.mdl"
+	static constant beech_Var4 = "Trees\\Buche3.mdl"

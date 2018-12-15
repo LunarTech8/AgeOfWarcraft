@@ -16,6 +16,7 @@ import HashMap
 import Icons
 import ConstantDataSystem
 import MultiboardPrioritySystem
+import OnUnitEnterLeave
 
 
 // --------------------
@@ -188,20 +189,21 @@ class Storage
 		return ware.count
 
 
+function addStorage(unit targetUnit)
+	if storageMap.has(targetUnit) == false
+		var maxCapacity = getMaxCapacity(GetUnitTypeId(targetUnit))
+		if maxCapacity > 0
+			var storage = new Storage(targetUnit, maxCapacity)
+			storageMap.put(targetUnit, storage)
+
+function removeStorage(unit targetUnit)
+	if storageMap.has(targetUnit)
+		storageMap.remove(targetUnit)
+
+/** Returns the storage of given unit */
 public function getStorage(unit targetUnit) returns Storage
 	if storageMap.has(targetUnit)
 		return storageMap.get(targetUnit)
-	else
-		return null
-
-public function addStorage(unit targetUnit) returns Storage  // TODO: maybe this should be automated rather than be definable manually by other systems
-	if storageMap.has(targetUnit)
-		return storageMap.get(targetUnit)
-	var maxCapacity = getMaxCapacity(GetUnitTypeId(targetUnit))
-	if maxCapacity > 0
-		var storage = new Storage(targetUnit, maxCapacity)
-		storageMap.put(targetUnit, storage)
-		return storage
 	else
 		return null
 
@@ -234,15 +236,12 @@ public function setObjectInfoMultiboard(multiboard targetMultiboard, Storage sto
 	return true
 
 init
-	// Add a storage to every appropriate existing unit:
-	for playerNumber = 0 to countPlayers - 1
-		group allPlayerUnits = GetUnitsOfPlayerAll(Player(playerNumber))
-		for u in allPlayerUnits
-			var maxCapacity = getMaxCapacity(GetUnitTypeId(u))
-			if maxCapacity > 0
-				storageMap.put(u, new Storage(u, maxCapacity))
-		allPlayerUnits.destr()
-	// TODO: add a storage to every appropriate new unit
+	// Add storage to every appropriate new unit:
+	onEnter() -> 
+		addStorage(getEnterLeaveUnit())
+	// Remove storage from every appropriate removed unit:
+	onLeave() -> 
+		removeStorage(getEnterLeaveUnit())
 	// Register transferWares spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
 		if GetSpellAbilityId() == AbilityIdsCustom.transferWares

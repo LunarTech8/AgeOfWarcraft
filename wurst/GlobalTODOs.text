@@ -21,12 +21,9 @@ Work status:
 
 !- Get unit tests to work and create an issue on GitHub if necessary
 !!- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
-!- Think how to improve/arrange the createUnit functionality in UtilityFunctions
 !- Test invalid values for Acos in UtilityFunctions
 !- Implement different sizes for Array2D like in ArrayList
 !- Maybe make a general unit to class hash map system with corresponding utility functions
-!- Maybe the addition of storages to units should be automated rather than be definable manually by other systems
-!- Maybe the addition of resources to units should be automated rather than be definable manually by other systems
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file

@@ -10,10 +10,12 @@ Contains generic utility functions that aren't tied directly to a specific syste
 Initial version.
 -------------------------------------------------------------*/
 package UtilityFunctions
+import HashMap
+import ConstantDataSystem
 import Interpolation
 import Array2D
-import StorageSystem
-import ResourceSystem
+// import StorageSystem
+// import ResourceSystem
 
 
 // --------------------
@@ -21,26 +23,78 @@ import ResourceSystem
 // --------------------
 
 let maxComputationCostPerCycle = 256.
-let minTriggerSleepTime = 0.01
 
+public let minTriggerSleepTime = 0.01
+
+function initBaseUnitTypeIdMap() returns HashMap<int, int>
+	let map = new HashMap<int, int>
+	map.put(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech)
+	map.put(UnitIdsCustom.beech_Var2, UnitIdsCustom.beech)
+	map.put(UnitIdsCustom.beech_Var3, UnitIdsCustom.beech)
+	map.put(UnitIdsCustom.beech_Var4, UnitIdsCustom.beech)
+	return map
+
+/** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
+public function getUnitTypeId(int baseUnitId) returns int
+	switch baseUnitId
+		case UnitIdsCustom.beech
+			return getRandomInputInt(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech_Var2, UnitIdsCustom.beech_Var3, UnitIdsCustom.beech_Var4)
+	return baseUnitId
 
 // --------------------
 // Functional code
 // --------------------
 
+let baseUnitTypeIdMap = initBaseUnitTypeIdMap()
+
+/** Returns the base unit id of given unit. Required for data evaluation. */
+public function getUnitId(unit u) returns int
+	let id = GetUnitTypeId(u)
+	if baseUnitTypeIdMap.has(id)
+		return baseUnitTypeIdMap.get(id)
+	return id
+
+/** Returns random value of given inputs */
+public function getRandomInputInt(vararg int inputs) returns int
+	var count = 0
+	for _input in inputs
+		count += 1
+	let i = GetRandomInt(1, count)
+	count = 0
+	for input in inputs
+		count += 1
+		if i == count
+			return input
+	return 0
+
+/** Returns random value of given inputs */
+public function getRandomInputReal(vararg real inputs) returns real
+	var count = 0
+	for _input in inputs
+		count += 1
+	let i = GetRandomInt(1, count)
+	count = 0
+	for input in inputs
+		count += 1
+		if i == count
+			return input
+	return 0
+
+/** Returns random angle (bewteen 0 and 2*pi). */
 public function getRandomAngle() returns angle
 	return angle(GetRandomReal(0., PI2))
+/** Returns random angle bewteen min and max. */
 public function getRandomAngle(real min, real max) returns angle
 	if min < 0. or max > PI2 or min > max
 		Log.error("ERROR: Invalid min and/or max value")
 	return angle(GetRandomReal(min, max))
 
-public function createUnit(player p, int unitId, vec2 pos, angle facing, bool addToRelevantSystems) returns unit  // TODO: maybe this can improved so it does not require addToRelevantSystems
-	var newUnit = createUnit(p, unitId, pos, facing)
-	if addToRelevantSystems
-		addStorage(newUnit)
-		addResource(newUnit)
-	return newUnit
+/** Returns random sign (-1 or 1). */
+public function getRandomSign() returns int
+	if GetRandomInt(0, 1) == 0
+		return -1
+	else
+		return 1
 
 /** Throws an exception if the absolute of the given value is smaller than epsilon, else returns the value. */
 public function divByZeroProt(real value, real epsilon) returns real

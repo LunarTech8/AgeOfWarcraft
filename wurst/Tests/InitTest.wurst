@@ -5,27 +5,37 @@ import ConstantDataSystem
 import StorageSystem
 import UtilityFunctions
 import Array2D
+import ClosureTimers
 
 
 // --------------------
 // Data code
 // --------------------
 
+// General:
 let originVec = vec2(0., 0.)
 let userPlayer = Player(0)
-let startPeasantCount = 5
 
-let naturePlayer = Player(PLAYER_NEUTRAL_PASSIVE)
-let minForestDist = 512.
-let maxForestDist = 5120.
-let minTreeDist = 0.
-let maxTreeDist = 384.
-
+// Terrain:
 let mapWidth = 16
 let mapHeight = 16
 let tileDistance = 128.
 let minTerrainHeight = -128.
 let maxTerrainHeight = 256.
+
+// Player units:
+let startPeasantCount = 5
+
+// Nature:
+let naturePlayer = Player(PLAYER_NEUTRAL_PASSIVE)
+let minForestsCount = 4
+let maxForestsCount = 6
+let minForestDist = 1024.
+let maxForestDist = 1536.
+let minTreesCount = 12
+let maxTreesCount = 16
+let minTreeDist = 0.
+let maxTreeDist = 512.
 
 
 // --------------------
@@ -42,28 +52,30 @@ function newInitStatus(string statusName)
 		print("Initialisation: Starting " + currentInitStatus)
 
 function generateWorld()
-	// Create player units:
-	newInitStatus("player units creation")
-	for i = 1 to startPeasantCount
-		var u = createUnit(userPlayer, UnitIdsCustom.peasant, originVec, angle(0.), true)
-		var storage = getStorage(u)
-		if storage != null
-			storage.addWare(ware(WareType.Food, GetRandomInt(1, 10)))
-	createUnit(userPlayer, UnitIdsCustom.footman, originVec, angle(0.))
-	// Create nature:
-	newInitStatus("nature creation")
-	let forestsCount = GetRandomInt(4, 6)
-	for	i = 1 to forestsCount
-		var centerVec = originVec.polarOffset(getRandomAngle(), GetRandomReal(minForestDist, maxForestDist))
-		var treesCount = GetRandomInt(8, 12)
-		for j = 1 to treesCount
-			createUnit(naturePlayer, UnitIdsCustom.beechVar1, centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle(), true)
 	// Create terrain:
 	newInitStatus("terrain creation")
 	Array2D<real> heightMap = generatePerlinNoise(mapWidth, mapHeight, 5, 0.6, "Cosine")
 	for	x = 0 to mapWidth - 1
 		for	y = 0 to mapHeight - 1
 			originVec.add(x * tileDistance, y * tileDistance).addTerrainHeight(linear(minTerrainHeight, maxTerrainHeight, heightMap.get(x, y)))
+	TriggerSleepAction(minTriggerSleepTime)
+	// Create player units:
+	newInitStatus("player units creation")
+	for i = 1 to startPeasantCount
+		var u = createUnit(userPlayer, UnitIdsCustom.peasant, originVec, angle(0.))
+		nullTimer() ->
+			let storage = getStorage(u)
+			if storage != null
+				storage.addWare(ware(WareType.Food, GetRandomInt(1, 10)))
+	createUnit(userPlayer, UnitIdsCustom.footman, originVec, angle(0.))
+	// Create nature:
+	newInitStatus("nature creation")
+	let forestsCount = GetRandomInt(minForestsCount, maxForestsCount)
+	for	i = 1 to forestsCount
+		var centerVec = originVec.add(GetRandomReal(minForestDist, maxForestDist) * getRandomSign(), GetRandomReal(minForestDist, maxForestDist) * getRandomSign())
+		var treesCount = GetRandomInt(minTreesCount, maxTreesCount)
+		for j = 1 to treesCount
+			createUnit(naturePlayer, getUnitTypeId(UnitIdsCustom.beech), centerVec.polarOffset(getRandomAngle(), GetRandomReal(minTreeDist, maxTreeDist)), getRandomAngle())
 	// Initialisation finished:
 	newInitStatus(null)
 	print("Finished initialisation")

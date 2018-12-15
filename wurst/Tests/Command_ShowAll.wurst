@@ -7,6 +7,7 @@ package Command_ShowAll
 
 let userPlayer = Player(0)
 let command = "show all"
+let commandShort = "sa"
 
 
 // --------------------
@@ -21,3 +22,4 @@ init
 	CreateTrigger()
 	..addAction(function executeCommand)
 	..registerPlayerChatEvent(userPlayer, command, true)
+	..registerPlayerChatEvent(userPlayer, commandShort, true)

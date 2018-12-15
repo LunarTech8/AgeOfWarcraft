@@ -1,4 +1,4 @@
-package Unit_Beech_Var1
+package Unit_Beech
 import BuildingPreset
 
 
@@ -6,14 +6,14 @@ import BuildingPreset
 // Data code
 // --------------------
 
-@compiletime function genObj()
-    new BuildingPreset(UnitIdsCustom.beechVar1, UnitIds.murlochut0)
+function genObjVariation(int id, string modelPath, string suffix)
+    new BuildingPreset(id, UnitIds.murlochut0)
     // Art:
     ..setDeathTimeseconds(2.)
     ..setGroundTexture("")
     ..setIconGameInterface(Icons.bTNNightElfBuild)
     ..presetMaximumAngles(0., 0.)
-    ..setModelFile(ImportPaths.beechVar1)
+    ..setModelFile(modelPath)
     ..setProjectileImpactZ(20.)
     ..setScalingValue(0.72)
     ..setSelectionScale(0.8)
@@ -32,4 +32,10 @@ import BuildingPreset
     ..setRace(Race.Critters)
     ..setUnitClassification("ancient")
     // Text:
-    ..presetNameAndTooltips(true, "Beech", "(Variation 1)", "Fast growing leaf tree.")
+    ..presetNameAndTooltips(true, "Beech", suffix, "Fast growing leaf tree.")
+
+@compiletime function genObj()
+    genObjVariation(UnitIdsCustom.beech_Var1, ImportPaths.beech_Var1, "(Variation 1)")
+    genObjVariation(UnitIdsCustom.beech_Var2, ImportPaths.beech_Var2, "(Variation 2)")
+    genObjVariation(UnitIdsCustom.beech_Var3, ImportPaths.beech_Var3, "(Variation 3)")
+    genObjVariation(UnitIdsCustom.beech_Var4, ImportPaths.beech_Var4, "(Variation 4)")

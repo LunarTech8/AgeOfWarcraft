@@ -1,0 +1,27 @@
+package Command_Test
+
+
+// --------------------
+// Data code
+// --------------------
+
+let userPlayer = Player(0)
+let command = "test"
+let commandShort = "t"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+function executeCommand()
+	print(Acos(0.5))
+	print(Acos(-0.5))
+	print(Acos(1.5))
+	print(Acos(-1.5))
+
+init
+	CreateTrigger()
+	..addAction(function executeCommand)
+	..registerPlayerChatEvent(userPlayer, command, true)
+	..registerPlayerChatEvent(userPlayer, commandShort, true)

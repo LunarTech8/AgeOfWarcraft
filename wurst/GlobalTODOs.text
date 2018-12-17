@@ -19,15 +19,15 @@ Work status:
 // Programming:
 // -------------
 
-!- Get unit tests to work and create an issue on GitHub if necessary
+!!- Get unit tests to work or create an issue on GitHub if necessary -> Maybe reinstall wurst
 !!- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
-!- Test invalid values for Acos in UtilityFunctions
 !- Implement different sizes for Array2D like in ArrayList
 !- Maybe make a general unit to class hash map system with corresponding utility functions
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
-!!- Fix problem that water doesn't show properly after terrain deformation
+!!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
+!- Add a description comment (/** */) to every public class and function
 
 
 // -------------

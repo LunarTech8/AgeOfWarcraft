@@ -228,7 +228,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				var z2 = perlinNoise.get(width - 1 - i, j)
 				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
 				var acosInput = z1 / divByZeroProt(z1 * z1 + z2 * z2)
-				if acosInput.abs() > 1  // TODO: maybe this isn't need as Acos already throws an error, check
+				if acosInput.abs() > 1
 					Log.error("Acos only allows numbers between -1 and 1")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
 				compCost += 0.2

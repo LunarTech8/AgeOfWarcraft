@@ -35,6 +35,7 @@ import ConstantDataSystem
 let countPlayers = 12  // Highest player slot in use
 let multiboardPriority = 1
 let adjustingTime = 0.5
+let multiboardName = "ObjectInfoSystem"
 
 
 // --------------------
@@ -90,7 +91,16 @@ class Dataset
 		else
 			adjustingTimer.pause()
 
-/** Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system */
+function deactivateDataset(integer playerID)
+	let dataset = datasets[playerID]
+	// Reset dataset:
+	dataset.setTimer(0.)
+	dataset.targetedUnit = null
+	dataset.targetedDestructable = null
+	// Disable multiboard:
+	dataset.displayMultiboard(playerID, false)
+
+/* Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
 function createMultiboardLines(integer playerID) returns boolean
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
@@ -107,26 +117,15 @@ function showObjectInfo(integer playerID)
 	var dataset = datasets[playerID]
 	// Check if unit is still selected:
 	if dataset.targetedUnit != null and IsUnitSelected(dataset.targetedUnit, Player(playerID)) == false
-		// Hide multiboard:
-		dataset.setTimer(0.)
-		dataset.targetedUnit = null
-		if deactivateMultiboard(playerID, "ObjectInfoSystem")
-			dataset.displayMultiboard(playerID, false)
-	// Activate multiboard for this system if possible:
-	else if activateMultiboard(playerID, multiboardPriority, "ObjectInfoSystem")
-		// Reset multiboard data:
+		disableBoard(playerID, multiboardName)
+	// Refresh multiboard informations:
+	else if enableBoard(playerID, multiboardName, multiboardPriority, (int playerID) -> deactivateDataset(playerID))
 		dataset.resetMultiboard()
-		// Get object informations:
+		// Show object informations if relevant:
 		if createMultiboardLines(playerID)
-			// Show multiboard:
 			dataset.displayMultiboard(playerID, true)
 		else
-			// Hide multiboard:
-			dataset.setTimer(0.)
-			dataset.targetedUnit = null
-			dataset.targetedDestructable = null
-			if deactivateMultiboard(playerID, "ObjectInfoSystem")
-				dataset.displayMultiboard(playerID, false)
+			disableBoard(playerID, multiboardName)
 	// Stop timer because multiboard couldn't be used:
 	else
 		dataset.setTimer(0.)

@@ -195,6 +195,7 @@ class ArrayListSize16<T> extends ArrayListBase implements IArrayList<T>
 				return i
 		return 0
 		
+/** A generic list based on dynamically sized arrays. */
 public class ArrayList<T>
 	private let minPossibleSize = 2
 	private let maxPossibleSize = 16
@@ -338,6 +339,7 @@ public class ArrayList<T>
 	function iterator() returns ALIterator<T>
 		return new ALIterator(this)	
 				
+/** Iterator class for ArrayList. */
 public class ALIterator<T>
 	protected int i = 0
 	protected ArrayList<T> list

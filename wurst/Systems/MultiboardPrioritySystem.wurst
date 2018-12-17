@@ -41,30 +41,56 @@ public function BaseIconType.getIconPath() returns string
 // Functional code
 // --------------------
 
-MultiboardDataset array multiboardDatasets
+Board array currentBoards
 
-class MultiboardDataset
-	int priority
+public interface PlayerIDClosure
+	function run(int playerID)
+
+class Board
 	string name
+	int priority
+	PlayerIDClosure disableFunc
 
 	construct()
-		priority = 0
 		name = null
+		priority = 0
+		disableFunc = null
 
-public function activateMultiboard(integer playerID, integer priority, string name) returns boolean
-	if (priority >= multiboardDatasets[playerID].priority)
-		multiboardDatasets[playerID].priority = priority
-		multiboardDatasets[playerID].name = name
+public function isBoardActiv(integer playerID, string name) returns boolean
+	return name == currentBoards[playerID].name
+	
+public function enableBoard(integer playerID, string name, integer priority, PlayerIDClosure disableFunc) returns boolean
+	// Check if board is already active:
+	if isBoardActiv(playerID, name)
+		return true
+	// Check if board has required priority:
+	let currentBoard = currentBoards[playerID]
+	if (priority >= currentBoard.priority)
+		// Disable former board:
+		if currentBoard.disableFunc != null
+			currentBoard.disableFunc.run(playerID)
+		// Change to new board:
+		currentBoard.disableFunc = disableFunc
+		currentBoard.priority = priority
+		currentBoard.name = name
 		return true
 	return false
 
-public function deactivateMultiboard(integer playerID, string name) returns boolean
-	if (name == multiboardDatasets[playerID].name)
-		multiboardDatasets[playerID].priority = 0
-		multiboardDatasets[playerID].name = null
-		return true
-	return false
+public function disableBoard(integer playerID, string name) returns boolean
+	// Check if board is active:
+	if isBoardActiv(playerID, name) == false
+		return false
+	// Disable former board:
+	let currentBoard = currentBoards[playerID]
+	if currentBoard.disableFunc != null
+		currentBoard.disableFunc.run(playerID)
+	// Reset current board:
+	currentBoard.disableFunc = null
+	currentBoard.priority = 0
+	currentBoard.name = null
+	return true
 
+/** Adds a standardized multiboard line at the bottom of given multiboard. */
 public function addMultiboardLine(multiboard targetMultiboard, string text, string iconPath)
 	var lineNumber = MultiboardGetRowCount(targetMultiboard) + 1
 	MultiboardSetRowCount(targetMultiboard, lineNumber)
@@ -81,6 +107,6 @@ public function addMultiboardLine(multiboard targetMultiboard, string text, stri
 init
 	// Init variables:
 	for i = 0 to countPlayers - 1
-		multiboardDatasets[i] = new MultiboardDataset()
-		if multiboardDatasets[i] == null
+		currentBoards[i] = new Board()
+		if currentBoards[i] == null
 			Log.error("ERROR: MultiboardInfo struct cap exceeded")

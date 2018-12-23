@@ -34,7 +34,6 @@ Work status:
 // Game design:
 // -------------
 
-!- Create WorldGenerationSystem instead of functions in InitTest
 !- Add more ware types and resources
 !- Think about renaming ware to something different (item, good, commodity, article, product, ...)
 !- Maybe add a Conventions.text like in C# projects

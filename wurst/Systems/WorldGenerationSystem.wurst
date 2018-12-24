@@ -30,7 +30,6 @@ let startWoodCountPerPeasant = 5
 
 // Nature:
 let naturePlayer = Player(PLAYER_NEUTRAL_PASSIVE)
-let treeProbability = 0.2
 
 
 // --------------------
@@ -68,7 +67,7 @@ function generateWorld()
     Array2D<real> treeMap = generatePerlinNoise(tilesX, tilesY, 5, 0.6, "Cosine")
     for	x = 0 to tilesX - 1
         for	y = 0 to tilesY - 1
-            if treeMap.get(x, y) <= treeProbability
+            if treeMap.get(x, y) >= GetRandomReal(0., 1.)
                 var v = originVec + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * tileDistance
                 createUnit(naturePlayer, getUnitTypeId(UnitIdsCustom.beech), v, getRandomAngle())
     // Initialisation finished:

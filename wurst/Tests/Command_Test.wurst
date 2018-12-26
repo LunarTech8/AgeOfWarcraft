@@ -1,4 +1,5 @@
 package Command_Test
+import ConstantDataSystem
 
 
 // --------------------
@@ -15,10 +16,13 @@ let commandShort = "t"
 // --------------------
 
 function executeCommand()
-	print(Acos(0.5))
-	print(Acos(-0.5))
-	print(Acos(1.5))
-	print(Acos(-1.5))
+	print(UnitIdsCustom.altarOfKings)
+	print(UnitIdsCustom.beech)
+	print(UnitIdsCustom.beech_Var1)
+	// print(Acos(0.5))
+	// print(Acos(-0.5))
+	// print(Acos(1.5))
+	// print(Acos(-1.5))
 
 init
 	CreateTrigger()

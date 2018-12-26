@@ -76,6 +76,7 @@ function generateWorld()
 
 init
     // Use a trigger to allow the use of TriggerSleepAction:
-    CreateTrigger()
-    ..addAction(function generateWorld)
-    ..execute()
+    // TEST: following lines are deactivated for StartMap development
+    // CreateTrigger()
+    // ..addAction(function generateWorld)
+    // ..execute()

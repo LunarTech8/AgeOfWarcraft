@@ -28,12 +28,15 @@ Work status:
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !- Add a description comment (/** */) to every public class and function
+!!- Make the Harvest ability extract wares from resources
 
 
 // -------------
 // Game design:
 // -------------
 
+!!>- Work out a prototype with basic game mechanics on the StartMap
+!- Refine prototype with generated elements on TemperateMap
 !- Add more ware types and resources
 !- Think about renaming ware to something different (item, good, commodity, article, product, ...)
 !- Maybe add a Conventions.text like in C# projects

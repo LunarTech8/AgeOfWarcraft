@@ -27,21 +27,12 @@ let countPlayers = 12  // Highest player slot in use
 let wareMaxCount = 99999  // Is limited to allow tuple to be converted into a single int
 let wareMaxWareTypes = 9999  // Is limited to allow tuple to be converted into a single int
 
-function getMaxCapacity(int unitTypeId) returns int
-	switch unitTypeId
+function getMaxCapacity(int unitId) returns int
+	switch unitId
 		case UnitIdsCustom.peasant
 			return 10
 		default
 			return 0
-
-enum WareType
-	Empty
-	Wood
-	Stone
-	Food
-	WoodenBoard
-	WoodenStick
-	Straw
 
 function WareType.toString() returns string
 	switch this
@@ -73,6 +64,14 @@ function WareType.getIconPath() returns string
 		default
 			return null
 
+public enum WareType
+	Wood
+	Stone
+	Food
+	WoodenBoard
+	WoodenStick
+	Straw
+		
 
 // --------------------
 // Functional code
@@ -157,13 +156,13 @@ class Storage
 			if ware.count > freeCapacity
 				excess = ware.count - freeCapacity
 			usedCapacity += ware.count - excess
-			// Adjust ware object:
+			// Adjust ware:
 			for iWare in wares
 				if iWare.hasSameType(ware)
 					wares.replace(iWare, iWare.changedCopy(ware.count - excess))
 					// Return excess count:
 					return excess
-			// Add new ware object if none exists of that type yet:
+			// Add new ware if none exists of that type yet:
 			wares.add(ware.changedCopy(-excess))
 			// Return excess count:
 			return excess
@@ -171,11 +170,19 @@ class Storage
 			// Return excess count:
 			return ware.count
 	
+	function addWares(LinkedList<ware> wares) returns int
+		var excess = 0
+		// Add wares:
+		for ware in wares
+			excess += addWare(ware)
+		// Return excess count:
+		return excess
+
 	function removeWare(ware ware) returns int
 		for iWare in wares
 			if iWare.hasSameType(ware)
 				var shortage = 0
-				// Check and adjust ware object:
+				// Check and adjust ware:
 				if iWare.count <= ware.count
 					shortage = ware.count - iWare.count
 					wares.remove(iWare)
@@ -198,6 +205,7 @@ function addStorage(unit targetUnit)
 
 function removeStorage(unit targetUnit)
 	if storageMap.has(targetUnit)
+		destroy storageMap.get(targetUnit)
 		storageMap.remove(targetUnit)
 
 /** Returns the storage of given unit */

@@ -10,6 +10,7 @@ Gives predefined unit types resources wares that can be extracted by workers via
 Initial version.
 -------------------------------------------------------------*/
 package ResourceSystem
+import RegisterEvents
 import LinkedList
 import HashMap
 import ConstantDataSystem
@@ -24,21 +25,39 @@ import OnUnitEnterLeave
 // --------------------
 
 let countPlayers = 12  // Highest player slot in use
+let infoMsgTime = 2.
 
-function getDefaultWares(int unitTypeId) returns ware
-	switch unitTypeId
+function getDefaultInitWares(int unitId) returns LinkedList<ware>
+	var wares = new LinkedList<ware>()
+	switch unitId
 		case UnitIdsCustom.beech
-			return ware(WareType.Wood, GetRandomInt(6, 8))
-		default
-			return ware(WareType.Empty, 0)
+			wares.add(ware(WareType.Wood, GetRandomInt(6, 8)))
+	return wares
 
-function isKilledWhenDepleted(int unitTypeId) returns bool
-	switch unitTypeId
+function isKilledWhenDepleted(int unitId) returns bool
+	switch unitId
 		case UnitIdsCustom.beech
 			return true
 		default
 			return false
 
+function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns real
+	switch resourceUnitId
+		case UnitIdsCustom.beech
+			switch workerUnitId
+				case UnitIdsCustom.peasant
+					return 0.5
+			return 0.25
+		default
+			return 0.
+
+function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
+	var wares = new LinkedList<ware>()
+	switch unitId
+		case UnitIdsCustom.beech
+			wares.add(ware(WareType.Wood, 1))
+	return wares
+			
 	
 // --------------------
 // Functional code
@@ -49,19 +68,14 @@ let resourceMap = new HashMap<unit, Resource>  // TODO: maybe make a general uni
 class Resource
 	private unit resourceUnit
 	private bool isKilledWhenDepleted
-	private LinkedList<WareObject> wares
+	private real workProgress
+	private LinkedList<ware> wares
 
-	static class WareObject
-		ware data
-	
-		construct(ware ware)
-			data = ware
-	
-	construct(unit resourceUnit, bool isKilledWhenDepleted, ware defaultWares)
+	construct(unit resourceUnit, bool isKilledWhenDepleted, LinkedList<ware> initWares)
 		this.resourceUnit = resourceUnit
 		this.isKilledWhenDepleted = isKilledWhenDepleted
-		wares = new LinkedList<WareObject>()
-		wares.add(new WareObject(defaultWares))
+		workProgress = 0.
+		wares = initWares
 
 	ondestroy
 		destroy wares
@@ -69,22 +83,52 @@ class Resource
 	function getWare(int index) returns ware
 		if index >= wares.size()
 			Log.error("ERROR: Index has to be smaller than list size")
-		return wares.get(index).data
+		return wares.get(index)
 		
 	function getAmountOfWareTypes() returns int
 		return wares.size()
+
+	function getWareCount(WareType wareType) returns int
+		for iWare in wares
+			if iWare.wareType == wareType
+				return iWare.count
+		return 0
+	
+	function removeWare(ware ware)
+		for iWare in wares
+			if iWare.hasSameType(ware)
+				if iWare.count <= ware.count
+					wares.remove(iWare)
+				else
+					wares.replace(iWare, iWare.changedCopy(-ware.count))
+
+	function work(real workProgress) returns bool
+		this.workProgress += workProgress
+		if this.workProgress >= 1.
+			this.workProgress -= 1.
+			return true
+		else
+			return false
+
+	function checkForDepletionKill() returns bool
+		if isKilledWhenDepleted and wares.isEmpty()
+			return true
+		return false
 
 
 function addResource(unit targetUnit)
 	if resourceMap.has(targetUnit) == false
 		var unitType = getUnitId(targetUnit)
-		var wares = getDefaultWares(unitType)
-		if wares.wareType != WareType.Empty
+		var wares = getDefaultInitWares(unitType)
+		if wares.isEmpty()
+			destroy wares
+		else
 			var resource = new Resource(targetUnit, isKilledWhenDepleted(unitType), wares)
 			resourceMap.put(targetUnit, resource)
 	
 function removeResource(unit targetUnit)
 	if resourceMap.has(targetUnit)
+		destroy resourceMap.get(targetUnit)
 		resourceMap.remove(targetUnit)
 
 /** Returns the resource of given unit */
@@ -93,6 +137,46 @@ public function getResource(unit targetUnit) returns Resource
 		return resourceMap.get(targetUnit)
 	else
 		return null
+
+/** Returns true if the harvest was valid */
+public function harvest(unit workerUnit, unit targetUnit) returns bool
+	var storage = getStorage(workerUnit)
+	var resource = getResource(targetUnit)
+	// Check if source and target are valid:
+	if storage == null or resource == null
+		printTimedToPlayer("Invalid harvest target", infoMsgTime, workerUnit.getOwner())
+		return false
+	// Check if wares can be harvested:
+	if storage.getFreeCapacity() <= 0
+		printTimedToPlayer("No free storage to harvest", infoMsgTime, workerUnit.getOwner())
+		return false
+	else if resource.getAmountOfWareTypes() <= 0
+		printTimedToPlayer("Harvest target is already depleted", infoMsgTime, workerUnit.getOwner())
+		return false
+	else
+		let resourceUnitId = getUnitId(targetUnit)
+		// Work resource:
+		if resource.work(getWorkProgressPerHarvest(getUnitId(workerUnit), resourceUnitId))
+			// Transfere wares:
+			let wares = getWaresPerFinishedWork(resourceUnitId)
+			for ware in wares
+				// Check resource count:
+				let resourceWareCount = resource.getWareCount(ware.wareType)
+				if resourceWareCount > 0
+					// Limit by resource count:
+					if resourceWareCount < ware.count
+						ware.count = resourceWareCount
+					// Add ware to storage:
+					var excess = storage.addWare(ware)
+					// Remove ware from resource:
+					if excess < ware.count
+						ware.count -= excess
+						resource.removeWare(ware)
+			destroy wares
+			// Check for resource depletion:
+			if resource.checkForDepletionKill()
+				targetUnit.kill()
+		return true
 
 /** Sets system relevant infos for given object in target multiboard */
 public function setObjectInfoMultiboard(multiboard targetMultiboard, Resource resource) returns bool
@@ -109,3 +193,9 @@ init
 	// Remove resource from every appropriate removed unit:
 	onLeave() -> 
 		removeResource(getEnterLeaveUnit())
+	// Register harvest spell:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
+		if GetSpellAbilityId() == AbilityIdsCustom.harvest
+			let worker = GetTriggerUnit()
+			if harvest(worker, GetSpellTargetUnit()) == false
+				worker.abortOrder()

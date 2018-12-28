@@ -19,7 +19,6 @@ Work status:
 // Programming:
 // -------------
 
-!!>- Make the Harvest ability extract wares from resources
 !!>- Make work abilities be automatically recast if the target is still valid
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building

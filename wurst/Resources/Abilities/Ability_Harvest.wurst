@@ -27,5 +27,5 @@ import AbilityPresetFunctions
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.tree)
     // Text:
-    ..setHotkeyNormal("H")
+    ..setHotkeyNormal("V")
     ..presetNameAndTooltips("Harvest", "Harvest a ware of the target resource.")

@@ -11,7 +11,7 @@ import BuildingPreset
     // Abilities:
     ..presetNormalAbilities()
     // Art:
-    ..setGroundTexture("OMED")  // TODO: store name here
+    ..setGroundTexture("OMED")  // Altar of Storms, Barracks, ...
     ..setScalingValue(0.8)
     ..setSelectionScale(3.)
     // Pathing:

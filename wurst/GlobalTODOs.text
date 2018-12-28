@@ -19,23 +19,27 @@ Work status:
 // Programming:
 // -------------
 
-!!- Get unit tests to work or create an issue on GitHub if necessary -> Maybe reinstall wurst
-!!- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
+!!>- Make the Harvest ability extract wares from resources
+!!>- Make work abilities be automatically recast if the target is still valid
+!!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
+!!- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
+!!- Create a NatureSystem that controlls plant and animal growth and reproduction
+!- Get unit tests to work or create an issue on GitHub if necessary -> Maybe reinstall wurst
+!- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
 !- Maybe make a general unit to class hash map system with corresponding utility functions
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
-!!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !- Add a description comment (/** */) to every public class and function
-!!- Make the Harvest ability extract wares from resources
+!- Create a WeatherSystem
 
 
 // -------------
 // Game design:
 // -------------
 
-!!>- Work out a prototype with basic game mechanics on the StartMap
+!!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
 !- Refine prototype with generated elements on TemperateMap
 !- Add more ware types and resources
 !- Think about renaming ware to something different (item, good, commodity, article, product, ...)
@@ -46,5 +50,8 @@ Work status:
 // Resources:
 // -------------
 
-!- Add trees
+!!- Add all trees
+!!- Add rocks, berry bushes, grass and domestic animals
+!!- Add houses, storehouse, resource huts and farm
 !- Add all base human units
+!- Add walls and fortifications

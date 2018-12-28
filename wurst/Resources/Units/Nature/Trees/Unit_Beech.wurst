@@ -17,7 +17,7 @@ function genObjVariation(int id, string modelPath, string suffix)
     ..setProjectileImpactZ(20.)
     ..setScalingValue(0.72)
     ..setSelectionScale(0.8)
-    ..setShadowTextureBuilding(Textures.shadowCage)
+    ..setShadowTextureBuilding("ShadowCage")
     // Editor:
     ..setCanDropItemsOnDeath(false)
     ..setCategorizationSpecial(false)

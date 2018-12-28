@@ -11,7 +11,7 @@ import BuildingPreset
     // Abilities:
     ..presetNormalAbilities()
     // Art:
-    ..setGroundTexture("HSMA")
+    ..setGroundTexture("HSMA")  // Arcane Tower, Cannon Tower, ...
     ..setScalingValue(0.65)
     ..setSelectionScale(2.5)
     ..setShadowTextureBuilding(Textures.shadowHouse)

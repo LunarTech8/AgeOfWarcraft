@@ -23,4 +23,4 @@ import UnitPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Text:
-    ..presetNameAndTooltips(false, "Knight", "Mounted soldier unit.")
+    ..presetNameAndTooltips(false, "Knight", "Mounted armoured melee unit.")

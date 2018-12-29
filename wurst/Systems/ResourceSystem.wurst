@@ -32,11 +32,23 @@ function getDefaultInitWares(int unitId) returns LinkedList<ware>
 	switch unitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.Wood, GetRandomInt(6, 8)))
+		case UnitIdsCustom.birch
+			wares.add(ware(WareType.Wood, GetRandomInt(4, 6)))
+		case UnitIdsCustom.greyOak
+			wares.add(ware(WareType.Wood, GetRandomInt(6, 8)))
+		case UnitIdsCustom.chestnut
+			wares.add(ware(WareType.Wood, GetRandomInt(4, 6)))
 	return wares
 
 function isKilledWhenDepleted(int unitId) returns bool
 	switch unitId
 		case UnitIdsCustom.beech
+			return true
+		case UnitIdsCustom.birch
+			return true
+		case UnitIdsCustom.greyOak
+			return true
+		case UnitIdsCustom.chestnut
 			return true
 		default
 			return false
@@ -46,8 +58,14 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns
 		case UnitIdsCustom.beech
 			switch workerUnitId
 				case UnitIdsCustom.peasant
-					return 0.5
-			return 0.25
+					return 0.67
+			return 0.5
+		case UnitIdsCustom.birch
+			return 0.5
+		case UnitIdsCustom.greyOak
+			return 0.5
+		case UnitIdsCustom.chestnut
+			return 0.5
 		default
 			return 0.
 
@@ -55,6 +73,12 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch unitId
 		case UnitIdsCustom.beech
+			wares.add(ware(WareType.Wood, 1))
+		case UnitIdsCustom.birch
+			wares.add(ware(WareType.Wood, 1))
+		case UnitIdsCustom.greyOak
+			wares.add(ware(WareType.Wood, 1))
+		case UnitIdsCustom.chestnut
 			wares.add(ware(WareType.Wood, 1))
 	return wares
 			

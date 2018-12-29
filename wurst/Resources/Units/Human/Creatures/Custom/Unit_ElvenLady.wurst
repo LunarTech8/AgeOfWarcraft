@@ -1,0 +1,26 @@
+package Unit_ElvenLady
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.elvenLady, UnitIds.highelvenfemale)
+    // Abilities:
+    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.transferWares, AbilityIdsMissing.repairHuman)
+    // Art:
+    ..setScalingValue(.48)
+    ..setSelectionScale(.5)
+    ..presetShadowImage(20., 50.)
+    // Movement:
+    ..setSpeedBase(100)
+    // Pathing:
+    ..setCollisionSize(12.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetStructuresBuilt(UnitIdsCustom.townHall, UnitIdsCustom.farm, UnitIdsCustom.barracks, UnitIdsCustom.blacksmith, UnitIdsCustom.scoutTower, UnitIdsCustom.altarOfKings, UnitIdsCustom.workshop, UnitIdsCustom.arcaneSanctum, UnitIdsCustom.lumberMill, UnitIdsCustom.gryphonAviary, UnitIdsCustom.arcaneVault)
+    // Text:
+    ..presetNameAndTooltips(false, "Elven Lady", "")

@@ -25,4 +25,4 @@ import UnitPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Text:
-    ..presetNameAndTooltips(false, "Footman", "Basic soldier unit.")
+    ..presetNameAndTooltips(false, "Footman", "Basic armoured melee unit.")

@@ -23,4 +23,4 @@ import UnitPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Text:
-    ..presetNameAndTooltips(false, "Rifleman", "Adcanced ranged unit.")
+    ..presetNameAndTooltips(false, "Rifleman", "Advanced ranged unit.")

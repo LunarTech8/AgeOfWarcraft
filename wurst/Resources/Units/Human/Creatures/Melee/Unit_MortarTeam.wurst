@@ -23,4 +23,4 @@ import UnitPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Text:
-    ..presetNameAndTooltips(false, "Mortar Team", "Adcanced artillery unit.")
+    ..presetNameAndTooltips(false, "Mortar Team", "Advanced artillery unit.")

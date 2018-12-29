@@ -62,6 +62,18 @@ public class UnitIdsCustom
 	static constant beech_Var2 = compiletime(UNIT_ID_GEN.next())
 	static constant beech_Var3 = compiletime(UNIT_ID_GEN.next())
 	static constant beech_Var4 = compiletime(UNIT_ID_GEN.next())
+	static constant birch = compiletime(UNIT_ID_GEN.next())
+	static constant birch_Var1 = compiletime(UNIT_ID_GEN.next())
+	static constant birch_Var2 = compiletime(UNIT_ID_GEN.next())
+	static constant birch_Var3 = compiletime(UNIT_ID_GEN.next())
+	static constant greyOak = compiletime(UNIT_ID_GEN.next())
+	static constant greyOak_Var1 = compiletime(UNIT_ID_GEN.next())
+	static constant greyOak_Var2 = compiletime(UNIT_ID_GEN.next())
+	static constant greyOak_Var3 = compiletime(UNIT_ID_GEN.next())
+	static constant greyOak_Var4 = compiletime(UNIT_ID_GEN.next())
+	static constant chestnut = compiletime(UNIT_ID_GEN.next())
+	static constant chestnut_Var1 = compiletime(UNIT_ID_GEN.next())
+	static constant chestnut_Var2 = compiletime(UNIT_ID_GEN.next())
 
 public abstract class AbilityIdsCustom
 	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
@@ -75,3 +87,12 @@ public abstract class ImportPaths
 	static constant beech_Var2 = "Trees\\Buche1.mdl"
 	static constant beech_Var3 = "Trees\\Buche2.mdl"
 	static constant beech_Var4 = "Trees\\Buche3.mdl"
+	static constant birch_Var1 = "Trees\\Birke0.mdl"
+	static constant birch_Var2 = "Trees\\Birke1.mdl"
+	static constant birch_Var3 = "Trees\\Birke2.mdl"
+	static constant greyOak_Var1 = "Trees\\Graueiche0.mdl"
+	static constant greyOak_Var2 = "Trees\\Graueiche1.mdl"
+	static constant greyOak_Var3 = "Trees\\Graueiche2.mdl"
+	static constant greyOak_Var4 = "Trees\\Graueiche3.mdl"
+	static constant chestnut_Var1 = "Trees\\Kastanie0.mdl"
+	static constant chestnut_Var2 = "Trees\\Kastanie1.mdl"

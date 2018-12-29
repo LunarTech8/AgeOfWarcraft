@@ -10,11 +10,11 @@ Preset class based on UnitDefinition that adds additional preset functions for u
 Initial version.
 -------------------------------------------------------------*/
 package UnitPreset
-import UnitObjEditing
 import ObjectIds
 import public Assets
 import public ConstantDataSystem
 import public UnitsPresetFunctions
+import public UnitObjEditing
 import public ObjEditingCommons
 
 

@@ -65,3 +65,19 @@ public function UnitOrBuildingOrHeroDefinition.presetNoGoldAndLumber()
 public function UnitOrBuildingOrHeroDefinition.presetMaximumAngles(real pitch, real roll)
 	this.setMaximumPitchAngledegrees(pitch)
 	this.setMaximumRollAngledegrees(roll)
+
+public function UnitOrBuildingOrHeroDefinition.presetAttack1TargetsAllowed(vararg string targetsAllowed)
+	var data = ""
+	for targetAllowed in targetsAllowed
+		data += targetAllowed + ","
+	if data != ""
+		data = data.substring(0, data.length()-1)
+	this.setAttack1TargetsAllowed(data)
+
+public function UnitOrBuildingOrHeroDefinition.presetAttack2TargetsAllowed(vararg string targetsAllowed)
+	var data = ""
+	for targetAllowed in targetsAllowed
+		data += targetAllowed + ","
+	if data != ""
+		data = data.substring(0, data.length()-1)
+	this.setAttack2TargetsAllowed(data)

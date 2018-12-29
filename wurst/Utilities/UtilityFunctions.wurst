@@ -30,6 +30,15 @@ function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	map.put(UnitIdsCustom.beech_Var2, UnitIdsCustom.beech)
 	map.put(UnitIdsCustom.beech_Var3, UnitIdsCustom.beech)
 	map.put(UnitIdsCustom.beech_Var4, UnitIdsCustom.beech)
+	map.put(UnitIdsCustom.birch_Var1, UnitIdsCustom.birch)
+	map.put(UnitIdsCustom.birch_Var2, UnitIdsCustom.birch)
+	map.put(UnitIdsCustom.birch_Var3, UnitIdsCustom.birch)
+	map.put(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak)
+	map.put(UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak)
+	map.put(UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak)
+	map.put(UnitIdsCustom.greyOak_Var4, UnitIdsCustom.greyOak)
+	map.put(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut)
+	map.put(UnitIdsCustom.chestnut_Var2, UnitIdsCustom.chestnut)
 	return map
 
 /** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
@@ -37,6 +46,12 @@ public function getUnitTypeId(int baseUnitId) returns int
 	switch baseUnitId
 		case UnitIdsCustom.beech
 			return getRandomInputInt(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech_Var2, UnitIdsCustom.beech_Var3, UnitIdsCustom.beech_Var4)
+		case UnitIdsCustom.birch
+			return getRandomInputInt(UnitIdsCustom.birch_Var1, UnitIdsCustom.birch_Var2, UnitIdsCustom.birch_Var3)
+		case UnitIdsCustom.greyOak
+			return getRandomInputInt(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak_Var4)
+		case UnitIdsCustom.chestnut
+			return getRandomInputInt(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut_Var2)
 	return baseUnitId
 
 // --------------------

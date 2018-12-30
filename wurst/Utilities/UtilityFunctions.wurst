@@ -24,6 +24,18 @@ let maxComputationCostPerCycle = 256.
 
 public let minTriggerSleepTime = 0.01
 
+function getAbilityOrder(int abilityId) returns string
+	switch abilityId
+		case AbilityIdsCustom.harvest
+			return "thunderbolt"
+		case AbilityIdsCustom.showTargetInfo
+			return "thunderbolt"
+		case AbilityIdsCustom.transferWares
+			return "frostnova"
+		default
+			Log.error("ERROR: unmapped ability id (" + AbilityId2String(abilityId) + ")")
+			return null
+
 function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	let map = new HashMap<int, int>
 	map.put(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech)
@@ -67,7 +79,14 @@ public function getUnitId(unit u) returns int
 		return baseUnitTypeIdMap.get(id)
 	return id
 
-/** Returns random value of given inputs */
+/** Issues unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
+public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns boolean
+	if resetAbility
+		this.removeAbility(abilityId)
+		this.addAbility(abilityId)
+	return this.issueTargetOrder(getAbilityOrder(abilityId), target)
+
+/** Returns random value of given inputs. */
 public function getRandomInputInt(vararg int inputs) returns int
 	var count = 0
 	for _input in inputs
@@ -80,7 +99,7 @@ public function getRandomInputInt(vararg int inputs) returns int
 			return input
 	return 0
 
-/** Returns random value of given inputs */
+/** Returns random value of given inputs. */
 public function getRandomInputReal(vararg real inputs) returns real
 	var count = 0
 	for _input in inputs

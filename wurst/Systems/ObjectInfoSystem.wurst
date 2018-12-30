@@ -100,7 +100,7 @@ function deactivateDataset(integer playerID)
 	// Disable multiboard:
 	dataset.displayMultiboard(playerID, false)
 
-/* Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
+/** Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
 function createMultiboardLines(integer playerID) returns boolean
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)

@@ -208,14 +208,14 @@ function removeStorage(unit targetUnit)
 		destroy storageMap.get(targetUnit)
 		storageMap.remove(targetUnit)
 
-/** Returns the storage of given unit */
+/** Returns the storage of given unit. */
 public function getStorage(unit targetUnit) returns Storage
 	if storageMap.has(targetUnit)
 		return storageMap.get(targetUnit)
 	else
 		return null
 
-/** Returns the amount of wares that couldn't be transfered */
+/** Returns the amount of wares that couldn't be transfered. */
 public function transferWares(unit sourceUnit, unit targetUnit) returns int
 	// Check if wares can be transfered:
 	if storageMap.has(sourceUnit) and storageMap.has(targetUnit)
@@ -234,7 +234,7 @@ public function transferWares(unit sourceUnit, unit targetUnit) returns int
 	else
 		return -1
 
-/** Sets system relevant infos for given object in target multiboard */
+/** Sets system relevant infos for given object in target multiboard. */
 public function setObjectInfoMultiboard(multiboard targetMultiboard, Storage storage) returns bool
 	addMultiboardLine(targetMultiboard, "Storage:", BaseIconType.Headline.getIconPath())
 	addMultiboardLine(targetMultiboard, "Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), BaseIconType.Capacity.getIconPath())

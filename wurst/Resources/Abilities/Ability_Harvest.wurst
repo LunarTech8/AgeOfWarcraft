@@ -6,6 +6,9 @@ import AbilityPresetFunctions
 // Data code
 // --------------------
 
+public class AbilityData_Harvest
+    static constant cooldown = 0.8
+
 @compiletime function genObj()
     new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.harvest)
     // Ability specific data:
@@ -19,7 +22,7 @@ import AbilityPresetFunctions
     // Stats:
     ..presetBuffs(AbilityIdsCustom.emptyBuff)
     ..presetCastRange(32.)
-    ..presetCooldown(1.)
+    ..presetCooldown(AbilityData_Harvest.cooldown)
     ..presetDuration(.01)
     ..setHeroAbility(false)
     ..setLevels(1)

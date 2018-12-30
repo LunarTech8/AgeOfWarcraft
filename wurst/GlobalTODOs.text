@@ -19,7 +19,6 @@ Work status:
 // Programming:
 // -------------
 
-!!>- Make work abilities be automatically recast if the target is still valid
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
@@ -32,6 +31,7 @@ Work status:
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
 !- Add a description comment (/** */) to every public class and function
 !- Create a WeatherSystem
+!- Add a priority and maxWorker count to resources
 
 
 // -------------

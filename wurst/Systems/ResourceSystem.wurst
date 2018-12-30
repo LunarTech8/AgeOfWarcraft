@@ -18,6 +18,8 @@ import MultiboardPrioritySystem
 import StorageSystem
 import UtilityFunctions
 import OnUnitEnterLeave
+import ClosureTimers
+import Ability_Harvest
 
 
 // --------------------
@@ -26,6 +28,7 @@ import OnUnitEnterLeave
 
 let countPlayers = 12  // Highest player slot in use
 let infoMsgTime = 2.
+let autoCastDelay = 0.25
 
 function getDefaultInitWares(int unitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
@@ -155,54 +158,60 @@ function removeResource(unit targetUnit)
 		destroy resourceMap.get(targetUnit)
 		resourceMap.remove(targetUnit)
 
-/** Returns the resource of given unit */
+/** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=NoFreeStorage 5=ResourceIsDepleted */
+function getHarvestValidity(unit workerUnit, unit targetUnit) returns int
+	// Check if source and target are valid:
+	var storage = getStorage(workerUnit)
+	if storage == null
+		return 2
+	var resource = getResource(targetUnit)
+	if resource == null
+		return 3
+	// Check if wares can be harvested:
+	if storage.getFreeCapacity() <= 0
+		return 4
+	else if resource.getAmountOfWareTypes() <= 0
+		return 5
+	else
+		return 1
+		
+/** Perform harvest and returns if another harvest with the given target is still valid. */
+function harvest(unit worker, unit target) returns bool
+	var storage = getStorage(worker)
+	var resource = getResource(target)
+	let resourceUnitId = getUnitId(target)
+	// Work resource:
+	if resource.work(getWorkProgressPerHarvest(getUnitId(worker), resourceUnitId))
+		// Transfere wares:
+		let wares = getWaresPerFinishedWork(resourceUnitId)
+		for ware in wares
+			// Check resource count:
+			let resourceWareCount = resource.getWareCount(ware.wareType)
+			if resourceWareCount > 0
+				// Limit by resource count:
+				if resourceWareCount < ware.count
+					ware.count = resourceWareCount
+				// Add ware to storage:
+				var excess = storage.addWare(ware)
+				// Remove ware from resource:
+				if excess < ware.count
+					ware.count -= excess
+					resource.removeWare(ware)
+		destroy wares
+		// Check for resource depletion:
+		if resource.checkForDepletionKill()
+			target.kill()
+			return false
+	return getHarvestValidity(worker, target) == 1
+		
+/** Returns the resource of given unit. */
 public function getResource(unit targetUnit) returns Resource
 	if resourceMap.has(targetUnit)
 		return resourceMap.get(targetUnit)
 	else
 		return null
 
-/** Returns true if the harvest was valid */
-public function harvest(unit workerUnit, unit targetUnit) returns bool
-	var storage = getStorage(workerUnit)
-	var resource = getResource(targetUnit)
-	// Check if source and target are valid:
-	if storage == null or resource == null
-		printTimedToPlayer("Invalid harvest target", infoMsgTime, workerUnit.getOwner())
-		return false
-	// Check if wares can be harvested:
-	if storage.getFreeCapacity() <= 0
-		printTimedToPlayer("No free storage to harvest", infoMsgTime, workerUnit.getOwner())
-		return false
-	else if resource.getAmountOfWareTypes() <= 0
-		printTimedToPlayer("Harvest target is already depleted", infoMsgTime, workerUnit.getOwner())
-		return false
-	else
-		let resourceUnitId = getUnitId(targetUnit)
-		// Work resource:
-		if resource.work(getWorkProgressPerHarvest(getUnitId(workerUnit), resourceUnitId))
-			// Transfere wares:
-			let wares = getWaresPerFinishedWork(resourceUnitId)
-			for ware in wares
-				// Check resource count:
-				let resourceWareCount = resource.getWareCount(ware.wareType)
-				if resourceWareCount > 0
-					// Limit by resource count:
-					if resourceWareCount < ware.count
-						ware.count = resourceWareCount
-					// Add ware to storage:
-					var excess = storage.addWare(ware)
-					// Remove ware from resource:
-					if excess < ware.count
-						ware.count -= excess
-						resource.removeWare(ware)
-			destroy wares
-			// Check for resource depletion:
-			if resource.checkForDepletionKill()
-				targetUnit.kill()
-		return true
-
-/** Sets system relevant infos for given object in target multiboard */
+/** Sets system relevant infos for given object in target multiboard. */
 public function setObjectInfoMultiboard(multiboard targetMultiboard, Resource resource) returns bool
 	addMultiboardLine(targetMultiboard, "Resource:", BaseIconType.Headline.getIconPath())
 	for i = 0 to (resource.getAmountOfWareTypes() - 1)
@@ -221,5 +230,23 @@ init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
 		if GetSpellAbilityId() == AbilityIdsCustom.harvest
 			let worker = GetTriggerUnit()
-			if harvest(worker, GetSpellTargetUnit()) == false
+			let target = GetSpellTargetUnit()
+			let validity = getHarvestValidity(worker, target)
+			if validity != 1
+				// React on invalid harvest command:
+				switch validity
+					case 2  // InvalidWorker
+						printTimedToPlayer("Invalid: No storage for harvest", infoMsgTime, worker.getOwner())
+					case 3  // InvalidTarget
+						printTimedToPlayer("Invalid: Harvest target is no resource", infoMsgTime, worker.getOwner())
+					case 4  // NoFreeStorage
+						printTimedToPlayer("Invalid: No free storage for harvest", infoMsgTime, worker.getOwner())
+					case 5  // ResourceIsDepleted
+						printTimedToPlayer("Invalid: Harvest target is already depleted", infoMsgTime, worker.getOwner())
 				worker.abortOrder()
+			else
+				// Perform harvest after ability casting is finished:
+				doAfter(AbilityData_Harvest.cooldown) ->
+					if harvest(worker, target)
+						// Auto-recast ability:
+						worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)

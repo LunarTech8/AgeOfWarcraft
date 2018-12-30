@@ -255,43 +255,43 @@ public class ArrayList<T>
 		destroy data
 		data = newData
 	
-	/** Get the size of the list */	
+	/** Get the size of the list. */	
 	function size() returns int
 		return data.getUsedSlots()
 
-	/** Return whether the list is empty */
+	/** Return whether the list is empty. */
 	function isEmpty() returns bool
 		return data.getUsedSlots() == 0
 		
-	/** Return whether the element exists in the list */
+	/** Return whether the element exists in the list. */
 	function has(T elem) returns bool
 		return data.getIndex(elem) != 0
 
-	/** Set an existing element at the given position to a new value */
+	/** Set an existing element at the given position to a new value. */
 	function set(int index, T elem)
 		data.setElem(index, elem)
 
-	/** Get the element at the given index from this list */
+	/** Get the element at the given index from this list. */
 	function get(int index) returns T
 		return data.getElem(index)
 
-	/** Get the first element from this list */
+	/** Get the first element from this list. */
 	function getFirst() returns T
 		if isEmpty()
 			return null
 		return data.getElem(0)
 		
-	/** Get the last element from this list */
+	/** Get the last element from this list. */
 	function getLast() returns T
 		if isEmpty()
 			return null
 		return data.getElem(data.getUsedSlots())
 		
-	/** Equal to getLast function (available for compability) */
+	/** Equal to getLast function (available for compability). */
 	function peek() returns T
 		return getLast()
 		
-	/** Add elements to the end of the list */
+	/** Add elements to the end of the list. */
 	function add(vararg T elems)
 		var size = data.getSize()
 		for elem in elems
@@ -301,7 +301,7 @@ public class ArrayList<T>
 				size = data.getSize()
 			// Add new element:
 			data.add(elem)
-	/** Adds the given element directly at the given index shifting the following elements towards the back */
+	/** Adds the given element directly at the given index shifting the following elements towards the back. */
 	function add(T elem, int index)
 		// Resize if used slots already occupy the current array size:
 		let size = data.getSize()
@@ -310,10 +310,10 @@ public class ArrayList<T>
 		// Add new element:
 		data.add(index, elem)
 
-	/** Remove the first occurence of the element from this list */
+	/** Remove the first occurence of the element from this list. */
 	function remove(T elem)
 		remove(data.getIndex(elem))
-	/** Remove the element at the given index */
+	/** Remove the element at the given index. */
 	function remove(int index)
 		// Remove target element:
 		data.remove(index)
@@ -322,7 +322,7 @@ public class ArrayList<T>
 		if validizeSize(newUsedSlots) < data.getSize()
 			resize(newUsedSlots)
 
-	/** Replaces the first occurence of 'whichElement' with 'newElement' */
+	/** Replaces the first occurence of 'whichElement' with 'newElement'. */
 	function replace(T whichElement, T newElement) returns boolean
 		let index = data.getIndex(whichElement)
 		if index == 0
@@ -330,12 +330,12 @@ public class ArrayList<T>
 		data.setElem(index, newElement)
 		return true
 			
-	/** Remove all elements from this list without destroying it */
+	/** Remove all elements from this list without destroying it. */
 	function clear()
 		destroy data
 		data = createData(minPossibleSize)
 
-	/** Get an iterator for this list */
+	/** Get an iterator for this list. */
 	function iterator() returns ALIterator<T>
 		return new ALIterator(this)	
 				

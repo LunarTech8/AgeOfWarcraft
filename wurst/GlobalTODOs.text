@@ -22,7 +22,7 @@ Work status:
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
-!- Get unit tests to work or create an issue on GitHub if necessary -> Maybe reinstall wurst
+!- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
 !- Maybe make a general unit to class hash map system with corresponding utility functions

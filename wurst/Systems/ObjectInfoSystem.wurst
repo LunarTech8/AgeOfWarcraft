@@ -25,6 +25,7 @@ import TimerUtils
 import MultiboardPrioritySystem
 import StorageSystem
 import ResourceSystem
+import BuildingSystem
 import ConstantDataSystem
 
 
@@ -107,6 +108,9 @@ function createMultiboardLines(integer playerID) returns boolean
 		var storage = getStorage(datasets[playerID].targetedUnit)
 		if storage != null
 			return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), storage)
+		var buildingSite = getBuildingSite(datasets[playerID].targetedUnit)
+		if buildingSite != null
+			return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), buildingSite)
 	// Check info sources that do not require specific ownerhsip:
 	var resource = getResource(datasets[playerID].targetedUnit)
 	if resource != null

@@ -20,7 +20,7 @@ Work status:
 // -------------
 
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
-!!- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
+!!>>- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
@@ -32,6 +32,8 @@ Work status:
 !- Add a description comment (/** */) to every public class and function
 !- Create a WeatherSystem
 !- Add a priority and maxWorker count to resources
+!- Maybe create a generalized validity check for abilities
+!- Maybe shorten all workerUnit, buildingUnit, etc. with worker, building, etc.
 
 
 // -------------

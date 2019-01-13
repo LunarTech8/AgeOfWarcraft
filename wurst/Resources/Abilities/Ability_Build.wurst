@@ -1,0 +1,34 @@
+package Ability_Build
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new AbilityDefinitionWardenShadowStrike(AbilityIdsCustom.build)
+    // Ability specific data:
+    ..presetDecayPower((int lvl) -> 0.)
+    ..presetDecayingDamage((int lvl) -> 0.)
+    ..presetInitialDamage((int lvl) -> 0.)
+    ..presetMovementSpeedFactor((int lvl) -> 0.)
+    // Art:
+    ..presetButtonPosNormal(2, 2)
+    ..setIconNormal(Icons.bTNBash)
+    ..setMissileArt("")
+    ..setMissileSpeed(0)
+    // Stats:
+    ..presetBuffs(AbilityIdsCustom.emptyBuff)
+    ..presetCastRange(32.)
+    ..presetCastingTime((int lvl) -> 0.)
+    ..presetCooldown(1.)
+    ..presetDuration(.01)
+    ..setHeroAbility(false)
+    ..setLevels(1)
+    ..presetManaCost(0)
+    ..setRace(Race.Other)
+    ..presetTargetsAllowed(TargetsAllowed.structure, TargetsAllowed.playerunits)
+    // Text:
+    ..setHotkeyNormal("B")
+    ..presetNameAndTooltips("Build", "Work on target building site.")

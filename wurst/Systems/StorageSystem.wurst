@@ -236,8 +236,8 @@ public function transferWares(unit sourceUnit, unit targetUnit) returns int
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function setObjectInfoMultiboard(multiboard targetMultiboard, Storage storage) returns bool
-	addMultiboardLine(targetMultiboard, "Storage:", BaseIconType.Headline.getIconPath())
-	addMultiboardLine(targetMultiboard, "Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), BaseIconType.Capacity.getIconPath())
+	addMultiboardLine(targetMultiboard, "Storage:", headlineIconPath)
+	addMultiboardLine(targetMultiboard, "Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), Icons.bTNSnazzyScroll)
 	for i = 0 to (storage.getAmountOfWareTypes() - 1)
 		var ware = storage.getWare(i)
 		addMultiboardLine(targetMultiboard, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())

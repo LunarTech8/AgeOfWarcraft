@@ -20,21 +20,8 @@ package MultiboardPrioritySystem
 
 let countPlayers = 12  // Highest player slot in use
 
-enum BaseIconType
-	Headline
-	SubHeadline
-	Capacity
-
-public function BaseIconType.getIconPath() returns string
-	switch this
-		case Headline
-			return "UI\\Minimap\\MinimapIconCreepLoc2.blp"
-		case SubHeadline
-			return "UI\\Minimap\\MinimapIconCreepLoc.blp"
-		case Capacity
-			return "ReplaceableTextures\\CommandButtons\\BTNSnazzyScroll.blp"
-		default
-			return null
+public let headlineIconPath = "UI\\Minimap\\MinimapIconCreepLoc2.blp"
+public let subHeadlineIconPath = "UI\\Minimap\\MinimapIconCreepLoc2.blp"
 
 
 // --------------------
@@ -97,9 +84,9 @@ public function addMultiboardLine(multiboard targetMultiboard, string text, stri
 	let multiboardItem = MultiboardGetItem(targetMultiboard, lineNumber - 1, 0)
 	MultiboardSetItemValue(multiboardItem, text)
 	MultiboardSetItemIcon(multiboardItem, iconPath)
-	if iconPath == BaseIconType.Headline.getIconPath()
+	if iconPath == headlineIconPath
 		MultiboardSetItemValueColor(multiboardItem, 255, 0, 0, 255)
-	else if iconPath == BaseIconType.SubHeadline.getIconPath()
+	else if iconPath == subHeadlineIconPath
 		MultiboardSetItemValueColor(multiboardItem, 255, 200, 0, 255)
 	MultiboardSetItemWidth(multiboardItem, 0.15)
 	MultiboardReleaseItem(multiboardItem)

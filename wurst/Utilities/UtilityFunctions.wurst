@@ -28,12 +28,14 @@ function getAbilityOrder(int abilityId) returns string
 	switch abilityId
 		case AbilityIdsCustom.harvest
 			return "thunderbolt"
+		case AbilityIdsCustom.build
+			return "shadowstrike"
 		case AbilityIdsCustom.showTargetInfo
 			return "thunderbolt"
 		case AbilityIdsCustom.transferWares
 			return "frostnova"
 		default
-			Log.error("ERROR: unmapped ability id (" + AbilityId2String(abilityId) + ")")
+			Log.error("ERROR: unmapped ability id (" + abilityId.toString() + ")")
 			return null
 
 function initBaseUnitTypeIdMap() returns HashMap<int, int>
@@ -85,6 +87,14 @@ public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool 
 		this.removeAbility(abilityId)
 		this.addAbility(abilityId)
 	return this.issueTargetOrder(getAbilityOrder(abilityId), target)
+
+/** Replaces unit with a new unit of given type. */
+public function unit.replace(int unitTypeId) returns unit
+	this.hide()
+	let newUnit = createUnit(this.getOwner(), unitTypeId, this.getPos(), this.getFacingAngle())
+	this.kill()
+	this.remove()
+	return newUnit
 
 /** Returns random value of given inputs. */
 public function getRandomInputInt(vararg int inputs) returns int

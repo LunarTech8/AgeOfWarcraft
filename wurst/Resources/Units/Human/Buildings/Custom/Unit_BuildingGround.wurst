@@ -1,0 +1,21 @@
+package Unit_BuildingGround
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.buildingGround, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Pathing:
+    ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    // Techtree:
+    ..presetUpgradesTo(UnitIdsCustom.farm, UnitIdsCustom.townHall)
+    // Text:
+    ..presetNameAndTooltips(true, "Building Ground", "")

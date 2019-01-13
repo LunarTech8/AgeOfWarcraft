@@ -20,6 +20,7 @@ import UtilityFunctions
 import OnUnitEnterLeave
 import ClosureTimers
 import Ability_Harvest
+import Orders
 
 
 // --------------------
@@ -176,12 +177,12 @@ function getHarvestValidity(unit workerUnit, unit targetUnit) returns int
 		return 1
 		
 /** Perform harvest and returns if another harvest with the given target is still valid. */
-function harvest(unit worker, unit target) returns bool
-	var storage = getStorage(worker)
-	var resource = getResource(target)
-	let resourceUnitId = getUnitId(target)
+function harvest(unit workerUnit, unit targetUnit) returns bool
+	var storage = getStorage(workerUnit)
+	var resource = getResource(targetUnit)
+	let resourceUnitId = getUnitId(targetUnit)
 	// Work resource:
-	if resource.work(getWorkProgressPerHarvest(getUnitId(worker), resourceUnitId))
+	if resource.work(getWorkProgressPerHarvest(getUnitId(workerUnit), resourceUnitId))
 		// Transfere wares:
 		let wares = getWaresPerFinishedWork(resourceUnitId)
 		for ware in wares
@@ -200,9 +201,9 @@ function harvest(unit worker, unit target) returns bool
 		destroy wares
 		// Check for resource depletion:
 		if resource.checkForDepletionKill()
-			target.kill()
+			targetUnit.kill()
 			return false
-	return getHarvestValidity(worker, target) == 1
+	return getHarvestValidity(workerUnit, targetUnit) == 1
 		
 /** Returns the resource of given unit. */
 public function getResource(unit targetUnit) returns Resource
@@ -213,7 +214,7 @@ public function getResource(unit targetUnit) returns Resource
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function setObjectInfoMultiboard(multiboard targetMultiboard, Resource resource) returns bool
-	addMultiboardLine(targetMultiboard, "Resource:", BaseIconType.Headline.getIconPath())
+	addMultiboardLine(targetMultiboard, "Resource:", headlineIconPath)
 	for i = 0 to (resource.getAmountOfWareTypes() - 1)
 		var ware = resource.getWare(i)
 		addMultiboardLine(targetMultiboard, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
@@ -229,24 +230,30 @@ init
 	// Register harvest spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
 		if GetSpellAbilityId() == AbilityIdsCustom.harvest
-			let worker = GetTriggerUnit()
-			let target = GetSpellTargetUnit()
-			let validity = getHarvestValidity(worker, target)
+			let workerUnit = GetTriggerUnit()
+			let targetUnit = GetSpellTargetUnit()
+			let validity = getHarvestValidity(workerUnit, targetUnit)
 			if validity != 1
-				// React on invalid harvest command:
+				// React on invalid command:
 				switch validity
 					case 2  // InvalidWorker
-						printTimedToPlayer("Invalid: No storage for harvest", infoMsgTime, worker.getOwner())
+						printTimedToPlayer("Invalid: No storage for harvest", infoMsgTime, workerUnit.getOwner())
 					case 3  // InvalidTarget
-						printTimedToPlayer("Invalid: Harvest target is no resource", infoMsgTime, worker.getOwner())
+						printTimedToPlayer("Invalid: Harvest target is no resource", infoMsgTime, workerUnit.getOwner())
 					case 4  // NoFreeStorage
-						printTimedToPlayer("Invalid: No free storage for harvest", infoMsgTime, worker.getOwner())
+						printTimedToPlayer("Invalid: No free storage for harvest", infoMsgTime, workerUnit.getOwner())
 					case 5  // ResourceIsDepleted
-						printTimedToPlayer("Invalid: Harvest target is already depleted", infoMsgTime, worker.getOwner())
-				worker.abortOrder()
+						printTimedToPlayer("Invalid: Harvest target is already depleted", infoMsgTime, workerUnit.getOwner())
+				workerUnit.abortOrder()
 			else
 				// Perform harvest after ability casting is finished:
 				doAfter(AbilityData_Harvest.cooldown) ->
-					if harvest(worker, target)
+					if harvest(workerUnit, targetUnit)
 						// Auto-recast ability:
-						worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+						workerUnit.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetUnit, true)
+	// Register smart order:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
+		let workerUnit = GetTriggerUnit()
+		let targetUnit = GetOrderTargetUnit()
+		if GetIssuedOrderId() == OrderIds.smart and getHarvestValidity(workerUnit, targetUnit) == 1
+			workerUnit.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetUnit, true)

@@ -53,6 +53,7 @@ public class UnitIdsCustom
 	static constant cannonTower = compiletime(UNIT_ID_GEN.next())
 	static constant arcaneTower = compiletime(UNIT_ID_GEN.next())
 	static constant arcaneVault = compiletime(UNIT_ID_GEN.next())
+	static constant buildingGround = compiletime(UNIT_ID_GEN.next())
 	//--------------
 	// Nature
 	//--------------
@@ -79,6 +80,7 @@ public abstract class AbilityIdsCustom
 	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
 	static constant showTargetInfo = compiletime(ABIL_ID_GEN.next())
 	static constant harvest = compiletime(ABIL_ID_GEN.next())
+	static constant build = compiletime(ABIL_ID_GEN.next())
 	static constant transferWares = compiletime(ABIL_ID_GEN.next())
 
 public abstract class ImportPaths

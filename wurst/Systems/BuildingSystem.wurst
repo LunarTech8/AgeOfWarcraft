@@ -22,6 +22,7 @@ import ClosureTimers
 import Unit_TownHall
 import Icons
 import Orders
+import NearestUnitFinder
 
 
 // --------------------
@@ -29,7 +30,12 @@ import Orders
 // --------------------
 
 let infoMsgTime = 2.
-let buildAdjustmentRate = 0.05
+let buildAdjustmentRate = 0.1
+let buildStartHPPercentage = 0.1
+let maxAutoOrderRange = 1024.
+let buildProgressIconPath = Icons.bTNEngineeringUpgrade
+let buildTimeLeftIconPath = Icons.bTNStatUp
+let workersIconPath = Icons.bTNBash
 
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
@@ -68,24 +74,27 @@ let buildingSiteMap = new IterableMap<unit, BuildingSite>  // TODO: maybe make a
 let workerMap = new HashMap<unit, BuildingSite>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
 class BuildingSite
-	private unit buildingUnit
+	private unit building
 	private group workers
 	private real workProgress
 	private real workPower
-	private LinkedList<ware> wares
+	private int upgradeProgress
+	private LinkedList<ware> requiredWares
 
-	construct(unit buildingUnit, LinkedList<ware> requiredWares)
-		this.buildingUnit = buildingUnit
+	construct(unit building, LinkedList<ware> requiredWares)
+		this.building = building
 		workers = CreateGroup()
 		workProgress = 0.
 		workPower = 0.
-		wares = requiredWares
+		upgradeProgress = 1
+		this.requiredWares = requiredWares
 
 	ondestroy
-		for workerUnit in workers
-			removeWorker(workerUnit)
+		for worker in workers
+			removeWorker(worker)
+			doAfter(minTriggerSleepTime, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, findNextBuildingSite(worker.getPos(), worker.getOwner()), true))
 		workers.destr()
-		destroy wares
+		destroy requiredWares
 
 	function getWorkProgress() returns real
 		return workProgress	
@@ -97,113 +106,132 @@ class BuildingSite
 		return workers.size()
 	
 	function getWare(int index) returns ware
-		if index >= wares.size()
+		if index >= requiredWares.size()
 			Log.error("ERROR: Index has to be smaller than list size")
-		return wares.get(index)
+		return requiredWares.get(index)
 		
 	function getAmountOfWareTypes() returns int
-		return wares.size()
+		return requiredWares.size()
 
-	function getWareCount(WareType wareType) returns int
-		for iWare in wares
-			if iWare.wareType == wareType
+	function getWareCount(WareType wt) returns int
+		for iWare in requiredWares
+			if iWare.wareType == wt
 				return iWare.count
 		return 0
 
-	function removeWare(ware ware)
-		for iWare in wares
-			if iWare.hasSameType(ware)
-				if iWare.count <= ware.count
-					wares.remove(iWare)
+	function removeWare(ware w)
+		for iWare in requiredWares
+			if iWare.hasSameType(w)
+				if iWare.count <= w.count
+					requiredWares.remove(iWare)
 				else
-					wares.replace(iWare, iWare.changedCopy(-ware.count))
+					requiredWares.replace(iWare, iWare.changedCopy(-w.count))
 
-	function addWorker(unit workerUnit)
-		if workerMap.has(workerUnit) == false and workers.contains(workerUnit) == false
-			workerMap.put(workerUnit, this)
-			workPower += getUnitWorkPower(getUnitId(workerUnit), getUnitId(buildingUnit))
-			workers.addUnit(workerUnit)
-			doAfter(0.01, () -> SetUnitAnimation(workerUnit, "work"))
+	function addWorker(unit worker)
+		if workerMap.has(worker) == false and workers.contains(worker) == false
+			workerMap.put(worker, this)
+			workPower += getUnitWorkPower(getUnitId(worker), getUnitId(building))
+			workers.addUnit(worker)
+			doAfter(minTriggerSleepTime, () -> SetUnitAnimation(worker, "work"))
 		else
 			Log.error("ERROR: can't add worker to this building site")
 
-	function removeWorker(unit workerUnit)
-		if workerMap.get(workerUnit) == this and workers.contains(workerUnit)
-			workerMap.remove(workerUnit)
-			workPower -= getUnitWorkPower(getUnitId(workerUnit), getUnitId(buildingUnit))
-			workers.removeUnit(workerUnit)
-			ResetUnitAnimation(workerUnit)
+	function removeWorker(unit worker)
+		if workerMap.get(worker) == this and workers.contains(worker)
+			workerMap.remove(worker)
+			workPower -= getUnitWorkPower(getUnitId(worker), getUnitId(building))
+			workers.removeUnit(worker)
+			ResetUnitAnimation(worker)
 		else
 			Log.error("ERROR: can't remove worker from this building site")
 	
 	function adjustProgress() returns bool
-		workProgress += workPower * buildAdjustmentRate
-		if workProgress >= 1.
-			UnitSetUpgradeProgress(buildingUnit, 100)
-			return true
-		else
-			UnitSetUpgradeProgress(buildingUnit, min(max(1, (workProgress * 100.).toInt()), 99))
-			return false
+		if workPower > 0.
+			// Adjust work progress:
+			workProgress += workPower * buildAdjustmentRate
+			if workProgress >= 1.
+				// Finish construction:
+				UnitSetUpgradeProgress(building, 100)
+				return true
+			else
+				// Recalculate values:
+				building.addHP(building.getMaxHP() * (1 - buildStartHPPercentage) * workPower * buildAdjustmentRate)
+				upgradeProgress = min(max(1, (workProgress * 100.).toInt()), 99)
+		// Always adjust upgrade progress so that it stays correct:
+		UnitSetUpgradeProgress(building, upgradeProgress)
+		return false
 
 
-function addBuildingSite(unit targetUnit)
-	if buildingSiteMap.has(targetUnit) == false
-		let targetUnitId = getUnitId(targetUnit)
-		let buildingGroundUnit = targetUnit.replace(UnitIdsCustom.buildingGround)
+function addBuildingSite(unit building)
+	if buildingSiteMap.has(building) == false
+		let targetUnitId = getUnitId(building)
+		let maxHP = building.getMaxHP()
+		let buildingGroundUnit = building.replace(UnitIdsCustom.buildingGround)
 		IssueImmediateOrderById(buildingGroundUnit, getUnitTypeId(targetUnitId))  // Upgrade building ground to target building type
 		buildingGroundUnit.setScale(getBuildingScaling(targetUnitId))
+		buildingGroundUnit.setMaxHP(maxHP.toInt())
+		buildingGroundUnit.setHP(maxHP * buildStartHPPercentage)
 		buildingSiteMap.put(buildingGroundUnit, new BuildingSite(buildingGroundUnit, getRequiredWares(targetUnitId)))
 		// TODO: order nearby workers to build on building site
 		//workerUnit.issueTargetAbilityOrder(AbilityIdsCustom.build, targetUnit, true)
 
-function removeBuildingSite(unit targetUnit)
-	if buildingSiteMap.has(targetUnit)
-		destroy buildingSiteMap.get(targetUnit)
-		buildingSiteMap.remove(targetUnit)
+function removeBuildingSite(unit target)
+	if buildingSiteMap.has(target)
+		destroy buildingSiteMap.get(target)
+		buildingSiteMap.remove(target)
 
-/** Returns the building site of given unit. */
-public function getBuildingSite(unit targetUnit) returns BuildingSite
-	if buildingSiteMap.has(targetUnit)
-		return buildingSiteMap.get(targetUnit)
-	else
-		return null
-		
+function findNextBuildingSite(vec2 pos, player owner) returns unit
+	var filter = Filter(() -> buildingSiteMap.has(GetFilterUnit()))
+	// TODO: only allow building sites of the same owner that don't have any required wares left
+	//var filter = Filter(() -> buildingSiteMap.has(GetFilterUnit()) and GetFilterUnit().getOwner() == owner)
+	let building = NearestUnitFinder.search(pos, maxAutoOrderRange, filter)
+	print(building.getName())  // DEBUG
+	filter.destr()
+	return building
+
 /** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=WaresNotAvailable 5=WorkerAlreadyBuilding */
-function getBuildValidity(unit workerUnit, unit targetUnit) returns int
+function getBuildValidity(unit worker, unit target) returns int
 	// Check if source and target are valid:
-	if getUnitWorkPower(getUnitId(workerUnit), getUnitId(targetUnit)) <= 0.
+	if getUnitWorkPower(getUnitId(worker), getUnitId(target)) <= 0.
 		return 2
-	var buildingSite = getBuildingSite(targetUnit)
+	var buildingSite = getBuildingSite(target)
 	if buildingSite == null
 		return 3
 	// Check if required wares are available:
 	if buildingSite.getAmountOfWareTypes() > 0
 		return 4
 	// Check if worker is already building:
-	if workerMap.has(workerUnit)
+	if workerMap.has(worker)
 		return 5
 	else
 		return 1
 		
 /** If worker is building stop him. */
-function stopBuilding(unit workerUnit)
-	if workerMap.has(workerUnit)
-		workerMap.get(workerUnit).removeWorker(workerUnit)
+function stopBuilding(unit worker)
+	if workerMap.has(worker)
+		workerMap.get(worker).removeWorker(worker)
 
+/** Returns the building site of given unit. */
+public function getBuildingSite(unit target) returns BuildingSite
+	if buildingSiteMap.has(target)
+		return buildingSiteMap.get(target)
+	else
+		return null
+		
 /** Sets system relevant infos for given object in target multiboard. */
-public function setObjectInfoMultiboard(multiboard targetMultiboard, BuildingSite buildingSite) returns bool
-	addMultiboardLine(targetMultiboard, "Building site:", headlineIconPath)
-	addMultiboardLine(targetMultiboard, "Build progress: " + (buildingSite.getWorkProgress() * 100.).toInt().toString() + "%", Icons.bTNEngineeringUpgrade)
-	let workPower = buildingSite.getWorkPower()
+public function setObjectInfoMultiboard(multiboard m, BuildingSite bs) returns bool
+	addMultiboardLine(m, "Building site:", headlineIconPath)
+	addMultiboardLine(m, "Build progress: " + (bs.getWorkProgress() * 100.).toInt().toString() + "%", buildProgressIconPath)
+	let workPower = bs.getWorkPower()
 	if workPower > 0.
-		addMultiboardLine(targetMultiboard, "Build time left: " + ((1 - buildingSite.getWorkProgress()) / workPower).toInt().toString() + "s", Icons.bTNStatUp)
-	addMultiboardLine(targetMultiboard, "Workers: " + buildingSite.getWorkerCount().toString(), Icons.bTNBash)
-	let amountOfWareTypes = buildingSite.getAmountOfWareTypes()
+		addMultiboardLine(m, "Build time left: " + ((1 - bs.getWorkProgress()) / workPower).toInt().toString() + "s", buildTimeLeftIconPath)
+	addMultiboardLine(m, "Workers: " + bs.getWorkerCount().toString(), workersIconPath)
+	let amountOfWareTypes = bs.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
-		addMultiboardLine(targetMultiboard, "Required wares:", headlineIconPath)
+		addMultiboardLine(m, "Required wares:", headlineIconPath)
 		for i = 0 to (amountOfWareTypes - 1)
-			var ware = buildingSite.getWare(i)
-			addMultiboardLine(targetMultiboard, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+			var ware = bs.getWare(i)
+			addMultiboardLine(m, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 	
 init
@@ -221,35 +249,35 @@ init
 			removeBuildingSite(building)
 	// Register construction starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_START) ->
-		let targetUnit = GetConstructingStructure()
-		if getBuildingScaling(getUnitId(targetUnit)) > 0.
-			doAfter(minTriggerSleepTime, () -> addBuildingSite(targetUnit))
+		let building = GetConstructingStructure()
+		if getBuildingScaling(getUnitId(building)) > 0.
+			doAfter(minTriggerSleepTime, () -> addBuildingSite(building))
 	// Register construction abortions:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL) ->
-		let targetUnit = GetTriggerUnit()
-		removeBuildingSite(targetUnit)
-		targetUnit.kill()
-		targetUnit.remove()
+		let building = GetTriggerUnit()
+		removeBuildingSite(building)
+		building.kill()
+		building.remove()
 	// Register build spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
 		if GetSpellAbilityId() == AbilityIdsCustom.build
-			let workerUnit = GetTriggerUnit()
-			let targetUnit = GetSpellTargetUnit()
-			let validity = getBuildValidity(workerUnit, targetUnit)
+			let worker = GetTriggerUnit()
+			let target = GetSpellTargetUnit()
+			let validity = getBuildValidity(worker, target)
 			if validity != 1
 				// React on invalid command:
 				switch validity
 					case 2  // InvalidWorker
-						printTimedToPlayer("Invalid: Worker can't build at target building site type", infoMsgTime, workerUnit.getOwner())
+						printTimedToPlayer("Invalid: Worker can't build at target building site type", infoMsgTime, worker.getOwner())
 					case 3  // InvalidTarget
-						printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, workerUnit.getOwner())
+						printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, worker.getOwner())
 					case 4  // WaresNotAvailable
-						printTimedToPlayer("Invalid: Not all required wares are available", infoMsgTime, workerUnit.getOwner())
+						printTimedToPlayer("Invalid: Not all required wares are available", infoMsgTime, worker.getOwner())
 					case 5  // WorkerAlreadyBuilding
-						printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, workerUnit.getOwner())
-				workerUnit.abortOrder()
+						printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, worker.getOwner())
+				worker.abortOrder()
 			else
-				getBuildingSite(targetUnit).addWorker(workerUnit)
+				getBuildingSite(target).addWorker(worker)
 	// Register building stops:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> stopBuilding(GetTriggerUnit()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> stopBuilding(GetTriggerUnit()))
@@ -258,7 +286,7 @@ init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, () -> stopBuilding(GetTriggerUnit()))
 	// Register smart order:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
-		let workerUnit = GetTriggerUnit()
-		let targetUnit = GetOrderTargetUnit()
-		if GetIssuedOrderId() == OrderIds.smart and getBuildValidity(workerUnit, targetUnit) == 1
-			workerUnit.issueTargetAbilityOrder(AbilityIdsCustom.build, targetUnit, true)
+		let worker = GetTriggerUnit()
+		let target = GetOrderTargetUnit()
+		if GetIssuedOrderId() == OrderIds.smart and getBuildValidity(worker, target) == 1
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)

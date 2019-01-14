@@ -26,6 +26,7 @@ import OnUnitEnterLeave
 let countPlayers = 12  // Highest player slot in use
 let wareMaxCount = 99999  // Is limited to allow tuple to be converted into a single int
 let wareMaxWareTypes = 9999  // Is limited to allow tuple to be converted into a single int
+let capacityIconPath = Icons.bTNSnazzyScroll
 
 function getMaxCapacity(int unitId) returns int
 	switch unitId
@@ -114,13 +115,13 @@ public function ware.changedCopy(WareType newWareType, int countChange) returns 
 	return ware(newWareType, this.count + countChange)
 
 class Storage
-	private unit storageUnit
+	private unit storage
 	private int maxCapacity
 	private int usedCapacity
 	private LinkedList<ware> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
 
-	construct(unit storageUnit, int maxCapacity)
-		this.storageUnit = storageUnit
+	construct(unit storage, int maxCapacity)
+		this.storage = storage
 		this.maxCapacity = maxCapacity
 		usedCapacity = 0
 		wares = new LinkedList<ware>()
@@ -148,79 +149,79 @@ class Storage
 	function getFreeCapacity() returns int
 		return maxCapacity - usedCapacity
 
-	function addWare(ware ware) returns int
+	function addWare(ware w) returns int
 		var excess = 0
 		var freeCapacity = getFreeCapacity()
 		if freeCapacity > 0
 			// Check and adjust capacity:
-			if ware.count > freeCapacity
-				excess = ware.count - freeCapacity
-			usedCapacity += ware.count - excess
+			if w.count > freeCapacity
+				excess = w.count - freeCapacity
+			usedCapacity += w.count - excess
 			// Adjust ware:
 			for iWare in wares
-				if iWare.hasSameType(ware)
-					wares.replace(iWare, iWare.changedCopy(ware.count - excess))
+				if iWare.hasSameType(w)
+					wares.replace(iWare, iWare.changedCopy(w.count - excess))
 					// Return excess count:
 					return excess
 			// Add new ware if none exists of that type yet:
-			wares.add(ware.changedCopy(-excess))
+			wares.add(w.changedCopy(-excess))
 			// Return excess count:
 			return excess
 		else
 			// Return excess count:
-			return ware.count
+			return w.count
 	
 	function addWares(LinkedList<ware> wares) returns int
 		var excess = 0
 		// Add wares:
-		for ware in wares
-			excess += addWare(ware)
+		for iWare in wares
+			excess += addWare(iWare)
 		// Return excess count:
 		return excess
 
-	function removeWare(ware ware) returns int
+	function removeWare(ware w) returns int
 		for iWare in wares
-			if iWare.hasSameType(ware)
+			if iWare.hasSameType(w)
 				var shortage = 0
 				// Check and adjust ware:
-				if iWare.count <= ware.count
-					shortage = ware.count - iWare.count
+				if iWare.count <= w.count
+					shortage = w.count - iWare.count
 					wares.remove(iWare)
 				else
-					wares.replace(iWare, iWare.changedCopy(-ware.count))
+					wares.replace(iWare, iWare.changedCopy(-w.count))
 				// Adjust capacity:
-				usedCapacity -= ware.count - shortage
+				usedCapacity -= w.count - shortage
 				// Return shortage count:
 				return shortage
 		// Return shortage count:
-		return ware.count
+		return w.count
 
 
-function addStorage(unit targetUnit)
-	if storageMap.has(targetUnit) == false
-		var maxCapacity = getMaxCapacity(GetUnitTypeId(targetUnit))
+function addStorage(unit target)
+	if storageMap.has(target) == false
+		var maxCapacity = getMaxCapacity(GetUnitTypeId(target))
 		if maxCapacity > 0
-			var storage = new Storage(targetUnit, maxCapacity)
-			storageMap.put(targetUnit, storage)
+			var storage = new Storage(target, maxCapacity)
+			storageMap.put(target, storage)
 
-function removeStorage(unit targetUnit)
-	if storageMap.has(targetUnit)
-		destroy storageMap.get(targetUnit)
-		storageMap.remove(targetUnit)
+function removeStorage(unit target)
+	if storageMap.has(target)
+		destroy storageMap.get(target)
+		storageMap.remove(target)
 
 /** Returns the storage of given unit. */
-public function getStorage(unit targetUnit) returns Storage
-	if storageMap.has(targetUnit)
-		return storageMap.get(targetUnit)
+public function getStorage(unit target) returns Storage
+	if storageMap.has(target)
+		return storageMap.get(target)
 	else
 		return null
 
 /** Returns the amount of wares that couldn't be transfered. */
-public function transferWares(unit sourceUnit, unit targetUnit) returns int
+public function transferWares(unit source, unit target) returns int
 	// Check if wares can be transfered:
-	if storageMap.has(sourceUnit) and storageMap.has(targetUnit)
-		var sourceStorage = storageMap.get(sourceUnit)
-		var targetStorage = storageMap.get(targetUnit)
+	if storageMap.has(source) and storageMap.has(target)
+		var sourceStorage = storageMap.get(source)
+		var targetStorage = storageMap.get(target)
 		// Transfere wares:
 		while sourceStorage.getAmountOfWareTypes() > 0
 			var ware = sourceStorage.getLastWare()
@@ -235,12 +236,12 @@ public function transferWares(unit sourceUnit, unit targetUnit) returns int
 		return -1
 
 /** Sets system relevant infos for given object in target multiboard. */
-public function setObjectInfoMultiboard(multiboard targetMultiboard, Storage storage) returns bool
-	addMultiboardLine(targetMultiboard, "Storage:", headlineIconPath)
-	addMultiboardLine(targetMultiboard, "Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), Icons.bTNSnazzyScroll)
-	for i = 0 to (storage.getAmountOfWareTypes() - 1)
-		var ware = storage.getWare(i)
-		addMultiboardLine(targetMultiboard, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+public function setObjectInfoMultiboard(multiboard m, Storage s) returns bool
+	addMultiboardLine(m, "Storage:", headlineIconPath)
+	addMultiboardLine(m, "Capacity: " + s.getUsedCapacity().toString() + "/" + s.getMaxCapacity().toString(), capacityIconPath)
+	for i = 0 to (s.getAmountOfWareTypes() - 1)
+		var ware = s.getWare(i)
+		addMultiboardLine(m, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init

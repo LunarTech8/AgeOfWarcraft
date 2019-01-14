@@ -1,0 +1,43 @@
+package NearestUnitFinder
+
+
+// --------------------
+// Functional code
+// --------------------
+
+/** Use the search function to get the nearest unit. */
+class NearestUnitFinder
+	private static var isUsed = false
+	private static real minDistanceSq
+	private static unit nearestUnit
+	private static vec2 startPos
+	private static let enumGroup = CreateGroup()
+	private static let filter = Filter(function nearestUnitFilter)
+
+	private static function nearestUnitFilter() returns bool
+		let target = GetFilterUnit()
+		let distanceSq = startPos.distanceToSq(target.getPos())
+		if distanceSq < minDistanceSq
+			minDistanceSq = distanceSq
+			nearestUnit = target
+			return true
+		return false
+
+	/** Returns the nearest unit from given pos in given max range. */
+	static function search(vec2 pos, real maxRange, boolexpr condition) returns unit
+		// Check class lock:
+		if isUsed
+			Log.error("ERROR: NearestUnitFinder is used multiple times at once")
+		// Lock class:
+		isUsed = true
+		// Set init values:
+		minDistanceSq = REAL_MAX
+		nearestUnit = null
+		startPos = pos
+		// Filter out invalid units in range:
+		GroupEnumUnitsInRange(enumGroup, startPos.x, startPos.y, maxRange, condition)
+		// Find nearest unit:
+		enumGroup.enumUnitsAll(filter)
+		// Unlock class:
+		isUsed = false
+		return nearestUnit

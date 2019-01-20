@@ -21,8 +21,7 @@ Work status:
 
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!>>- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
-	!!!>- Buildings in construction shouldn't burn (maybe change max health dynamically)
-	!!>>- Auto order workers of finished building site to work on next building site
+	!!!>- Buildings in construction shouldn't burn (maybe change max health dynamically and retain damage)
 	!!>- Auto order nearby idle workers to build on building site
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !- Get unit tests to work -> Maybe reinstall wurst or write to Frotty

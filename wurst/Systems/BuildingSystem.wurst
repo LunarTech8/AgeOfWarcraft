@@ -22,7 +22,6 @@ import ClosureTimers
 import Unit_TownHall
 import Icons
 import Orders
-import NearestUnitFinder
 
 
 // --------------------
@@ -172,7 +171,7 @@ function addBuildingSite(unit building)
 		buildingGroundUnit.setMaxHP(maxHP.toInt())
 		buildingGroundUnit.setHP(maxHP * buildStartHPPercentage)
 		buildingSiteMap.put(buildingGroundUnit, new BuildingSite(buildingGroundUnit, getRequiredWares(targetUnitId)))
-		// TODO: order nearby workers to build on building site
+		// TODO: order nearby idle workers to build on building site
 		//workerUnit.issueTargetAbilityOrder(AbilityIdsCustom.build, targetUnit, true)
 
 function removeBuildingSite(unit target)
@@ -181,11 +180,14 @@ function removeBuildingSite(unit target)
 		buildingSiteMap.remove(target)
 
 function findNextBuildingSite(vec2 pos, player owner) returns unit
-	var filter = Filter(() -> buildingSiteMap.has(GetFilterUnit()))
-	// TODO: only allow building sites of the same owner that don't have any required wares left
-	//var filter = Filter(() -> buildingSiteMap.has(GetFilterUnit()) and GetFilterUnit().getOwner() == owner)
-	let building = NearestUnitFinder.search(pos, maxAutoOrderRange, filter)
-	print(building.getName())  // DEBUG
+	var filter = Filter() ->
+		var conditionsFulfilled = false
+		let buildingSite = getBuildingSite(GetFilterUnit())
+		// Only allow building sites that don't have any required wares left:
+		if buildingSite != null and buildingSite.getAmountOfWareTypes() == 0
+			conditionsFulfilled = true
+		return conditionsFulfilled
+	let building = getNearestUnit(pos, maxAutoOrderRange, filter, owner)
 	filter.destr()
 	return building
 

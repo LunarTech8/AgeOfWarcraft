@@ -81,6 +81,25 @@ public function getUnitId(unit u) returns int
 		return baseUnitTypeIdMap.get(id)
 	return id
 
+/** Returns the nearest unit from given pos in given max range of given player. */
+public function getNearestUnit(vec2 startPos, real maxRange, boolexpr filter, player owner) returns unit
+	// Set init values:
+	var bestDistanceSq = REAL_MAX
+	unit nearestUnit = null
+	// Filter out invalid units in range:
+	ENUM_GROUP.enumUnitsInRange(startPos, maxRange, filter)
+	// Find nearest unit:
+	for target from ENUM_GROUP
+		if owner == null or target.getOwner() == owner
+			let distanceSq = startPos.distanceToSq(target.getPos())
+			if distanceSq < bestDistanceSq
+				bestDistanceSq = distanceSq
+				nearestUnit = target
+	return nearestUnit
+/** Returns the nearest unit from given pos in given max range. */
+public function getNearestUnit(vec2 startPos, real maxRange, boolexpr filter) returns unit
+	return getNearestUnit(startPos, maxRange, filter, null)
+	
 /** Issues unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
 public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns boolean
 	if resetAbility

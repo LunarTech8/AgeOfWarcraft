@@ -24,7 +24,8 @@ let maxComputationCostPerCycle = 256.
 
 public let minTriggerSleepTime = 0.01
 
-function getAbilityOrder(int abilityId) returns string
+/** Returns the order needed to cast the given ability. */
+public function getAbilityOrder(int abilityId) returns string
 	switch abilityId
 		case AbilityIdsCustom.harvest
 			return "thunderbolt"
@@ -34,6 +35,8 @@ function getAbilityOrder(int abilityId) returns string
 			return "thunderbolt"
 		case AbilityIdsCustom.transferWares
 			return "frostnova"
+		case AbilityIdsCustom.addBuildingBuff
+			return "innerfire"
 		default
 			Log.error("ERROR: unmapped ability id (" + abilityId.toString() + ")")
 			return null

@@ -17,7 +17,7 @@ import AbilityPresetFunctions
     ..setMissileArt("")
     ..setMissileSpeed(0)
     // Stats:
-    ..presetBuffs(AbilityIdsCustom.emptyBuff)
+    ..presetBuffs(BuffIdsCustom.emptyBuff)
     ..presetCastRange(99999.)
     ..presetCooldown(1.)
     ..presetDuration(.01)

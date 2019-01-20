@@ -1,0 +1,14 @@
+package Buff_EmptyBuff
+import BuffPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuffDefinition(BuffIdsCustom.emptyBuff, 'Basl')  // Buff based on tornado aura
+    // Art:
+    ..setIcon("")
+    // Text:
+    ..presetNameAndTooltips("Empty Buff", "")

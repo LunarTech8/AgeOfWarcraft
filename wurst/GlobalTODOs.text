@@ -21,9 +21,9 @@ Work status:
 
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!>>- Create a BuildingSystem with building sites that take all required wares and then upgrade to the target building
-	!!!>- Buildings in construction shouldn't burn (maybe change max health dynamically and retain damage)
-	!!>- Auto order nearby idle workers to build on building site
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
+!!- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
+	!- addBuildingSite should use this system for idle detection
 !- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
@@ -35,7 +35,7 @@ Work status:
 !- Create a WeatherSystem
 !- Add a priority and maxWorker count to resources
 !- Maybe create a generalized validity check for abilities
-!>>- Maybe shorten all workerUnit, buildingUnit, etc. with worker, building, etc.
+!>- Maybe refactor all funtions that manipulate a given object to an object-type function (eg. getUnitId(unit u) returns int -> unit.getUnitId() returns int)
 
 
 // -------------

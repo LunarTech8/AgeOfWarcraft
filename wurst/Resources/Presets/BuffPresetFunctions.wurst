@@ -1,0 +1,28 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Adds additional preset functions to AbilityDefinition for ability defintion packages.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package BuffPresetFunctions
+import public Assets
+import public ConstantDataSystem
+import public BuffObjEditing
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public function BuffDefinition.presetNameAndTooltips(string name, string tooltipExtended)
+	this.setName(1, name)
+	this.setTooltipNormal(1, name)
+	this.setTooltipNormalExtended(1, tooltipExtended)
+
+public function BuffDefinition.presetArtTarget(string artPath)
+	this.setArtTarget(1, artPath)

@@ -1,0 +1,30 @@
+package Ability_AddBuildingBuff
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new AbilityDefinitionInnerFire(AbilityIdsCustom.addBuildingBuff)
+    // Ability specific data:
+    ..presetAutocastRange((int lvl) -> 0.)
+    ..presetDamageIncrease((int lvl) -> 0.)
+    ..presetDefenseIncrease((int lvl) -> 0)
+    // Art:
+    ..setIconNormal("")
+    // Sound:
+    ..setEffectSound("")
+    // Stats:
+    ..presetBuffs(BuffIdsCustom.building)
+    ..presetCastRange(92083.)
+    ..presetCooldown(0.)
+    ..presetDuration(65536.)
+    ..presetManaCost(0)
+    ..setRace(Race.Other)
+    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air)
+    // Techtree:
+    ..presetNoRequirements()
+    // Text:
+    ..presetNameAndTooltips("Add building buff", "Adds the building buff to the target.")

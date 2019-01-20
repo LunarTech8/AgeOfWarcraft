@@ -13,21 +13,9 @@ package AbilityPresetFunctions
 import LinkedList
 import StringUtils
 import ObjectIds
-import BuffObjEditing
 import public Assets
 import public ConstantDataSystem
 import public AbilityObjEditing
-
-// --------------------
-// Data code
-// --------------------
-
-@compiletime function genObj()
-	new BuffDefinition(AbilityIdsCustom.emptyBuff, 'Basl')  // Buff based on tornado aura
-	..setName(1, "Empty Buff")
-	..setTooltipNormal(1, "")
-	..setTooltipNormalExtended(1, "")
-	..setIcon("")
 
 
 // --------------------
@@ -72,3 +60,9 @@ public function AbilityDefinition.presetTargetsAllowed(vararg string targetsAllo
 
 public function AbilityDefinition.presetAreaofEffect(real areaOfEffect)
 	this.presetAreaofEffect((int lvl) -> areaOfEffect)
+
+public function AbilityDefinition.presetNoRequirements()
+	this.setCheckDependencies(false)
+	this.setRequirements("")
+	this.setRequirementsLevels("")
+

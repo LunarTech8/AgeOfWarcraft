@@ -22,6 +22,7 @@ import ClosureTimers
 import Unit_TownHall
 import Icons
 import Orders
+import InstantDummyCaster
 
 
 // --------------------
@@ -30,7 +31,7 @@ import Orders
 
 let infoMsgTime = 2.
 let buildAdjustmentRate = 0.1
-let buildStartHPPercentage = 0.1
+let buildStartHPPercentage = 0.1  // Has to be smaller than 1 and bigger than 0
 let maxAutoOrderRange = 1024.
 let buildProgressIconPath = Icons.bTNEngineeringUpgrade
 let buildTimeLeftIconPath = Icons.bTNStatUp
@@ -74,14 +75,16 @@ let workerMap = new HashMap<unit, BuildingSite>  // TODO: maybe make a general u
 
 class BuildingSite
 	private unit building
+	private real fullHP
 	private group workers
 	private real workProgress
 	private real workPower
 	private int upgradeProgress
 	private LinkedList<ware> requiredWares
 
-	construct(unit building, LinkedList<ware> requiredWares)
+	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
 		this.building = building
+		this.fullHP = fullHP
 		workers = CreateGroup()
 		workProgress = 0.
 		workPower = 0.
@@ -131,6 +134,7 @@ class BuildingSite
 			workerMap.put(worker, this)
 			workPower += getUnitWorkPower(getUnitId(worker), getUnitId(building))
 			workers.addUnit(worker)
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, getAbilityOrder(AbilityIdsCustom.addBuildingBuff), worker)
 			doAfter(minTriggerSleepTime, () -> SetUnitAnimation(worker, "work"))
 		else
 			Log.error("ERROR: can't add worker to this building site")
@@ -141,6 +145,7 @@ class BuildingSite
 			workPower -= getUnitWorkPower(getUnitId(worker), getUnitId(building))
 			workers.removeUnit(worker)
 			ResetUnitAnimation(worker)
+			worker.removeAbility(BuffIdsCustom.building)
 		else
 			Log.error("ERROR: can't remove worker from this building site")
 	
@@ -154,7 +159,8 @@ class BuildingSite
 				return true
 			else
 				// Recalculate values:
-				building.addHP(building.getMaxHP() * (1 - buildStartHPPercentage) * workPower * buildAdjustmentRate)
+				building.setMaxHP(max(1, (fullHP * (workProgress * (1 - buildStartHPPercentage) + buildStartHPPercentage)).toInt()))
+				building.addHP(fullHP * (1 - buildStartHPPercentage) * workPower * buildAdjustmentRate)
 				upgradeProgress = min(max(1, (workProgress * 100.).toInt()), 99)
 		// Always adjust upgrade progress so that it stays correct:
 		UnitSetUpgradeProgress(building, upgradeProgress)
@@ -164,15 +170,18 @@ class BuildingSite
 function addBuildingSite(unit building)
 	if buildingSiteMap.has(building) == false
 		let targetUnitId = getUnitId(building)
-		let maxHP = building.getMaxHP()
-		let buildingGroundUnit = building.replace(UnitIdsCustom.buildingGround)
-		IssueImmediateOrderById(buildingGroundUnit, getUnitTypeId(targetUnitId))  // Upgrade building ground to target building type
-		buildingGroundUnit.setScale(getBuildingScaling(targetUnitId))
-		buildingGroundUnit.setMaxHP(maxHP.toInt())
-		buildingGroundUnit.setHP(maxHP * buildStartHPPercentage)
-		buildingSiteMap.put(buildingGroundUnit, new BuildingSite(buildingGroundUnit, getRequiredWares(targetUnitId)))
-		// TODO: order nearby idle workers to build on building site
-		//workerUnit.issueTargetAbilityOrder(AbilityIdsCustom.build, targetUnit, true)
+		let fullHP = building.getMaxHP()
+		let buildingGround = building.replace(UnitIdsCustom.buildingGround)
+		IssueImmediateOrderById(buildingGround, getUnitTypeId(targetUnitId))  // Upgrade building ground to target building type
+		buildingGround.setScale(getBuildingScaling(targetUnitId))
+		buildingGround.setMaxHP(max(1, (fullHP * buildStartHPPercentage).toInt()))
+		buildingSiteMap.put(buildingGround, new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId)))
+		// Order nearby idle workers to build on building site:
+		ENUM_GROUP.enumUnitsInRange(buildingGround.getPos(), maxAutoOrderRange, null)
+		let owner = buildingGround.getOwner()
+		for worker from ENUM_GROUP
+			if getUnitWorkPower(getUnitId(worker), targetUnitId) > 0. and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, buildingGround, true)
 
 function removeBuildingSite(unit target)
 	if buildingSiteMap.has(target)

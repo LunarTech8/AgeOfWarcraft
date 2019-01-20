@@ -77,11 +77,15 @@ public class UnitIdsCustom
 	static constant chestnut_Var2 = compiletime(UNIT_ID_GEN.next())
 
 public abstract class AbilityIdsCustom
-	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
 	static constant showTargetInfo = compiletime(ABIL_ID_GEN.next())
 	static constant harvest = compiletime(ABIL_ID_GEN.next())
 	static constant build = compiletime(ABIL_ID_GEN.next())
 	static constant transferWares = compiletime(ABIL_ID_GEN.next())
+	static constant addBuildingBuff = compiletime(ABIL_ID_GEN.next())
+
+public abstract class BuffIdsCustom
+	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
+	static constant building = compiletime(ABIL_ID_GEN.next())
 
 public abstract class ImportPaths
 	// Trees:
@@ -98,3 +102,5 @@ public abstract class ImportPaths
 	static constant greyOak_Var4 = "Trees\\Graueiche3.mdl"
 	static constant chestnut_Var1 = "Trees\\Kastanie0.mdl"
 	static constant chestnut_Var2 = "Trees\\Kastanie1.mdl"
+	// Effects:
+	static constant builderSymbol = "Effects\\BuilderSymbol.mdl"

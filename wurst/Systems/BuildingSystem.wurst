@@ -39,12 +39,12 @@ let workersIconPath = Icons.bTNBash
 
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
-	// switch buildingUnitId
-	// 	case UnitIdsCustom.farm
-	// 		wares.add(ware(WareType.Wood, 4))
-	// 	case UnitIdsCustom.townHall
-	// 		wares.add(ware(WareType.Wood, 4))
-	// 		wares.add(ware(WareType.Stone, 3))
+	switch buildingUnitId
+		case UnitIdsCustom.farm
+			wares.add(ware(WareType.Wood, 4))
+		case UnitIdsCustom.townHall
+			wares.add(ware(WareType.Wood, 4))
+			wares.add(ware(WareType.Stone, 3))
 	return wares
 
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
@@ -97,6 +97,9 @@ class BuildingSite
 			doAfter(minTriggerSleepTime, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, findNextBuildingSite(worker.getPos(), worker.getOwner()), true))
 		workers.destr()
 		destroy requiredWares
+
+	function hasNoRequiredWaresLeft() returns bool
+		return requiredWares.isEmpty()
 
 	function getWorkProgress() returns real
 		return workProgress	
@@ -175,13 +178,15 @@ function addBuildingSite(unit building)
 		IssueImmediateOrderById(buildingGround, getUnitTypeId(targetUnitId))  // Upgrade building ground to target building type
 		buildingGround.setScale(getBuildingScaling(targetUnitId))
 		buildingGround.setMaxHP(max(1, (fullHP * buildStartHPPercentage).toInt()))
-		buildingSiteMap.put(buildingGround, new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId)))
-		// Order nearby idle workers to build on building site:
-		ENUM_GROUP.enumUnitsInRange(buildingGround.getPos(), maxAutoOrderRange, null)
-		let owner = buildingGround.getOwner()
-		for worker from ENUM_GROUP
-			if getUnitWorkPower(getUnitId(worker), targetUnitId) > 0. and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
-				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, buildingGround, true)
+		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
+		buildingSiteMap.put(buildingGround, buildingSite)
+		if buildingSite.hasNoRequiredWaresLeft()
+			// Order nearby idle workers to build on building site:
+			ENUM_GROUP.enumUnitsInRange(buildingGround.getPos(), maxAutoOrderRange, null)
+			let owner = buildingGround.getOwner()
+			for worker from ENUM_GROUP
+				if getUnitWorkPower(getUnitId(worker), targetUnitId) > 0. and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
+					worker.issueTargetAbilityOrder(AbilityIdsCustom.build, buildingGround, true)
 
 function removeBuildingSite(unit target)
 	if buildingSiteMap.has(target)
@@ -193,7 +198,7 @@ function findNextBuildingSite(vec2 pos, player owner) returns unit
 		var conditionsFulfilled = false
 		let buildingSite = getBuildingSite(GetFilterUnit())
 		// Only allow building sites that don't have any required wares left:
-		if buildingSite != null and buildingSite.getAmountOfWareTypes() == 0
+		if buildingSite != null and buildingSite.hasNoRequiredWaresLeft()
 			conditionsFulfilled = true
 		return conditionsFulfilled
 	let building = getNearestUnit(pos, maxAutoOrderRange, filter, owner)
@@ -209,7 +214,7 @@ function getBuildValidity(unit worker, unit target) returns int
 	if buildingSite == null
 		return 3
 	// Check if required wares are available:
-	if buildingSite.getAmountOfWareTypes() > 0
+	if buildingSite.hasNoRequiredWaresLeft() == false
 		return 4
 	// Check if worker is already building:
 	if workerMap.has(worker)
@@ -277,15 +282,17 @@ init
 			let validity = getBuildValidity(worker, target)
 			if validity != 1
 				// React on invalid command:
-				switch validity
-					case 2  // InvalidWorker
-						printTimedToPlayer("Invalid: Worker can't build at target building site type", infoMsgTime, worker.getOwner())
-					case 3  // InvalidTarget
-						printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, worker.getOwner())
-					case 4  // WaresNotAvailable
-						printTimedToPlayer("Invalid: Not all required wares are available", infoMsgTime, worker.getOwner())
-					case 5  // WorkerAlreadyBuilding
-						printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, worker.getOwner())
+				let owner = worker.getOwner()
+				if IsUnitSelected(worker, owner)
+					switch validity
+						case 2  // InvalidWorker
+							printTimedToPlayer("Invalid: Worker can't build at target building site type", infoMsgTime, owner)
+						case 3  // InvalidTarget
+							printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, owner)
+						case 4  // WaresNotAvailable
+							printTimedToPlayer("Invalid: Not all required wares are available", infoMsgTime, owner)
+						case 5  // WorkerAlreadyBuilding
+							printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, owner)
 				worker.abortOrder()
 			else
 				getBuildingSite(target).addWorker(worker)

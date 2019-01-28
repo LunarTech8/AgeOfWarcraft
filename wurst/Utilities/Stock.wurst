@@ -1,0 +1,137 @@
+package Stock
+import LinkedList
+import Icons
+
+
+// --------------------
+// Data code
+// --------------------
+
+let wareMaxCount = 99999  // Is limited to allow tuple to be converted into a single int
+let wareMaxWareTypes = 9999  // Is limited to allow tuple to be converted into a single int
+	
+public enum WareType
+	Wood
+	Stone
+	Food
+	WoodenBoard
+	WoodenStick
+	Straw
+	
+function WareType.toString() returns string
+	switch this
+		case Wood
+			return "wood"
+		case Stone
+			return "stone"
+		case Food
+			return "food"
+		case Straw
+			return "straw"
+		default
+			return "undefined ware"
+	
+function WareType.getIconPath() returns string
+	switch this
+		case Wood
+			return Icons.bTNBundleOfLumber
+		case Stone
+			return "Icons\\BTNINV_Stone_12.blp"
+		case Food
+			return Icons.bTNMonsterLure
+		case WoodenBoard
+			return Icons.bTNHumanLumberUpgrade2
+		case WoodenStick
+			return Icons.bTNHumanLumberUpgrade1
+		case Straw
+			return "Icons\\BTNStrawBunch.blp"
+		default
+			return null
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public tuple ware(WareType wareType, int count)
+
+public function wareToIndex(ware w) returns int
+	let wareTypeInt = w.wareType castTo int
+	if w.count < 1 or w.count > wareMaxCount
+		Log.error("ERROR: ware count (" + w.count.toString() + ") isn't allowed to be smaller than 1 or bigger than " + wareMaxCount.toString())
+	else if wareTypeInt < 0 or wareTypeInt > wareMaxWareTypes
+		Log.error("ERROR: ware type (" + wareTypeInt.toString() + ") isn't allowed to be smaller than 0 or bigger than " + wareMaxWareTypes.toString())
+	return w.count + wareTypeInt * (wareMaxCount + 1)
+
+public function wareFromIndex(int index) returns ware
+	let count = index mod (wareMaxCount + 1)
+	let wareType = ((index - count) div (wareMaxCount + 1)) castTo WareType
+	return ware(wareType, count)
+
+public function ware.hasSameType(ware otherWare) returns bool
+	return (this.wareType == otherWare.wareType)
+
+public function ware.toString(bool upperCase) returns string
+	if upperCase
+		return this.wareType.toString().firstUpper()
+	else
+		return this.wareType.toString()
+
+public function ware.getIconPath() returns string
+	return this.wareType.getIconPath()
+
+public function ware.changedCopy(int countChange) returns ware
+	return ware(this.wareType, this.count + countChange)
+public function ware.changedCopy(WareType newWareType) returns ware
+	return ware(newWareType, this.count)
+public function ware.changedCopy(WareType newWareType, int countChange) returns ware
+	return ware(newWareType, this.count + countChange)
+
+public class Stock
+	LinkedList<ware> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
+	//unit user  // TODO: maybe use this instead of the unit variable in the child classes
+
+	construct(LinkedList<ware> wares)
+		this.wares = wares
+
+	ondestroy
+		destroy wares
+
+	function getWare(int index) returns ware
+		if index >= wares.size()
+			Log.error("ERROR: Index has to be smaller than list size")
+		return wares.get(index)
+		
+	function getLastWare() returns ware
+		return wares.peek()
+		
+	function getAmountOfWareTypes() returns int
+		return wares.size()
+
+	function getWareCount(WareType wt) returns int
+		for iWare in wares
+			if iWare.wareType == wt
+				return iWare.count
+		return 0
+	
+	function addWare(ware w)
+		// Adjust ware:
+		for iWare in wares
+			if iWare.hasSameType(w)
+				wares.replace(iWare, iWare.changedCopy(w.count))
+				return
+		// Add new ware if none exists of that type yet:
+		wares.add(w)
+	
+	function addWares(LinkedList<ware> wares)
+		for iWare in wares
+			addWare(iWare)
+
+	function removeWare(ware w)
+		for iWare in wares
+			if iWare.hasSameType(w)
+				// Check and adjust ware:
+				if iWare.count <= w.count
+					wares.remove(iWare)
+				else
+					wares.replace(iWare, iWare.changedCopy(-w.count))

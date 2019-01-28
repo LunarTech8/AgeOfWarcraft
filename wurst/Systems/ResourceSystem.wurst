@@ -13,9 +13,10 @@ package ResourceSystem
 import RegisterEvents
 import LinkedList
 import HashMap
+import Stock
 import ConstantDataSystem
 import MultiboardPrioritySystem
-import StorageSystem
+import StorageSystem  // TODO: should probably be replaced with Stock
 import UtilityFunctions
 import OnUnitEnterLeave
 import ClosureTimers
@@ -93,42 +94,16 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 
 let resourceMap = new HashMap<unit, Resource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
-class Resource
+class Resource extends Stock
 	private unit resource
 	private bool isKilledWhenDepleted
 	private real workProgress
-	private LinkedList<ware> storedWares
 
 	construct(unit resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
+		super(initWares)
 		this.resource = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
 		workProgress = 0.
-		storedWares = initWares
-
-	ondestroy
-		destroy storedWares
-
-	function getWare(int index) returns ware
-		if index >= storedWares.size()
-			Log.error("ERROR: Index has to be smaller than list size")
-		return storedWares.get(index)
-		
-	function getAmountOfWareTypes() returns int
-		return storedWares.size()
-
-	function getWareCount(WareType wt) returns int
-		for iWare in storedWares
-			if iWare.wareType == wt
-				return iWare.count
-		return 0
-	
-	function removeWare(ware w)
-		for iWare in storedWares
-			if iWare.hasSameType(w)
-				if iWare.count <= w.count
-					storedWares.remove(iWare)
-				else
-					storedWares.replace(iWare, iWare.changedCopy(-w.count))
 
 	function work(real workProgress) returns bool
 		this.workProgress += workProgress
@@ -139,7 +114,7 @@ class Resource
 			return false
 
 	function checkForDepletionKill() returns bool
-		if isKilledWhenDepleted and storedWares.isEmpty()
+		if isKilledWhenDepleted and wares.isEmpty()
 			return true
 		return false
 

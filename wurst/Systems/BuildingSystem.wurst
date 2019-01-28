@@ -11,18 +11,18 @@ Initial version.
 -------------------------------------------------------------*/
 package BuildingSystem
 import RegisterEvents
-import LinkedList
-import HashMap
-import ConstantDataSystem
-import MultiboardPrioritySystem
-import StorageSystem
-import UtilityFunctions
+import InstantDummyCaster
 import OnUnitEnterLeave
 import ClosureTimers
-import Unit_TownHall
+import LinkedList
+import HashMap
 import Icons
 import Orders
-import InstantDummyCaster
+import Stock
+import ConstantDataSystem
+import MultiboardPrioritySystem
+import UtilityFunctions
+import Unit_TownHall
 
 
 // --------------------
@@ -73,33 +73,31 @@ function getBuildingScaling(int buildingUnitId) returns real
 let buildingSiteMap = new IterableMap<unit, BuildingSite>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 let workerMap = new HashMap<unit, BuildingSite>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
-class BuildingSite
+class BuildingSite extends Stock
 	private unit building
 	private real fullHP
 	private group workers
 	private real workProgress
 	private real workPower
 	private int upgradeProgress
-	private LinkedList<ware> requiredWares
 
 	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
+		super(requiredWares)
 		this.building = building
 		this.fullHP = fullHP
 		workers = CreateGroup()
 		workProgress = 0.
 		workPower = 0.
 		upgradeProgress = 1
-		this.requiredWares = requiredWares
 
 	ondestroy
 		for worker in workers
 			removeWorker(worker)
 			doAfter(minTriggerSleepTime, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, findNextBuildingSite(worker.getPos(), worker.getOwner()), true))
 		workers.destr()
-		destroy requiredWares
 
 	function hasNoRequiredWaresLeft() returns bool
-		return requiredWares.isEmpty()
+		return wares.isEmpty()
 
 	function getWorkProgress() returns real
 		return workProgress	
@@ -110,28 +108,6 @@ class BuildingSite
 	function getWorkerCount() returns int
 		return workers.size()
 	
-	function getWare(int index) returns ware
-		if index >= requiredWares.size()
-			Log.error("ERROR: Index has to be smaller than list size")
-		return requiredWares.get(index)
-		
-	function getAmountOfWareTypes() returns int
-		return requiredWares.size()
-
-	function getWareCount(WareType wt) returns int
-		for iWare in requiredWares
-			if iWare.wareType == wt
-				return iWare.count
-		return 0
-
-	function removeWare(ware w)
-		for iWare in requiredWares
-			if iWare.hasSameType(w)
-				if iWare.count <= w.count
-					requiredWares.remove(iWare)
-				else
-					requiredWares.replace(iWare, iWare.changedCopy(-w.count))
-
 	function addWorker(unit worker)
 		if workerMap.has(worker) == false and workers.contains(worker) == false
 			workerMap.put(worker, this)

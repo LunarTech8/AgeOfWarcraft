@@ -36,7 +36,6 @@ Work status:
 !- Add a description comment (/** */) to every public class and function
 !- Create a WeatherSystem
 !- Add a priority and maxWorker count to resources
-!>>- Maybe refactor all funtions that manipulate a given object to an object-type function (eg. getUnitId(unit u) returns int -> unit.getUnitId() returns int)
 
 
 // -------------

@@ -70,7 +70,7 @@ function generateWorld()
     for i = 1 to startPeasantCount
         var u = createUnit(userPlayer, UnitIdsCustom.peasant, startVec, angle(0.))
         nullTimer() ->
-            let storage = getStorage(u)
+            let storage = u.getStorage()
             if storage != null
                 storage.addWare(ware(WareType.Wood, startWoodCountPerPeasant))
     createUnit(userPlayer, UnitIdsCustom.footman, startVec, angle(0.))
@@ -81,7 +81,7 @@ function generateWorld()
         for	y = 0 to tilesY - 1
             if treeMap.get(x, y) >= GetRandomReal(0., 1.)
                 var v = originVec + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * tileDistance
-                createUnit(naturePlayer, getUnitTypeId(UnitIdsCustom.beech), v, getRandomAngle())
+                createUnit(naturePlayer, UnitIdsCustom.beech.getUnitTypeId(), v, getRandomAngle())
     // Initialisation finished:
     newInitStatus(null)
     print("Finished initialisation")

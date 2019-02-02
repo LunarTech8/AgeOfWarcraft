@@ -107,30 +107,30 @@ class Storage extends Stock
 		return w.count
 
 
-function addStorage(unit target)
-	if storageMap.has(target) == false
-		var maxCapacity = getMaxCapacity(GetUnitTypeId(target))
+function unit.addStorage()
+	if storageMap.has(this) == false
+		var maxCapacity = getMaxCapacity(GetUnitTypeId(this))
 		if maxCapacity > 0
-			var storage = new Storage(target, maxCapacity)
-			storageMap.put(target, storage)
+			var storage = new Storage(this, maxCapacity)
+			storageMap.put(this, storage)
 
-function removeStorage(unit target)
-	if storageMap.has(target)
-		destroy storageMap.get(target)
-		storageMap.remove(target)
+function unit.removeStorage()
+	if storageMap.has(this)
+		destroy storageMap.get(this)
+		storageMap.remove(this)
 
 /** Returns the storage of given unit. */
-public function getStorage(unit target) returns Storage
-	if storageMap.has(target)
-		return storageMap.get(target)
+public function unit.getStorage() returns Storage
+	if storageMap.has(this)
+		return storageMap.get(this)
 	else
 		return null
 
 /** Returns the amount of wares that couldn't be transfered. */
-public function transferWares(unit source, unit target) returns int
+public function unit.transferWares(unit target) returns int
 	// Check if wares can be transfered:
-	if storageMap.has(source) and storageMap.has(target)
-		var sourceStorage = storageMap.get(source)
+	if storageMap.has(this) and storageMap.has(target)
+		var sourceStorage = storageMap.get(this)
 		var targetStorage = storageMap.get(target)
 		// Transfere wares:
 		while sourceStorage.getAmountOfWareTypes() > 0
@@ -146,18 +146,18 @@ public function transferWares(unit source, unit target) returns int
 		return -1
 
 /** Sets system relevant infos for given object in target multiboard. */
-public function setObjectInfoMultiboard(multiboard m, Storage s) returns bool
-	addMultiboardLine(m, "Storage:", headlineIconPath)
-	addMultiboardLine(m, "Capacity: " + s.getUsedCapacity().toString() + "/" + s.getMaxCapacity().toString(), capacityIconPath)
+public function multiboard.setObjectInfoMultiboard(Storage s) returns bool
+	this.addMultiboardLine("Storage:", headlineIconPath)
+	this.addMultiboardLine("Capacity: " + s.getUsedCapacity().toString() + "/" + s.getMaxCapacity().toString(), capacityIconPath)
 	for i = 0 to (s.getAmountOfWareTypes() - 1)
 		var ware = s.getWare(i)
-		addMultiboardLine(m, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init
 	// Add storage to every appropriate new unit:
 	onEnter() -> 
-		addStorage(getEnterLeaveUnit())
+		getEnterLeaveUnit().addStorage()
 	// Remove storage from every appropriate removed unit:
 	onLeave() -> 
-		removeStorage(getEnterLeaveUnit())
+		getEnterLeaveUnit().removeStorage()

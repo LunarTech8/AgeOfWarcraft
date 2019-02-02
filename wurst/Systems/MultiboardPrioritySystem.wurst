@@ -78,10 +78,10 @@ public function disableBoard(integer playerID, string name) returns boolean
 	return true
 
 /** Adds a standardized multiboard line at the bottom of given multiboard. */
-public function addMultiboardLine(multiboard m, string text, string iconPath)
-	var lineNumber = MultiboardGetRowCount(m) + 1
-	MultiboardSetRowCount(m, lineNumber)
-	let multiboardItem = MultiboardGetItem(m, lineNumber - 1, 0)
+public function multiboard.addMultiboardLine(string text, string iconPath)
+	var lineNumber = MultiboardGetRowCount(this) + 1
+	MultiboardSetRowCount(this, lineNumber)
+	let multiboardItem = MultiboardGetItem(this, lineNumber - 1, 0)
 	MultiboardSetItemValue(multiboardItem, text)
 	MultiboardSetItemIcon(multiboardItem, iconPath)
 	if iconPath == headlineIconPath

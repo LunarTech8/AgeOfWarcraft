@@ -106,7 +106,7 @@ class Resource extends Stock
 	
 	/** Perform harvest and returns the harvested wares. */
 	function harvest(int workerUnitId) returns LinkedList<ware>
-		let resourceUnitId = getUnitId(resource)
+		let resourceUnitId = resource.getUnitId()
 		// Work resource:
 		if work(getWorkProgressPerHarvest(workerUnitId, resourceUnitId))
 			// Return harvested wares:
@@ -120,40 +120,40 @@ class Resource extends Stock
 		return false
 
 
-function addResource(unit target)
-	if resourceMap.has(target) == false
-		var unitType = getUnitId(target)
+function unit.addResource()
+	if resourceMap.has(this) == false
+		var unitType = this.getUnitId()
 		var wares = getDefaultInitWares(unitType)
 		if wares.isEmpty()
 			destroy wares
 		else
-			var resource = new Resource(target, isKilledWhenDepleted(unitType), wares)
-			resourceMap.put(target, resource)
+			var resource = new Resource(this, isKilledWhenDepleted(unitType), wares)
+			resourceMap.put(this, resource)
 	
-function removeResource(unit target)
-	if resourceMap.has(target)
-		destroy resourceMap.get(target)
-		resourceMap.remove(target)
+function unit.removeResource()
+	if resourceMap.has(this)
+		destroy resourceMap.get(this)
+		resourceMap.remove(this)
 
 /** Returns the resource of given unit. */
-public function getResource(unit target) returns Resource
-	if resourceMap.has(target)
-		return resourceMap.get(target)
+public function unit.getResource() returns Resource
+	if resourceMap.has(this)
+		return resourceMap.get(this)
 	else
 		return null
 
 /** Sets system relevant infos for given object in target multiboard. */
-public function setObjectInfoMultiboard(multiboard m, Resource r) returns bool
-	addMultiboardLine(m, "Resource:", headlineIconPath)
+public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
+	this.addMultiboardLine("Resource:", headlineIconPath)
 	for i = 0 to (r.getAmountOfWareTypes() - 1)
 		var ware = r.getWare(i)
-		addMultiboardLine(m, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 	
 init
 	// Add resource to every appropriate new unit:
 	onEnter() -> 
-		addResource(getEnterLeaveUnit())
+		getEnterLeaveUnit().addResource()
 	// Remove resource from every appropriate removed unit:
 	onLeave() -> 
-		removeResource(getEnterLeaveUnit())
+		getEnterLeaveUnit().removeResource()

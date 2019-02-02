@@ -94,7 +94,7 @@ class BuildingSite extends Stock
 	ondestroy
 		for worker in workers
 			removeWorker(worker)
-			doAfter(minTriggerSleepTime, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, findNextBuildingSite(worker.getPos(), worker.getOwner()), true))
+			doAfter(minTriggerSleepTime, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, worker.getPos().findNextBuildingSite(worker.getOwner()), true))
 		workers.destr()
 
 	function hasNoRequiredWaresLeft() returns bool
@@ -112,9 +112,9 @@ class BuildingSite extends Stock
 	function addWorker(unit worker)
 		if workerMap.has(worker) == false and workers.contains(worker) == false
 			workerMap.put(worker, this)
-			workPower += getUnitWorkPower(getUnitId(worker), getUnitId(building))
+			workPower += getUnitWorkPower(worker.getUnitId(), building.getUnitId())
 			workers.addUnit(worker)
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, getAbilityOrder(AbilityIdsCustom.addBuildingBuff), worker)
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
 			doAfter(minTriggerSleepTime, () -> SetUnitAnimation(worker, "work"))
 		else
 			Log.error("ERROR: can't add worker to this building site")
@@ -122,7 +122,7 @@ class BuildingSite extends Stock
 	function removeWorker(unit worker)
 		if workerMap.get(worker) == this and workers.contains(worker)
 			workerMap.remove(worker)
-			workPower -= getUnitWorkPower(getUnitId(worker), getUnitId(building))
+			workPower -= getUnitWorkPower(worker.getUnitId(), building.getUnitId())
 			workers.removeUnit(worker)
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
@@ -149,10 +149,10 @@ class BuildingSite extends Stock
 
 function unit.addBuildingSite()
 	if buildingSiteMap.has(this) == false
-		let targetUnitId = getUnitId(this)
+		let targetUnitId = this.getUnitId()
 		let fullHP = this.getMaxHP()
 		let buildingGround = this.replace(buildingGroundUnitId)
-		IssueImmediateOrderById(buildingGround, getUnitTypeId(targetUnitId))  // Upgrade building ground to target building type
+		IssueImmediateOrderById(buildingGround, targetUnitId.getUnitTypeId())  // Upgrade building ground to target building type
 		buildingGround.setScale(getBuildingScaling(targetUnitId))
 		buildingGround.setMaxHP(max(1, (fullHP * buildStartHPPercentage).toInt()))
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
@@ -162,7 +162,7 @@ function unit.addBuildingSite()
 			ENUM_GROUP.enumUnitsInRange(buildingGround.getPos(), maxAutoOrderRange, null)
 			let owner = buildingGround.getOwner()
 			for worker from ENUM_GROUP
-				if isValidWorkerType(getUnitId(worker), targetUnitId) and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
+				if targetUnitId.isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
 					worker.issueTargetAbilityOrder(AbilityIdsCustom.build, buildingGround, true)
 
 function unit.removeBuildingSite()
@@ -170,55 +170,55 @@ function unit.removeBuildingSite()
 		destroy buildingSiteMap.get(this)
 		buildingSiteMap.remove(this)
 
-function findNextBuildingSite(vec2 pos, player owner) returns unit
+function vec2.findNextBuildingSite(player owner) returns unit
 	var filter = Filter() ->
 		var conditionsFulfilled = false
-		let buildingSite = getBuildingSite(GetFilterUnit())
+		let buildingSite = GetFilterUnit().getBuildingSite()
 		// Only allow building sites that don't have any required wares left:
 		if buildingSite != null and buildingSite.hasNoRequiredWaresLeft()
 			conditionsFulfilled = true
 		return conditionsFulfilled
-	let building = getNearestUnit(pos, maxAutoOrderRange, filter, owner)
+	let building = this.getNearestUnit(maxAutoOrderRange, filter, owner)
 	filter.destr()
 	return building
 
 /** If worker is building stop him. */
-function stopBuilding(unit worker)
-	if workerMap.has(worker)
-		workerMap.get(worker).removeWorker(worker)
+function unit.stopBuilding()
+	if workerMap.has(this)
+		workerMap.get(this).removeWorker(this)
 
 /** Returns the building site of given unit. */
-public function getBuildingSite(unit target) returns BuildingSite
-	if buildingSiteMap.has(target)
-		return buildingSiteMap.get(target)
+public function unit.getBuildingSite() returns BuildingSite
+	if buildingSiteMap.has(this)
+		return buildingSiteMap.get(this)
 	else
 		return null
 
 /** Returns the building site of given worker. */
-public function getBuildingSiteOfWorker(unit worker) returns BuildingSite
-	if workerMap.has(worker)
-		return workerMap.get(worker)
+public function unit.getBuildingSiteOfWorker() returns BuildingSite
+	if workerMap.has(this)
+		return workerMap.get(this)
 	else
 		return null
 		
 /** Returns if the given worker type can work on given building type */
-public function isValidWorkerType(int workerUnitId, int buildingUnitId) returns bool
-	return getUnitWorkPower(workerUnitId, buildingUnitId) > 0.
+public function int.isValidWorkerType(int workerUnitId) returns bool
+	return getUnitWorkPower(workerUnitId, this) > 0.
 
 /** Sets system relevant infos for given object in target multiboard. */
-public function setObjectInfoMultiboard(multiboard m, BuildingSite bs) returns bool
-	addMultiboardLine(m, "Building site:", headlineIconPath)
-	addMultiboardLine(m, "Build progress: " + (bs.getWorkProgress() * 100.).toInt().toString() + "%", buildProgressIconPath)
+public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
+	this.addMultiboardLine("Building site:", headlineIconPath)
+	this.addMultiboardLine("Build progress: " + (bs.getWorkProgress() * 100.).toInt().toString() + "%", buildProgressIconPath)
 	let workPower = bs.getWorkPower()
 	if workPower > 0.
-		addMultiboardLine(m, "Build time left: " + ((1 - bs.getWorkProgress()) / workPower).toInt().toString() + "s", buildTimeLeftIconPath)
-	addMultiboardLine(m, "Workers: " + bs.getWorkerCount().toString(), workersIconPath)
+		this.addMultiboardLine("Build time left: " + ((1 - bs.getWorkProgress()) / workPower).toInt().toString() + "s", buildTimeLeftIconPath)
+		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString(), workersIconPath)
 	let amountOfWareTypes = bs.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
-		addMultiboardLine(m, "Required wares:", headlineIconPath)
+		this.addMultiboardLine("Required wares:", headlineIconPath)
 		for i = 0 to (amountOfWareTypes - 1)
 			var ware = bs.getWare(i)
-			addMultiboardLine(m, ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 	
 init
@@ -237,7 +237,7 @@ init
 	// Register construction starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_START) ->
 		let building = GetConstructingStructure()
-		if getBuildingScaling(getUnitId(building)) > 0.
+		if getBuildingScaling(building.getUnitId()) > 0.
 			doAfter(minTriggerSleepTime, () -> building.addBuildingSite())
 	// Register construction abortions:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL) ->
@@ -246,8 +246,8 @@ init
 		building.kill()
 		building.remove()
 	// Register building stops:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> stopBuilding(GetTriggerUnit()))
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> stopBuilding(GetTriggerUnit()))
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> stopBuilding(GetTriggerUnit()))
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, () -> stopBuilding(GetTriggerUnit()))
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, () -> stopBuilding(GetTriggerUnit()))
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> GetTriggerUnit().stopBuilding())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> GetTriggerUnit().stopBuilding())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> GetTriggerUnit().stopBuilding())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, () -> GetTriggerUnit().stopBuilding())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, () -> GetTriggerUnit().stopBuilding())

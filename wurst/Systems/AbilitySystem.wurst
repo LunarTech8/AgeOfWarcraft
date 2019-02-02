@@ -33,11 +33,11 @@ let infoMsgTime = 2.
 // --------------------
 
 /** Perform harvest and returns if another harvest with the given target is still valid. */
-function performHarvest(unit worker, unit target) returns bool
-	let storage = getStorage(worker)
-	let resource = getResource(target)
+function unit.performHarvest(unit target) returns bool
+	let storage = this.getStorage()
+	let resource = target.getResource()
 	// Work resource:
-	let wares = resource.harvest(getUnitId(worker))
+	let wares = resource.harvest(this.getUnitId())
 	if wares != null
 		// Transfere wares:
 		for iWare in wares
@@ -58,15 +58,15 @@ function performHarvest(unit worker, unit target) returns bool
 		if resource.checkForDepletionKill()
 			target.kill()
 			return false
-	return getHarvestValidity(worker, target) == 1
+	return this.getHarvestValidity(target) == 1
 		
 /** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=NoFreeStorage 5=ResourceIsDepleted */
-public function getHarvestValidity(unit worker, unit target) returns int
+public function unit.getHarvestValidity(unit target) returns int
 	// Check if source and target are valid:
-	var storage = getStorage(worker)
+	var storage = this.getStorage()
 	if storage == null
 		return 2
-	var resource = getResource(target)
+	var resource = target.getResource()
 	if resource == null
 		return 3
 	// Check if wares can be harvested:
@@ -78,18 +78,18 @@ public function getHarvestValidity(unit worker, unit target) returns int
 		return 1
 		
 /** Returns build validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=WaresNotAvailable 5=WorkerAlreadyBuilding */
-public function getBuildValidity(unit worker, unit target) returns int
+public function unit.getBuildValidity(unit target) returns int
 	// Check if source and target are valid:
-	if isValidWorkerType(getUnitId(worker), getUnitId(target)) == false
+	if target.getUnitId().isValidWorkerType(this.getUnitId()) == false
 		return 2
-	var buildingSite = getBuildingSite(target)
+	var buildingSite = target.getBuildingSite()
 	if buildingSite == null
 		return 3
 	// Check if required wares are available:
 	if buildingSite.hasNoRequiredWaresLeft() == false
 		return 4
 	// Check if worker is already building:
-	if getBuildingSiteOfWorker(worker) != null
+	if this.getBuildingSiteOfWorker() != null
 		return 5
 	else
 		return 1
@@ -97,12 +97,12 @@ public function getBuildValidity(unit worker, unit target) returns int
 init
 	// Register transferWares spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, () -> GetSpellAbilityId() == AbilityIdsCustom.transferWares) ->
-		transferWares(GetTriggerUnit(), GetSpellTargetUnit())
+		GetTriggerUnit().transferWares(GetSpellTargetUnit())
 	// Register build spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, () -> GetSpellAbilityId() == AbilityIdsCustom.build) ->
 		let worker = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		let validity = getBuildValidity(worker, target)
+		let validity = worker.getBuildValidity(target)
 		if validity != 1
 			// React on invalid command:
 			let owner = worker.getOwner()
@@ -118,12 +118,12 @@ init
 						printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, owner)
 			worker.abortOrder()
 		else
-			getBuildingSite(target).addWorker(worker)
+			target.getBuildingSite().addWorker(worker)
 	// Register harvest spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, () -> GetSpellAbilityId() == AbilityIdsCustom.harvest) ->
 		let worker = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
-		let validity = getHarvestValidity(worker, target)
+		let validity = worker.getHarvestValidity(target)
 		if validity != 1
 			// React on invalid command:
 			switch validity
@@ -139,6 +139,6 @@ init
 		else
 			// Perform harvest after ability casting is finished:
 			doAfter(AbilityData_Harvest.cooldown) ->
-				if performHarvest(worker, target)
+				if worker.performHarvest(target)
 					// Auto-recast ability:
 					worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)

@@ -105,16 +105,16 @@ function deactivateDataset(integer playerID)
 function createMultiboardLines(integer playerID) returns boolean
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
-		var storage = getStorage(datasets[playerID].targetedUnit)
+		var storage = datasets[playerID].targetedUnit.getStorage()
 		if storage != null
-			return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), storage)
-		var buildingSite = getBuildingSite(datasets[playerID].targetedUnit)
+			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage)
+		var buildingSite = datasets[playerID].targetedUnit.getBuildingSite()
 		if buildingSite != null
-			return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), buildingSite)
+			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite)
 	// Check info sources that do not require specific ownerhsip:
-	var resource = getResource(datasets[playerID].targetedUnit)
+	var resource = datasets[playerID].targetedUnit.getResource()
 	if resource != null
-		return setObjectInfoMultiboard(datasets[playerID].getMultiboard(), resource)
+		return datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource)
 	return false
 
 function showObjectInfo(integer playerID)

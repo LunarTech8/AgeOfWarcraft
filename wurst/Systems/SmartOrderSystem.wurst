@@ -26,7 +26,7 @@ init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> GetIssuedOrderId() == OrderIds.smart) ->
 		let source = GetTriggerUnit()
 		let target = GetOrderTargetUnit()
-		if getHarvestValidity(source, target) == 1
+		if source.getHarvestValidity(target) == 1
 			source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
-		else if getBuildValidity(source, target) == 1
+		else if source.getBuildValidity(target) == 1
 			source.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)

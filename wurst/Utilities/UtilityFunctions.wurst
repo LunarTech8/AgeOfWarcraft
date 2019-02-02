@@ -24,23 +24,6 @@ let maxComputationCostPerCycle = 256.
 
 public let minTriggerSleepTime = 0.01
 
-/** Returns the order needed to cast the given ability. */
-public function getAbilityOrder(int abilityId) returns string
-	switch abilityId
-		case AbilityIdsCustom.harvest
-			return "thunderbolt"
-		case AbilityIdsCustom.build
-			return "shadowstrike"
-		case AbilityIdsCustom.showTargetInfo
-			return "thunderbolt"
-		case AbilityIdsCustom.transferWares
-			return "frostnova"
-		case AbilityIdsCustom.addBuildingBuff
-			return "innerfire"
-		default
-			Log.error("ERROR: unmapped ability id (" + abilityId.toString() + ")")
-			return null
-
 function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	let map = new HashMap<int, int>
 	map.put(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech)
@@ -58,9 +41,26 @@ function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	map.put(UnitIdsCustom.chestnut_Var2, UnitIdsCustom.chestnut)
 	return map
 
+/** Returns the order needed to cast the given ability id. */
+public function int.getAbilityOrder() returns string
+	switch this
+		case AbilityIdsCustom.harvest
+			return "thunderbolt"
+		case AbilityIdsCustom.build
+			return "shadowstrike"
+		case AbilityIdsCustom.showTargetInfo
+			return "thunderbolt"
+		case AbilityIdsCustom.transferWares
+			return "frostnova"
+		case AbilityIdsCustom.addBuildingBuff
+			return "innerfire"
+		default
+			Log.error("ERROR: unmapped ability id (" + this.toString() + ")")
+			return null
+
 /** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
-public function getUnitTypeId(int baseUnitId) returns int
-	switch baseUnitId
+public function int.getUnitTypeId() returns int
+	switch this
 		case UnitIdsCustom.beech
 			return getRandomInputInt(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech_Var2, UnitIdsCustom.beech_Var3, UnitIdsCustom.beech_Var4)
 		case UnitIdsCustom.birch
@@ -69,7 +69,7 @@ public function getUnitTypeId(int baseUnitId) returns int
 			return getRandomInputInt(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak_Var4)
 		case UnitIdsCustom.chestnut
 			return getRandomInputInt(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut_Var2)
-	return baseUnitId
+	return this
 
 // --------------------
 // Functional code
@@ -78,37 +78,37 @@ public function getUnitTypeId(int baseUnitId) returns int
 let baseUnitTypeIdMap = initBaseUnitTypeIdMap()
 
 /** Returns the base unit id of given unit. Required for data evaluation. */
-public function getUnitId(unit u) returns int
-	let id = GetUnitTypeId(u)
+public function unit.getUnitId() returns int
+	let id = GetUnitTypeId(this)
 	if baseUnitTypeIdMap.has(id)
 		return baseUnitTypeIdMap.get(id)
 	return id
 
 /** Returns the nearest unit from given pos in given max range of given player. */
-public function getNearestUnit(vec2 startPos, real maxRange, boolexpr filter, player owner) returns unit
+public function vec2.getNearestUnit(real maxRange, boolexpr filter, player owner) returns unit
 	// Set init values:
 	var bestDistanceSq = REAL_MAX
 	unit nearestUnit = null
 	// Filter out invalid units in range:
-	ENUM_GROUP.enumUnitsInRange(startPos, maxRange, filter)
+	ENUM_GROUP.enumUnitsInRange(this, maxRange, filter)
 	// Find nearest unit:
 	for target from ENUM_GROUP
 		if owner == null or target.getOwner() == owner
-			let distanceSq = startPos.distanceToSq(target.getPos())
+			let distanceSq = this.distanceToSq(target.getPos())
 			if distanceSq < bestDistanceSq
 				bestDistanceSq = distanceSq
 				nearestUnit = target
 	return nearestUnit
 /** Returns the nearest unit from given pos in given max range. */
-public function getNearestUnit(vec2 startPos, real maxRange, boolexpr filter) returns unit
-	return getNearestUnit(startPos, maxRange, filter, null)
+public function vec2.getNearestUnit(real maxRange, boolexpr filter) returns unit
+	return this.getNearestUnit(maxRange, filter, null)
 	
 /** Issues unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
 public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns boolean
 	if resetAbility
 		this.removeAbility(abilityId)
 		this.addAbility(abilityId)
-	return this.issueTargetOrder(getAbilityOrder(abilityId), target)
+	return this.issueTargetOrder(abilityId.getAbilityOrder(), target)
 
 /** Replaces unit with a new unit of given type. */
 public function unit.replace(int unitTypeId) returns unit
@@ -161,18 +161,18 @@ public function getRandomSign() returns int
 		return 1
 
 /** Throws an exception if the absolute of the given value is smaller than epsilon, else returns the value. */
-public function divByZeroProt(real value, real epsilon) returns real
-	if value.abs() <= epsilon
-		Log.error("Invalid divisor value (" + value.toString() + ")")
-	return value
+public function real.divByZeroProt(real epsilon) returns real
+	if this.abs() <= epsilon
+		Log.error("Invalid divisor value (" + this.toString() + ")")
+	return this
 /** Throws an exception if the absolute of the given value is smaller than 10^-7, else returns the value. */
-public function divByZeroProt(real value) returns real
-	return divByZeroProt(value, 0.0000001)
+public function real.divByZeroProt() returns real
+	return this.divByZeroProt(0.0000001)
 /** Throws an exception if the given value is 0, else returns the value. */
-public function divByZeroProt(int value) returns int
-	if value == 0
-		Log.error("Invalid divisor value (" + value.toString() + ")")
-	return value
+public function int.divByZeroProt() returns int
+	if this == 0
+		Log.error("Invalid divisor value (" + this.toString() + ")")
+	return this
 
 public function checkComputationCost(real currentCompCost) returns real
 	if currentCompCost >= maxComputationCostPerCycle
@@ -291,7 +291,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				var z1 = perlinNoise.get(i, j)
 				var z2 = perlinNoise.get(width - 1 - i, j)
 				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
-				var acosInput = z1 / divByZeroProt(z1 * z1 + z2 * z2)
+				var acosInput = z1 / (z1 * z1 + z2 * z2).divByZeroProt()
 				if acosInput.abs() > 1
 					Log.error("Acos only allows numbers between -1 and 1")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))

@@ -1,3 +1,14 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Handles world map generation like terrain deformation and unit placement.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
 package WorldGenerationSystem
 import TerrainUtils
 import Interpolation

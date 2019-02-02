@@ -3,7 +3,9 @@
 1.01
 
 // Description:
-TODO
+Allows buildings to require wares as building cost before the building process can be started. Also allows for worker and building type dependant build speed.
+Uses the upgrade mechanism from a general building ground to have a fully controllable building progress.
+Dynamically adjustes the building health stats based on the building progress.
 
 // Changelog:
 - 1.01:
@@ -17,11 +19,10 @@ import ClosureTimers
 import LinkedList
 import HashMap
 import Icons
-import Orders
-import Stock
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import UtilityFunctions
+import Stock
 import Unit_TownHall
 
 
@@ -29,10 +30,10 @@ import Unit_TownHall
 // Data code
 // --------------------
 
-let infoMsgTime = 2.
 let buildAdjustmentRate = 0.1
 let buildStartHPPercentage = 0.1  // Has to be smaller than 1 and bigger than 0
 let maxAutoOrderRange = 1024.
+let buildingGroundUnitId = UnitIdsCustom.buildingGround
 let buildProgressIconPath = Icons.bTNEngineeringUpgrade
 let buildTimeLeftIconPath = Icons.bTNStatUp
 let workersIconPath = Icons.bTNBash
@@ -146,11 +147,11 @@ class BuildingSite extends Stock
 		return false
 
 
-function addBuildingSite(unit building)
-	if buildingSiteMap.has(building) == false
-		let targetUnitId = getUnitId(building)
-		let fullHP = building.getMaxHP()
-		let buildingGround = building.replace(UnitIdsCustom.buildingGround)
+function unit.addBuildingSite()
+	if buildingSiteMap.has(this) == false
+		let targetUnitId = getUnitId(this)
+		let fullHP = this.getMaxHP()
+		let buildingGround = this.replace(buildingGroundUnitId)
 		IssueImmediateOrderById(buildingGround, getUnitTypeId(targetUnitId))  // Upgrade building ground to target building type
 		buildingGround.setScale(getBuildingScaling(targetUnitId))
 		buildingGround.setMaxHP(max(1, (fullHP * buildStartHPPercentage).toInt()))
@@ -161,13 +162,13 @@ function addBuildingSite(unit building)
 			ENUM_GROUP.enumUnitsInRange(buildingGround.getPos(), maxAutoOrderRange, null)
 			let owner = buildingGround.getOwner()
 			for worker from ENUM_GROUP
-				if getUnitWorkPower(getUnitId(worker), targetUnitId) > 0. and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
+				if isValidWorkerType(getUnitId(worker), targetUnitId) and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
 					worker.issueTargetAbilityOrder(AbilityIdsCustom.build, buildingGround, true)
 
-function removeBuildingSite(unit target)
-	if buildingSiteMap.has(target)
-		destroy buildingSiteMap.get(target)
-		buildingSiteMap.remove(target)
+function unit.removeBuildingSite()
+	if buildingSiteMap.has(this)
+		destroy buildingSiteMap.get(this)
+		buildingSiteMap.remove(this)
 
 function findNextBuildingSite(vec2 pos, player owner) returns unit
 	var filter = Filter() ->
@@ -181,23 +182,6 @@ function findNextBuildingSite(vec2 pos, player owner) returns unit
 	filter.destr()
 	return building
 
-/** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=WaresNotAvailable 5=WorkerAlreadyBuilding */
-function getBuildValidity(unit worker, unit target) returns int
-	// Check if source and target are valid:
-	if getUnitWorkPower(getUnitId(worker), getUnitId(target)) <= 0.
-		return 2
-	var buildingSite = getBuildingSite(target)
-	if buildingSite == null
-		return 3
-	// Check if required wares are available:
-	if buildingSite.hasNoRequiredWaresLeft() == false
-		return 4
-	// Check if worker is already building:
-	if workerMap.has(worker)
-		return 5
-	else
-		return 1
-		
 /** If worker is building stop him. */
 function stopBuilding(unit worker)
 	if workerMap.has(worker)
@@ -209,7 +193,18 @@ public function getBuildingSite(unit target) returns BuildingSite
 		return buildingSiteMap.get(target)
 	else
 		return null
+
+/** Returns the building site of given worker. */
+public function getBuildingSiteOfWorker(unit worker) returns BuildingSite
+	if workerMap.has(worker)
+		return workerMap.get(worker)
+	else
+		return null
 		
+/** Returns if the given worker type can work on given building type */
+public function isValidWorkerType(int workerUnitId, int buildingUnitId) returns bool
+	return getUnitWorkPower(workerUnitId, buildingUnitId) > 0.
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function setObjectInfoMultiboard(multiboard m, BuildingSite bs) returns bool
 	addMultiboardLine(m, "Building site:", headlineIconPath)
@@ -229,7 +224,7 @@ public function setObjectInfoMultiboard(multiboard m, BuildingSite bs) returns b
 init
 	// Remove resource from every appropriate removed unit:
 	onLeave() -> 
-		removeBuildingSite(getEnterLeaveUnit())
+		getEnterLeaveUnit().removeBuildingSite()
 	// Adjust progress of all building sites:
 	let finishedBuildings = CreateGroup()
 	doPeriodically(buildAdjustmentRate) cb ->
@@ -238,49 +233,21 @@ init
 				finishedBuildings.addUnit(building)
 		// Remove finished building sites:
 		for building from finishedBuildings
-			removeBuildingSite(building)
+			building.removeBuildingSite()
 	// Register construction starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_START) ->
 		let building = GetConstructingStructure()
 		if getBuildingScaling(getUnitId(building)) > 0.
-			doAfter(minTriggerSleepTime, () -> addBuildingSite(building))
+			doAfter(minTriggerSleepTime, () -> building.addBuildingSite())
 	// Register construction abortions:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL) ->
 		let building = GetTriggerUnit()
-		removeBuildingSite(building)
+		building.removeBuildingSite()
 		building.kill()
 		building.remove()
-	// Register build spell:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
-		if GetSpellAbilityId() == AbilityIdsCustom.build
-			let worker = GetTriggerUnit()
-			let target = GetSpellTargetUnit()
-			let validity = getBuildValidity(worker, target)
-			if validity != 1
-				// React on invalid command:
-				let owner = worker.getOwner()
-				if IsUnitSelected(worker, owner)
-					switch validity
-						case 2  // InvalidWorker
-							printTimedToPlayer("Invalid: Worker can't build at target building site type", infoMsgTime, owner)
-						case 3  // InvalidTarget
-							printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, owner)
-						case 4  // WaresNotAvailable
-							printTimedToPlayer("Invalid: Not all required wares are available", infoMsgTime, owner)
-						case 5  // WorkerAlreadyBuilding
-							printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, owner)
-				worker.abortOrder()
-			else
-				getBuildingSite(target).addWorker(worker)
 	// Register building stops:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> stopBuilding(GetTriggerUnit()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> stopBuilding(GetTriggerUnit()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> stopBuilding(GetTriggerUnit()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, () -> stopBuilding(GetTriggerUnit()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, () -> stopBuilding(GetTriggerUnit()))
-	// Register smart order:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
-		let worker = GetTriggerUnit()
-		let target = GetOrderTargetUnit()
-		if GetIssuedOrderId() == OrderIds.smart and getBuildValidity(worker, target) == 1
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)

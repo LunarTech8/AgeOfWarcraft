@@ -1,3 +1,15 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Manages the type and count of wares that are associated with each unit.
+Base class that should be extended into specialised classes.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
 package Stock
 import LinkedList
 import Icons

@@ -1,0 +1,32 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+Handles all smart orders and allows for the addition of custom, unrestricted functionality.
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package SmartOrderSystem
+import RegisterEvents
+import Orders
+import ConstantDataSystem
+import UtilityFunctions
+import AbilitySystem
+
+
+// --------------------
+// Functional code
+// --------------------
+	
+init
+	// Register smart order:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> GetIssuedOrderId() == OrderIds.smart) ->
+		let source = GetTriggerUnit()
+		let target = GetOrderTargetUnit()
+		if getHarvestValidity(source, target) == 1
+			source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+		else if getBuildValidity(source, target) == 1
+			source.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)

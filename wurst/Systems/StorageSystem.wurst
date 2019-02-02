@@ -3,28 +3,26 @@
 1.01
 
 // Description:
-This system manages the "storages" and "wares" of every unit or building. Wares have a standardized size called "capacity" that can't be split.
+Extension of the Stock class that adds a capacity to every ware of size one and a unit type dependant max capacity.
 
 // Changelog:
 - 1.01:
 Initial version.
 -------------------------------------------------------------*/
 package StorageSystem
-import RegisterEvents
 import OnUnitEnterLeave
 import LinkedList
 import HashMap
 import Icons
-import Stock
 import ConstantDataSystem
 import MultiboardPrioritySystem
+import Stock
 
 
 // --------------------
 // Data code
 // --------------------
 	
-let countPlayers = 12  // Highest player slot in use
 let capacityIconPath = Icons.bTNSnazzyScroll
 
 function getMaxCapacity(int unitId) returns int
@@ -163,7 +161,3 @@ init
 	// Remove storage from every appropriate removed unit:
 	onLeave() -> 
 		removeStorage(getEnterLeaveUnit())
-	// Register transferWares spell:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
-		if GetSpellAbilityId() == AbilityIdsCustom.transferWares
-			transferWares(GetTriggerUnit(), GetSpellTargetUnit())

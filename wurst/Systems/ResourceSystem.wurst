@@ -10,27 +10,18 @@ Gives predefined unit types resources wares that can be extracted by workers via
 Initial version.
 -------------------------------------------------------------*/
 package ResourceSystem
-import RegisterEvents
 import LinkedList
 import HashMap
-import Stock
+import OnUnitEnterLeave
 import ConstantDataSystem
 import MultiboardPrioritySystem
-import StorageSystem  // TODO: should probably be replaced with Stock
 import UtilityFunctions
-import OnUnitEnterLeave
-import ClosureTimers
-import Ability_Harvest
-import Orders
+import Stock
 
 
 // --------------------
 // Data code
 // --------------------
-
-let countPlayers = 12  // Highest player slot in use
-let infoMsgTime = 2.
-let autoCastDelay = 0.25
 
 function getDefaultInitWares(int unitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
@@ -105,13 +96,23 @@ class Resource extends Stock
 		this.isKilledWhenDepleted = isKilledWhenDepleted
 		workProgress = 0.
 
-	function work(real workProgress) returns bool
+	private function work(real workProgress) returns bool
 		this.workProgress += workProgress
 		if this.workProgress >= 1.
 			this.workProgress -= 1.
 			return true
 		else
 			return false
+	
+	/** Perform harvest and returns the harvested wares. */
+	function harvest(int workerUnitId) returns LinkedList<ware>
+		let resourceUnitId = getUnitId(resource)
+		// Work resource:
+		if work(getWorkProgressPerHarvest(workerUnitId, resourceUnitId))
+			// Return harvested wares:
+			return getWaresPerFinishedWork(resourceUnitId)
+		// No wares harvested yet:
+		return null
 
 	function checkForDepletionKill() returns bool
 		if isKilledWhenDepleted and wares.isEmpty()
@@ -134,52 +135,6 @@ function removeResource(unit target)
 		destroy resourceMap.get(target)
 		resourceMap.remove(target)
 
-/** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=NoFreeStorage 5=ResourceIsDepleted */
-function getHarvestValidity(unit worker, unit target) returns int
-	// Check if source and target are valid:
-	var storage = getStorage(worker)
-	if storage == null
-		return 2
-	var resource = getResource(target)
-	if resource == null
-		return 3
-	// Check if wares can be harvested:
-	if storage.getFreeCapacity() <= 0
-		return 4
-	else if resource.getAmountOfWareTypes() <= 0
-		return 5
-	else
-		return 1
-		
-/** Perform harvest and returns if another harvest with the given target is still valid. */
-function harvest(unit worker, unit target) returns bool
-	let storage = getStorage(worker)
-	let resource = getResource(target)
-	let resourceUnitId = getUnitId(target)
-	// Work resource:
-	if resource.work(getWorkProgressPerHarvest(getUnitId(worker), resourceUnitId))
-		// Transfere wares:
-		let wares = getWaresPerFinishedWork(resourceUnitId)
-		for iWare in wares
-			// Check resource count:
-			let resourceWareCount = resource.getWareCount(iWare.wareType)
-			if resourceWareCount > 0
-				// Limit by resource count:
-				if resourceWareCount < iWare.count
-					iWare.count = resourceWareCount
-				// Add ware to storage:
-				var excess = storage.addWare(iWare)
-				// Remove ware from resource:
-				if excess < iWare.count
-					iWare.count -= excess
-					resource.removeWare(iWare)
-		destroy wares
-		// Check for resource depletion:
-		if resource.checkForDepletionKill()
-			target.kill()
-			return false
-	return getHarvestValidity(worker, target) == 1
-		
 /** Returns the resource of given unit. */
 public function getResource(unit target) returns Resource
 	if resourceMap.has(target)
@@ -202,33 +157,3 @@ init
 	// Remove resource from every appropriate removed unit:
 	onLeave() -> 
 		removeResource(getEnterLeaveUnit())
-	// Register harvest spell:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
-		if GetSpellAbilityId() == AbilityIdsCustom.harvest
-			let worker = GetTriggerUnit()
-			let target = GetSpellTargetUnit()
-			let validity = getHarvestValidity(worker, target)
-			if validity != 1
-				// React on invalid command:
-				switch validity
-					case 2  // InvalidWorker
-						printTimedToPlayer("Invalid: No storage for harvest", infoMsgTime, worker.getOwner())
-					case 3  // InvalidTarget
-						printTimedToPlayer("Invalid: Harvest target is no resource", infoMsgTime, worker.getOwner())
-					case 4  // NoFreeStorage
-						printTimedToPlayer("Invalid: No free storage for harvest", infoMsgTime, worker.getOwner())
-					case 5  // ResourceIsDepleted
-						printTimedToPlayer("Invalid: Harvest target is already depleted", infoMsgTime, worker.getOwner())
-				worker.abortOrder()
-			else
-				// Perform harvest after ability casting is finished:
-				doAfter(AbilityData_Harvest.cooldown) ->
-					if harvest(worker, target)
-						// Auto-recast ability:
-						worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
-	// Register smart order:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
-		let worker = GetTriggerUnit()
-		let target = GetOrderTargetUnit()
-		if GetIssuedOrderId() == OrderIds.smart and getHarvestValidity(worker, target) == 1
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)

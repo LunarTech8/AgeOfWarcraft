@@ -23,6 +23,7 @@ import ConstantDataSystem
 import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
+import StorageSystem
 import Unit_TownHall
 
 
@@ -66,7 +67,7 @@ function getBuildingScaling(int buildingUnitId) returns real
 			return UnitData_Townhall.scalingValue
 	return 0.
 
-	
+
 // --------------------
 // Functional code
 // --------------------
@@ -101,14 +102,14 @@ class BuildingSite extends Stock
 		return wares.isEmpty()
 
 	function getWorkProgress() returns real
-		return workProgress	
+		return workProgress
 
 	function getWorkPower() returns real
 		return workPower
 
 	function getWorkerCount() returns int
 		return workers.size()
-	
+
 	function addWorker(unit worker)
 		if workerMap.has(worker) == false and workers.contains(worker) == false
 			workerMap.put(worker, this)
@@ -128,7 +129,7 @@ class BuildingSite extends Stock
 			worker.removeAbility(BuffIdsCustom.building)
 		else
 			Log.error("ERROR: can't remove worker from this building site")
-	
+
 	function adjustProgress() returns bool
 		if workPower > 0.
 			// Adjust work progress:
@@ -145,6 +146,18 @@ class BuildingSite extends Stock
 		// Always adjust upgrade progress so that it stays correct:
 		UnitSetUpgradeProgress(building, upgradeProgress)
 		return false
+
+	function transferWares(Storage source)
+		// Transfere wares:
+		for i = 0 to this.getAmountOfWareTypes()
+			var ware = this.getWare(index)
+			var count = source.getWareCount(ware.wareType)
+			if count > ware.count
+				count = ware.count
+			if count > 0
+				ware = ware(ware.wareType, count)
+				source.removeWare(ware)
+				this.removeWare(ware)
 
 
 function unit.addBuildingSite()
@@ -200,7 +213,7 @@ public function unit.getBuildingSiteOfWorker() returns BuildingSite
 		return workerMap.get(this)
 	else
 		return null
-		
+
 /** Returns if the given worker type can work on given building type */
 public function int.isValidWorkerType(int workerUnitId) returns bool
 	return getUnitWorkPower(workerUnitId, this) > 0.
@@ -220,10 +233,10 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 			var ware = bs.getWare(i)
 			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
-	
+
 init
 	// Remove resource from every appropriate removed unit:
-	onLeave() -> 
+	onLeave() ->
 		getEnterLeaveUnit().removeBuildingSite()
 	// Adjust progress of all building sites:
 	let finishedBuildings = CreateGroup()

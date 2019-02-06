@@ -22,7 +22,7 @@ import Stock
 // --------------------
 // Data code
 // --------------------
-	
+
 let capacityIconPath = Icons.bTNSnazzyScroll
 
 function getMaxCapacity(int unitId) returns int
@@ -39,7 +39,7 @@ function getMaxCapacity(int unitId) returns int
 
 let storageMap = new HashMap<unit, Storage>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
-class Storage extends Stock
+public class Storage extends Stock
 	private unit storage
 	private int maxCapacity
 	private int usedCapacity
@@ -52,7 +52,7 @@ class Storage extends Stock
 
 	function getMaxCapacity() returns int
 		return maxCapacity
-	
+
 	function getUsedCapacity() returns int
 		return usedCapacity
 
@@ -80,7 +80,7 @@ class Storage extends Stock
 		else
 			// Return excess count:
 			return w.count
-	
+
 	function addWares(LinkedList<ware> wares) returns int  // TODO: maybe have excess checked separately
 		var excess = 0
 		// Add wares:
@@ -106,6 +106,19 @@ class Storage extends Stock
 		// Return shortage count:
 		return w.count
 
+	/** Returns the amount of wares that couldn't be transfered. */
+	function transferWares(Storage target) returns int
+		// Transfere wares:
+		while this.getAmountOfWareTypes() > 0
+			var ware = this.getLastWare()
+			var excess = target.addWare(ware)
+			if excess < ware.count
+				ware.count -= excess
+				this.removeWare(ware)
+			if excess > 0
+				return usedCapacity
+		return 0
+
 
 function unit.addStorage()
 	if storageMap.has(this) == false
@@ -126,25 +139,6 @@ public function unit.getStorage() returns Storage
 	else
 		return null
 
-/** Returns the amount of wares that couldn't be transfered. */
-public function unit.transferWares(unit target) returns int
-	// Check if wares can be transfered:
-	if storageMap.has(this) and storageMap.has(target)
-		var sourceStorage = storageMap.get(this)
-		var targetStorage = storageMap.get(target)
-		// Transfere wares:
-		while sourceStorage.getAmountOfWareTypes() > 0
-			var ware = sourceStorage.getLastWare()
-			var excess = targetStorage.addWare(ware)
-			if excess < ware.count
-				ware.count -= excess
-				sourceStorage.removeWare(ware)
-			if excess > 0
-				return sourceStorage.getUsedCapacity()
-		return 0
-	else
-		return -1
-
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Storage s) returns bool
 	this.addMultiboardLine("Storage:", headlineIconPath)
@@ -156,8 +150,8 @@ public function multiboard.setObjectInfoMultiboard(Storage s) returns bool
 
 init
 	// Add storage to every appropriate new unit:
-	onEnter() -> 
+	onEnter() ->
 		getEnterLeaveUnit().addStorage()
 	// Remove storage from every appropriate removed unit:
-	onLeave() -> 
+	onLeave() ->
 		getEnterLeaveUnit().removeStorage()

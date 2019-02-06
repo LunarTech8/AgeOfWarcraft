@@ -25,7 +25,7 @@ Work status:
 !!- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
 	!- addBuildingSite should use this system for idle detection
 !!- Auto order worker to work the next equal resource after a resource depletion
-!!- Generalize the validity checks (like for the build ability) and add missing one including transferWares
+!!- Make generalized functions or a sub system for the validity checks and their reactions in AbilitySystem
 !- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList

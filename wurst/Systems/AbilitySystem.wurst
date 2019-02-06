@@ -33,7 +33,7 @@ let infoMsgTime = 2.
 // --------------------
 
 /** Perform harvest and returns if another harvest with the given target is still valid. */
-function unit.performHarvest(unit target) returns bool
+function unit.harvest(unit target) returns bool
 	let storage = this.getStorage()
 	let resource = target.getResource()
 	// Work resource:
@@ -59,7 +59,17 @@ function unit.performHarvest(unit target) returns bool
 			target.kill()
 			return false
 	return this.getHarvestValidity(target) == 1
-		
+
+function unit.transferWares(unit target)
+	// Check if wares can be transfered:
+	var sourceStorage = this.getStorage()
+	if sourceStorage != null
+		// Check for possible transfer methods based on target:
+		var targetStorage = target.getStorage()
+		if targetStorage != null
+			// Give wares to target:
+			sourceStorage.transferWares(targetStorage)
+
 /** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=NoFreeStorage 5=ResourceIsDepleted */
 public function unit.getHarvestValidity(unit target) returns int
 	// Check if source and target are valid:
@@ -76,7 +86,7 @@ public function unit.getHarvestValidity(unit target) returns int
 		return 5
 	else
 		return 1
-		
+
 /** Returns build validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=WaresNotAvailable 5=WorkerAlreadyBuilding */
 public function unit.getBuildValidity(unit target) returns int
 	// Check if source and target are valid:
@@ -93,11 +103,48 @@ public function unit.getBuildValidity(unit target) returns int
 		return 5
 	else
 		return 1
-		
+
+
+/** Returns build validity: 1=Valid 2=InvalidSource 3=InvalidTarget 4=WaresNotAvailable 5=NoFreeStorage */
+public function unit.getTransferWaresValidity(unit target) returns int
+	// Check if source and target are valid:
+	var sourceStorage = this.getStorage()
+	if sourceStorage == null
+		return 2
+	var targetStorage = target.getStorage()
+	if targetStorage == null
+		return 3
+	// Check if wares are available:
+	if sourceStorage.getUsedCapacity() <= 0
+		return 4
+	// Check if target has free storage:
+	if targetStorage.getFreeCapacity() <= 0
+		return 4
+	else
+		return 1
+
 init
 	// Register transferWares spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, () -> GetSpellAbilityId() == AbilityIdsCustom.transferWares) ->
-		GetTriggerUnit().transferWares(GetSpellTargetUnit())
+		let source = GetTriggerUnit()
+		let target = GetSpellTargetUnit()
+		let validity = source.getTransferWaresValidity(target)
+		if validity != 1
+			// React on invalid command:
+			let owner = source.getOwner()
+			if IsUnitSelected(source, owner)
+				switch validity
+					case 2  // InvalidSource
+						printTimedToPlayer("Invalid: Unit can't transfer wares", infoMsgTime, owner)
+					case 3  // InvalidTarget
+						printTimedToPlayer("Invalid: Can't transfer wares to this kind of target", infoMsgTime, owner)
+					case 4  // WaresNotAvailable
+						printTimedToPlayer("Invalid: No wares to transfer are available", infoMsgTime, owner)
+					case 5  // NoFreeStorage
+						printTimedToPlayer("Invalid: Target has no free storage for transfer", infoMsgTime, owner)
+			source.abortOrder()
+		else
+			source.transferWares(target)
 	// Register build spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, () -> GetSpellAbilityId() == AbilityIdsCustom.build) ->
 		let worker = GetTriggerUnit()
@@ -113,7 +160,7 @@ init
 					case 3  // InvalidTarget
 						printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, owner)
 					case 4  // WaresNotAvailable
-						printTimedToPlayer("Invalid: Not all required wares are available", infoMsgTime, owner)
+						printTimedToPlayer("Invalid: Not all required wares are available for building", infoMsgTime, owner)
 					case 5  // WorkerAlreadyBuilding
 						printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, owner)
 			worker.abortOrder()
@@ -139,6 +186,6 @@ init
 		else
 			// Perform harvest after ability casting is finished:
 			doAfter(AbilityData_Harvest.cooldown) ->
-				if worker.performHarvest(target)
+				if worker.harvest(target)
 					// Auto-recast ability:
 					worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)

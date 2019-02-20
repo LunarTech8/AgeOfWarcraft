@@ -44,9 +44,9 @@ function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	switch buildingUnitId
 		case UnitIdsCustom.farm
 			wares.add(ware(WareType.Wood, 4))
-		case UnitIdsCustom.townHall
-			wares.add(ware(WareType.Wood, 4))
-			wares.add(ware(WareType.Stone, 3))
+		// case UnitIdsCustom.townHall
+		// 	wares.add(ware(WareType.Wood, 4))
+		// 	wares.add(ware(WareType.Stone, 3))
 	return wares
 
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
@@ -98,9 +98,6 @@ class BuildingSite extends Stock
 			doAfter(minTriggerSleepTime, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, worker.getPos().findNextBuildingSite(worker.getOwner()), true))
 		workers.destr()
 
-	function hasNoRequiredWaresLeft() returns bool
-		return wares.isEmpty()
-
 	function getWorkProgress() returns real
 		return workProgress
 
@@ -147,17 +144,32 @@ class BuildingSite extends Stock
 		UnitSetUpgradeProgress(building, upgradeProgress)
 		return false
 
+	function callOverIdleWorkers(bool addSelectedWorkers)
+		// Order nearby idle workers to build on building site:
+		ENUM_GROUP.enumUnitsInRange(building.getPos(), maxAutoOrderRange, null)
+		let owner = building.getOwner()
+		for worker from ENUM_GROUP
+			if building.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or (addSelectedWorkers and IsUnitSelected(worker, owner))) and worker.hasAbility(BuffIdsCustom.building) == false
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, building, true)
+
 	function transferWares(Storage source)
-		// Transfere wares:
-		for i = 0 to this.getAmountOfWareTypes()
-			var ware = this.getWare(index)
+		var leftRequiredWares = new LinkedList<ware>()
+		// Look through all required wares:
+		for i = 0 to getAmountOfWareTypes() - 1
+			var ware = getWare(i)
 			var count = source.getWareCount(ware.wareType)
-			if count > ware.count
+			if count < ware.count
+				// Note down still missing wares:
+				leftRequiredWares.add(ware(ware.wareType, ware.count - count))
+			else
+				// Limit taken wares to required amount:
 				count = ware.count
 			if count > 0
-				ware = ware(ware.wareType, count)
-				source.removeWare(ware)
-				this.removeWare(ware)
+				// Remove taken wares from source:
+				source.removeWare(ware(ware.wareType, count))
+		// Update still required wares:
+		destroy wares
+		wares = leftRequiredWares
 
 
 function unit.addBuildingSite()
@@ -170,13 +182,8 @@ function unit.addBuildingSite()
 		buildingGround.setMaxHP(max(1, (fullHP * buildStartHPPercentage).toInt()))
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		buildingSiteMap.put(buildingGround, buildingSite)
-		if buildingSite.hasNoRequiredWaresLeft()
-			// Order nearby idle workers to build on building site:
-			ENUM_GROUP.enumUnitsInRange(buildingGround.getPos(), maxAutoOrderRange, null)
-			let owner = buildingGround.getOwner()
-			for worker from ENUM_GROUP
-				if targetUnitId.isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or IsUnitSelected(worker, owner)) and worker.hasAbility(BuffIdsCustom.building) == false
-					worker.issueTargetAbilityOrder(AbilityIdsCustom.build, buildingGround, true)
+		if buildingSite.hasWares() == false
+			buildingSite.callOverIdleWorkers(true)
 
 function unit.removeBuildingSite()
 	if buildingSiteMap.has(this)
@@ -188,7 +195,7 @@ function vec2.findNextBuildingSite(player owner) returns unit
 		var conditionsFulfilled = false
 		let buildingSite = GetFilterUnit().getBuildingSite()
 		// Only allow building sites that don't have any required wares left:
-		if buildingSite != null and buildingSite.hasNoRequiredWaresLeft()
+		if buildingSite != null and buildingSite.hasWares() == false
 			conditionsFulfilled = true
 		return conditionsFulfilled
 	let building = this.getNearestUnit(maxAutoOrderRange, filter, owner)

@@ -108,13 +108,13 @@ public class Storage extends Stock
 
 	/** Returns the amount of wares that couldn't be transfered. */
 	function transferWares(Storage target) returns int
-		// Transfere wares:
-		while this.getAmountOfWareTypes() > 0
-			var ware = this.getLastWare()
+		// Transfer last ware of source until it is empty or target is full:
+		while hasWares()
+			var ware = getLastWare()
 			var excess = target.addWare(ware)
 			if excess < ware.count
 				ware.count -= excess
-				this.removeWare(ware)
+				removeWare(ware)
 			if excess > 0
 				return usedCapacity
 		return 0

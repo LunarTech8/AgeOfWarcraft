@@ -20,13 +20,13 @@ import AbilitySystem
 // --------------------
 // Functional code
 // --------------------
-	
+
 init
 	// Register smart order:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> GetIssuedOrderId() == OrderIds.smart) ->
 		let source = GetTriggerUnit()
 		let target = GetOrderTargetUnit()
-		if source.getHarvestValidity(target) == 1
-			source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
-		else if source.getBuildValidity(target) == 1
-			source.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)
+		// if source.getHarvestValidity(target) == 1
+		// 	source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+		// else if source.getBuildValidity(target) == 1
+		// 	source.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)

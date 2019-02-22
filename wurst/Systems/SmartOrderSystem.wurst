@@ -23,10 +23,16 @@ import AbilitySystem
 
 init
 	// Register smart order:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> GetIssuedOrderId() == OrderIds.smart) ->
-		let source = GetTriggerUnit()
-		let target = GetOrderTargetUnit()
-		// if source.getHarvestValidity(target) == 1
-		// 	source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
-		// else if source.getBuildValidity(target) == 1
-		// 	source.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
+		if GetIssuedOrderId() == OrderIds.smart
+			let source = GetTriggerUnit()
+			let target = GetOrderTargetUnit()
+			// Check if target is a valid resource for source:
+			if source.getHarvestValidity(target) == 1
+				source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+			// Check if target is a valid building site for source:
+			else if source.getBuildValidity(target) == 1
+				source.issueTargetAbilityOrder(AbilityIdsCustom.build, target, true)
+			// Check if target is valid for ware transferation from source:
+			else if source.getTransferWaresValidity(target) == 1
+				source.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)

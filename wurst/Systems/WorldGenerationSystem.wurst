@@ -25,23 +25,23 @@ import UtilityFunctions
 // --------------------
 
 // Terrain:
-let tilesX = 16
-let tilesY = 16
-let tileDistance = 128.
-let minTerrainHeight = -128.
-let maxTerrainHeight = 256.
+let TILES_X = 16
+let TILES_Y = 16
+let TILE_DISTANCE = 128.
+let MIN_TERRAIN_HEIGHT = -128.
+let MAX_TERRAIN_HEIGHT = 256.
 
 // General:
-let originVec = vec2(-0.5 * tilesX, -0.5 * tilesY) * tileDistance
-let userPlayer = Player(0)
+let ORIGIN_VEC = vec2(-0.5 * TILES_X, -0.5 * TILES_Y) * TILE_DISTANCE
+let USER_PLAYER = Player(0)
 
 // Player units:
-let startVec = vec2(0., 0.)
-let startPeasantCount = 5
-let startWoodCountPerPeasant = 5
+let START_VEC = vec2(0., 0.)
+let START_PEASANT_COUNT = 5
+let START_WOOD_COUNT_PER_PEASANT = 5
 
 // Nature:
-let naturePlayer = Player(PLAYER_NEUTRAL_PASSIVE)
+let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
 
 
 // --------------------
@@ -60,28 +60,28 @@ function newInitStatus(string statusName)
 function generateWorld()
     // Create terrain:
     newInitStatus("terrain creation")
-    Array2D<real> heightMap = generatePerlinNoise(tilesX, tilesY, 5, 0.6, "Cosine")
-    for	x = 0 to tilesX - 1
-        for	y = 0 to tilesY - 1
-            originVec.add(x * tileDistance, y * tileDistance).addTerrainHeight(linear(minTerrainHeight, maxTerrainHeight, heightMap.get(x, y)))
-    TriggerSleepAction(minTriggerSleepTime)
+    Array2D<real> heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    for	x = 0 to TILES_X - 1
+        for	y = 0 to TILES_Y - 1
+            ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))
+    TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
     // Create player units:
     newInitStatus("player units creation")
-    for i = 1 to startPeasantCount
-        var u = createUnit(userPlayer, UnitIdsCustom.peasant, startVec, angle(0.))
+    for i = 1 to START_PEASANT_COUNT
+        var u = createUnit(USER_PLAYER, UnitIdsCustom.peasant, START_VEC, angle(0.))
         nullTimer() ->
             let storage = u.getStorage()
             if storage != null
-                storage.addWare(ware(WareType.Wood, startWoodCountPerPeasant))
-    createUnit(userPlayer, UnitIdsCustom.footman, startVec, angle(0.))
+                storage.addWare(ware(WareType.Wood, START_WOOD_COUNT_PER_PEASANT))
+    createUnit(USER_PLAYER, UnitIdsCustom.footman, START_VEC, angle(0.))
     // Create trees:
     newInitStatus("trees creation")
-    Array2D<real> treeMap = generatePerlinNoise(tilesX, tilesY, 5, 0.6, "Cosine")
-    for	x = 0 to tilesX - 1
-        for	y = 0 to tilesY - 1
+    Array2D<real> treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    for	x = 0 to TILES_X - 1
+        for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(0., 1.)
-                var v = originVec + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * tileDistance
-                createUnit(naturePlayer, UnitIdsCustom.beech.getUnitTypeId(), v, getRandomAngle())
+                var v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
+                createUnit(NATURE_PLAYER, UnitIdsCustom.beech.getUnitTypeId(), v, getRandomAngle())
     // Initialisation finished:
     newInitStatus(null)
     print("Finished initialisation")

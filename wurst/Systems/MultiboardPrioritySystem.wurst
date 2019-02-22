@@ -12,16 +12,16 @@ Also provides standardized multiboard utility functions.
 Initial version.
 -------------------------------------------------------------*/
 package MultiboardPrioritySystem
-	
+
 
 // --------------------
 // Data code
 // --------------------
 
-let countPlayers = 12  // Highest player slot in use
+let COUNT_PLAYERS = 12  // Highest player slot in use
 
-public let headlineIconPath = "UI\\Minimap\\MinimapIconCreepLoc2.blp"
-public let subHeadlineIconPath = "UI\\Minimap\\MinimapIconCreepLoc2.blp"
+public let HEADLINE_ICON_PATH = "UI\\Minimap\\MinimapIconCreepLoc2.blp"
+public let SUB_HEADLINE_ICON_PATH = "UI\\Minimap\\MinimapIconCreepLoc2.blp"
 
 
 // --------------------
@@ -45,7 +45,7 @@ class Board
 
 public function isBoardActiv(integer playerID, string name) returns boolean
 	return name == currentBoards[playerID].name
-	
+
 public function enableBoard(integer playerID, string name, integer priority, PlayerIDClosure disableFunc) returns boolean
 	// Check if board is already active:
 	if isBoardActiv(playerID, name)
@@ -84,16 +84,16 @@ public function multiboard.addMultiboardLine(string text, string iconPath)
 	let multiboardItem = MultiboardGetItem(this, lineNumber - 1, 0)
 	MultiboardSetItemValue(multiboardItem, text)
 	MultiboardSetItemIcon(multiboardItem, iconPath)
-	if iconPath == headlineIconPath
+	if iconPath == HEADLINE_ICON_PATH
 		MultiboardSetItemValueColor(multiboardItem, 255, 0, 0, 255)
-	else if iconPath == subHeadlineIconPath
+	else if iconPath == SUB_HEADLINE_ICON_PATH
 		MultiboardSetItemValueColor(multiboardItem, 255, 200, 0, 255)
 	MultiboardSetItemWidth(multiboardItem, 0.15)
 	MultiboardReleaseItem(multiboardItem)
 
 init
 	// Init variables:
-	for i = 0 to countPlayers - 1
+	for i = 0 to COUNT_PLAYERS - 1
 		currentBoards[i] = new Board()
 		if currentBoards[i] == null
 			Log.error("ERROR: MultiboardInfo struct cap exceeded")

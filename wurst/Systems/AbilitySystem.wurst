@@ -25,7 +25,7 @@ import Ability_Harvest
 // Data code
 // --------------------
 
-let infoMsgTime = 2.
+let INFO_MSG_TIME = 2.
 
 
 // --------------------
@@ -76,7 +76,7 @@ function unit.transferWares(unit target)
 			targetBuildingSite.transferWares(sourceStorage)
 			// Call over idel workers if no required wares are missing:
 			if targetBuildingSite.hasWares() == false
-				targetBuildingSite.callOverIdleWorkers(true)
+				targetBuildingSite.callOverIdleWorkers(this)
 
 /** Returns harvest validity: 1=Valid 2=InvalidWorker 3=InvalidTarget 4=NoFreeStorage 5=ResourceIsDepleted */
 public function unit.getHarvestValidity(unit target) returns int
@@ -136,11 +136,11 @@ public function unit.getTransferWaresValidity(unit target) returns int
 	return 1
 
 init
-	// Register transferWares spell:
+	// Register abilities being cast:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
+		let source = GetTriggerUnit()
+		let target = GetSpellTargetUnit()
 		if GetSpellAbilityId() == AbilityIdsCustom.transferWares
-			let source = GetTriggerUnit()
-			let target = GetSpellTargetUnit()
 			let validity = source.getTransferWaresValidity(target)
 			if validity != 1
 				// React on invalid command:
@@ -148,61 +148,53 @@ init
 				if IsUnitSelected(source, owner)
 					switch validity
 						case 2  // InvalidSource
-							printTimedToPlayer("Invalid: Unit can't transfer wares", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Unit can't transfer wares", INFO_MSG_TIME, owner)
 						case 3  // InvalidTarget
-							printTimedToPlayer("Invalid: Can't transfer wares to this kind of target", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Can't transfer wares to this kind of target", INFO_MSG_TIME, owner)
 						case 4  // WaresNotAvailable
-							printTimedToPlayer("Invalid: No wares to transfer are available", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: No wares to transfer are available", INFO_MSG_TIME, owner)
 						case 5  // NoFreeStorage
-							printTimedToPlayer("Invalid: Target has no free storage for transfer", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Target has no free storage for transfer", INFO_MSG_TIME, owner)
 						case 6  // NoRequiredWares
-							printTimedToPlayer("Invalid: Target has no required wares left", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Target has no required wares left", INFO_MSG_TIME, owner)
 				source.abortOrder()
 			else
 				source.transferWares(target)
-	// Register build spell:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
-		if GetSpellAbilityId() == AbilityIdsCustom.build
-			let worker = GetTriggerUnit()
-			let target = GetSpellTargetUnit()
-			let validity = worker.getBuildValidity(target)
+		else if GetSpellAbilityId() == AbilityIdsCustom.build
+			let validity = source.getBuildValidity(target)
 			if validity != 1
 				// React on invalid command:
-				let owner = worker.getOwner()
-				if IsUnitSelected(worker, owner)
+				let owner = source.getOwner()
+				if IsUnitSelected(source, owner)
 					switch validity
 						case 2  // InvalidWorker
-							printTimedToPlayer("Invalid: Worker can't build at target building site type", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Worker can't build at target building site type", INFO_MSG_TIME, owner)
 						case 3  // InvalidTarget
-							printTimedToPlayer("Invalid: Build target is no building site", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Build target is no building site", INFO_MSG_TIME, owner)
 						case 4  // WaresNotAvailable
-							printTimedToPlayer("Invalid: Not all required wares are available for building", infoMsgTime, owner)
+							printTimedToPlayer("Invalid: Not all required wares are available for building", INFO_MSG_TIME, owner)
 						case 5  // WorkerAlreadyBuilding
-							printTimedToPlayer("Invalid: Worker is already building", infoMsgTime, owner)
-				worker.abortOrder()
+							printTimedToPlayer("Invalid: Worker is already building", INFO_MSG_TIME, owner)
+				source.abortOrder()
 			else
-				target.getBuildingSite().addWorker(worker)
-	// Register harvest spell:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
-		if GetSpellAbilityId() == AbilityIdsCustom.harvest
-			let worker = GetTriggerUnit()
-			let target = GetSpellTargetUnit()
-			let validity = worker.getHarvestValidity(target)
+				target.getBuildingSite().addWorker(source)
+		else if GetSpellAbilityId() == AbilityIdsCustom.harvest
+			let validity = source.getHarvestValidity(target)
 			if validity != 1
 				// React on invalid command:
 				switch validity
 					case 2  // InvalidWorker
-						printTimedToPlayer("Invalid: No storage for harvest", infoMsgTime, worker.getOwner())
+						printTimedToPlayer("Invalid: No storage for harvest", INFO_MSG_TIME, source.getOwner())
 					case 3  // InvalidTarget
-						printTimedToPlayer("Invalid: Harvest target is no resource", infoMsgTime, worker.getOwner())
+						printTimedToPlayer("Invalid: Harvest target is no resource", INFO_MSG_TIME, source.getOwner())
 					case 4  // NoFreeStorage
-						printTimedToPlayer("Invalid: No free storage for harvest", infoMsgTime, worker.getOwner())
+						printTimedToPlayer("Invalid: No free storage for harvest", INFO_MSG_TIME, source.getOwner())
 					case 5  // ResourceIsDepleted
-						printTimedToPlayer("Invalid: Harvest target is already depleted", infoMsgTime, worker.getOwner())
-				worker.abortOrder()
+						printTimedToPlayer("Invalid: Harvest target is already depleted", INFO_MSG_TIME, source.getOwner())
+				source.abortOrder()
 			else
 				// Perform harvest after ability casting is finished:
 				doAfter(AbilityData_Harvest.cooldown) ->
-					if worker.harvest(target)
+					if source.harvest(target)
 						// Auto-recast ability:
-						worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+						source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)

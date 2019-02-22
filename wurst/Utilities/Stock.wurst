@@ -19,8 +19,8 @@ import Icons
 // Data code
 // --------------------
 
-let wareMaxCount = 99999  // Is limited to allow tuple to be converted into a single int
-let wareMaxWareTypes = 9999  // Is limited to allow tuple to be converted into a single int
+let MAX_COUNT = 99999  // Is limited to allow tuple to be converted into a single int
+let MAX_WARE_TYPES = 9999  // Is limited to allow tuple to be converted into a single int
 
 public enum WareType
 	Wood
@@ -69,15 +69,15 @@ public tuple ware(WareType wareType, int count)
 
 public function wareToIndex(ware w) returns int
 	let wareTypeInt = w.wareType castTo int
-	if w.count < 1 or w.count > wareMaxCount
-		Log.error("ERROR: ware count (" + w.count.toString() + ") isn't allowed to be smaller than 1 or bigger than " + wareMaxCount.toString())
-	else if wareTypeInt < 0 or wareTypeInt > wareMaxWareTypes
-		Log.error("ERROR: ware type (" + wareTypeInt.toString() + ") isn't allowed to be smaller than 0 or bigger than " + wareMaxWareTypes.toString())
-	return w.count + wareTypeInt * (wareMaxCount + 1)
+	if w.count < 1 or w.count > MAX_COUNT
+		Log.error("ERROR: ware count (" + w.count.toString() + ") isn't allowed to be smaller than 1 or bigger than " + MAX_COUNT.toString())
+	else if wareTypeInt < 0 or wareTypeInt > MAX_WARE_TYPES
+		Log.error("ERROR: ware type (" + wareTypeInt.toString() + ") isn't allowed to be smaller than 0 or bigger than " + MAX_WARE_TYPES.toString())
+	return w.count + wareTypeInt * (MAX_COUNT + 1)
 
 public function wareFromIndex(int index) returns ware
-	let count = index mod (wareMaxCount + 1)
-	let wareType = ((index - count) div (wareMaxCount + 1)) castTo WareType
+	let count = index mod (MAX_COUNT + 1)
+	let wareType = ((index - count) div (MAX_COUNT + 1)) castTo WareType
 	return ware(wareType, count)
 
 public function ware.hasSameType(ware otherWare) returns bool

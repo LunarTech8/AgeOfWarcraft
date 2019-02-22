@@ -77,8 +77,8 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 		case UnitIdsCustom.chestnut
 			wares.add(ware(WareType.Wood, 1))
 	return wares
-			
-	
+
+
 // --------------------
 // Functional code
 // --------------------
@@ -103,7 +103,7 @@ class Resource extends Stock
 			return true
 		else
 			return false
-	
+
 	/** Perform harvest and returns the harvested wares. */
 	function harvest(int workerUnitId) returns LinkedList<ware>
 		let resourceUnitId = resource.getUnitId()
@@ -129,7 +129,7 @@ function unit.addResource()
 		else
 			var resource = new Resource(this, isKilledWhenDepleted(unitType), wares)
 			resourceMap.put(this, resource)
-	
+
 function unit.removeResource()
 	if resourceMap.has(this)
 		destroy resourceMap.get(this)
@@ -144,16 +144,16 @@ public function unit.getResource() returns Resource
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
-	this.addMultiboardLine("Resource:", headlineIconPath)
+	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
 	for i = 0 to (r.getAmountOfWareTypes() - 1)
 		var ware = r.getWare(i)
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
-	
+
 init
 	// Add resource to every appropriate new unit:
-	onEnter() -> 
+	onEnter() ->
 		getEnterLeaveUnit().addResource()
 	// Remove resource from every appropriate removed unit:
-	onLeave() -> 
+	onLeave() ->
 		getEnterLeaveUnit().removeResource()

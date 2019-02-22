@@ -6,9 +6,9 @@ import ConstantDataSystem
 // Data code
 // --------------------
 
-let userPlayer = Player(0)
-let command = "test"
-let commandShort = "t"
+let USER_PLAYER = Player(0)
+let COMMAND = "test"
+let COMMAND_SHORT = "t"
 
 
 // --------------------
@@ -27,5 +27,5 @@ function executeCommand()
 init
 	CreateTrigger()
 	..addAction(function executeCommand)
-	..registerPlayerChatEvent(userPlayer, command, true)
-	..registerPlayerChatEvent(userPlayer, commandShort, true)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)

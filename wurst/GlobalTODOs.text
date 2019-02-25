@@ -19,10 +19,6 @@ Work status:
 // Programming:
 // -------------
 
-!>>>- Maybe use THIS_TYPE_OF_CASING for global constants
-
-!!>- Make generalized functions or a sub system for the validity checks and their reactions in AbilitySystem
-
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow

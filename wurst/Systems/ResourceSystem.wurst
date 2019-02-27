@@ -13,15 +13,19 @@ package ResourceSystem
 import LinkedList
 import HashMap
 import OnUnitEnterLeave
+import ClosureTimers
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
+import StorageSystem
 
 
 // --------------------
 // Data code
 // --------------------
+
+let MAX_AUTO_ORDER_RANGE = 1024.
 
 function getDefaultInitWares(int unitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
@@ -88,13 +92,20 @@ let resourceMap = new HashMap<unit, Resource>  // TODO: maybe make a general uni
 class Resource extends Stock
 	private unit resource
 	private bool isKilledWhenDepleted
+	private group targetedByGroup
 	private real workProgress
 
 	construct(unit resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
 		super(initWares)
 		this.resource = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
+		targetedByGroup = CreateGroup()
 		workProgress = 0.
+
+	ondestroy
+		for u from targetedByGroup
+			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> u.issueTargetAbilityOrder(AbilityIdsCustom.harvest, u.findNextResource(), true))
+		targetedByGroup.destr()
 
 	private function work(real workProgress) returns bool
 		this.workProgress += workProgress
@@ -119,6 +130,10 @@ class Resource extends Stock
 			return true
 		return false
 
+	function addAsTarget(unit source)
+		if targetedByGroup.contains(source) == false
+			targetedByGroup.addUnit(source)
+
 
 function unit.addResource()
 	if resourceMap.has(this) == false
@@ -134,6 +149,22 @@ function unit.removeResource()
 	if resourceMap.has(this)
 		destroy resourceMap.get(this)
 		resourceMap.remove(this)
+
+function unit.findNextResource() returns unit
+	// Check if worker has enough free space:
+	if this.getStorage().getFreeCapacity() > 0
+		var filter = Filter() ->
+			var conditionsFulfilled = false
+			let resource = GetFilterUnit().getResource()
+			// Only allow resources that have wares left:
+			if resource != null and resource.hasWares()
+				conditionsFulfilled = true
+			return conditionsFulfilled
+		let target = this.getPos().getNearestUnit(MAX_AUTO_ORDER_RANGE, filter)
+		filter.destr()
+		return target
+	else
+		return null
 
 /** Returns the resource of given unit. */
 public function unit.getResource() returns Resource

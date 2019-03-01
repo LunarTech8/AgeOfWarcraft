@@ -12,6 +12,7 @@ Initial version.
 package AbilitySystem
 import RegisterEvents
 import ClosureTimers
+import LastOrder
 import ConstantDataSystem
 import UtilityFunctions
 import Stock
@@ -224,3 +225,21 @@ init
 							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
 		else if val != Validity.Unregistered
 			source.reactOnInvalidAbility(abilityId, val)
+	// Register issued orders:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
+		let orderId = GetIssuedOrderId()
+		let source = GetTriggerUnit()
+		// Remove ordered unit from current aim lists:
+		let prevOrder = source.getLastOrder().prev
+		if prevOrder.finished == false and prevOrder.orderType == OrderType.TARGET
+			widget w = prevOrder.target
+			// CONTINUE: can't cast widget to unit!!!
+			// TODO: maybe replace LastOrder with an own package
+			let resource = targetU.getResource()
+			if resource != null
+				// TODO: remove from last list
+		// Add ordered unit to aim list of target:
+		if orderId == AbilityIdsCustom.harvest
+			let target = GetOrderTargetUnit()
+			if source.isAbilityValid(orderId, target)
+				target.getResource().addAsTarget(source)

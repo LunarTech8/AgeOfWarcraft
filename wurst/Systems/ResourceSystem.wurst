@@ -134,6 +134,10 @@ class Resource extends Stock
 		if targetedByGroup.contains(source) == false
 			targetedByGroup.addUnit(source)
 
+	function removeAsTarget(unit source)
+		if targetedByGroup.contains(source)
+			targetedByGroup.removeUnit(source)
+
 
 function unit.addResource()
 	if resourceMap.has(this) == false

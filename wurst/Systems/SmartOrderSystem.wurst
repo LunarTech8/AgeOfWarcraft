@@ -45,7 +45,7 @@ function unit.searchForValidAbility(unit target, LinkedList<int> abilityIds)
 			return
 
 init
-	// Register smart order:
+	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		if GetIssuedOrderId() == OrderIds.smart
 			GetTriggerUnit().searchForValidAbility(GetOrderTargetUnit(), SMART_USED_ABILITY_IDS)

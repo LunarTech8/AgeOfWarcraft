@@ -22,12 +22,12 @@ Work status:
 !!>>- Auto order worker to work the next equal resource after a resource depletion
 	- Use targetedByGroup for BuildingSystem too
 
+!!>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
+	- addBuildingSite should use this system for idle detection
 !>- Add a priority and maxWorker count to resources
 
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
-!!- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
-	- addBuildingSite should use this system for idle detection
 !- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList

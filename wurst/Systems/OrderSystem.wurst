@@ -1,0 +1,96 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+TODO
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package OrderSystem
+import RegisterEvents
+import HashMap
+
+
+// --------------------
+// Functional code
+// --------------------
+
+let ORDER_SOURCE_MAP = new HashMap<unit, OrderSource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let ORDER_TARGET_MAP = new HashMap<unit, OrderTarget>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+
+class OrderTarget
+	private unit target
+	private group sources
+
+	construct(unit target, unit source)
+		sources = CreateGroup()
+		sources.addUnit(source)
+		this.target = target
+
+	ondestroy
+		sources.destr()
+
+	function addSource(unit source)
+		if sources.contains(source) == false
+			sources.addUnit(source)
+
+	function removeSource(unit source)
+		if sources.contains(source)
+			sources.removeUnit(source)
+
+
+// TODO: maybe make derivates of this class with different target types etc.
+class OrderSource
+	private unit source
+	private int orderId
+	private unit target
+
+	construct(unit source, int orderId, unit target)
+		this.source = source
+		this.orderId = orderId
+		this.target = target
+		// Adjust order target:
+		if ORDER_TARGET_MAP.has(target)
+			ORDER_TARGET_MAP.get(target).addSource(source)
+		else
+			ORDER_TARGET_MAP.put(target, new OrderTarget(target, source))
+
+	function cancel()
+		ORDER_TARGET_MAP.get(target).removeSource(source)
+
+
+function unit.setOrder(int orderId, unit target)
+	if ORDER_SOURCE_MAP.has(this)
+		// Cancel and remove current order:
+		ORDER_SOURCE_MAP.get(this).cancel()
+		ORDER_SOURCE_MAP.remove(this)
+	// Add new order:
+	ORDER_SOURCE_MAP.put(this, new OrderSource(this, orderId, target))
+
+init
+	// Register issued orders:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
+		GetOrderedUnit().setOrder(GetIssuedOrderId(), GetOrderTargetUnit())
+	/*
+	// OLD:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
+		let orderId = GetIssuedOrderId()
+		let source = GetTriggerUnit()
+		// Remove ordered unit from current aim lists:
+		let prevOrder = source.getLastOrder().prev
+		if prevOrder.finished == false and prevOrder.orderType == OrderType.TARGET
+			widget w = prevOrder.target
+			// CONTINUE: can't cast widget to unit!!!
+			// TODO: maybe replace LastOrder with an own package
+			let resource = targetU.getResource()
+			if resource != null
+				// TODO: remove from last list
+		// Add ordered unit to aim list of target:
+		if orderId == AbilityIdsCustom.harvest
+			let target = GetOrderTargetUnit()
+			if source.isAbilityValid(orderId, target)
+				target.getResource().addAsTarget(source)
+	*/

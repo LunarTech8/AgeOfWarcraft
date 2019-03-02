@@ -21,9 +21,9 @@ Work status:
 
 !!>>- Auto order worker to work the next equal resource after a resource depletion
 	- Use targetedByGroup for BuildingSystem too
-
-!!>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
+!!>>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
 	- addBuildingSite should use this system for idle detection
+
 !>- Add a priority and maxWorker count to resources
 
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
@@ -37,6 +37,7 @@ Work status:
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
 !- Add a description comment (/** */) to every public class and function
 !- Create a WeatherSystem
+!- Maybe use the 0.0.0 (Major.Minor.Patch) version system for the packages
 
 
 // -------------

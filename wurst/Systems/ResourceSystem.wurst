@@ -87,7 +87,7 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 // Functional code
 // --------------------
 
-let resourceMap = new HashMap<unit, Resource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let RESOURCE_MAP = new HashMap<unit, Resource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
 class Resource extends Stock
 	private unit resource
@@ -140,19 +140,19 @@ class Resource extends Stock
 
 
 function unit.addResource()
-	if resourceMap.has(this) == false
+	if RESOURCE_MAP.has(this) == false
 		var unitType = this.getUnitId()
 		var wares = getDefaultInitWares(unitType)
 		if wares.isEmpty()
 			destroy wares
 		else
 			var resource = new Resource(this, isKilledWhenDepleted(unitType), wares)
-			resourceMap.put(this, resource)
+			RESOURCE_MAP.put(this, resource)
 
 function unit.removeResource()
-	if resourceMap.has(this)
-		destroy resourceMap.get(this)
-		resourceMap.remove(this)
+	if RESOURCE_MAP.has(this)
+		destroy RESOURCE_MAP.get(this)
+		RESOURCE_MAP.remove(this)
 
 function unit.findNextResource() returns unit
 	// Check if worker has enough free space:
@@ -172,8 +172,8 @@ function unit.findNextResource() returns unit
 
 /** Returns the resource of given unit. */
 public function unit.getResource() returns Resource
-	if resourceMap.has(this)
-		return resourceMap.get(this)
+	if RESOURCE_MAP.has(this)
+		return RESOURCE_MAP.get(this)
 	else
 		return null
 

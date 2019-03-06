@@ -19,10 +19,9 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Auto order worker to work the next equal resource after a resource depletion
-	- Use targetedByGroup for BuildingSystem too
 !!>>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
 	- addBuildingSite should use this system for idle detection
+!!>>- Auto order worker to work the next equal resource after a resource depletion
 
 !>- Add a priority and maxWorker count to resources
 

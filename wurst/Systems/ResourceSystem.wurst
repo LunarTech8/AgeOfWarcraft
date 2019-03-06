@@ -92,20 +92,13 @@ let RESOURCE_MAP = new HashMap<unit, Resource>  // TODO: maybe make a general un
 class Resource extends Stock
 	private unit resource
 	private bool isKilledWhenDepleted
-	private group targetedByGroup
 	private real workProgress
 
 	construct(unit resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
 		super(initWares)
 		this.resource = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
-		targetedByGroup = CreateGroup()
 		workProgress = 0.
-
-	ondestroy
-		for u from targetedByGroup
-			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> u.issueTargetAbilityOrder(AbilityIdsCustom.harvest, u.findNextResource(), true))
-		targetedByGroup.destr()
 
 	private function work(real workProgress) returns bool
 		this.workProgress += workProgress
@@ -130,14 +123,6 @@ class Resource extends Stock
 			return true
 		return false
 
-	function addAsTarget(unit source)
-		if targetedByGroup.contains(source) == false
-			targetedByGroup.addUnit(source)
-
-	function removeAsTarget(unit source)
-		if targetedByGroup.contains(source)
-			targetedByGroup.removeUnit(source)
-
 
 function unit.addResource()
 	if RESOURCE_MAP.has(this) == false
@@ -154,7 +139,8 @@ function unit.removeResource()
 		destroy RESOURCE_MAP.get(this)
 		RESOURCE_MAP.remove(this)
 
-function unit.findNextResource() returns unit
+/** Returns next valid resource unit for the unit. */
+public function unit.findNextResource() returns unit
 	// Check if worker has enough free space:
 	if this.getStorage().getFreeCapacity() > 0
 		var filter = Filter() ->

@@ -12,6 +12,11 @@ Initial version.
 package OrderSystem
 import RegisterEvents
 import HashMap
+import OnUnitEnterLeave
+import ClosureTimers
+import UtilityFunctions
+import ConstantDataSystem
+import initlater ResourceSystem
 
 
 // --------------------
@@ -31,6 +36,9 @@ class OrderTarget
 		this.target = target
 
 	ondestroy
+		// Find new targets for sources:
+		for u from sources
+			u.findNewTarget(target)
 		sources.destr()
 
 	function addSource(unit source)
@@ -50,47 +58,56 @@ class OrderSource
 
 	construct(unit source, int orderId, unit target)
 		this.source = source
-		this.orderId = orderId
-		this.target = target
-		// Adjust order target:
-		if ORDER_TARGET_MAP.has(target)
-			ORDER_TARGET_MAP.get(target).addSource(source)
-		else
-			ORDER_TARGET_MAP.put(target, new OrderTarget(target, source))
+		this.target = null
+		newOrder(orderId, target)
+
+	function newOrder(int newOrderId, unit newTarget)
+		orderId = newOrderId
+		if target != newTarget
+			// Remove old order target:
+			if target != null
+				cancel()
+			// Set new order target:
+			target = newTarget
+			if ORDER_TARGET_MAP.has(newTarget)
+				ORDER_TARGET_MAP.get(newTarget).addSource(source)
+			else
+				ORDER_TARGET_MAP.put(newTarget, new OrderTarget(newTarget, source))
 
 	function cancel()
 		ORDER_TARGET_MAP.get(target).removeSource(source)
 
 
+function unit.findNewTarget(unit oldTarget)
+	// TEST: check that a resource isn't removed before it is used here
+	if oldTarget.getResource() != null
+		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> this.issueTargetAbilityOrder(AbilityIdsCustom.harvest, this.findNextResource(), true))
+
 function unit.setOrder(int orderId, unit target)
 	if ORDER_SOURCE_MAP.has(this)
-		// Cancel and remove current order:
-		ORDER_SOURCE_MAP.get(this).cancel()
+		// Adjust order source:
+		ORDER_SOURCE_MAP.get(this).newOrder(orderId, target)
+	else
+		// Add new order source:
+		ORDER_SOURCE_MAP.put(this, new OrderSource(this, orderId, target))
+
+/** Clear unit from it's current order. */
+public function unit.removeSourceUnit()
+	if ORDER_SOURCE_MAP.has(this)
+		destroy ORDER_SOURCE_MAP.get(this)
 		ORDER_SOURCE_MAP.remove(this)
-	// Add new order:
-	ORDER_SOURCE_MAP.put(this, new OrderSource(this, orderId, target))
+
+/** Clear unit as order traget. */
+public function unit.removeTargetUnit()
+	if ORDER_TARGET_MAP.has(this)
+		destroy ORDER_TARGET_MAP.get(this)
+		ORDER_TARGET_MAP.remove(this)
 
 init
+	// Remove order source and target from every appropriate removed unit:
+	onLeave() ->
+		getEnterLeaveUnit().removeSourceUnit()
+		getEnterLeaveUnit().removeTargetUnit()
 	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		GetOrderedUnit().setOrder(GetIssuedOrderId(), GetOrderTargetUnit())
-	/*
-	// OLD:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
-		let orderId = GetIssuedOrderId()
-		let source = GetTriggerUnit()
-		// Remove ordered unit from current aim lists:
-		let prevOrder = source.getLastOrder().prev
-		if prevOrder.finished == false and prevOrder.orderType == OrderType.TARGET
-			widget w = prevOrder.target
-			// CONTINUE: can't cast widget to unit!!!
-			// TODO: maybe replace LastOrder with an own package
-			let resource = targetU.getResource()
-			if resource != null
-				// TODO: remove from last list
-		// Add ordered unit to aim list of target:
-		if orderId == AbilityIdsCustom.harvest
-			let target = GetOrderTargetUnit()
-			if source.isAbilityValid(orderId, target)
-				target.getResource().addAsTarget(source)
-	*/

@@ -19,10 +19,14 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building) -> Maybe can use LastOrder somehow
-	- addBuildingSite should use this system for idle detection
-!!>>- Auto order worker to work the next equal resource after a resource depletion
+!!!>>>- Find out why there is a target order from the resource on the worker when the ability is being casted
+!!>>>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building)
+	-> addBuildingSite should use this system for idle detection
+	->>> A new order should cancel any auto order
+	-> Harvest should be used as custom order in OrderSystem that is checked at the end of it's cooldown to prefent abuses
 
+!!>- Make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map as option)
+	- Add a tryGet function (if has() then get() else return null)
 !>- Add a priority and maxWorker count to resources
 
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
@@ -30,7 +34,6 @@ Work status:
 !- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
-!- Maybe make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map)
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file

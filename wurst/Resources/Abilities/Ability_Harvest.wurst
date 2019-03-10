@@ -7,6 +7,7 @@ import AbilityPresetFunctions
 // --------------------
 
 public class AbilityData_Harvest
+    static constant baseOrderId = OrderIds.thunderbolt
     static constant cooldown = 0.8
 
 @compiletime function genObj()

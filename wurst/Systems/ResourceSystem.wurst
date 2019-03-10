@@ -13,7 +13,6 @@ package ResourceSystem
 import LinkedList
 import HashMap
 import OnUnitEnterLeave
-import ClosureTimers
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import UtilityFunctions
@@ -31,13 +30,13 @@ function getDefaultInitWares(int unitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch unitId
 		case UnitIdsCustom.beech
-			wares.add(ware(WareType.Wood, GetRandomInt(6, 8)))
+			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
 		case UnitIdsCustom.birch
-			wares.add(ware(WareType.Wood, GetRandomInt(4, 6)))
+			wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
 		case UnitIdsCustom.greyOak
-			wares.add(ware(WareType.Wood, GetRandomInt(6, 8)))
+			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
 		case UnitIdsCustom.chestnut
-			wares.add(ware(WareType.Wood, GetRandomInt(4, 6)))
+			wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
 	return wares
 
 function isKilledWhenDepleted(int unitId) returns bool
@@ -73,13 +72,13 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch unitId
 		case UnitIdsCustom.beech
-			wares.add(ware(WareType.Wood, 1))
+			wares.add(ware(WareType.WOOD, 1))
 		case UnitIdsCustom.birch
-			wares.add(ware(WareType.Wood, 1))
+			wares.add(ware(WareType.WOOD, 1))
 		case UnitIdsCustom.greyOak
-			wares.add(ware(WareType.Wood, 1))
+			wares.add(ware(WareType.WOOD, 1))
 		case UnitIdsCustom.chestnut
-			wares.add(ware(WareType.Wood, 1))
+			wares.add(ware(WareType.WOOD, 1))
 	return wares
 
 

@@ -13,6 +13,7 @@ package AbilityPresetFunctions
 import LinkedList
 import StringUtils
 import ObjectIds
+import public Orders
 import public Assets
 import public ConstantDataSystem
 import public AbilityObjEditing
@@ -49,7 +50,7 @@ public function AbilityDefinition.presetBuffs(vararg int buffIds)
 	if buffString != ""
 		buffString = buffString.substring(0, buffString.length()-1)
 	this.presetBuffs(buffString)
-	
+
 public function AbilityDefinition.presetTargetsAllowed(vararg string targetsAllowed)
 	let list = new LinkedList<string>
 	for target in targetsAllowed
@@ -65,4 +66,3 @@ public function AbilityDefinition.presetNoRequirements()
 	this.setCheckDependencies(false)
 	this.setRequirements("")
 	this.setRequirementsLevels("")
-

@@ -72,7 +72,7 @@ function generateWorld()
         nullTimer() ->
             let storage = u.getStorage()
             if storage != null
-                storage.addWare(ware(WareType.Wood, START_WOOD_COUNT_PER_PEASANT))
+                storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
     createUnit(USER_PLAYER, UnitIdsCustom.footman, START_VEC, angle(0.))
     // Create trees:
     newInitStatus("trees creation")

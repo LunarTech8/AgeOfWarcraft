@@ -23,39 +23,39 @@ let MAX_COUNT = 99999  // Is limited to allow tuple to be converted into a singl
 let MAX_WARE_TYPES = 9999  // Is limited to allow tuple to be converted into a single int
 
 public enum WareType
-	Wood
-	Stone
-	Food
-	WoodenBoard
-	WoodenStick
-	Straw
+	WOOD
+	STONE
+	FOOD
+	WOODEN_BOARD
+	WOODEN_STICK
+	STRAW
 
 function WareType.toString() returns string
 	switch this
-		case Wood
+		case WOOD
 			return "wood"
-		case Stone
+		case STONE
 			return "stone"
-		case Food
+		case FOOD
 			return "food"
-		case Straw
+		case STRAW
 			return "straw"
 		default
 			return "undefined ware"
 
 function WareType.getIconPath() returns string
 	switch this
-		case Wood
+		case WOOD
 			return Icons.bTNBundleOfLumber
-		case Stone
+		case STONE
 			return "Icons\\BTNINV_Stone_12.blp"
-		case Food
+		case FOOD
 			return Icons.bTNMonsterLure
-		case WoodenBoard
+		case WOODEN_BOARD
 			return Icons.bTNHumanLumberUpgrade2
-		case WoodenStick
+		case WOODEN_STICK
 			return Icons.bTNHumanLumberUpgrade1
-		case Straw
+		case STRAW
 			return "Icons\\BTNStrawBunch.blp"
 		default
 			return null

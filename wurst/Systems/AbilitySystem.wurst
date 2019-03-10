@@ -18,6 +18,7 @@ import Stock
 import StorageSystem
 import BuildingSystem
 import ResourceSystem
+import OrderSystem
 import Ability_Harvest
 
 
@@ -28,53 +29,53 @@ import Ability_Harvest
 let INFO_MSG_TIME = 2.
 
 enum Validity
-	Valid
-	Unregistered
-	InvalidSource
-	InvalidTarget
-	WaresNotAvailable
-	NoFreeStorage
-	NoRequiredWares
-	WorkerAlreadyBuilding
-	ResourceIsDepleted
+	VALID
+	UNREGISTERED
+	INVALID_SOURCE
+	INVALID_TARGET
+	WARES_NOT_AVAILABLE
+	NO_FREE_STORAGE
+	NO_REQUIRED_WARES
+	WORKER_ALREADY_BUILDING
+	RESOURCE_IS_DEPLETED
 
 function getInvalidMessageText(int abilityId, Validity val) returns string
 	switch abilityId
 		case AbilityIdsCustom.transferWares
 			switch val
-				case InvalidSource
+				case INVALID_SOURCE
 					return "Unit can't transfer wares"
-				case InvalidTarget
+				case INVALID_TARGET
 					return "Can't transfer wares to this kind of target"
-				case WaresNotAvailable
+				case WARES_NOT_AVAILABLE
 					return "No wares to transfer are available"
-				case NoFreeStorage
+				case NO_FREE_STORAGE
 					return "Target has no free storage for transfer"
-				case NoRequiredWares
+				case NO_REQUIRED_WARES
 					return "Target has no required wares left"
 				default
 					return null
 		case AbilityIdsCustom.build
 			switch val
-				case InvalidSource
+				case INVALID_SOURCE
 					return "Worker can't build at target building site type"
-				case InvalidTarget
+				case INVALID_TARGET
 					return "Build target is no building site"
-				case WaresNotAvailable
+				case WARES_NOT_AVAILABLE
 					return "Not all required wares are available for building"
-				case WorkerAlreadyBuilding
+				case WORKER_ALREADY_BUILDING
 					return "Worker is already building"
 				default
 					return null
 		case AbilityIdsCustom.harvest
 			switch val
-				case InvalidSource
+				case INVALID_SOURCE
 					return "No storage for harvest"
-				case InvalidTarget
+				case INVALID_TARGET
 					return "Harvest target is no resource"
-				case NoFreeStorage
+				case NO_FREE_STORAGE
 					return "No free storage for harvest"
-				case ResourceIsDepleted
+				case RESOURCE_IS_DEPLETED
 					return "Harvest target is already depleted"
 				default
 					return null
@@ -133,7 +134,7 @@ function unit.transferWares(unit target)
 
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
-	if val == Validity.Valid or val == Validity.Unregistered
+	if val == Validity.VALID or val == Validity.UNREGISTERED
 		Log.error("ERROR: Given validity is not invalid (" + (val castTo int).toString() + ")")
 
 	// React on invalid command:
@@ -151,55 +152,55 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		// Check if source and target are valid:
 		var sourceStorage = this.getStorage()
 		if sourceStorage == null
-			return Validity.InvalidSource
+			return Validity.INVALID_SOURCE
 		var targetStorage = target.getStorage()
 		var targetBuildingSite = target.getBuildingSite()
 		if targetStorage == null and targetBuildingSite == null
-			return Validity.InvalidTarget
+			return Validity.INVALID_TARGET
 		// Check if wares are available:
 		if sourceStorage.getUsedCapacity() <= 0
-			return Validity.WaresNotAvailable
+			return Validity.WARES_NOT_AVAILABLE
 		// Check if target has free storage:
 		if targetStorage != null and targetStorage.getFreeCapacity() <= 0
-			return Validity.NoFreeStorage
+			return Validity.NO_FREE_STORAGE
 		// Check if target requires wares:
 		if targetBuildingSite != null and targetBuildingSite.hasWares() == false
-			return Validity.NoRequiredWares
+			return Validity.NO_REQUIRED_WARES
 	else if abilityId == AbilityIdsCustom.build
 		// Check if source and target are valid:
 		if target.getUnitId().isValidWorkerType(this.getUnitId()) == false
-			return Validity.InvalidSource
+			return Validity.INVALID_SOURCE
 		var buildingSite = target.getBuildingSite()
 		if buildingSite == null
-			return Validity.InvalidTarget
+			return Validity.INVALID_TARGET
 		// Check if required wares are available:
 		if buildingSite.hasWares()
-			return Validity.WaresNotAvailable
+			return Validity.WARES_NOT_AVAILABLE
 		// Check if worker is already building:
 		if this.getBuildingSiteOfWorker() != null
-			return Validity.WorkerAlreadyBuilding
+			return Validity.WORKER_ALREADY_BUILDING
 	else if abilityId == AbilityIdsCustom.harvest
 		// Check if source and target are valid:
 		var storage = this.getStorage()
 		if storage == null
-			return Validity.InvalidSource
+			return Validity.INVALID_SOURCE
 		var resource = target.getResource()
 		if resource == null
-			return Validity.InvalidTarget
+			return Validity.INVALID_TARGET
 		// Check if wares can be harvested:
 		if storage.getFreeCapacity() <= 0
-			return Validity.NoFreeStorage
+			return Validity.NO_FREE_STORAGE
 		else if resource.hasWares() == false
-			return Validity.ResourceIsDepleted
+			return Validity.RESOURCE_IS_DEPLETED
 	else
 		// Unregistered abilityId:
-		return Validity.Unregistered
+		return Validity.UNREGISTERED
 	// No validity check failed:
-	return Validity.Valid
+	return Validity.VALID
 
 /** Returns if casting given ability by the unit on given target is valid. */
 public function unit.isAbilityValid(int abilityId, unit target) returns bool
-	return this.getAbilityValidity(abilityId, target) == Validity.Valid
+	return this.getAbilityValidity(abilityId, target) == Validity.VALID
 
 init
 	// Register abilities being cast:
@@ -208,7 +209,7 @@ init
 		let target = GetSpellTargetUnit()
 		let abilityId = GetSpellAbilityId()
 		let val = source.getAbilityValidity(abilityId, target)
-		if val == Validity.Valid
+		if val == Validity.VALID
 			switch abilityId
 				case AbilityIdsCustom.transferWares
 					// Transfer wares from source to target:
@@ -219,8 +220,8 @@ init
 				case AbilityIdsCustom.harvest
 					// Perform harvest after ability casting is finished:
 					doAfter(AbilityData_Harvest.cooldown) ->
-						if source.harvest(target)
+						if source.harvest(target) and source.isOrder(AbilityData_Harvest.baseOrderId, target)
 							// Auto-recast ability:
 							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
-		else if val != Validity.Unregistered
+		else if val != Validity.UNREGISTERED
 			source.reactOnInvalidAbility(abilityId, val)

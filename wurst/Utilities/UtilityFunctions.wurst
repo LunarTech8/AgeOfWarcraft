@@ -75,13 +75,13 @@ public function int.getUnitTypeId() returns int
 // Functional code
 // --------------------
 
-let baseUnitTypeIdMap = initBaseUnitTypeIdMap()
+let BASE_UNIT_TYPE_ID_MAP = initBaseUnitTypeIdMap()
 
 /** Returns the base unit id of given unit. Required for data evaluation. */
 public function unit.getUnitId() returns int
 	let id = GetUnitTypeId(this)
-	if baseUnitTypeIdMap.has(id)
-		return baseUnitTypeIdMap.get(id)
+	if BASE_UNIT_TYPE_ID_MAP.has(id)
+		return BASE_UNIT_TYPE_ID_MAP.get(id)
 	return id
 
 /** Returns the nearest unit from given pos in given max range of given player. */

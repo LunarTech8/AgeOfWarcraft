@@ -14,9 +14,22 @@ import RegisterEvents
 import HashMap
 import OnUnitEnterLeave
 import ClosureTimers
+import Orders
 import UtilityFunctions
 import ConstantDataSystem
-import initlater ResourceSystem
+import ResourceSystem
+import BuildingSystem
+import LinkedList
+
+
+// --------------------
+// Data code
+// --------------------
+
+enum TargetType
+	OTHER
+	RESOURCE
+	BUILDING_SITE
 
 
 // --------------------
@@ -28,86 +41,165 @@ let ORDER_TARGET_MAP = new HashMap<unit, OrderTarget>  // TODO: maybe make a gen
 
 class OrderTarget
 	private unit target
-	private group sources
+	private LinkedList<OrderSource> sources
+	private TargetType targetType
 
-	construct(unit target, unit source)
-		sources = CreateGroup()
-		sources.addUnit(source)
+	construct(unit target, OrderSource source)
+		sources = new LinkedList<OrderSource>()
+		sources.add(source)
 		this.target = target
+		if target.getResource() != null
+			targetType = TargetType.RESOURCE
+		else if target.getBuildingSite() != null
+			targetType = TargetType.BUILDING_SITE
+		else
+			targetType = TargetType.OTHER
 
 	ondestroy
 		// Find new targets for sources:
-		for u from sources
-			u.findNewTarget(target)
-		sources.destr()
+		for s in sources
+			s.source.findNewTarget(targetType)
+		sources.clear()
+		destroy sources
 
-	function addSource(unit source)
-		if sources.contains(source) == false
-			sources.addUnit(source)
+	function addSource(OrderSource source)
+		if sources.has(source) == false
+			sources.add(source)
+		else
+			Log.error("ERROR: source already has that target")
 
-	function removeSource(unit source)
-		if sources.contains(source)
-			sources.removeUnit(source)
+	function removeSource(OrderSource source)
+		if sources.has(source)
+			sources.remove(source)
+		else
+			Log.error("ERROR: source does not have that target")
 
-
-// TODO: maybe make derivates of this class with different target types etc.
 class OrderSource
-	private unit source
-	private int orderId
-	private unit target
+	protected unit source
+	protected int orderId
+
+	construct(unit source, int orderId)
+		this.source = source
+		this.orderId = orderId
+
+class OrderSourceU extends OrderSource
+	protected unit target
 
 	construct(unit source, int orderId, unit target)
-		this.source = source
-		this.target = null
-		newOrder(orderId, target)
+		super(source, orderId)
+		this.target = target
+		if ORDER_TARGET_MAP.has(target)
+			ORDER_TARGET_MAP.get(target).addSource(this)
+		else
+			ORDER_TARGET_MAP.put(target, new OrderTarget(target, this))
 
-	function newOrder(int newOrderId, unit newTarget)
-		orderId = newOrderId
-		if target != newTarget
-			// Remove old order target:
-			if target != null
-				cancel()
-			// Set new order target:
-			target = newTarget
-			if ORDER_TARGET_MAP.has(newTarget)
-				ORDER_TARGET_MAP.get(newTarget).addSource(source)
-			else
-				ORDER_TARGET_MAP.put(newTarget, new OrderTarget(newTarget, source))
+	ondestroy
+		if ORDER_TARGET_MAP.has(target)
+			ORDER_TARGET_MAP.get(target).removeSource(this)
 
-	function cancel()
-		ORDER_TARGET_MAP.get(target).removeSource(source)
+class OrderSourceD extends OrderSource
+	protected destructable target
+
+	construct(unit source, int orderId, destructable target)
+		super(source, orderId)
+		this.target = target
+
+class OrderSourceI extends OrderSource
+	protected item target
+
+	construct(unit source, int orderId, item target)
+		super(source, orderId)
+		this.target = target
+
+class OrderSourceV extends OrderSource
+	protected vec2 target
+
+	construct(unit source, int orderId, vec2 target)
+		super(source, orderId)
+		this.target = target
 
 
-function unit.findNewTarget(unit oldTarget)
-	// TEST: check that a resource isn't removed before it is used here
-	if oldTarget.getResource() != null
+function unit.findNewTarget(TargetType targetType)
+	// Find new order based on target type:
+	if targetType == TargetType.RESOURCE
 		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> this.issueTargetAbilityOrder(AbilityIdsCustom.harvest, this.findNextResource(), true))
+	else if targetType == TargetType.BUILDING_SITE
+		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> this.issueTargetAbilityOrder(AbilityIdsCustom.build, this.findNextBuildingSite(), true))
 
-function unit.setOrder(int orderId, unit target)
+function unit.setOrder(OrderSource order)
+	// Remove old order:
 	if ORDER_SOURCE_MAP.has(this)
-		// Adjust order source:
-		ORDER_SOURCE_MAP.get(this).newOrder(orderId, target)
-	else
-		// Add new order source:
-		ORDER_SOURCE_MAP.put(this, new OrderSource(this, orderId, target))
+		destroy ORDER_SOURCE_MAP.get(this)
+		if order == null
+			ORDER_SOURCE_MAP.remove(this)
+	// Add new order:
+	if order != null
+		ORDER_SOURCE_MAP.put(this, order)
+function unit.setOrder(int orderId)
+	this.setOrder(new OrderSource(this, orderId))
+function unit.setOrder(int orderId, unit target)
+	this.setOrder(new OrderSourceU(this, orderId, target))
+function unit.setOrder(int orderId, destructable target)
+	this.setOrder(new OrderSourceD(this, orderId, target))
+function unit.setOrder(int orderId, item target)
+	this.setOrder(new OrderSourceI(this, orderId, target))
+function unit.setOrder(int orderId, vec2 target)
+	this.setOrder(new OrderSourceV(this, orderId, target))
 
-/** Clear unit from it's current order. */
-public function unit.removeSourceUnit()
+/** Returns if the unit has any order. */
+public function unit.hasOrder() returns bool
+	return ORDER_SOURCE_MAP.has(this)
+
+/** Returns if the unit has order with given parameters. */
+public function unit.isOrder(int orderId, unit target) returns bool
+	if ORDER_SOURCE_MAP.has(this)
+		var orderSource = ORDER_SOURCE_MAP.get(this)
+		return orderSource.orderId == orderId and (orderSource castTo OrderSourceU).target == target
+	else
+		return false
+
+/** Clear unit as order source and target. */
+public function unit.removeOrders()
 	if ORDER_SOURCE_MAP.has(this)
 		destroy ORDER_SOURCE_MAP.get(this)
 		ORDER_SOURCE_MAP.remove(this)
-
-/** Clear unit as order traget. */
-public function unit.removeTargetUnit()
 	if ORDER_TARGET_MAP.has(this)
 		destroy ORDER_TARGET_MAP.get(this)
 		ORDER_TARGET_MAP.remove(this)
 
 init
-	// Remove order source and target from every appropriate removed unit:
-	onLeave() ->
-		getEnterLeaveUnit().removeSourceUnit()
-		getEnterLeaveUnit().removeTargetUnit()
+	// Remove order source and target from every appropriate unit:
+	onLeave(() -> getEnterLeaveUnit().removeOrders())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removeOrders())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL, () -> GetTriggerUnit().removeOrders())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().removeOrders())
 	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
-		GetOrderedUnit().setOrder(GetIssuedOrderId(), GetOrderTargetUnit())
+		let issuedOrderId = GetIssuedOrderId()
+		if issuedOrderId != OrderIds.smart
+			let targetU = GetOrderTargetUnit()
+			if targetU != null
+				// print("new unit order for " + GetOrderedUnit().getName() + " on " + targetU.getName() + " with order " + issuedOrderId.toString())  // DEBUG
+				GetOrderedUnit().setOrder(issuedOrderId, targetU)
+			else
+				let targetD = GetOrderTargetDestructable()
+				if targetD != null
+					GetOrderedUnit().setOrder(issuedOrderId, targetD)
+				else
+					let targetI = GetOrderTargetItem()
+					if targetI != null
+						GetOrderedUnit().setOrder(issuedOrderId, targetI)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER) ->
+		let issuedOrderId = GetIssuedOrderId()
+		if issuedOrderId != OrderIds.stop
+			GetOrderedUnit().setOrder(issuedOrderId)
+		else
+			GetOrderedUnit().setOrder(null)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId(), vec2(GetOrderPointX(), GetOrderPointY())))
+
+	// DEBUG:
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER: " + GetOrderTargetUnit().getName()))
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER: " + GetOrderTargetUnit().getName()))
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_ORDER"))
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER"))
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> print("EVENT_PLAYER_UNIT_DEATH: " + GetTriggerUnit().getName()))

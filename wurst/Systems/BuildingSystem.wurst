@@ -43,10 +43,10 @@ function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch buildingUnitId
 		case UnitIdsCustom.farm
-			wares.add(ware(WareType.Wood, 4))
+			wares.add(ware(WareType.WOOD, 4))
 		case UnitIdsCustom.townHall
-			wares.add(ware(WareType.Wood, 4))
-			wares.add(ware(WareType.Stone, 3))
+			wares.add(ware(WareType.WOOD, 4))
+			wares.add(ware(WareType.STONE, 3))
 	return wares
 
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
@@ -95,7 +95,7 @@ class BuildingSite extends Stock
 	ondestroy
 		for worker in workers
 			removeWorker(worker)
-			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, worker.getPos().findNextBuildingSite(worker.getOwner()), true))
+			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, worker.findNextBuildingSite(), true))
 		workers.destr()
 
 	function getWorkProgress() returns real
@@ -190,22 +190,45 @@ function unit.removeBuildingSite()
 		destroy BUILDING_SITE_MAP.get(this)
 		BUILDING_SITE_MAP.remove(this)
 
-function vec2.findNextBuildingSite(player owner) returns unit
-	var filter = Filter() ->
+/** If worker is building stop him. */
+function unit.stopBuilding()
+	if WORKER_MAP.has(this)
+		WORKER_MAP.get(this).removeWorker(this)
+
+function findNextBuildingSite_GetFilter() returns filterfunc
+	return Filter() ->
 		var conditionsFulfilled = false
 		let buildingSite = GetFilterUnit().getBuildingSite()
 		// Only allow building sites that don't have any required wares left:
 		if buildingSite != null and buildingSite.hasWares() == false
 			conditionsFulfilled = true
 		return conditionsFulfilled
+/** Returns next valid building site unit at the position for given player. */
+public function vec2.findNextBuildingSite(player owner) returns unit
+	var filter = findNextBuildingSite_GetFilter()
 	let building = this.getNearestUnit(MAX_AUTO_ORDER_RANGE, filter, owner)
 	filter.destr()
 	return building
-
-/** If worker is building stop him. */
-function unit.stopBuilding()
-	if WORKER_MAP.has(this)
-		WORKER_MAP.get(this).removeWorker(this)
+/** Returns next valid building site unit for the unit. */
+public function unit.findNextBuildingSite() returns unit
+	let owner = this.getOwner()
+	let pos = this.getPos()
+	let workerUnitId = this.getUnitId()
+	var filter = findNextBuildingSite_GetFilter()
+	// Set init values:
+	var bestDistanceSq = REAL_MAX
+	unit nearestBuilding = null
+	// Filter out invalid units in range:
+	ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
+	// Find nearest valid unit:
+	for target from ENUM_GROUP
+		if target.getOwner() == owner and target.getUnitId().isValidWorkerType(workerUnitId)
+			let distanceSq = pos.distanceToSq(target.getPos())
+			if distanceSq < bestDistanceSq
+				bestDistanceSq = distanceSq
+				nearestBuilding = target
+	filter.destr()
+	return nearestBuilding
 
 /** Returns the building site of given unit. */
 public function unit.getBuildingSite() returns BuildingSite

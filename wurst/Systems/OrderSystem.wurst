@@ -15,12 +15,14 @@ import HashMap
 import OnUnitEnterLeave
 import ClosureTimers
 import Orders
+import LinkedList
+import TimerUtils
+import InstantDummyCaster
+import DummyRecycler
 import UtilityFunctions
 import ConstantDataSystem
 import ResourceSystem
 import BuildingSystem
-import LinkedList
-import TimerUtils
 
 
 // --------------------
@@ -101,10 +103,13 @@ public class OrderAction
 	private static function finish()
 		timer t = GetExpiredTimer()
 		thistype cb = t.getData() castTo thistype
-		if cb.finishCb != null
-			cb.finishCb.call()
 		cb.t = null
 		t.release()
+		if cb.cancelCb != null
+			destroy cb.cancelCb
+			cb.cancelCb = null
+		if cb.finishCb != null
+			cb.finishCb.call()
 
 	function cancel()
 		if cancelCb != null
@@ -114,7 +119,7 @@ public class OrderAction
 class OrderSource
 	protected unit source
 	protected int orderId
-	private OrderAction orderAction = null
+	private OrderAction orderAction
 
 	construct(unit source, int orderId, OrderAction orderAction)
 		this.source = source
@@ -232,19 +237,20 @@ init
 	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()
-		// Ignore smart and callback orders:
-		if issuedOrderId != OrderIds.smart and issuedOrderId != OrderIds.stunned
+		if issuedOrderId != OrderIds.stunned  // Ignore callback orders
+			let source = GetOrderedUnit()
 			let targetU = GetOrderTargetUnit()
 			if targetU != null
-				print("new unit order for " + GetOrderedUnit().getName() + " on " + targetU.getName() + " with order " + issuedOrderId.toString())  // DEBUG
-				GetOrderedUnit().setOrder(issuedOrderId, targetU)
+				let sourceUnitId = source.getUnitId()
+				if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
+					source.setOrder(issuedOrderId, targetU)
 			else
 				let targetD = GetOrderTargetDestructable()
 				if targetD != null
-					GetOrderedUnit().setOrder(issuedOrderId, targetD)
+					source.setOrder(issuedOrderId, targetD)
 				else
 					let targetI = GetOrderTargetItem()
 					if targetI != null
-						GetOrderedUnit().setOrder(issuedOrderId, targetI)
+						source.setOrder(issuedOrderId, targetI)
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId(), vec2(GetOrderPointX(), GetOrderPointY())))

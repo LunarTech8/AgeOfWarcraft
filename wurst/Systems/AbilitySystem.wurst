@@ -11,7 +11,6 @@ Initial version.
 -------------------------------------------------------------*/
 package AbilitySystem
 import RegisterEvents
-import ClosureTimers
 import ConstantDataSystem
 import UtilityFunctions
 import Stock
@@ -219,13 +218,10 @@ init
 					target.getBuildingSite().addWorker(source)
 				case AbilityIdsCustom.harvest
 					// Perform harvest after ability is finished:
-					var orderAction = new OrderAction(AbilityData_Harvest.cooldown, () -> print("canceled")) ->  // TEST
-						print("finished")  // DEBUG
+					var orderAction = new OrderAction(AbilityData_Harvest.cooldown, null) ->
 						if source.harvest(target)
-							print("recast")  // DEBUG
 							// Auto-recast ability:
-							doAfter(MIN_TRIGGER_SLEEP_TIME) ->
-								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
 					source.setOrder(AbilityIdsCustom.harvest, target, orderAction)
 		else if val != Validity.UNREGISTERED
 			source.reactOnInvalidAbility(abilityId, val)

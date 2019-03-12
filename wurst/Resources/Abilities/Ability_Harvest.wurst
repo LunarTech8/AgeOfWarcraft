@@ -7,8 +7,7 @@ import AbilityPresetFunctions
 // --------------------
 
 public class AbilityData_Harvest
-    // static constant cooldown = 0.8
-    static constant cooldown = 2.8  // DEBUG
+    static constant cooldown = 0.8
 
 @compiletime function genObj()
     new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.harvest)

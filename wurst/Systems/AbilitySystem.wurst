@@ -218,10 +218,14 @@ init
 					// Add worker to building site:
 					target.getBuildingSite().addWorker(source)
 				case AbilityIdsCustom.harvest
-					// Perform harvest after ability casting is finished:
-					doAfter(AbilityData_Harvest.cooldown) ->
-						if source.harvest(target) and source.isOrder(AbilityData_Harvest.baseOrderId, target)
+					// Perform harvest after ability is finished:
+					var orderAction = new OrderAction(AbilityData_Harvest.cooldown, () -> print("canceled")) ->  // TEST
+						print("finished")  // DEBUG
+						if source.harvest(target)
+							print("recast")  // DEBUG
 							// Auto-recast ability:
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+							doAfter(MIN_TRIGGER_SLEEP_TIME) ->
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)
+					source.setOrder(AbilityIdsCustom.harvest, target, orderAction)
 		else if val != Validity.UNREGISTERED
 			source.reactOnInvalidAbility(abilityId, val)

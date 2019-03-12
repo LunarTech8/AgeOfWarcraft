@@ -16,13 +16,21 @@ let COMMAND_SHORT = "t"
 // --------------------
 
 function executeCommand()
+	var i = 1
+	print("-------- " + i.toString() + ":")
 	print(UnitIdsCustom.altarOfKings)
 	print(UnitIdsCustom.beech)
 	print(UnitIdsCustom.beech_Var1)
+	// print("-------- " + i.toString() + ":")
 	// print(Acos(0.5))
 	// print(Acos(-0.5))
 	// print(Acos(1.5))
 	// print(Acos(-1.5))
+	print("-------- " + i.toString() + ":")
+	print('ANab' + 0)
+	print('anab' + 0)
+	print(852662 + 0)
+	print(AbilityIdsCustom.harvest + 0)
 
 init
 	CreateTrigger()

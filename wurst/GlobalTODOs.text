@@ -19,11 +19,11 @@ Work status:
 // Programming:
 // -------------
 
-!!!>>>- Find out why there is a target order from the resource on the worker when the ability is being casted
 !!>>>- Create an OrderSystem that stores/handles the current order of every non building unit (also saves custom orders/jobs like building)
-	-> addBuildingSite should use this system for idle detection
-	->>> A new order should cancel any auto order
-	-> Harvest should be used as custom order in OrderSystem that is checked at the end of it's cooldown to prefent abuses
+	->>> Harvest should be used as custom order in OrderSystem that is checked at the end of it's cooldown to prefent abuses -> No immidiate recast possible and the old order seems wrongly to get canceled
+	->>> A new order should cancel any auto order -> Check if it is also cancel with smart orders -> Seems to, but shouldn't?!?
+	- addBuildingSite should use this system for idle detection
+	- Maybe add an order display for currently selected unit
 
 !!>- Make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map as option)
 	- Add a tryGet function (if has() then get() else return null)

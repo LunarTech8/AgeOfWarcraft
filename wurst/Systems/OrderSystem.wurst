@@ -20,6 +20,7 @@ import ConstantDataSystem
 import ResourceSystem
 import BuildingSystem
 import LinkedList
+import TimerUtils
 
 
 // --------------------
@@ -38,6 +39,9 @@ enum TargetType
 
 let ORDER_SOURCE_MAP = new HashMap<unit, OrderSource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 let ORDER_TARGET_MAP = new HashMap<unit, OrderTarget>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+
+interface CallbackSimple
+	function call()
 
 class OrderTarget
 	private unit target
@@ -74,19 +78,58 @@ class OrderTarget
 		else
 			Log.error("ERROR: source does not have that target")
 
+public class OrderAction
+	private timer t
+	private CallbackSimple cancelCb
+	private CallbackSimple finishCb
+
+	construct(real duration, CallbackSimple cancelCb, CallbackSimple finishCb)
+		this.cancelCb = cancelCb
+		this.finishCb = finishCb
+		t = getTimer()
+		t.setData(this castTo int)
+		t.start(duration, () -> finish())
+
+	ondestroy
+		if t != null
+			t.release()
+		if cancelCb != null
+			destroy cancelCb
+		if finishCb != null
+			destroy finishCb
+
+	private static function finish()
+		timer t = GetExpiredTimer()
+		thistype cb = t.getData() castTo thistype
+		if cb.finishCb != null
+			cb.finishCb.call()
+		cb.t = null
+		t.release()
+
+	function cancel()
+		if cancelCb != null
+			cancelCb.call()
+		destroy this
+
 class OrderSource
 	protected unit source
 	protected int orderId
+	private OrderAction orderAction = null
 
-	construct(unit source, int orderId)
+	construct(unit source, int orderId, OrderAction orderAction)
 		this.source = source
 		this.orderId = orderId
+		this.orderAction = orderAction
+
+	ondestroy
+		if orderAction != null
+			orderAction.cancel()
 
 class OrderSourceU extends OrderSource
 	protected unit target
 
-	construct(unit source, int orderId, unit target)
-		super(source, orderId)
+	construct(unit source, int orderId, unit target, OrderAction orderAction)
+		super(source, orderId, orderAction)
 		this.target = target
 		if ORDER_TARGET_MAP.has(target)
 			ORDER_TARGET_MAP.get(target).addSource(this)
@@ -100,22 +143,22 @@ class OrderSourceU extends OrderSource
 class OrderSourceD extends OrderSource
 	protected destructable target
 
-	construct(unit source, int orderId, destructable target)
-		super(source, orderId)
+	construct(unit source, int orderId, destructable target, OrderAction orderAction)
+		super(source, orderId, orderAction)
 		this.target = target
 
 class OrderSourceI extends OrderSource
 	protected item target
 
-	construct(unit source, int orderId, item target)
-		super(source, orderId)
+	construct(unit source, int orderId, item target, OrderAction orderAction)
+		super(source, orderId, orderAction)
 		this.target = target
 
 class OrderSourceV extends OrderSource
 	protected vec2 target
 
-	construct(unit source, int orderId, vec2 target)
-		super(source, orderId)
+	construct(unit source, int orderId, vec2 target, OrderAction orderAction)
+		super(source, orderId, orderAction)
 		this.target = target
 
 
@@ -130,25 +173,38 @@ function unit.setOrder(OrderSource order)
 	// Remove old order:
 	if ORDER_SOURCE_MAP.has(this)
 		destroy ORDER_SOURCE_MAP.get(this)
-		if order == null
-			ORDER_SOURCE_MAP.remove(this)
 	// Add new order:
-	if order != null
-		ORDER_SOURCE_MAP.put(this, order)
-function unit.setOrder(int orderId)
-	this.setOrder(new OrderSource(this, orderId))
-function unit.setOrder(int orderId, unit target)
-	this.setOrder(new OrderSourceU(this, orderId, target))
-function unit.setOrder(int orderId, destructable target)
-	this.setOrder(new OrderSourceD(this, orderId, target))
-function unit.setOrder(int orderId, item target)
-	this.setOrder(new OrderSourceI(this, orderId, target))
-function unit.setOrder(int orderId, vec2 target)
-	this.setOrder(new OrderSourceV(this, orderId, target))
-
-/** Returns if the unit has any order. */
-public function unit.hasOrder() returns bool
-	return ORDER_SOURCE_MAP.has(this)
+	ORDER_SOURCE_MAP.put(this, order)
+/** Sets the units order to the given order Id. */
+public function unit.setOrder(int orderId)
+	this.setOrder(new OrderSource(this, orderId, null))
+/** Sets the units order to the given order Id with given order action. */
+public function unit.setOrder(int orderId, OrderAction orderAction)
+	this.setOrder(new OrderSource(this, orderId, orderAction))
+/** Sets the units order to the given order Id with given unit target. */
+public function unit.setOrder(int orderId, unit target)
+	this.setOrder(new OrderSourceU(this, orderId, target, null))
+/** Sets the units order to the given order Id with given unit target and given order action. */
+public function unit.setOrder(int orderId, unit target, OrderAction orderAction)
+	this.setOrder(new OrderSourceU(this, orderId, target, orderAction))
+/** Sets the units order to the given order Id with given destructable target. */
+public function unit.setOrder(int orderId, destructable target)
+	this.setOrder(new OrderSourceD(this, orderId, target, null))
+/** Sets the units order to the given order Id with given destructable target and given order action. */
+public function unit.setOrder(int orderId, destructable target, OrderAction orderAction)
+	this.setOrder(new OrderSourceD(this, orderId, target, orderAction))
+/** Sets the units order to the given order Id with given item target. */
+public function unit.setOrder(int orderId, item target)
+	this.setOrder(new OrderSourceI(this, orderId, target, null))
+/** Sets the units order to the given order Id with given item target and given order action. */
+public function unit.setOrder(int orderId, item target, OrderAction orderAction)
+	this.setOrder(new OrderSourceI(this, orderId, target, orderAction))
+/** Sets the units order to the given order Id with given vector target. */
+public function unit.setOrder(int orderId, vec2 target)
+	this.setOrder(new OrderSourceV(this, orderId, target, null))
+/** Sets the units order to the given order Id with given vector target and given order action. */
+public function unit.setOrder(int orderId, vec2 target, OrderAction orderAction)
+	this.setOrder(new OrderSourceV(this, orderId, target, orderAction))
 
 /** Returns if the unit has order with given parameters. */
 public function unit.isOrder(int orderId, unit target) returns bool
@@ -176,10 +232,11 @@ init
 	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()
-		if issuedOrderId != OrderIds.smart
+		// Ignore smart and callback orders:
+		if issuedOrderId != OrderIds.smart and issuedOrderId != OrderIds.stunned
 			let targetU = GetOrderTargetUnit()
 			if targetU != null
-				// print("new unit order for " + GetOrderedUnit().getName() + " on " + targetU.getName() + " with order " + issuedOrderId.toString())  // DEBUG
+				print("new unit order for " + GetOrderedUnit().getName() + " on " + targetU.getName() + " with order " + issuedOrderId.toString())  // DEBUG
 				GetOrderedUnit().setOrder(issuedOrderId, targetU)
 			else
 				let targetD = GetOrderTargetDestructable()
@@ -189,17 +246,5 @@ init
 					let targetI = GetOrderTargetItem()
 					if targetI != null
 						GetOrderedUnit().setOrder(issuedOrderId, targetI)
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER) ->
-		let issuedOrderId = GetIssuedOrderId()
-		if issuedOrderId != OrderIds.stop
-			GetOrderedUnit().setOrder(issuedOrderId)
-		else
-			GetOrderedUnit().setOrder(null)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId()))
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId(), vec2(GetOrderPointX(), GetOrderPointY())))
-
-	// DEBUG:
-	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER: " + GetOrderTargetUnit().getName()))
-	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER: " + GetOrderTargetUnit().getName()))
-	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_ORDER"))
-	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> print("EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER"))
-	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> print("EVENT_PLAYER_UNIT_DEATH: " + GetTriggerUnit().getName()))

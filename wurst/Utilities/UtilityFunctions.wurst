@@ -95,12 +95,6 @@ public function int.getOrderName() returns string
 			return "repair on"
 		case OrderIds.repairoff
 			return "repair off"
-		case OrderIds.thunderbolt
-			return "thunderbolt based ability"
-		case OrderIds.frostnova
-			return "frostnova based ability"
-		case OrderIds.shadowstrike
-			return "shadowstrike based ability"
 		case OrderIds.undefend
 			return null
 		case AbilityIdsCustom.harvest
@@ -111,6 +105,28 @@ public function int.getOrderName() returns string
 			if this < 2013265920  // Ignore unit ids
 				Log.error("ERROR: unmapped order/ability id (" + this.toString() + ")")
 			return null
+/** Returns the order name of the given order id of the given unit. Returns null if onlyCustomAbilities is given and order doesn't fit to a custom ability of the given unit. */
+public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) returns string
+	switch this
+		case OrderIds.thunderbolt
+			if orderedUnit.hasAbility(AbilityIdsCustom.harvest)
+				return "harvest"
+		case OrderIds.frostnova
+			if orderedUnit.hasAbility(AbilityIdsCustom.transferWares)
+				return "transfer wares"
+		case OrderIds.shadowstrike
+			if orderedUnit.hasAbility(AbilityIdsCustom.build)
+				return "build"
+		default
+			if onlyCustomAbilities
+				return null
+			else
+				return this.getOrderName()
+	Log.error("ERROR: unmapped ability id (" + this.toString() + ")")
+	return null
+/** Returns the order name of the given order id of the given unit. */
+public function int.getOrderName(unit orderedUnit) returns string
+	return this.getOrderName(orderedUnit, false)
 
 // --------------------
 // Functional code

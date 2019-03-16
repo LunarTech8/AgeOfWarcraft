@@ -25,6 +25,7 @@ import UtilityFunctions
 import Stock
 import StorageSystem
 import Unit_TownHall
+import OrderSystem
 
 
 // --------------------
@@ -149,7 +150,7 @@ class BuildingSite extends Stock
 		ENUM_GROUP.enumUnitsInRange(building.getPos(), MAX_AUTO_ORDER_RANGE, null)
 		let owner = building.getOwner()
 		for worker from ENUM_GROUP
-			if building.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getCurrentOrder() == 0 or worker == unconditionedOrderWorker) and worker.hasAbility(BuffIdsCustom.building) == false
+			if building.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker == unconditionedOrderWorker) and worker.hasAbility(BuffIdsCustom.building) == false
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, building, true)
 
 	function transferWares(Storage source)

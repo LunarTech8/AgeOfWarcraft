@@ -13,7 +13,6 @@ package OrderSystem
 import RegisterEvents
 import HashMap
 import OnUnitEnterLeave
-import ClosureTimers
 import Orders
 import LinkedList
 import TimerUtils
@@ -21,9 +20,6 @@ import InstantDummyCaster
 import DummyRecycler
 import Icons
 import UtilityFunctions
-import ConstantDataSystem
-import ResourceSystem
-import BuildingSystem
 import MultiboardPrioritySystem
 
 
@@ -32,11 +28,6 @@ import MultiboardPrioritySystem
 // --------------------
 
 let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
-
-enum TargetType
-	OTHER
-	RESOURCE
-	BUILDING_SITE
 
 
 // --------------------
@@ -52,24 +43,18 @@ interface CallbackSimple
 class OrderTarget
 	private unit target
 	private LinkedList<OrderSource> sources
-	private TargetType targetType
 
 	construct(unit target, OrderSource source)
 		sources = new LinkedList<OrderSource>()
 		sources.add(source)
 		this.target = target
-		if target.getResource() != null
-			targetType = TargetType.RESOURCE
-		else if target.getBuildingSite() != null
-			targetType = TargetType.BUILDING_SITE
-		else
-			targetType = TargetType.OTHER
 
 	ondestroy
-		// Find new targets for sources:
-		for s in sources
-			s.source.findNewTarget(targetType)
-		sources.clear()
+		// Cancel and remove order for sources:
+		var cancelList = sources.copy()  // Use copy so that sources can still remove themselfs from the original list
+		while cancelList.isEmpty() == false
+			cancelList.pop().cancel()
+		destroy cancelList
 		destroy sources
 
 	function addSource(OrderSource source)
@@ -95,6 +80,10 @@ public class OrderAction
 		t = getTimer()
 		t.setData(this castTo int)
 		t.start(duration, () -> finish())
+	construct(CallbackSimple cancelCb)
+		this.cancelCb = cancelCb
+		this.finishCb = null
+		t = null
 
 	ondestroy
 		if t != null
@@ -132,7 +121,14 @@ class OrderSource
 
 	ondestroy
 		if orderAction != null
+			destroy orderAction
+
+	function cancel()
+		if orderAction != null
 			orderAction.cancel()
+			orderAction = null
+		ORDER_SOURCE_MAP.put(source, null)
+		destroy this
 
 class OrderSourceU extends OrderSource
 	protected unit target
@@ -171,17 +167,12 @@ class OrderSourceV extends OrderSource
 		this.target = target
 
 
-function unit.findNewTarget(TargetType targetType)
-	// Find new order based on target type:
-	if targetType == TargetType.RESOURCE
-		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> this.issueTargetAbilityOrder(AbilityIdsCustom.harvest, this.findNextResource(), true))
-	else if targetType == TargetType.BUILDING_SITE
-		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> this.issueTargetAbilityOrder(AbilityIdsCustom.build, this.findNextBuildingSite(), true))
-
 function unit.setOrder(OrderSource order)
 	// Remove old order:
 	if ORDER_SOURCE_MAP.has(this)
-		destroy ORDER_SOURCE_MAP.get(this)
+		var oldOrder = ORDER_SOURCE_MAP.get(this)
+		if oldOrder != null
+			destroy oldOrder
 	// Add new order:
 	ORDER_SOURCE_MAP.put(this, order)
 /** Sets the units order to the given order Id. */
@@ -218,15 +209,17 @@ public function unit.setOrder(int orderId, vec2 target, OrderAction orderAction)
 /** Returns if the unit has order with given parameters. */
 public function unit.isOrder(int orderId, unit target) returns bool
 	if ORDER_SOURCE_MAP.has(this)
-		var orderSource = ORDER_SOURCE_MAP.get(this)
-		return orderSource.orderId == orderId and (orderSource castTo OrderSourceU).target == target
+		var order = ORDER_SOURCE_MAP.get(this)
+		return order != null and order.orderId == orderId and (order castTo OrderSourceU).target == target
 	else
 		return false
 
 /** Clear unit as order source and target. */
 public function unit.removeOrders()
 	if ORDER_SOURCE_MAP.has(this)
-		destroy ORDER_SOURCE_MAP.get(this)
+		var order = ORDER_SOURCE_MAP.get(this)
+		if order != null
+			destroy order
 		ORDER_SOURCE_MAP.remove(this)
 	if ORDER_TARGET_MAP.has(this)
 		destroy ORDER_TARGET_MAP.get(this)
@@ -241,7 +234,7 @@ public function unit.getOrderSource() returns OrderSource
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(OrderSource o) returns bool
-	var currentOrderName = o.orderId.getOrderName()
+	var currentOrderName = o.orderId.getOrderName(o.source)
 	if currentOrderName == null
 		currentOrderName = "none"
 	this.addMultiboardLine("Order:", HEADLINE_ICON_PATH)

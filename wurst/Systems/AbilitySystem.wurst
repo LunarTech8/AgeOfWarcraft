@@ -215,6 +215,7 @@ init
 					source.transferWares(target)
 				case AbilityIdsCustom.build
 					// Add worker to building site:
+					source.setOrder(AbilityIdsCustom.build, target, null)
 					target.getBuildingSite().addWorker(source)
 				case AbilityIdsCustom.harvest
 					// Perform harvest after ability is finished:

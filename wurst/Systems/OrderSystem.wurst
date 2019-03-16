@@ -19,15 +19,19 @@ import LinkedList
 import TimerUtils
 import InstantDummyCaster
 import DummyRecycler
+import Icons
 import UtilityFunctions
 import ConstantDataSystem
 import ResourceSystem
 import BuildingSystem
+import MultiboardPrioritySystem
 
 
 // --------------------
 // Data code
 // --------------------
+
+let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
 
 enum TargetType
 	OTHER
@@ -227,6 +231,22 @@ public function unit.removeOrders()
 	if ORDER_TARGET_MAP.has(this)
 		destroy ORDER_TARGET_MAP.get(this)
 		ORDER_TARGET_MAP.remove(this)
+
+/** Returns the order source of given unit. */
+public function unit.getOrderSource() returns OrderSource
+	if ORDER_SOURCE_MAP.has(this)
+		return ORDER_SOURCE_MAP.get(this)
+	else
+		return null
+
+/** Sets system relevant infos for given object in target multiboard. */
+public function multiboard.setObjectInfoMultiboard(OrderSource o) returns bool
+	var currentOrderName = o.orderId.getOrderName()
+	if currentOrderName == null
+		currentOrderName = "none"
+	this.addMultiboardLine("Order:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Current: " + currentOrderName.firstUpper(), ORDER_ICON_PATH)
+	return true
 
 init
 	// Remove order source and target from every appropriate unit:

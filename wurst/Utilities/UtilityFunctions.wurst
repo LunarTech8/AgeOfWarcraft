@@ -14,6 +14,7 @@ import HashMap
 import ConstantDataSystem
 import Interpolation
 import Array2D
+import Orders
 
 
 // --------------------
@@ -41,6 +42,19 @@ function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	map.put(UnitIdsCustom.chestnut_Var2, UnitIdsCustom.chestnut)
 	return map
 
+/** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
+public function int.getUnitTypeId() returns int
+	switch this
+		case UnitIdsCustom.beech
+			return getRandomInputInt(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech_Var2, UnitIdsCustom.beech_Var3, UnitIdsCustom.beech_Var4)
+		case UnitIdsCustom.birch
+			return getRandomInputInt(UnitIdsCustom.birch_Var1, UnitIdsCustom.birch_Var2, UnitIdsCustom.birch_Var3)
+		case UnitIdsCustom.greyOak
+			return getRandomInputInt(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak_Var4)
+		case UnitIdsCustom.chestnut
+			return getRandomInputInt(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut_Var2)
+	return this
+
 /** Returns the order needed to cast the given ability id. */
 public function int.getAbilityOrder() returns string
 	switch this
@@ -58,18 +72,45 @@ public function int.getAbilityOrder() returns string
 			Log.error("ERROR: unmapped ability id (" + this.toString() + ")")
 			return null
 
-/** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
-public function int.getUnitTypeId() returns int
+/** Returns the order name of the given order or ability id. */
+public function int.getOrderName() returns string
 	switch this
-		case UnitIdsCustom.beech
-			return getRandomInputInt(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech_Var2, UnitIdsCustom.beech_Var3, UnitIdsCustom.beech_Var4)
-		case UnitIdsCustom.birch
-			return getRandomInputInt(UnitIdsCustom.birch_Var1, UnitIdsCustom.birch_Var2, UnitIdsCustom.birch_Var3)
-		case UnitIdsCustom.greyOak
-			return getRandomInputInt(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak_Var4)
-		case UnitIdsCustom.chestnut
-			return getRandomInputInt(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut_Var2)
-	return this
+		case OrderIds.smart
+			return "smart"
+		case OrderIds.move
+			return "move"
+		case OrderIds.stop
+			return "stop"
+		case OrderIds.attack
+			return "attack"
+		case OrderIds.attackground
+			return "attack ground"
+		case OrderIds.holdposition
+			return "hold position"
+		case OrderIds.patrol
+			return "patrol"
+		case OrderIds.repair
+			return "repair"
+		case OrderIds.repairon
+			return "repair on"
+		case OrderIds.repairoff
+			return "repair off"
+		case OrderIds.thunderbolt
+			return "thunderbolt based ability"
+		case OrderIds.frostnova
+			return "frostnova based ability"
+		case OrderIds.shadowstrike
+			return "shadowstrike based ability"
+		case OrderIds.undefend
+			return null
+		case AbilityIdsCustom.harvest
+			return "harvest"
+		case AbilityIdsCustom.build
+			return "build"
+		default
+			if this < 2013265920  // Ignore unit ids
+				Log.error("ERROR: unmapped order/ability id (" + this.toString() + ")")
+			return null
 
 // --------------------
 // Functional code

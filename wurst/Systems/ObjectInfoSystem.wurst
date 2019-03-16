@@ -27,6 +27,7 @@ import StorageSystem
 import ResourceSystem
 import BuildingSystem
 import ConstantDataSystem
+import OrderSystem
 
 
 // --------------------
@@ -105,6 +106,9 @@ function deactivateDataset(integer playerID)
 function createMultiboardLines(integer playerID) returns boolean
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
+		var orderSource = datasets[playerID].targetedUnit.getOrderSource()
+		if orderSource != null
+			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource)
 		var storage = datasets[playerID].targetedUnit.getStorage()
 		if storage != null
 			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage)

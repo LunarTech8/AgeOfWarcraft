@@ -19,9 +19,10 @@ Work status:
 // Programming:
 // -------------
 
-!!>- Make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map as option)
+!!>>- Make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map as option)
 	- Add a tryGet function (if has() then get() else return null)
 	- Use a hasX function instead of getX != null if the return value isn't needed
+
 !!>- Allow in createMultiboardLines of ObjectInfoSystem for multiple classes to show their info
 !>- Add a priority and maxWorker count to resources
 

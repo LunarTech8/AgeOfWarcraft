@@ -1,0 +1,67 @@
+/*-------------------------------------------------------------
+// Version number:
+1.01
+
+// Description:
+General unit to generic class map that allows for definition of custom utility functions and the use of different data handling solutions.
+(Eg. allows use of unit index with an array instead of a hash map.)
+
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package UnitMap
+import HashMap
+import UnitIndexer
+
+
+// --------------------
+// Functional code
+// --------------------
+
+interface UnitMap<T>
+	function has(unit key) returns bool
+	function get(unit key) returns T
+	function tryGet(unit key) returns T
+	function add(unit key, T value)
+	function remove(unit key)
+
+class UnitHashMap<T> implements UnitMap<T>
+	private let map = new HashMap<unit, T>
+
+	override function has(unit key) returns bool
+		return map.has(key)
+
+	override function get(unit key) returns T
+		return map.get(key)
+
+	override function tryGet(unit key) returns T
+		if has(key)
+			return map.get(key)
+		else
+			return null
+
+	override function add(unit key, T value)
+		map.put(key, value)
+
+	override function remove(unit key)
+		map.remove(key)
+
+class UnitIndexMap<T> implements UnitMap<T>
+	private constant int size = INT_MAX  // TODO: allow different/dynamic sizes like in ArrayList
+	private T array[size] map
+
+	override function has(unit key) returns bool
+		return map[key.toUnitIndex() castTo int] != null
+
+	override function get(unit key) returns T
+		return map[key.toUnitIndex() castTo int]
+
+	override function tryGet(unit key) returns T
+		return map[key.toUnitIndex() castTo int]
+
+	override function add(unit key, T value)
+		map[key.toUnitIndex() castTo int] = value
+
+	override function remove(unit key)
+		map[key.toUnitIndex() castTo int] = null

@@ -38,6 +38,7 @@ Work status:
 !- Add a description comment (/** */) to every public class and function
 !- Create a WeatherSystem
 !- Maybe use the 0.0.0 (Major.Minor.Patch) version system for the packages
+!- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
 
 
 // -------------
@@ -46,6 +47,7 @@ Work status:
 
 !!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
 
+!!- Add settlements and homes and workplaces for people
 !- Refine prototype with generated elements on TemperateMap
 !- Add more ware types and resources
 !- Think about renaming ware to something different (item, good, commodity, article, product, ...)

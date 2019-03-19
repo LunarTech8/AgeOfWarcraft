@@ -35,6 +35,7 @@ import OrderSystem
 let BUILDING_ADJUSTMENT_RATE = 0.1
 let BUILDING_START_HP_PERCENTAGE = 0.1  // Has to be smaller than 1 and bigger than 0
 let MAX_AUTO_ORDER_RANGE = 1024.
+let MAX_NEAR_BY_RANGE = 256.
 let BUILDING_GROUND_UNIT_ID = UnitIdsCustom.buildingGround
 let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
@@ -145,13 +146,28 @@ class BuildingSite extends Stock
 		UnitSetUpgradeProgress(building, upgradeProgress)
 		return false
 
+	function hasCarrierRequiredResources(unit carrier) returns bool
+		if this.hasWares()
+			var carrierStorage = carrier.getStorage()
+			if carrierStorage != null and carrierStorage.containsAny(this)
+				return true
+		return false
+
 	function callOverIdleWorkers(unit unconditionedOrderWorker)
 		// Order nearby idle workers to build on building site:
 		ENUM_GROUP.enumUnitsInRange(building.getPos(), MAX_AUTO_ORDER_RANGE, null)
 		let owner = building.getOwner()
 		for worker from ENUM_GROUP
-			if building.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker == unconditionedOrderWorker) and worker.hasAbility(BuffIdsCustom.building) == false
+			if building.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker == unconditionedOrderWorker)
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, building, true)
+
+	function callOverIdleWareCarriers()
+		// Order nearby idle workers to build on building site:
+		ENUM_GROUP.enumUnitsInRange(building.getPos(), MAX_NEAR_BY_RANGE, null)
+		let owner = building.getOwner()
+		for carrier from ENUM_GROUP
+			if carrier.getOwner() == owner and carrier.getOrderSource() == null and hasCarrierRequiredResources(carrier)
+				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, building, true)
 
 	function transferWares(Storage source)
 		var leftRequiredWares = new LinkedList<ware>()
@@ -184,7 +200,9 @@ function unit.addBuildingSite()
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
 		if buildingSite.hasWares() == false
-			buildingSite.callOverIdleWorkers(this)
+			buildingSite.callOverIdleWorkers(null)
+		else
+			buildingSite.callOverIdleWareCarriers()
 
 function unit.removeBuildingSite()
 	if BUILDING_SITE_MAP.has(this)

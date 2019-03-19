@@ -109,26 +109,32 @@ public class Stock
 	ondestroy
 		destroy wares
 
+	/** Returns if the stock has any wares. */
 	function hasWares() returns bool
 		return wares.isEmpty() == false
 
+	/** Returns the ware by given index of the stock. */
 	function getWare(int index) returns ware
 		if index >= wares.size()
 			Log.error("ERROR: Index has to be smaller than list size")
 		return wares.get(index)
 
+	/** Returns the last ware of the stock. */
 	function getLastWare() returns ware
 		return wares.peek()
 
+	/** Returns amount of different ware types in the stock. */
 	function getAmountOfWareTypes() returns int
 		return wares.size()
 
+	/** Returns count of given ware type. */
 	function getWareCount(WareType wt) returns int
 		for iWare in wares
 			if iWare.wareType == wt
 				return iWare.count
 		return 0
 
+	/** Add given wares to the stock. */
 	function addWare(ware w)
 		// Adjust ware:
 		for iWare in wares
@@ -138,10 +144,12 @@ public class Stock
 		// Add new ware if none exists of that type yet:
 		wares.add(w)
 
+	/** Add given wares to the stock. */
 	function addWares(LinkedList<ware> wares)
 		for iWare in wares
 			addWare(iWare)
 
+	/** Remove given ware from the stock. */
 	function removeWare(ware w)
 		for iWare in wares
 			if iWare.hasSameType(w)
@@ -150,3 +158,10 @@ public class Stock
 					wares.remove(iWare)
 				else
 					wares.replace(iWare, iWare.changedCopy(-w.count))
+
+	/** Returns if the stock has any wares of given target stock. */
+	function containsAny(Stock targetStock) returns bool
+		for iWare in wares
+			if targetStock.getWareCount(iWare.wareType) > 0
+				return true
+		return false

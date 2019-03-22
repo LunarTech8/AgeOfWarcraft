@@ -26,6 +26,7 @@ import Stock
 import StorageSystem
 import Unit_TownHall
 import OrderSystem
+import UnitMap
 
 
 // --------------------
@@ -75,10 +76,9 @@ function getBuildingScaling(int buildingUnitId) returns real
 // --------------------
 
 let BUILDING_SITE_MAP = new IterableMap<unit, BuildingSite>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
-let WORKER_MAP = new HashMap<unit, BuildingSite>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let WORKER_MAP = new UnitHashMap<BuildingSite>
 
 class BuildingSite extends Stock
-	private unit building
 	private real fullHP
 	private group workers
 	private real workProgress
@@ -87,7 +87,7 @@ class BuildingSite extends Stock
 
 	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
 		super(requiredWares)
-		this.building = building
+		user = building
 		this.fullHP = fullHP
 		workers = CreateGroup()
 		workProgress = 0.
@@ -111,8 +111,8 @@ class BuildingSite extends Stock
 
 	function addWorker(unit worker)
 		if WORKER_MAP.has(worker) == false and workers.contains(worker) == false
-			WORKER_MAP.put(worker, this)
-			workPower += getUnitWorkPower(worker.getUnitId(), building.getUnitId())
+			WORKER_MAP.add(worker, this)
+			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
 			workers.addUnit(worker)
 			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
 			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
@@ -122,7 +122,7 @@ class BuildingSite extends Stock
 	function removeWorker(unit worker)
 		if WORKER_MAP.get(worker) == this and workers.contains(worker)
 			WORKER_MAP.remove(worker)
-			workPower -= getUnitWorkPower(worker.getUnitId(), building.getUnitId())
+			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
 			workers.removeUnit(worker)
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
@@ -135,15 +135,15 @@ class BuildingSite extends Stock
 			workProgress += workPower * BUILDING_ADJUSTMENT_RATE
 			if workProgress >= 1.
 				// Finish construction:
-				UnitSetUpgradeProgress(building, 100)
+				UnitSetUpgradeProgress(user, 100)
 				return true
 			else
 				// Recalculate values:
-				building.setMaxHP(max(1, (fullHP * (workProgress * (1 - BUILDING_START_HP_PERCENTAGE) + BUILDING_START_HP_PERCENTAGE)).toInt()))
-				building.addHP(fullHP * (1 - BUILDING_START_HP_PERCENTAGE) * workPower * BUILDING_ADJUSTMENT_RATE)
+				user.setMaxHP(max(1, (fullHP * (workProgress * (1 - BUILDING_START_HP_PERCENTAGE) + BUILDING_START_HP_PERCENTAGE)).toInt()))
+				user.addHP(fullHP * (1 - BUILDING_START_HP_PERCENTAGE) * workPower * BUILDING_ADJUSTMENT_RATE)
 				upgradeProgress = min(max(1, (workProgress * 100.).toInt()), 99)
 		// Always adjust upgrade progress so that it stays correct:
-		UnitSetUpgradeProgress(building, upgradeProgress)
+		UnitSetUpgradeProgress(user, upgradeProgress)
 		return false
 
 	function hasCarrierRequiredResources(unit carrier) returns bool
@@ -155,19 +155,19 @@ class BuildingSite extends Stock
 
 	function callOverIdleWorkers(unit unconditionedOrderWorker)
 		// Order nearby idle workers to build on building site:
-		ENUM_GROUP.enumUnitsInRange(building.getPos(), MAX_AUTO_ORDER_RANGE, null)
-		let owner = building.getOwner()
+		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
+		let owner = user.getOwner()
 		for worker from ENUM_GROUP
-			if building.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker == unconditionedOrderWorker)
-				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, building, true)
+			if user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker == unconditionedOrderWorker)
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
 
 	function callOverIdleWareCarriers()
 		// Order nearby idle workers to build on building site:
-		ENUM_GROUP.enumUnitsInRange(building.getPos(), MAX_NEAR_BY_RANGE, null)
-		let owner = building.getOwner()
+		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
+		let owner = user.getOwner()
 		for carrier from ENUM_GROUP
 			if carrier.getOwner() == owner and carrier.getOrderSource() == null and hasCarrierRequiredResources(carrier)
-				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, building, true)
+				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 
 	function transferWares(Storage source)
 		var leftRequiredWares = new LinkedList<ware>()
@@ -258,10 +258,7 @@ public function unit.getBuildingSite() returns BuildingSite
 
 /** Returns the building site of given worker. */
 public function unit.getBuildingSiteOfWorker() returns BuildingSite
-	if WORKER_MAP.has(this)
-		return WORKER_MAP.get(this)
-	else
-		return null
+	return WORKER_MAP.tryGet(this)
 
 /** Returns if the given worker type can work on given building type */
 public function int.isValidWorkerType(int workerUnitId) returns bool

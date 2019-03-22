@@ -100,8 +100,8 @@ public function ware.changedCopy(WareType newWareType, int countChange) returns 
 	return ware(newWareType, this.count + countChange)
 
 public class Stock
-	LinkedList<ware> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
-	//unit user  // TODO: maybe use this instead of the unit variable in the child classes
+	protected LinkedList<ware> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
+	protected unit user
 
 	construct(LinkedList<ware> wares)
 		this.wares = wares

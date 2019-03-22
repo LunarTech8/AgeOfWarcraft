@@ -89,13 +89,12 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 let RESOURCE_MAP = new HashMap<unit, Resource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
 
 class Resource extends Stock
-	private unit resource
 	private bool isKilledWhenDepleted
 	private real workProgress
 
 	construct(unit resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
 		super(initWares)
-		this.resource = resource
+		user = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
 		workProgress = 0.
 
@@ -109,7 +108,7 @@ class Resource extends Stock
 
 	/** Perform harvest and returns the harvested wares. */
 	function harvest(int workerUnitId) returns LinkedList<ware>
-		let resourceUnitId = resource.getUnitId()
+		let resourceUnitId = user.getUnitId()
 		// Work resource:
 		if work(getWorkProgressPerHarvest(workerUnitId, resourceUnitId))
 			// Return harvested wares:

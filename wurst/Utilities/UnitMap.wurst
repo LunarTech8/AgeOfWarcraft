@@ -1,53 +1,62 @@
-// /*-------------------------------------------------------------
-// // Version number:
-// 1.01
+/*-------------------------------------------------------------
+// Version number:
+1.01
 
-// // Description:
-// General unit to generic class map that allows for definition of custom utility functions and the use of different data handling solutions.
-// (Eg. allows use of unit index with an array instead of a hash map.)
+// Description:
+General unit to generic class map that allows for definition of custom utility functions and the use of different data handling solutions.
+(Eg. allows use of unit index with an array instead of a hash map.)
 
-// // Changelog:
-// - 1.01:
-// Initial version.
-// -------------------------------------------------------------*/
-// package UnitMap
-// import HashMap
-// import UnitIndexer
+// Changelog:
+- 1.01:
+Initial version.
+-------------------------------------------------------------*/
+package UnitMap
+import HashMap
+import UnitIndexer
 
 
-// // --------------------
-// // Functional code
-// // --------------------
+// --------------------
+// Functional code
+// --------------------
 
-// interface UnitMap<T>
-// 	function has(unit key) returns bool
-// 	function get(unit key) returns T
-// 	function tryGet(unit key) returns T
-// 	function add(unit key, T value)
-// 	function remove(unit key)
+interface UnitMap<T>
+	function has(unit key) returns bool
+	function get(unit key) returns T
+	function tryGet(unit key) returns T
+	function add(unit key, T value)
+	function remove(unit key)
+	function tryRemove(unit key) returns bool
 
-// class UnitHashMap<T> implements UnitMap<T>
-// 	private let map = new HashMap<unit, T>
+public class UnitHashMap<T> implements UnitMap<T>
+	private let map = new HashMap<unit, T>
 
-// 	override function has(unit key) returns bool
-// 		return map.has(key)
+	override function has(unit key) returns bool
+		return map.has(key)
 
-// 	override function get(unit key) returns T
-// 		return map.get(key)
+	override function get(unit key) returns T
+		return map.get(key)
 
-// 	override function tryGet(unit key) returns T
-// 		if has(key)
-// 			return map.get(key)
-// 		else
-// 			return null
+	override function tryGet(unit key) returns T
+		if has(key)
+			return map.get(key)
+		else
+			return null
 
-// 	override function add(unit key, T value)
-// 		map.put(key, value)
+	override function add(unit key, T value)
+		map.put(key, value)
 
-// 	override function remove(unit key)
-// 		map.remove(key)
+	override function remove(unit key)
+		map.remove(key)
 
-// class UnitIndexMap<T> implements UnitMap<T>
+	override function tryRemove(unit key) returns bool
+		if has(key)
+			map.remove(key)
+			return true
+		else
+			return false
+
+// TODO: the following class crashes the compiler, fix
+// public class UnitIndexMap<T> implements UnitMap<T>
 // 	private constant int size = INT_MAX  // TODO: allow different/dynamic sizes like in ArrayList
 // 	private T array[size] map
 

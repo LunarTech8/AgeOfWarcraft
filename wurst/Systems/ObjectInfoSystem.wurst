@@ -104,22 +104,23 @@ function deactivateDataset(integer playerID)
 
 /** Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
 function createMultiboardLines(integer playerID) returns boolean
+	var hasInfo = false
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
-		var orderSource = datasets[playerID].targetedUnit.getOrderSource()
-		if orderSource != null
-			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource)
 		var storage = datasets[playerID].targetedUnit.getStorage()
 		if storage != null
-			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage)
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo
 		var buildingSite = datasets[playerID].targetedUnit.getBuildingSite()
 		if buildingSite != null
-			return datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite)
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite) or hasInfo
+		var orderSource = datasets[playerID].targetedUnit.getOrderSource()
+		if orderSource != null
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource) or hasInfo
 	// Check info sources that do not require specific ownerhsip:
 	var resource = datasets[playerID].targetedUnit.getResource()
 	if resource != null
-		return datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource)
-	return false
+		hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource) or hasInfo
+	return hasInfo
 
 function showObjectInfo(integer playerID)
 	var dataset = datasets[playerID]

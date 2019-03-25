@@ -19,11 +19,11 @@ import UnitIndexer
 // Functional code
 // --------------------
 
-interface UnitMap<T>
+public interface UnitMap<T>
 	function has(unit key) returns bool
 	function get(unit key) returns T
 	function tryGet(unit key) returns T
-	function add(unit key, T value)
+	function put(unit key, T value)
 	function remove(unit key)
 	function tryRemove(unit key) returns bool
 
@@ -38,11 +38,11 @@ public class UnitHashMap<T> implements UnitMap<T>
 
 	override function tryGet(unit key) returns T
 		if has(key)
-			return map.get(key)
+			return get(key)
 		else
 			return null
 
-	override function add(unit key, T value)
+	override function put(unit key, T value)
 		map.put(key, value)
 
 	override function remove(unit key)
@@ -50,27 +50,39 @@ public class UnitHashMap<T> implements UnitMap<T>
 
 	override function tryRemove(unit key) returns bool
 		if has(key)
-			map.remove(key)
+			remove(key)
 			return true
 		else
 			return false
 
-// TODO: the following class crashes the compiler, fix
-// public class UnitIndexMap<T> implements UnitMap<T>
-// 	private constant int size = INT_MAX  // TODO: allow different/dynamic sizes like in ArrayList
-// 	private T array[size] map
+public class UnitIndexMap<T> implements UnitMap<T>
+	private constant int size = 8191  // TODO: allow different/dynamic sizes like in ArrayList, max should still be 8191
+	private T array[size] map
 
-// 	override function has(unit key) returns bool
-// 		return map[key.toUnitIndex() castTo int] != null
+	construct()
+		map[0] = null  // Null first slot for unindexed units
 
-// 	override function get(unit key) returns T
-// 		return map[key.toUnitIndex() castTo int]
+	override function has(unit key) returns bool
+		return map[key.getIndex()] != null
 
-// 	override function tryGet(unit key) returns T
-// 		return map[key.toUnitIndex() castTo int]
+	override function get(unit key) returns T
+		return map[key.toUnitIndex() castTo int]
 
-// 	override function add(unit key, T value)
-// 		map[key.toUnitIndex() castTo int] = value
+	override function tryGet(unit key) returns T
+		if has(key)
+			return get(key)
+		else
+			return null
 
-// 	override function remove(unit key)
-// 		map[key.toUnitIndex() castTo int] = null
+	override function put(unit key, T value)
+		map[key.toUnitIndex() castTo int] = value
+
+	override function remove(unit key)
+		map[key.toUnitIndex() castTo int] = null
+
+	override function tryRemove(unit key) returns bool
+		if has(key)
+			remove(key)
+			return true
+		else
+			return false

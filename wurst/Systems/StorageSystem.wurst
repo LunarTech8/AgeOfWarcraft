@@ -12,11 +12,11 @@ Initial version.
 package StorageSystem
 import OnUnitEnterLeave
 import LinkedList
-import HashMap
 import Icons
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import Stock
+import UnitMap
 
 
 // --------------------
@@ -37,7 +37,7 @@ function getMaxCapacity(int unitId) returns int
 // Functional code
 // --------------------
 
-let STORAGE_MAP = new HashMap<unit, Storage>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let STORAGE_MAP = new UnitHashMap<Storage>
 
 public class Storage extends Stock
 	private int maxCapacity
@@ -133,10 +133,7 @@ function unit.removeStorage()
 
 /** Returns the storage of given unit. */
 public function unit.getStorage() returns Storage
-	if STORAGE_MAP.has(this)
-		return STORAGE_MAP.get(this)
-	else
-		return null
+	return STORAGE_MAP.tryGet(this)
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Storage s) returns bool

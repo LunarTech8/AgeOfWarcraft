@@ -11,7 +11,6 @@ Initial version.
 -------------------------------------------------------------*/
 package OrderSystem
 import RegisterEvents
-import HashMap
 import OnUnitEnterLeave
 import Orders
 import LinkedList
@@ -21,6 +20,7 @@ import DummyRecycler
 import Icons
 import UtilityFunctions
 import MultiboardPrioritySystem
+import UnitMap
 
 
 // --------------------
@@ -34,8 +34,8 @@ let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
 // Functional code
 // --------------------
 
-let ORDER_SOURCE_MAP = new HashMap<unit, OrderSource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
-let ORDER_TARGET_MAP = new HashMap<unit, OrderTarget>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let ORDER_SOURCE_MAP = new UnitHashMap<OrderSource>
+let ORDER_TARGET_MAP = new UnitHashMap<OrderTarget>
 
 interface CallbackSimple
 	function call()
@@ -227,10 +227,7 @@ public function unit.removeOrders()
 
 /** Returns the order source of given unit. */
 public function unit.getOrderSource() returns OrderSource
-	if ORDER_SOURCE_MAP.has(this)
-		return ORDER_SOURCE_MAP.get(this)
-	else
-		return null
+	return ORDER_SOURCE_MAP.tryGet(this)
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(OrderSource o) returns bool

@@ -11,13 +11,13 @@ Initial version.
 -------------------------------------------------------------*/
 package ResourceSystem
 import LinkedList
-import HashMap
 import OnUnitEnterLeave
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
 import StorageSystem
+import UnitMap
 
 
 // --------------------
@@ -86,7 +86,7 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 // Functional code
 // --------------------
 
-let RESOURCE_MAP = new HashMap<unit, Resource>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let RESOURCE_MAP = new UnitHashMap<Resource>
 
 class Resource extends Stock
 	private bool isKilledWhenDepleted
@@ -156,10 +156,7 @@ public function unit.findNextResource() returns unit
 
 /** Returns the resource of given unit. */
 public function unit.getResource() returns Resource
-	if RESOURCE_MAP.has(this)
-		return RESOURCE_MAP.get(this)
-	else
-		return null
+	return RESOURCE_MAP.tryGet(this)
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool

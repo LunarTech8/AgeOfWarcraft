@@ -111,7 +111,7 @@ class BuildingSite extends Stock
 
 	function addWorker(unit worker)
 		if WORKER_MAP.has(worker) == false and workers.contains(worker) == false
-			WORKER_MAP.add(worker, this)
+			WORKER_MAP.put(worker, this)
 			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
 			workers.addUnit(worker)
 			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)

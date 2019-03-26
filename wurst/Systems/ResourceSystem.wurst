@@ -133,9 +133,9 @@ function unit.addResource()
 			RESOURCE_MAP.put(this, resource)
 
 function unit.removeResource()
-	if RESOURCE_MAP.has(this)
-		destroy RESOURCE_MAP.get(this)
-		RESOURCE_MAP.remove(this)
+	let resource = RESOURCE_MAP.tryRemove(this)
+	if resource != null
+		destroy resource
 
 /** Returns next valid resource unit for the unit. */
 public function unit.findNextResource() returns unit

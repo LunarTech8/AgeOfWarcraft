@@ -127,9 +127,9 @@ function unit.addStorage()
 			STORAGE_MAP.put(this, storage)
 
 function unit.removeStorage()
-	if STORAGE_MAP.has(this)
-		destroy STORAGE_MAP.get(this)
-		STORAGE_MAP.remove(this)
+	let storage = STORAGE_MAP.tryRemove(this)
+	if storage != null
+		destroy storage
 
 /** Returns the storage of given unit. */
 public function unit.getStorage() returns Storage

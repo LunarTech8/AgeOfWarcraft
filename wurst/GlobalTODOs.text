@@ -20,8 +20,7 @@ Work status:
 // -------------
 
 !!>>- Make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map as option)
-	!>- Add a tryGet function (if has() then get() else return null) -> Think if it is really usefull like this or should be used/implemented differently
-	!- Use has instead of get != null if the return value isn't needed
+	>>- Add an iterable version
 
 !>- Add a priority and maxWorker count to resources
 

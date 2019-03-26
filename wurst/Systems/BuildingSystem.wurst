@@ -211,8 +211,9 @@ function unit.removeBuildingSite()
 
 /** If worker is building stop him. */
 function unit.stopBuilding()
-	if WORKER_MAP.has(this)
-		WORKER_MAP.get(this).removeWorker(this)
+	let buildingSite = WORKER_MAP.tryGet(this)
+	if buildingSite != null
+		buildingSite.removeWorker(this)
 
 function findNextBuildingSite_GetFilter() returns filterfunc
 	return Filter() ->

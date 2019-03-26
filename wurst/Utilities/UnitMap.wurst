@@ -13,6 +13,7 @@ Initial version.
 package UnitMap
 import HashMap
 import UnitIndexer
+import HashList
 
 
 // --------------------
@@ -25,7 +26,7 @@ public interface UnitMap<T>
 	function tryGet(unit key) returns T
 	function put(unit key, T value)
 	function remove(unit key)
-	function tryRemove(unit key) returns bool
+	function tryRemove(unit key) returns T
 
 public class UnitHashMap<T> implements UnitMap<T>
 	private let map = new HashMap<unit, T>
@@ -36,9 +37,10 @@ public class UnitHashMap<T> implements UnitMap<T>
 	override function get(unit key) returns T
 		return map.get(key)
 
+	/** Returns null if given key isn't mapped instead of throwing an error. */
 	override function tryGet(unit key) returns T
-		if has(key)
-			return get(key)
+		if map.has(key)
+			return map.get(key)
 		else
 			return null
 
@@ -48,41 +50,79 @@ public class UnitHashMap<T> implements UnitMap<T>
 	override function remove(unit key)
 		map.remove(key)
 
-	override function tryRemove(unit key) returns bool
-		if has(key)
-			remove(key)
-			return true
+	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+	override function tryRemove(unit key) returns T
+		if map.has(key)
+			let value = map.get(key)
+			map.remove(key)
+			return value
 		else
-			return false
+			return null
 
 public class UnitIndexMap<T> implements UnitMap<T>
 	private constant int size = 8191  // TODO: allow different/dynamic sizes like in ArrayList, max should still be 8191
-	private T array[size] map
+	private T array[size] map  // TODO: probably use dynamic ArrayList instead
 
 	construct()
 		map[0] = null  // Null first slot for unindexed units
 
 	override function has(unit key) returns bool
-		return map[key.getIndex()] != null
+		return map[key.getIndex()] != null  // Unindexed keys will use first nulled slot
 
 	override function get(unit key) returns T
-		return map[key.toUnitIndex() castTo int]
+		return map[key.toUnitIndex() castTo int]  // Indexes key if necessary so that an error is thrown if unmapped
 
+	/** Returns null if given key isn't mapped instead of throwing an error. */
 	override function tryGet(unit key) returns T
-		if has(key)
-			return get(key)
+		return map[key.getIndex()]  // Will return null if key isn't indexed
+
+	override function put(unit key, T value)
+		map[key.toUnitIndex() castTo int] = value  // Automatically indexes key if previously unmapped
+
+	override function remove(unit key)
+		map[key.toUnitIndex() castTo int] = null  // Indexes key if necessary so that an error is thrown if unmapped
+
+	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+	override function tryRemove(unit key) returns T
+		let index = key.getIndex()
+		if index != 0
+			let value = map[index]
+			map[index] = null
+			return value
 		else
 			return null
 
+public class IterableUnitHashMap<T> extends UnitHashMap<T>
+	protected let keys = new HashList<unit>
+
+	ondestroy
+		destroy keys
+
+	/** Returns an iterator that iterates over the map's keys. */
+	function iterator() returns HLIterator<unit>
+		return keys.iterator()
+
+	/** Returns the length of this IterableMap. */
+	function size() returns int
+		return keys.size()
+
+	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
-		map[key.toUnitIndex() castTo int] = value
+		super.put(key, value)
+		if keys.has(key) == false
+			keys.add(key)
 
+	/** Removes the key-value pair saved under the given key. */
 	override function remove(unit key)
-		map[key.toUnitIndex() castTo int] = null
+		super.remove(key)
+		keys.remove(key)
 
-	override function tryRemove(unit key) returns bool
-		if has(key)
-			remove(key)
-			return true
+	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+	override function tryRemove(unit key) returns T
+		if keys.has(key)
+			let value = super.get(key)
+			super.remove(key)
+			keys.remove(key)
+			return value
 		else
-			return false
+			return null

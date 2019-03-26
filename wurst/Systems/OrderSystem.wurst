@@ -136,14 +136,16 @@ class OrderSourceU extends OrderSource
 	construct(unit source, int orderId, unit target, OrderAction orderAction)
 		super(source, orderId, orderAction)
 		this.target = target
-		if ORDER_TARGET_MAP.has(target)
-			ORDER_TARGET_MAP.get(target).addSource(this)
+		let orderTarget = ORDER_TARGET_MAP.tryGet(target)
+		if orderTarget != null
+			orderTarget.addSource(this)
 		else
 			ORDER_TARGET_MAP.put(target, new OrderTarget(target, this))
 
 	ondestroy
-		if ORDER_TARGET_MAP.has(target)
-			ORDER_TARGET_MAP.get(target).removeSource(this)
+		let orderTarget = ORDER_TARGET_MAP.tryGet(target)
+		if orderTarget != null
+			orderTarget.removeSource(this)
 
 class OrderSourceD extends OrderSource
 	protected destructable target
@@ -169,10 +171,9 @@ class OrderSourceV extends OrderSource
 
 function unit.setOrder(OrderSource order)
 	// Remove old order:
-	if ORDER_SOURCE_MAP.has(this)
-		var oldOrder = ORDER_SOURCE_MAP.get(this)
-		if oldOrder != null
-			destroy oldOrder
+	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
+	if orderSource != null
+		destroy orderSource
 	// Add new order:
 	ORDER_SOURCE_MAP.put(this, order)
 /** Sets the units order to the given order Id. */
@@ -208,22 +209,20 @@ public function unit.setOrder(int orderId, vec2 target, OrderAction orderAction)
 
 /** Returns if the unit has order with given parameters. */
 public function unit.isOrder(int orderId, unit target) returns bool
-	if ORDER_SOURCE_MAP.has(this)
-		var order = ORDER_SOURCE_MAP.get(this)
-		return order != null and order.orderId == orderId and (order castTo OrderSourceU).target == target
+	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
+	if orderSource != null
+		return orderSource.orderId == orderId and (orderSource castTo OrderSourceU).target == target
 	else
 		return false
 
 /** Clear unit as order source and target. */
 public function unit.removeOrders()
-	if ORDER_SOURCE_MAP.has(this)
-		var order = ORDER_SOURCE_MAP.get(this)
-		if order != null
-			destroy order
-		ORDER_SOURCE_MAP.remove(this)
-	if ORDER_TARGET_MAP.has(this)
-		destroy ORDER_TARGET_MAP.get(this)
-		ORDER_TARGET_MAP.remove(this)
+	let orderSource = ORDER_SOURCE_MAP.tryRemove(this)
+	if orderSource != null
+		destroy orderSource
+	let orderTarget = ORDER_TARGET_MAP.tryRemove(this)
+	if orderTarget != null
+		destroy orderTarget
 
 /** Returns the order source of given unit. */
 public function unit.getOrderSource() returns OrderSource

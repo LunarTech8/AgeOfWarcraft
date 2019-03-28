@@ -75,7 +75,7 @@ function getBuildingScaling(int buildingUnitId) returns real
 // Functional code
 // --------------------
 
-let BUILDING_SITE_MAP = new IterableMap<unit, BuildingSite>  // TODO: maybe make a general unit to class hash map system with corresponding utility functions
+let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>
 let WORKER_MAP = new UnitHashMap<BuildingSite>
 
 class BuildingSite extends Stock

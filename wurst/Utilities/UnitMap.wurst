@@ -14,6 +14,7 @@ package UnitMap
 import HashMap
 import UnitIndexer
 import HashList
+import ArrayList
 
 
 // --------------------
@@ -29,7 +30,10 @@ public interface UnitMap<T>
 	function tryRemove(unit key) returns T
 
 public class UnitHashMap<T> implements UnitMap<T>
-	private let map = new HashMap<unit, T>
+	protected let map = new HashMap<unit, T>
+
+	ondestroy
+		destroy map
 
 	override function has(unit key) returns bool
 		return map.has(key)
@@ -60,8 +64,8 @@ public class UnitHashMap<T> implements UnitMap<T>
 			return null
 
 public class UnitIndexMap<T> implements UnitMap<T>
-	private constant int size = 8191  // TODO: allow different/dynamic sizes like in ArrayList, max should still be 8191
-	private T array[size] map  // TODO: probably use dynamic ArrayList instead
+	protected constant int size = 8191  // TODO: allow different/dynamic sizes like in ArrayList, max should still be 8191
+	protected T array[size] map  // TODO: probably use dynamic ArrayList instead
 
 	construct()
 		map[0] = null  // Null first slot for unindexed units
@@ -102,7 +106,7 @@ public class IterableUnitHashMap<T> extends UnitHashMap<T>
 	function iterator() returns HLIterator<unit>
 		return keys.iterator()
 
-	/** Returns the length of this IterableMap. */
+	/** Returns the length of this iterable map. */
 	function size() returns int
 		return keys.size()
 
@@ -123,6 +127,38 @@ public class IterableUnitHashMap<T> extends UnitHashMap<T>
 			let value = super.get(key)
 			super.remove(key)
 			keys.remove(key)
+			return value
+		else
+			return null
+
+public class IterableUnitIndexMap<T> extends UnitIndexMap<T>
+	protected unit array[size] keys  // TODO: probably use dynamic ArrayList instead
+
+	/** Returns an iterator that iterates over the map's keys. */
+	function iterator() returns ALIterator<unit>
+		return keys.iterator()
+
+	/** Returns the length of this iterable map. */
+	function size() returns int
+		return size
+
+	/** Saves the given value under the given key. */
+	override function put(unit key, T value)
+		super.put(key, value)
+		keys[key.toUnitIndex() castTo int] = key
+
+	/** Removes the key-value pair saved under the given key. */
+	override function remove(unit key)
+		super.remove(key)
+		keys[key.toUnitIndex() castTo int] = null
+
+	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+	override function tryRemove(unit key) returns T
+		let index = key.getIndex()
+		if index != 0
+			let value = super.get(key)
+			super.remove(key)
+			keys[key.toUnitIndex() castTo int] = null
 			return value
 		else
 			return null

@@ -1,0 +1,27 @@
+package Unit_DimensionGate
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.dimensionGate, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("DPSW")  // Dimensional Gate (facing southwest)
+    ..setIconGameInterface(Icons.bTNDarkPortal)
+    ..setModelFile(Buildings.darkPortal)
+    ..setSelectionScale(10.)
+    ..setShadowTextureBuilding("ShadowPortalSW")
+    // Pathing:
+    ..setPathingMap("PathTextures\\DarkPortalSW.tga")
+    ..setRequiredAnimationNames("alternate")
+    // Stats:
+    ..setRace(Race.Critters)
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    // Text:
+    ..presetNameAndTooltips(true, "Dimension Gate", "")

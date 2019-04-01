@@ -54,6 +54,8 @@ public class UnitIdsCustom
 	static constant arcaneTower = compiletime(UNIT_ID_GEN.next())
 	static constant arcaneVault = compiletime(UNIT_ID_GEN.next())
 	static constant buildingGround = compiletime(UNIT_ID_GEN.next())
+	static constant dimensionGate = compiletime(UNIT_ID_GEN.next())
+	static constant corruptedDimensionGate = compiletime(UNIT_ID_GEN.next())
 	//--------------
 	// Nature
 	//--------------

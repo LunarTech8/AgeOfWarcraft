@@ -368,7 +368,7 @@ public class ALIterator<T>
 // Test code
 // --------------------
 
-@test function testCreate()
+@Test function testCreate()
 	ArrayList<int> a = new ArrayList<int>(4)
 	a.size().assertEquals(4)
 	a.add(5)
@@ -379,7 +379,7 @@ public class ALIterator<T>
 	b.getLast().assertEquals(7)
 	b.getLast().assertEquals(6)  // TEST: should be wrong (check for testing functionality)
 
-@test function testAddAndGet()
+@Test function testAddAndGet()
 	var a = new ArrayList<int>(1)
 	a.add(5)
 	if a.get(1) != 5

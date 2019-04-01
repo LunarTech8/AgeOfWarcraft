@@ -131,34 +131,34 @@ public class IterableUnitHashMap<T> extends UnitHashMap<T>
 		else
 			return null
 
-public class IterableUnitIndexMap<T> extends UnitIndexMap<T>
-	protected unit array[size] keys  // TODO: probably use dynamic ArrayList instead
+// public class IterableUnitIndexMap<T> extends UnitIndexMap<T>
+// 	protected unit array[size] keys  // TODO: probably use dynamic ArrayList instead
 
-	/** Returns an iterator that iterates over the map's keys. */
-	function iterator() returns ALIterator<unit>
-		return keys.iterator()
+// 	/** Returns an iterator that iterates over the map's keys. */
+// 	function iterator() returns ALIterator<unit>
+// 		return keys.iterator()
 
-	/** Returns the length of this iterable map. */
-	function size() returns int
-		return size
+// 	/** Returns the length of this iterable map. */
+// 	function size() returns int
+// 		return size
 
-	/** Saves the given value under the given key. */
-	override function put(unit key, T value)
-		super.put(key, value)
-		keys[key.toUnitIndex() castTo int] = key
+// 	/** Saves the given value under the given key. */
+// 	override function put(unit key, T value)
+// 		super.put(key, value)
+// 		keys[key.toUnitIndex() castTo int] = key
 
-	/** Removes the key-value pair saved under the given key. */
-	override function remove(unit key)
-		super.remove(key)
-		keys[key.toUnitIndex() castTo int] = null
+// 	/** Removes the key-value pair saved under the given key. */
+// 	override function remove(unit key)
+// 		super.remove(key)
+// 		keys[key.toUnitIndex() castTo int] = null
 
-	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
-	override function tryRemove(unit key) returns T
-		let index = key.getIndex()
-		if index != 0
-			let value = super.get(key)
-			super.remove(key)
-			keys[key.toUnitIndex() castTo int] = null
-			return value
-		else
-			return null
+// 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+// 	override function tryRemove(unit key) returns T
+// 		let index = key.getIndex()
+// 		if index != 0
+// 			let value = super.get(key)
+// 			super.remove(key)
+// 			keys[key.toUnitIndex() castTo int] = null
+// 			return value
+// 		else
+// 			return null

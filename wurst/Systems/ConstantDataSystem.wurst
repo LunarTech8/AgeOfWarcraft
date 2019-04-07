@@ -56,6 +56,14 @@ public class UnitIdsCustom
 	static constant buildingGround = compiletime(UNIT_ID_GEN.next())
 	static constant dimensionGate = compiletime(UNIT_ID_GEN.next())
 	static constant corruptedDimensionGate = compiletime(UNIT_ID_GEN.next())
+	static constant peasantHouseL1 = compiletime(UNIT_ID_GEN.next())
+	static constant peasantHouseL2 = compiletime(UNIT_ID_GEN.next())
+	static constant peasantHouseL3 = compiletime(UNIT_ID_GEN.next())
+	static constant artisanHouseL1 = compiletime(UNIT_ID_GEN.next())
+	static constant artisanHouseL2 = compiletime(UNIT_ID_GEN.next())
+	static constant artisanHouseL3 = compiletime(UNIT_ID_GEN.next())
+	static constant storehouse = compiletime(UNIT_ID_GEN.next())
+	static constant lumbermill = compiletime(UNIT_ID_GEN.next())
 	//--------------
 	// Nature
 	//--------------
@@ -104,5 +112,9 @@ public abstract class ImportPaths
 	static constant greyOak_Var4 = "Trees\\Graueiche3.mdl"
 	static constant chestnut_Var1 = "Trees\\Kastanie0.mdl"
 	static constant chestnut_Var2 = "Trees\\Kastanie1.mdl"
+	static constant peasantHouse = "Buildings\\PeasantHouse.mdl"
+	static constant artisanHouse = "Buildings\\CitizenHouse.mdl"
+	static constant storehouse = "Buildings\\TownCenter.mdl"
+	static constant lumbermill = "Buildings\\LumberMill.mdl"
 	// Effects:
 	static constant builderSymbol = "Effects\\BuilderSymbol.mdl"

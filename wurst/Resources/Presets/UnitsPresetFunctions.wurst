@@ -81,3 +81,7 @@ public function UnitOrBuildingOrHeroDefinition.presetAttack2TargetsAllowed(varar
 	if data != ""
 		data = data.substring(0, data.length()-1)
 	this.setAttack2TargetsAllowed(data)
+
+public function UnitOrBuildingOrHeroDefinition.presetSightRadius(int day, int night)
+	this.setSightRadiusDay(day)
+	this.setSightRadiusNight(night)

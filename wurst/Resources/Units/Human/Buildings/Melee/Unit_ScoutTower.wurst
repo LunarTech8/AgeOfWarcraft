@@ -17,4 +17,4 @@ import BuildingPreset
     // Techtree:
     ..presetUpgradesTo(UnitIdsCustom.guardTower, UnitIdsCustom.cannonTower, UnitIdsCustom.arcaneTower)
     // Text:
-    ..presetNameAndTooltips(true, "ScoutTower", "Basic defence structure.")
+    ..presetNameAndTooltips(true, "Scout Tower", "Basic defence structure.")

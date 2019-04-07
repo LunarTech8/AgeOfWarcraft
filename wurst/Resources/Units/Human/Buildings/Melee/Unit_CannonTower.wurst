@@ -15,4 +15,4 @@ import BuildingPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Text:
-    ..presetNameAndTooltips(true, "CannonTower", "Advanced defence structure.")
+    ..presetNameAndTooltips(true, "Cannon Tower", "Advanced defence structure.")

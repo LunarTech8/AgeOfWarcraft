@@ -1,0 +1,32 @@
+package Unit_Storehouse
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.storehouse, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("OMED")  // Altar of Storms, Barracks, ...
+    ..setIconGameInterface(Icons.bTNBox)
+    ..presetMaximumAngles(5., 5.)
+    ..setModelFile(ImportPaths.storehouse)
+    ..setScalingValue(1.2)
+    ..setSelectionScale(4.5)
+    // Pathing:
+    ..setCollisionSize(128.)
+    ..setPathingMap("PathTextures\\8x8SimpleSolid.tga")
+    // Sound:
+    ..setUnitSoundSet("")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    ..presetSightRadius(0, 0)
+    // Techtree:
+    ..presetUpgradesUsed()
+    // Text:
+    ..presetNameAndTooltips(true, "Storehouse", "")

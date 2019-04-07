@@ -15,10 +15,10 @@ import BuildingPreset
     ..setIconGameInterface(Icons.bTNDarkPortal)
     ..setModelFile(Buildings.darkPortal)
     ..setSelectionScale(10.)
+    ..setRequiredAnimationNames("alternate")
     ..setShadowTextureBuilding("ShadowPortalSW")
     // Pathing:
     ..setPathingMap("PathTextures\\DarkPortalSW.tga")
-    ..setRequiredAnimationNames("alternate")
     // Stats:
     ..setRace(Race.Critters)
     ..presetNoGoldAndLumber()

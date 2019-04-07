@@ -34,3 +34,11 @@ public class BuildingPreset extends BuildingDefinition
 		if buildingString != ""
 			buildingString = buildingString.substring(0, buildingString.length()-1)
 		this.setUpgradesTo(buildingString)
+
+	function presetUpgradesUsed(vararg int buildingIds)
+		var buildingString = ""
+		for buildingId in buildingIds
+			buildingString += buildingId.toRawCode() + ","
+		if buildingString != ""
+			buildingString = buildingString.substring(0, buildingString.length()-1)
+		this.setUpgradesUsed(buildingString)

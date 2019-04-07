@@ -13,4 +13,4 @@ import BuildingPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Text:
-    ..presetNameAndTooltips(true, "GryphonAviary", "Primary air unit training structure.")
+    ..presetNameAndTooltips(true, "Gryphon Aviary", "Primary air unit training structure.")

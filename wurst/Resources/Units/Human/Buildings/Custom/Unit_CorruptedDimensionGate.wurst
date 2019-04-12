@@ -14,8 +14,8 @@ import BuildingPreset
     ..setGroundTexture("DPSW")  // Dimensional Gate (facing southwest)
     ..setIconGameInterface(Icons.bTNDarkPortal)
     ..setModelFile(Buildings.darkPortal)
-    ..setSelectionScale(10.)
     ..setRequiredAnimationNames("work")
+    ..setSelectionScale(10.)
     ..setShadowTextureBuilding("ShadowPortalSW")
     // Pathing:
     ..setPathingMap("PathTextures\\DarkPortalSW.tga")

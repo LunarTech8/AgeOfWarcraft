@@ -64,6 +64,11 @@ public class UnitIdsCustom
 	static constant artisanHouseL3 = compiletime(UNIT_ID_GEN.next())
 	static constant storehouse = compiletime(UNIT_ID_GEN.next())
 	static constant lumbermill = compiletime(UNIT_ID_GEN.next())
+	static constant hunterHut = compiletime(UNIT_ID_GEN.next())
+	static constant quarryHut = compiletime(UNIT_ID_GEN.next())
+	static constant fisherHut = compiletime(UNIT_ID_GEN.next())
+	static constant foresterHut = compiletime(UNIT_ID_GEN.next())
+	static constant shepherdHut = compiletime(UNIT_ID_GEN.next())
 	//--------------
 	// Nature
 	//--------------
@@ -116,5 +121,6 @@ public abstract class ImportPaths
 	static constant artisanHouse = "Buildings\\CitizenHouse.mdl"
 	static constant storehouse = "Buildings\\TownCenter.mdl"
 	static constant lumbermill = "Buildings\\LumberMill.mdl"
+	static constant multiHut = "Buildings\\MultiHut.mdl"
 	// Effects:
 	static constant builderSymbol = "Effects\\BuilderSymbol.mdl"

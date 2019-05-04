@@ -10,97 +10,102 @@ This system contains all custom global constant data like ids, paths etc. stored
 Initial version.
 -------------------------------------------------------------*/
 package ConstantDataSystem
-import ObjectIdGenerator
+import ErrorHandling
+import Preloader
+import HashMap
 
 
 // --------------------
 // Data code
 // --------------------
 
+public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 62
+public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 6
+
 public class UnitIdsCustom
 	//--------------
 	// Human
 	//--------------
 	// Units:
-	static constant peasant = compiletime(UNIT_ID_GEN.next())
-	static constant footman = compiletime(UNIT_ID_GEN.next())
-	static constant knight = compiletime(UNIT_ID_GEN.next())
-	static constant rifleman = compiletime(UNIT_ID_GEN.next())
-	static constant mortarTeam = compiletime(UNIT_ID_GEN.next())
-	static constant flyingMachine = compiletime(UNIT_ID_GEN.next())
-	static constant gryphonRider = compiletime(UNIT_ID_GEN.next())
-	static constant priest = compiletime(UNIT_ID_GEN.next())
-	static constant sorceress = compiletime(UNIT_ID_GEN.next())
-	static constant siegeEngine = compiletime(UNIT_ID_GEN.next())
-	static constant spellBreaker = compiletime(UNIT_ID_GEN.next())
-	static constant dragonhawkRider = compiletime(UNIT_ID_GEN.next())
-	static constant elvenLady = compiletime(UNIT_ID_GEN.next())
-	static constant peasantGirl = compiletime(UNIT_ID_GEN.next())
+	static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(0))
+	static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(1))
+	static constant knight = compiletime(OFFSET_UNIT_ID_GEN.getId(2))
+	static constant rifleman = compiletime(OFFSET_UNIT_ID_GEN.getId(3))
+	static constant mortarTeam = compiletime(OFFSET_UNIT_ID_GEN.getId(4))
+	static constant flyingMachine = compiletime(OFFSET_UNIT_ID_GEN.getId(5))
+	static constant gryphonRider = compiletime(OFFSET_UNIT_ID_GEN.getId(6))
+	static constant priest = compiletime(OFFSET_UNIT_ID_GEN.getId(7))
+	static constant sorceress = compiletime(OFFSET_UNIT_ID_GEN.getId(8))
+	static constant siegeEngine = compiletime(OFFSET_UNIT_ID_GEN.getId(9))
+	static constant spellBreaker = compiletime(OFFSET_UNIT_ID_GEN.getId(10))
+	static constant dragonhawkRider = compiletime(OFFSET_UNIT_ID_GEN.getId(11))
+	static constant elvenLady = compiletime(OFFSET_UNIT_ID_GEN.getId(12))
+	static constant peasantGirl = compiletime(OFFSET_UNIT_ID_GEN.getId(13))
 	// Buildings:
-	static constant townHall = compiletime(UNIT_ID_GEN.next())
-	static constant keep = compiletime(UNIT_ID_GEN.next())
-	static constant castle = compiletime(UNIT_ID_GEN.next())
-	static constant farm = compiletime(UNIT_ID_GEN.next())
-	static constant altarOfKings = compiletime(UNIT_ID_GEN.next())
-	static constant barracks = compiletime(UNIT_ID_GEN.next())
-	static constant lumberMill = compiletime(UNIT_ID_GEN.next())
-	static constant blacksmith = compiletime(UNIT_ID_GEN.next())
-	static constant workshop = compiletime(UNIT_ID_GEN.next())
-	static constant arcaneSanctum = compiletime(UNIT_ID_GEN.next())
-	static constant gryphonAviary = compiletime(UNIT_ID_GEN.next())
-	static constant scoutTower = compiletime(UNIT_ID_GEN.next())
-	static constant guardTower = compiletime(UNIT_ID_GEN.next())
-	static constant cannonTower = compiletime(UNIT_ID_GEN.next())
-	static constant arcaneTower = compiletime(UNIT_ID_GEN.next())
-	static constant arcaneVault = compiletime(UNIT_ID_GEN.next())
-	static constant buildingGround = compiletime(UNIT_ID_GEN.next())
-	static constant dimensionGate = compiletime(UNIT_ID_GEN.next())
-	static constant corruptedDimensionGate = compiletime(UNIT_ID_GEN.next())
-	static constant peasantHouseL1 = compiletime(UNIT_ID_GEN.next())
-	static constant peasantHouseL2 = compiletime(UNIT_ID_GEN.next())
-	static constant peasantHouseL3 = compiletime(UNIT_ID_GEN.next())
-	static constant artisanHouseL1 = compiletime(UNIT_ID_GEN.next())
-	static constant artisanHouseL2 = compiletime(UNIT_ID_GEN.next())
-	static constant artisanHouseL3 = compiletime(UNIT_ID_GEN.next())
-	static constant storehouse = compiletime(UNIT_ID_GEN.next())
-	static constant lumbermill = compiletime(UNIT_ID_GEN.next())
-	static constant hunterHut = compiletime(UNIT_ID_GEN.next())
-	static constant quarryHut = compiletime(UNIT_ID_GEN.next())
-	static constant fisherHut = compiletime(UNIT_ID_GEN.next())
-	static constant foresterHut = compiletime(UNIT_ID_GEN.next())
-	static constant shepherdHut = compiletime(UNIT_ID_GEN.next())
+	static constant townHall = compiletime(OFFSET_UNIT_ID_GEN.getId(14))
+	static constant keep = compiletime(OFFSET_UNIT_ID_GEN.getId(15))
+	static constant castle = compiletime(OFFSET_UNIT_ID_GEN.getId(16))
+	static constant farm = compiletime(OFFSET_UNIT_ID_GEN.getId(17))
+	static constant altarOfKings = compiletime(OFFSET_UNIT_ID_GEN.getId(18))
+	static constant barracks = compiletime(OFFSET_UNIT_ID_GEN.getId(19))
+	static constant lumberMill = compiletime(OFFSET_UNIT_ID_GEN.getId(20))
+	static constant blacksmith = compiletime(OFFSET_UNIT_ID_GEN.getId(21))
+	static constant workshop = compiletime(OFFSET_UNIT_ID_GEN.getId(22))
+	static constant arcaneSanctum = compiletime(OFFSET_UNIT_ID_GEN.getId(23))
+	static constant gryphonAviary = compiletime(OFFSET_UNIT_ID_GEN.getId(24))
+	static constant scoutTower = compiletime(OFFSET_UNIT_ID_GEN.getId(25))
+	static constant guardTower = compiletime(OFFSET_UNIT_ID_GEN.getId(26))
+	static constant cannonTower = compiletime(OFFSET_UNIT_ID_GEN.getId(27))
+	static constant arcaneTower = compiletime(OFFSET_UNIT_ID_GEN.getId(28))
+	static constant arcaneVault = compiletime(OFFSET_UNIT_ID_GEN.getId(29))
+	static constant buildingGround = compiletime(OFFSET_UNIT_ID_GEN.getId(30))
+	static constant dimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(31))
+	static constant corruptedDimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(32))
+	static constant peasantHouseL1 = compiletime(OFFSET_UNIT_ID_GEN.getId(33))
+	static constant peasantHouseL2 = compiletime(OFFSET_UNIT_ID_GEN.getId(34))
+	static constant peasantHouseL3 = compiletime(OFFSET_UNIT_ID_GEN.getId(35))
+	static constant artisanHouseL1 = compiletime(OFFSET_UNIT_ID_GEN.getId(36))
+	static constant artisanHouseL2 = compiletime(OFFSET_UNIT_ID_GEN.getId(37))
+	static constant artisanHouseL3 = compiletime(OFFSET_UNIT_ID_GEN.getId(38))
+	static constant storehouse = compiletime(OFFSET_UNIT_ID_GEN.getId(39))
+	static constant lumbermill = compiletime(OFFSET_UNIT_ID_GEN.getId(40))
+	static constant hunterHut = compiletime(OFFSET_UNIT_ID_GEN.getId(41))
+	static constant quarryHut = compiletime(OFFSET_UNIT_ID_GEN.getId(42))
+	static constant fisherHut = compiletime(OFFSET_UNIT_ID_GEN.getId(43))
+	static constant foresterHut = compiletime(OFFSET_UNIT_ID_GEN.getId(44))
+	static constant shepherdHut = compiletime(OFFSET_UNIT_ID_GEN.getId(45))
 	//--------------
 	// Nature
 	//--------------
 	// Trees:
-	static constant beech = compiletime(UNIT_ID_GEN.next())
-	static constant beech_Var1 = compiletime(UNIT_ID_GEN.next())
-	static constant beech_Var2 = compiletime(UNIT_ID_GEN.next())
-	static constant beech_Var3 = compiletime(UNIT_ID_GEN.next())
-	static constant beech_Var4 = compiletime(UNIT_ID_GEN.next())
-	static constant birch = compiletime(UNIT_ID_GEN.next())
-	static constant birch_Var1 = compiletime(UNIT_ID_GEN.next())
-	static constant birch_Var2 = compiletime(UNIT_ID_GEN.next())
-	static constant birch_Var3 = compiletime(UNIT_ID_GEN.next())
-	static constant greyOak = compiletime(UNIT_ID_GEN.next())
-	static constant greyOak_Var1 = compiletime(UNIT_ID_GEN.next())
-	static constant greyOak_Var2 = compiletime(UNIT_ID_GEN.next())
-	static constant greyOak_Var3 = compiletime(UNIT_ID_GEN.next())
-	static constant greyOak_Var4 = compiletime(UNIT_ID_GEN.next())
-	static constant chestnut = compiletime(UNIT_ID_GEN.next())
-	static constant chestnut_Var1 = compiletime(UNIT_ID_GEN.next())
-	static constant chestnut_Var2 = compiletime(UNIT_ID_GEN.next())
+	static constant beech = compiletime(OFFSET_UNIT_ID_GEN.getId(46))
+	static constant beech_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(47))
+	static constant beech_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(48))
+	static constant beech_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(49))
+	static constant beech_Var4 = compiletime(OFFSET_UNIT_ID_GEN.getId(50))
+	static constant birch = compiletime(OFFSET_UNIT_ID_GEN.getId(51))
+	static constant birch_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(52))
+	static constant birch_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(53))
+	static constant birch_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(54))
+	static constant greyOak = compiletime(OFFSET_UNIT_ID_GEN.getId(55))
+	static constant greyOak_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(56))
+	static constant greyOak_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(57))
+	static constant greyOak_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(58))
+	static constant greyOak_Var4 = compiletime(OFFSET_UNIT_ID_GEN.getId(59))
+	static constant chestnut = compiletime(OFFSET_UNIT_ID_GEN.getId(60))
+	static constant chestnut_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(61))
+	static constant chestnut_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(62))
 
 public abstract class AbilityIdsCustom
-	static constant showTargetInfo = compiletime(ABIL_ID_GEN.next())
-	static constant harvest = compiletime(ABIL_ID_GEN.next())
-	static constant build = compiletime(ABIL_ID_GEN.next())
-	static constant transferWares = compiletime(ABIL_ID_GEN.next())
-	static constant addBuildingBuff = compiletime(ABIL_ID_GEN.next())
+	static constant showTargetInfo = compiletime(OFFSET_ABIL_ID_GEN.getId(0))
+	static constant harvest = compiletime(OFFSET_ABIL_ID_GEN.getId(1))
+	static constant build = compiletime(OFFSET_ABIL_ID_GEN.getId(2))
+	static constant transferWares = compiletime(OFFSET_ABIL_ID_GEN.getId(3))
+	static constant addBuildingBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(4))
 
 public abstract class BuffIdsCustom
-	static constant emptyBuff = compiletime(ABIL_ID_GEN.next())
-	static constant building = compiletime(ABIL_ID_GEN.next())
+	static constant emptyBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(5))
+	static constant building = compiletime(OFFSET_ABIL_ID_GEN.getId(6))
 
 public abstract class ImportPaths
 	// Trees:
@@ -124,3 +129,64 @@ public abstract class ImportPaths
 	static constant multiHut = "Buildings\\MultiHut.mdl"
 	// Effects:
 	static constant builderSymbol = "Effects\\BuilderSymbol.mdl"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public class OffsetIdGenerator
+	private HashMap<int, boolean> usedIdsMap = new HashMap<int, boolean>
+	private int i1
+	private int i2
+	private int i3
+	private int i4
+
+	construct(int start)
+		i1 = start mod 256
+		i2 = (start mod 65536) div 256
+		i3 = (start mod 16777216) div 65536
+		i4 = start div 16777216
+
+	function isInvalid(int char) returns boolean
+		return (char < 48 or (char > 57 and char < 97))
+
+	function getId(int offset) returns int
+		var j1 = i1
+		var j2 = i2
+		var j3 = i3
+		var j4 = i4
+		for i = 0 to offset - 1
+			if j1 < '~'
+				j1++
+				while isInvalid(j1)
+					j1++
+			else if j2 < '~'
+				j1 = '!'
+				j2++
+				while isInvalid(j2)
+					j2++
+			else if j3 < '~'
+				j1 = '!'
+				j2 = '!'
+				j3++
+				while isInvalid(j3)
+					j3++
+			else if j4 < '~'
+				j1 = '!'
+				j2 = '!'
+				j3 = '!'
+				j4++
+				while isInvalid(j4)
+					j4++
+			else
+				error("No vaild id left")
+				return 0
+		let id = j1 + (j2 * 256) + (j3 * 65536) + (j4 * 16777216)
+		if usedIdsMap.has(id) and usedIdsMap.get(id) == true
+			error("Id " + id.toString() + " is already used (offset " + offset.toString() + ")")
+			return 0
+		usedIdsMap.put(id, true)
+		if not compiletime
+			preloadAbility(id)
+		return id

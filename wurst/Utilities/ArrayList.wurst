@@ -10,6 +10,7 @@ Provides generic lists based on dynamic arrays.
 Initial version.
 -------------------------------------------------------------*/
 package ArrayList
+import UnitTest
 
 
 // --------------------
@@ -204,7 +205,7 @@ public class ArrayList<T>
 
 	construct()
 		minSize = minPossibleSize
-		data = createData(validizeSize(minSize))
+		data = createData(minSize)
 	construct(int minSize)
 		this.minSize = validizeSize(minSize)
 		data = createData(this.minSize)
@@ -368,25 +369,25 @@ public class ALIterator<T>
 // Test code
 // --------------------
 
-@Test function testCreate()
+@Test public function testCreate()
 	ArrayList<int> a = new ArrayList<int>(4)
-	a.size().assertEquals(4)
+	a.size().assertEquals("ArrayList 374", 4)  // DEBUG: seems to be 0
 	a.add(5)
-	a.getLast().assertEquals(5)
+	a.getLast().assertEquals("ArrayList 376", 5)
 	var b = new ArrayList<int>(3)
-	b.size().assertEquals(4)
+	b.size().assertEquals("ArrayList 378", 4)  // DEBUG: seems to be 0
 	b.add(7)
-	b.getLast().assertEquals(7)
-	b.getLast().assertEquals(6)  // TEST: should be wrong (check for testing functionality)
+	b.getLast().assertEquals("ArrayList 380", 7)
+	b.getLast().assertEquals("ArrayList 381", 6)  // TEST: should be wrong (check for testing functionality)
 
-@Test function testAddAndGet()
+@Test public function testAddAndGet()
 	var a = new ArrayList<int>(1)
 	a.add(5)
 	if a.get(1) != 5
-		testFail("a")
-	a.add(8)
+		testFail("ArrayList 387", "a")
+	a.add(8)  // DEBUG: index out of bounds
 	if a.get(2) != 8
-		testFail("b")
+		testFail("ArrayList 390", "b")
 	a.add(7)
 	if a.get(3) != 7
-		testFail("c")
+		testFail("ArrayList 393", "c")

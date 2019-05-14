@@ -1,0 +1,27 @@
+package Command_UnitTests
+import ArrayList
+
+
+// --------------------
+// Data code
+// --------------------
+
+let USER_PLAYER = Player(0)
+let COMMAND = "unit test"
+let COMMAND_SHORT = "ut"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+function executeCommand()
+	// ArrayList:
+	testCreate()
+	testAddAndGet()
+
+init
+	CreateTrigger()
+	..addAction(function executeCommand)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)

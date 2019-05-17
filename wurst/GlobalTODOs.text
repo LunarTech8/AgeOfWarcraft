@@ -27,7 +27,7 @@ Work status:
 !!- Orders like stop, move, smart, etc. should probably be nulled/removed after they are carried out (maybe add cyclic check functionality)
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
-!- Get unit tests to work -> Maybe reinstall wurst or write to Frotty
+!- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
 !- Clean up Dataset in ObjectInfoSystem (only private properties)

@@ -22,6 +22,11 @@ public function testSuccess(string position)
 public function testFail(string position, string msg)
 	print("[" + position + "] " + msg)
 
+public function testDebug(string position, string msg)
+	print("[" + position + "] " + msg)
+public function testDebug(string position, int msg)
+	testDebug(position, msg.toString())
+
 /**
  * Asserts that two ints are equal. If they are not, an error is thrown with a message.
  */

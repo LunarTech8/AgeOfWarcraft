@@ -17,8 +17,9 @@ let COMMAND_SHORT = "ut"
 
 function executeCommand()
 	// ArrayList:
-	testCreate()
-	testAddAndGet()
+	testArrayList_CreateAndSize()
+	testArrayList_AddAndRemove()
+	testArrayList_Resizing()
 
 init
 	CreateTrigger()

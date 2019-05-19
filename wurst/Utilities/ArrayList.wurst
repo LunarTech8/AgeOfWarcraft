@@ -85,7 +85,7 @@ class ArrayListSize2<T> extends ArrayListBase implements IArrayList<T>
 		for i = 0 to usedSlots - 1
 			if data[i] == elem
 				return i
-		return 0
+		return -1
 
 /* Generic ArrayList data class with fixed specific array size */
 class ArrayListSize4<T> extends ArrayListBase implements IArrayList<T>
@@ -130,7 +130,7 @@ class ArrayListSize4<T> extends ArrayListBase implements IArrayList<T>
 		for i = 0 to usedSlots - 1
 			if data[i] == elem
 				return i
-		return 0
+		return -1
 
 /* Generic ArrayList data class with fixed specific array size */
 class ArrayListSize8<T> extends ArrayListBase implements IArrayList<T>
@@ -175,7 +175,7 @@ class ArrayListSize8<T> extends ArrayListBase implements IArrayList<T>
 		for i = 0 to usedSlots - 1
 			if data[i] == elem
 				return i
-		return 0
+		return -1
 
 /* Generic ArrayList data class with fixed specific array size */
 class ArrayListSize16<T> extends ArrayListBase implements IArrayList<T>
@@ -220,7 +220,7 @@ class ArrayListSize16<T> extends ArrayListBase implements IArrayList<T>
 		for i = 0 to usedSlots - 1
 			if data[i] == elem
 				return i
-		return 0
+		return -1
 
 /* Generic ArrayList data class with fixed specific array size */
 class ArrayListSize32<T> extends ArrayListBase implements IArrayList<T>
@@ -265,12 +265,371 @@ class ArrayListSize32<T> extends ArrayListBase implements IArrayList<T>
 		for i = 0 to usedSlots - 1
 			if data[i] == elem
 				return i
-		return 0
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize64<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 64
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize128<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 128
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize256<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 256
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize512<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 512
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize1024<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 1024
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize2048<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 2048
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize4096<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 4096
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
+/* Generic ArrayList data class with fixed specific array size */
+class ArrayListSize8192<T> extends ArrayListBase implements IArrayList<T>
+	private let maxSize = 8192
+	private T array[maxSize] data
+
+	override function getMaxSize() returns int
+		return maxSize
+
+	override function getUsedSlots() returns int
+		return usedSlots
+
+	override function getElem(int index) returns T
+		checkSlot(index)
+		return data[index]
+
+	override function setElem(int index, T elem)
+		checkSlot(index)
+		data[index] = elem
+
+	override function add(T elem)
+		usedSlots++
+		checkSize(maxSize)
+		data[usedSlots - 1] = elem
+
+	override function add(int index, T elem)
+		usedSlots++
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = usedSlots - 1 downto index + 1
+			data[i] = data[i - 1]
+		data[index] = elem
+
+	override function remove(int index)
+		usedSlots--
+		checkSize(maxSize)
+		checkSlot(index)
+		for i = index to usedSlots - 1
+			data[i] = data[i + 1]
+
+	override function getIndex(T elem) returns int
+		for i = 0 to usedSlots - 1
+			if data[i] == elem
+				return i
+		return -1
 
 /** A generic list based on dynamically sized arrays. */
 public class ArrayList<T>
 	private let minPossibleSize = 2
-	private let maxPossibleSize = 32
+	private let maxPossibleSize = 8192
 	private constant int minSize  // User defined min size for this instance
 	private IArrayList<T> data
 
@@ -296,6 +655,22 @@ public class ArrayList<T>
 				return new ArrayListSize16<T>()
 			case 32
 				return new ArrayListSize32<T>()
+			case 64
+				return new ArrayListSize64<T>()
+			case 128
+				return new ArrayListSize128<T>()
+			case 256
+				return new ArrayListSize256<T>()
+			case 512
+				return new ArrayListSize512<T>()
+			case 1024
+				return new ArrayListSize1024<T>()
+			case 2048
+				return new ArrayListSize2048<T>()
+			case 4096
+				return new ArrayListSize4096<T>()
+			case 8192
+				return new ArrayListSize8192<T>()
 		return null
 
 	private function validizeSize(int newSize) returns int
@@ -329,6 +704,10 @@ public class ArrayList<T>
 		destroy data
 		data = newData
 
+	/* Get the current max size of the list. Only for testing/debugging. */
+	protected function maxSize() returns int
+		return data.getMaxSize()
+
 	/** Get the current size of the list. */
 	function size() returns int
 		return data.getUsedSlots()
@@ -339,10 +718,22 @@ public class ArrayList<T>
 
 	/** Return whether the element exists in the list. */
 	function has(T elem) returns bool
-		return data.getIndex(elem) != 0
+		return data.getIndex(elem) >= 0
 
 	/** Set an existing element at the given position to a new value. */
 	function set(int index, T elem)
+		data.setElem(index, elem)
+
+	/** Set an existing element at the given position to a new value. Resizes with empty elements if necessary. */
+	function setWithResize(int index, T elem)
+		var requiredSlots = index - (data.getUsedSlots() - 1)
+		if requiredSlots > 0
+			// Resize if index is bigger than the current max array size:
+			if index > data.getMaxSize() - 1
+				resize(index + 1)
+			// Add empty elements:
+			for i = 0 to requiredSlots - 1
+				data.add(null)
 		data.setElem(index, elem)
 
 	/** Get the element at the given index from this list. */
@@ -365,15 +756,17 @@ public class ArrayList<T>
 	function peek() returns T
 		return getLast()
 
-	/** Add elements to the end of the list. */
+	/** Adds the given elements to the end of the list. */
 	function add(vararg T elems)
-		var maxSize = data.getMaxSize()
+		// Evaluate new size:
+		var newSize = data.getUsedSlots()
+		for _elem in elems
+			newSize += 1
+		// Resize if new size is bigger than the current max array size:
+		if newSize > data.getMaxSize()
+			resize(newSize)
+		// Add new elements:
 		for elem in elems
-			// Resize if used slots already occupy the current max array size:
-			if data.getUsedSlots() >= maxSize
-				resize(maxSize + 1)
-				maxSize = data.getMaxSize()
-			// Add new element:
 			data.add(elem)
 	/** Adds the given element directly at the given index shifting the following elements towards the back. */
 	function add(T elem, int index)
@@ -384,22 +777,25 @@ public class ArrayList<T>
 		// Add new element:
 		data.add(index, elem)
 
-	/** Remove the first occurence of the element from this list. */
-	function remove(T elem)
-		remove(data.getIndex(elem))
+	/** Remove the first occurences of the given elements from this list. */
+	function remove(vararg T elems)
+		for elem in elems
+			// Remove target element:
+			data.remove(data.getIndex(elem))
+		// Resize if used slots now would fit into array of smaller validized size:
+		resize(data.getUsedSlots())
+
 	/** Remove the element at the given index. */
-	function remove(int index)
+	function removeByIndex(int index)
 		// Remove target element:
 		data.remove(index)
 		// Resize if used slots now would fit into array of smaller validized size:
-		let newUsedSlots = data.getUsedSlots()
-		if validizeSize(newUsedSlots) < data.getMaxSize()
-			resize(newUsedSlots)
+		resize(data.getUsedSlots())
 
 	/** Replaces the first occurence of 'whichElement' with 'newElement'. */
 	function replace(T whichElement, T newElement) returns boolean
 		let index = data.getIndex(whichElement)
-		if index == 0
+		if index < 0
 			return false
 		data.setElem(index, newElement)
 		return true
@@ -442,27 +838,101 @@ public class ALIterator<T>
 // Test code
 // --------------------
 
-@Test public function testCreate()
+@Test public function testArrayList_CreateAndSize()
+	let testName = "testArrayList_CreateAndSize"
+	// Create new list and check sizes:
 	ArrayList<int> a = new ArrayList<int>(4)
-	a.size().assertEquals("ArrayList testCreate 1", 0)
+	a.maxSize().assertEquals(testName, 4)
+	a.size().assertEquals(testName, 0)
+	a.has(5).assertFalse(testName)
+	// Add entry and check sizes:
 	a.add(5)
-	a.size().assertEquals("ArrayList testCreate 2", 1)
-	a.getLast().assertEquals("ArrayList testCreate 3", 5)
-	var b = new ArrayList<int>(3)
-	b.size().assertEquals("ArrayList testCreate 4", 0)
+	a.maxSize().assertEquals(testName, 4)
+	a.size().assertEquals(testName, 1)
+	a.has(5).assertTrue(testName)
+	a.getLast().assertEquals(testName, 5)
+	// Create another list and check sizes:
+	var b = new ArrayList<int>(5)
+	b.maxSize().assertEquals(testName, 8)
+	b.size().assertEquals(testName, 0)
+	// Add entry and check sizes:
 	b.add(7)
-	b.size().assertEquals("ArrayList testCreate 5", 1)
-	b.getLast().assertEquals("ArrayList testCreate 6", 7)
-	b.getLast().assertEquals("ArrayList testCreate 7", 6)  // TEST: should be wrong (check for testing functionality)
+	b.size().assertEquals(testName, 1)
+	b.getFirst().assertEquals(testName, 7)
+	b.getLast().assertEquals(testName, 7)
+	b.peek().assertEquals(testName, 7)
+	testDebug(useTestName(testName), "Following test has to fail for working testing functionality")
+	b.getLast().assertEquals(testName, 6)  // TEST: should be wrong (check for working testing functionality)
 
-@Test public function testAddAndGet()
-	var a = new ArrayList<int>(1)
+@Test public function testArrayList_AddAndRemove()
+	let testName = "testArrayList_AddAndRemove"
+	string usedTestName
+	// Create and check empty list:
+	var a = new ArrayList<int>(4)
+	usedTestName = useTestName(testName)
+	if a.isEmpty() != true
+		testFail(usedTestName, "Test failed")
+	// Add entry and check content:
 	a.add(5)
+	if a.isEmpty() != false
+		testFail(usedTestName, "Test failed")
+	usedTestName = useTestName(testName)
 	if a.get(0) != 5
-		testFail("ArrayList testAddAndGet 1", "a")
+		testFail(usedTestName, "Test failed")
+	// Add another entry and check content:
 	a.add(8)
+	usedTestName = useTestName(testName)
 	if a.get(1) != 8
-		testFail("ArrayList testAddAndGet 2", "b")
+		testFail(usedTestName, "Test failed")
+	// Add another entry and check content:
 	a.add(7)
+	usedTestName = useTestName(testName)
 	if a.get(2) != 7
-		testFail("ArrayList testAddAndGet 3", "c")
+		testFail(usedTestName, "Test failed")
+	// Remove by index and check content:
+	a.removeByIndex(1)
+	usedTestName = useTestName(testName)
+	if a.get(1) != 7
+		testFail(usedTestName, "Test failed")
+	// Add and remove duplicate entry and check content:
+	a.add(5)
+	a.remove(5)
+	usedTestName = useTestName(testName)
+	if a.get(1) != 5
+		testFail(usedTestName, "Test failed")
+	// Replace entry and check content:
+	a.replace(5, 3)
+	if a.get(1) != 3
+		testFail(usedTestName, "Test failed")
+	// Set entry and check content:
+	a.set(0, 4)
+	usedTestName = useTestName(testName)
+	if a.get(0) != 4
+		testFail(usedTestName, "Test failed")
+
+@Test public function testArrayList_Resizing()
+	let testName = "testArrayList_Resizing"
+	// Create and check dynamic list:
+	var a = new ArrayList<int>()
+	a.maxSize().assertEquals(testName, 2)
+	a.size().assertEquals(testName, 0)
+	// Add entries and check max size:
+	a.add(1)
+	a.isEmpty().assertFalse(testName)
+	a.add(2)
+	a.maxSize().assertEquals(testName, 2)
+	a.add(3)
+	a.maxSize().assertEquals(testName, 4)
+	a.add(4)
+	a.add(5)
+	a.maxSize().assertEquals(testName, 8)
+	a.getFirst().assertEquals(testName, 1)
+	a.getLast().assertEquals(testName, 5)
+	// Remove entry and check sizes:
+	a.remove(2)
+	a.maxSize().assertEquals(testName, 4)
+	a.size().assertEquals(testName, 4)
+	// Clear entries and check sizes:
+	a.clear()
+	a.maxSize().assertEquals(testName, 2)
+	a.size().assertEquals(testName, 0)

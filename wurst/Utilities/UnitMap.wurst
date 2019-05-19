@@ -63,72 +63,76 @@ public class UnitHashMap<T> implements UnitMap<T>
 		else
 			return null
 
-public class UnitIndexMap<T> implements UnitMap<T>
-	protected constant int minSize = 16
-	protected let map = new ArrayList<T>(minSize)
+public class UnitDynamicIndexMap<T> implements UnitMap<T>
+	protected constant ArrayList<T> values  // Uses ArrayList as a dynamically growing array where unused slots are null
 
 	construct()
-		map[0] = null  // Null first slot for unindexed units
+		values = new ArrayList<T>()
+	construct(int minSize)
+		values = new ArrayList<T>(minSize)
 
 	override function has(unit key) returns bool
-		return map[key.getIndex()] != null  // Unindexed keys will use first nulled slot
+		let index = key.getIndex()  // Unindexed keys will have index 0
+		return index != 0 and values.size() - 1 >= index and values.get(index) != null
 
 	override function get(unit key) returns T
-		return map[key.toUnitIndex() castTo int]  // Indexes key if necessary so that an error is thrown if unmapped
+		return values.get(key.toUnitIndex() castTo int)  // Indexes key if necessary so that an error is thrown if unmapped
 
 	/** Returns null if given key isn't mapped instead of throwing an error. */
 	override function tryGet(unit key) returns T
-		return map[key.getIndex()]  // Will return null if key isn't indexed
+		let index = key.getIndex()  // Unindexed keys will have index 0
+		if index == 0 or values.size() - 1 < index
+			return null
+		return values.get(index)
 
 	override function put(unit key, T value)
-		map[key.toUnitIndex() castTo int] = value  // Automatically indexes key if previously unmapped
+		values.setWithResize(key.toUnitIndex() castTo int, value)  // Automatically indexes key if previously unmapped
 
 	override function remove(unit key)
-		map[key.toUnitIndex() castTo int] = null  // Indexes key if necessary so that an error is thrown if unmapped
+		values.set(key.toUnitIndex() castTo int, null)  // Indexes key if necessary so that an error is thrown if unmapped
+
+	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+	override function tryRemove(unit key) returns T
+		let index = key.getIndex()  // Unindexed keys will have index 0
+		if index != 0 and values.size() - 1 >= index
+			let value = values.get(index)
+			values.set(index, null)
+			return value
+		else
+			return null
+
+public class UnitFixedIndexMap<T> implements UnitMap<T>
+	protected let size = 8192
+	protected T array[size] values
+
+	construct()
+		values[0] = null  // Null first slot for unindexed units
+
+	override function has(unit key) returns bool
+		return values[key.getIndex()] != null  // Unindexed keys will use first nulled slot
+
+	override function get(unit key) returns T
+		return values[key.toUnitIndex() castTo int]  // Indexes key if necessary so that an error is thrown if unmapped
+
+	/** Returns null if given key isn't mapped instead of throwing an error. */
+	override function tryGet(unit key) returns T
+		return values[key.getIndex()]  // Will return null if key isn't indexed
+
+	override function put(unit key, T value)
+		values[key.toUnitIndex() castTo int] = value  // Automatically indexes key if previously unmapped
+
+	override function remove(unit key)
+		values[key.toUnitIndex() castTo int] = null  // Indexes key if necessary so that an error is thrown if unmapped
 
 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
 	override function tryRemove(unit key) returns T
 		let index = key.getIndex()
 		if index != 0
-			let value = map[index]
-			map[index] = null
+			let value = values[index]
+			values[index] = null
 			return value
 		else
 			return null
-
-// TODO: backup version with fixed array
-// public class UnitIndexMap<T> implements UnitMap<T>
-// 	protected constant int size = 8191  // TODO: allow different/dynamic sizes like in ArrayList, max should still be 8191
-// 	protected T array[size] map  // TODO: probably use dynamic ArrayList instead
-
-// 	construct()
-// 		map[0] = null  // Null first slot for unindexed units
-
-// 	override function has(unit key) returns bool
-// 		return map[key.getIndex()] != null  // Unindexed keys will use first nulled slot
-
-// 	override function get(unit key) returns T
-// 		return map[key.toUnitIndex() castTo int]  // Indexes key if necessary so that an error is thrown if unmapped
-
-// 	/** Returns null if given key isn't mapped instead of throwing an error. */
-// 	override function tryGet(unit key) returns T
-// 		return map[key.getIndex()]  // Will return null if key isn't indexed
-
-// 	override function put(unit key, T value)
-// 		map[key.toUnitIndex() castTo int] = value  // Automatically indexes key if previously unmapped
-
-// 	override function remove(unit key)
-// 		map[key.toUnitIndex() castTo int] = null  // Indexes key if necessary so that an error is thrown if unmapped
-
-// 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
-// 	override function tryRemove(unit key) returns T
-// 		let index = key.getIndex()
-// 		if index != 0
-// 			let value = map[index]
-// 			map[index] = null
-// 			return value
-// 		else
-// 			return null
 
 public class IterableUnitHashMap<T> extends UnitHashMap<T>
 	protected let keys = new HashList<unit>

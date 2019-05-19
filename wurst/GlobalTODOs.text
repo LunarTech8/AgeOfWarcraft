@@ -19,8 +19,10 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Make a general unit to class hash map system with corresponding utility functions (maybe use unit indexer instead of hash map as option)
-	>>- Add an iterable version
+!!>>- Make a general unit to class hash map system with corresponding utility functions
+	>- Add an iterable version for indexed maps
+	- Use different implementations of UnitMap wherever reasonable
+!!>>- Replace lists with ArrayList wherever reasonable
 
 !>- Add a priority and maxWorker count to resources
 

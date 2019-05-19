@@ -26,7 +26,7 @@ function slot2.toArraySlot(int sizeX) returns int
 	return this.x + sizeX * this.y
 
 public class Array2D<T>
-	private let size = 8190  // TODO: allow different sizes like in ArrayList
+	private let size = 8192  // TODO: allow different sizes like in ArrayList
 	private T array[size] data
 	private constant int sizeX
 	private constant int sizeY
@@ -39,7 +39,7 @@ public class Array2D<T>
 
 	function sizeX() returns int
 		return sizeX
-	
+
 	function sizeY() returns int
 		return sizeY
 

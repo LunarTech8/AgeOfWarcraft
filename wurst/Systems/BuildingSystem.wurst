@@ -17,7 +17,6 @@ import InstantDummyCaster
 import OnUnitEnterLeave
 import ClosureTimers
 import LinkedList
-import HashMap
 import Icons
 import ConstantDataSystem
 import MultiboardPrioritySystem
@@ -75,8 +74,8 @@ function getBuildingScaling(int buildingUnitId) returns real
 // Functional code
 // --------------------
 
-let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>
-let WORKER_MAP = new UnitHashMap<BuildingSite>
+let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(16)
+let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(64)
 
 class BuildingSite extends Stock
 	private real fullHP

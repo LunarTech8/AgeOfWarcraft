@@ -71,6 +71,13 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 	construct(int minSize)
 		values = new ArrayList<T>(minSize)
 
+	ondestroy
+		destroy values
+
+	/** Returns an iterator that iterates over the map's values. */
+	function iterator() returns ALIterator<T>
+		return values.iterator()
+
 	override function has(unit key) returns bool
 		let index = key.getIndex()  // Unindexed keys will have index 0
 		return index != 0 and values.size() - 1 >= index and values.get(index) != null
@@ -89,7 +96,7 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 		values.setWithResize(key.toUnitIndex() castTo int, value)  // Automatically indexes key if previously unmapped
 
 	override function remove(unit key)
-		values.set(key.toUnitIndex() castTo int, null)  // Indexes key if necessary so that an error is thrown if unmapped
+		values.set(key.toUnitIndex() castTo int, null)  // Automatically indexes key if previously unmapped
 
 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
 	override function tryRemove(unit key) returns T
@@ -122,7 +129,7 @@ public class UnitFixedIndexMap<T> implements UnitMap<T>
 		values[key.toUnitIndex() castTo int] = value  // Automatically indexes key if previously unmapped
 
 	override function remove(unit key)
-		values[key.toUnitIndex() castTo int] = null  // Indexes key if necessary so that an error is thrown if unmapped
+		values[key.toUnitIndex() castTo int] = null  // Automatically indexes key if previously unmapped
 
 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
 	override function tryRemove(unit key) returns T
@@ -169,34 +176,44 @@ public class IterableUnitHashMap<T> extends UnitHashMap<T>
 		else
 			return null
 
-// public class IterableUnitIndexMap<T> extends UnitIndexMap<T>
-// 	protected unit array[size] keys  // TODO: probably use dynamic ArrayList instead
+public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
+	protected constant ArrayList<unit> keys
 
-// 	/** Returns an iterator that iterates over the map's keys. */
-// 	function iterator() returns ALIterator<unit>
-// 		return keys.iterator()
+	construct()
+		super()
+		keys = new ArrayList<unit>()
+	construct(int minSize)
+		super(minSize)
+		keys = new ArrayList<unit>(minSize)
 
-// 	/** Returns the length of this iterable map. */
-// 	function size() returns int
-// 		return size
+	ondestroy
+		destroy keys
 
-// 	/** Saves the given value under the given key. */
-// 	override function put(unit key, T value)
-// 		super.put(key, value)
-// 		keys[key.toUnitIndex() castTo int] = key
+	/** Returns an iterator that iterates over the map's keys. */
+	function iterator() returns ALIterator<unit>
+		return keys.iterator()
 
-// 	/** Removes the key-value pair saved under the given key. */
-// 	override function remove(unit key)
-// 		super.remove(key)
-// 		keys[key.toUnitIndex() castTo int] = null
+	/** Returns the length of this iterable map. */
+	function size() returns int
+		return keys.size()
 
-// 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
-// 	override function tryRemove(unit key) returns T
-// 		let index = key.getIndex()
-// 		if index != 0
-// 			let value = super.get(key)
-// 			super.remove(key)
-// 			keys[key.toUnitIndex() castTo int] = null
-// 			return value
-// 		else
-// 			return null
+	/** Saves the given value under the given key. */
+	override function put(unit key, T value)
+		super.put(key, value)
+		keys.setWithResize(key.toUnitIndex() castTo int, key)  // Automatically indexes key if previously unmapped
+
+	/** Removes the key-value pair saved under the given key. */
+	override function remove(unit key)
+		super.remove(key)
+		keys.set(key.toUnitIndex() castTo int, null)  // Automatically indexes key if previously unmapped
+
+	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+	override function tryRemove(unit key) returns T
+		let index = key.getIndex()  // Unindexed keys will have index 0
+		if index != 0
+			let value = super.get(key)
+			super.remove(key)
+			keys.set(index, null)
+			return value
+		else
+			return null

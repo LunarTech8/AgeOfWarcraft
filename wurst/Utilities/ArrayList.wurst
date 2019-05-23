@@ -810,7 +810,7 @@ public class ArrayList<T>
 		return new ALIterator(this)
 
 /** Iterator class for ArrayList. */
-public class ALIterator<T>
+public class ALIterator<T>  // TODO: write unit tests
 	protected int i = 0
 	protected ArrayList<T> list
 

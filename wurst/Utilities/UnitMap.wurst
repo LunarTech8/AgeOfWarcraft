@@ -74,10 +74,6 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 	ondestroy
 		destroy values
 
-	/** Returns an iterator that iterates over the map's values. */
-	function iterator() returns ALIterator<T>
-		return values.iterator()
-
 	override function has(unit key) returns bool
 		let index = key.getIndex()  // Unindexed keys will have index 0
 		return index != 0 and values.size() - 1 >= index and values.get(index) != null
@@ -191,7 +187,7 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 
 	/** Returns an iterator that iterates over the map's keys. */
 	function iterator() returns ALIterator<unit>
-		return keys.iterator()
+		return keys.iteratorIgnoreEmpty()
 
 	/** Returns the length of this iterable map. */
 	function size() returns int

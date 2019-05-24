@@ -807,17 +807,23 @@ public class ArrayList<T>
 
 	/** Get an iterator for this list. */
 	function iterator() returns ALIterator<T>
-		return new ALIterator(this)
+		return new ALIterator(this, false)
+
+	/** Get an iterator for this list that ignores empty null entries. */
+	function iteratorIgnoreEmpty() returns ALIterator<T>
+		return new ALIterator(this, true)
 
 /** Iterator class for ArrayList. */
-public class ALIterator<T>  // TODO: write unit tests
+public class ALIterator<T>
 	protected int i = 0
 	protected ArrayList<T> list
+	protected bool ignoreEmpty
 
-	construct(ArrayList<T> list)
+	construct(ArrayList<T> list, bool ignoreEmpty)
 		this.list = list
+		this.ignoreEmpty = ignoreEmpty
 
-	function hasNext() returns boolean
+	function hasNext() returns bool
 		return i < list.size()
 
 	function lookahead() returns T
@@ -828,7 +834,13 @@ public class ALIterator<T>  // TODO: write unit tests
 
 	function next() returns T
 		i++
-		return list.get(i - 1)
+		let nextValue = list.get(i - 1)
+		if ignoreEmpty
+			let size = list.size()
+			// Skip empty null entries:
+			while i < size and list.get(i) == null
+				i++
+		return nextValue
 
 	function close()
 		destroy this
@@ -936,3 +948,40 @@ public class ALIterator<T>  // TODO: write unit tests
 	a.clear()
 	a.maxSize().assertEquals(testName, 2)
 	a.size().assertEquals(testName, 0)
+
+@Test public function testArrayList_Iterating()
+	let testName = "testArrayList_Iterating"
+	// Create and fill list:
+	var a = new ArrayList<int>(8)
+	a.add(1, 2, 3, 4, 5, 6, 7)
+	a.get(4).assertEquals(testName, 5)
+	// Iterate through list and check:
+	int i = 1
+	for value in a
+		value.assertEquals(testName, i)
+		i++
+	// Iterate through iterator and check:
+	i = 1
+	var iteratorA = a.iterator()
+	for value from iteratorA
+		value.assertEquals(testName, i)
+		i++
+	iteratorA.close()
+	// Step through iterator and check:
+	iteratorA = a.iterator()
+	iteratorA.next().assertEquals(testName, 1)
+	iteratorA.lookahead().assertEquals(testName, 2)
+	iteratorA.next().assertEquals(testName, 2)
+	iteratorA.next().assertEquals(testName, 3)
+	iteratorA.lookahead().assertEquals(testName, 4)
+	iteratorA.close()
+	// Step through iterator with empty null entries and check:
+	var b = new ArrayList<string>(8)
+	b.add("a", "b", null, "d", null, null, "g", null)
+	var iteratorB = b.iteratorIgnoreEmpty()
+	iteratorB.next().assertEquals(testName, "a")
+	iteratorB.next().assertEquals(testName, "b")
+	iteratorB.next().assertEquals(testName, "d")
+	iteratorB.next().assertEquals(testName, "g")
+	iteratorB.hasNext().assertFalse(testName)
+	iteratorB.close()

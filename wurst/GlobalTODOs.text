@@ -39,6 +39,7 @@ Work status:
 !- Create a WeatherSystem
 !- Maybe use the 0.0.0 (Major.Minor.Patch) version system for the packages
 !- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
+!- replace every boolean with bool and integer with int in custom code
 
 
 // -------------

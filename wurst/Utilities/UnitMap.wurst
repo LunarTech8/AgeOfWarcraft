@@ -89,7 +89,7 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 		return values.get(index)
 
 	override function put(unit key, T value)
-		values.setWithResize(key.toUnitIndex() castTo int, value)  // Automatically indexes key if previously unmapped
+		values.setWithResize(key.toUnitIndex() castTo int, value, null)  // Automatically indexes key if previously unmapped
 
 	override function remove(unit key)
 		values.set(key.toUnitIndex() castTo int, null)  // Automatically indexes key if previously unmapped
@@ -187,7 +187,7 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 
 	/** Returns an iterator that iterates over the map's keys. */
 	function iterator() returns ALIterator<unit>
-		return keys.iteratorIgnoreEmpty()
+		return keys.iteratorIgnoreNull(null)
 
 	/** Returns the length of this iterable map. */
 	function size() returns int
@@ -196,7 +196,7 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
 		super.put(key, value)
-		keys.setWithResize(key.toUnitIndex() castTo int, key)  // Automatically indexes key if previously unmapped
+		keys.setWithResize(key.toUnitIndex() castTo int, key, null)  // Automatically indexes key if previously unmapped
 
 	/** Removes the key-value pair saved under the given key. */
 	override function remove(unit key)

@@ -21,6 +21,7 @@ function executeCommand()
 	testArrayList_AddAndRemove()
 	testArrayList_Resizing()
 	testArrayList_Iterating()
+	testArrayList_SetWithResize()
 
 init
 	CreateTrigger()

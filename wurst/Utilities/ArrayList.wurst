@@ -720,22 +720,6 @@ public class ArrayList<T>
 	function has(T elem) returns bool
 		return data.getIndex(elem) >= 0
 
-	/** Set an existing element at the given position to a new value. */
-	function set(int index, T elem)
-		data.setElem(index, elem)
-
-	/** Set an existing element at the given position to a new value. Resizes with empty elements if necessary. */
-	function setWithResize(int index, T elem)
-		var requiredSlots = index - (data.getUsedSlots() - 1)
-		if requiredSlots > 0
-			// Resize if index is bigger than the current max array size:
-			if index > data.getMaxSize() - 1
-				resize(index + 1)
-			// Add empty elements:
-			for i = 0 to requiredSlots - 1
-				data.add(null)
-		data.setElem(index, elem)
-
 	/** Get the element at the given index from this list. */
 	function get(int index) returns T
 		return data.getElem(index)
@@ -755,6 +739,22 @@ public class ArrayList<T>
 	/** Equal to getLast function (available for compability). */
 	function peek() returns T
 		return getLast()
+
+	/** Set an existing element at the given position to a new value. */
+	function set(int index, T elem)
+		data.setElem(index, elem)
+
+	/** Set an existing element at the given position to a new value. Resizes with given null elements if necessary. */
+	function setWithResize(int index, T elem, T nullElem)
+		var requiredSlots = index - (data.getUsedSlots() - 1)
+		if requiredSlots > 0
+			// Resize if index is bigger than the current max array size:
+			if index > data.getMaxSize() - 1
+				resize(index + 1)
+			// Add null elements:
+			for i = 0 to requiredSlots - 1
+				data.add(nullElem)
+		data.setElem(index, elem)
 
 	/** Adds the given elements to the end of the list. */
 	function add(vararg T elems)
@@ -807,21 +807,26 @@ public class ArrayList<T>
 
 	/** Get an iterator for this list. */
 	function iterator() returns ALIterator<T>
-		return new ALIterator(this, false)
+		return new ALIterator(this)
 
-	/** Get an iterator for this list that ignores empty null entries. */
-	function iteratorIgnoreEmpty() returns ALIterator<T>
-		return new ALIterator(this, true)
+	/** Get an iterator for this list that ignores given null elements. */
+	function iteratorIgnoreNull(T nullElem) returns ALIterator<T>
+		return new ALIterator(this, nullElem)
 
 /** Iterator class for ArrayList. */
 public class ALIterator<T>
 	protected int i = 0
 	protected ArrayList<T> list
-	protected bool ignoreEmpty
+	protected T nullElem
+	protected bool ignoreNull
 
-	construct(ArrayList<T> list, bool ignoreEmpty)
+	construct(ArrayList<T> list)
 		this.list = list
-		this.ignoreEmpty = ignoreEmpty
+		ignoreNull = false
+	construct(ArrayList<T> list, T nullElem)
+		this.list = list
+		this.nullElem = nullElem
+		ignoreNull = true
 
 	function hasNext() returns bool
 		return i < list.size()
@@ -835,10 +840,10 @@ public class ALIterator<T>
 	function next() returns T
 		i++
 		let nextValue = list.get(i - 1)
-		if ignoreEmpty
+		if ignoreNull
 			let size = list.size()
-			// Skip empty null entries:
-			while i < size and list.get(i) == null
+			// Skip null entries:
+			while i < size and list.get(i) == nullElem
 				i++
 		return nextValue
 
@@ -975,13 +980,43 @@ public class ALIterator<T>
 	iteratorA.next().assertEquals(testName, 3)
 	iteratorA.lookahead().assertEquals(testName, 4)
 	iteratorA.close()
-	// Step through iterator with empty null entries and check:
+	// Step through string iterator with null entries and check:
 	var b = new ArrayList<string>(8)
 	b.add("a", "b", null, "d", null, null, "g", null)
-	var iteratorB = b.iteratorIgnoreEmpty()
+	b.get(1).assertEquals(testName, "b")
+	b.get(2).assertEquals(testName, null)
+	b.get(3).assertEquals(testName, "d")
+	var iteratorB = b.iteratorIgnoreNull(null)
 	iteratorB.next().assertEquals(testName, "a")
 	iteratorB.next().assertEquals(testName, "b")
 	iteratorB.next().assertEquals(testName, "d")
 	iteratorB.next().assertEquals(testName, "g")
 	iteratorB.hasNext().assertFalse(testName)
 	iteratorB.close()
+	// Step through int iterator with null entries and check:
+	var c = new ArrayList<int>(8)
+	c.add(1, 0, 3, 4, 0, 0, 7)
+	c.get(0).assertEquals(testName, 1)
+	c.get(1).assertEquals(testName, 0)
+	c.get(2).assertEquals(testName, 3)
+	var iteratorC = c.iteratorIgnoreNull(0)
+	iteratorC.next().assertEquals(testName, 1)
+	iteratorC.next().assertEquals(testName, 3)
+	iteratorC.next().assertEquals(testName, 4)
+	iteratorC.hasNext().assertTrue(testName)
+	iteratorC.next().assertEquals(testName, 7)
+	iteratorC.hasNext().assertFalse(testName)
+	iteratorC.close()
+
+@Test public function testArrayList_SetWithResize()
+	let testName = "testArrayList_SetWithResize"
+	// Set element with resize and check:
+	var a = new ArrayList<int>(4)
+	a.add(1, 2, 3)
+	a.setWithResize(6, 7, 0)
+	a.get(0).assertEquals(testName, 1)
+	a.get(2).assertEquals(testName, 3)
+	a.get(3).assertEquals(testName, 0)
+	a.get(4).assertEquals(testName, 0)
+	a.get(6).assertEquals(testName, 7)
+	a.size().assertEquals(testName, 7)

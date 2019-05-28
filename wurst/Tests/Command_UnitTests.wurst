@@ -1,5 +1,6 @@
 package Command_UnitTests
 import ArrayList
+import UnitMap
 
 
 // --------------------
@@ -22,6 +23,8 @@ function executeCommand()
 	testArrayList_Resizing()
 	testArrayList_Iterating()
 	testArrayList_SetWithResize()
+	// UnitMap:
+	testUnitDynamicIndexMap_AddAndRemove()
 
 init
 	CreateTrigger()

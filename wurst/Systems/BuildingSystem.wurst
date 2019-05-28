@@ -74,8 +74,9 @@ function getBuildingScaling(int buildingUnitId) returns real
 // Functional code
 // --------------------
 
-let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(16)
-let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(64)
+let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>()
+// let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(null, 16)
+let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, 64)
 
 class BuildingSite extends Stock
 	private real fullHP

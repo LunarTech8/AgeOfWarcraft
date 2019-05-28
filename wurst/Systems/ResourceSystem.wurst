@@ -86,7 +86,7 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 // Functional code
 // --------------------
 
-let RESOURCE_MAP = new UnitDynamicIndexMap<Resource>(256)
+let RESOURCE_MAP = new UnitDynamicIndexMap<Resource>(null, 256)
 
 class Resource extends Stock
 	private bool isKilledWhenDepleted

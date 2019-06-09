@@ -14,7 +14,6 @@ Initial version.
 package BuildingSystem
 import RegisterEvents
 import InstantDummyCaster
-import OnUnitEnterLeave
 import ClosureTimers
 import LinkedList
 import Icons
@@ -26,6 +25,7 @@ import StorageSystem
 import Unit_TownHall
 import OrderSystem
 import UnitMap
+import UnitIndexer
 
 
 // --------------------
@@ -74,9 +74,10 @@ function getBuildingScaling(int buildingUnitId) returns real
 // Functional code
 // --------------------
 
-let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>()
-// let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(null, 16)
-let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, 64)
+// let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>()
+let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(null, 16)
+let WORKER_MAP = new UnitHashMap<BuildingSite>()
+// let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, 64)
 
 class BuildingSite extends Stock
 	private real fullHP
@@ -205,9 +206,9 @@ function unit.addBuildingSite()
 			buildingSite.callOverIdleWareCarriers()
 
 function unit.removeBuildingSite()
-	if BUILDING_SITE_MAP.has(this)
-		destroy BUILDING_SITE_MAP.get(this)
-		BUILDING_SITE_MAP.remove(this)
+	let buildingSite = BUILDING_SITE_MAP.tryRemove(this)
+	if buildingSite != null
+		destroy buildingSite
 
 /** If worker is building stop him. */
 function unit.stopBuilding()
@@ -283,8 +284,8 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 
 init
 	// Remove resource from every appropriate removed unit:
-	onLeave() ->
-		getEnterLeaveUnit().removeBuildingSite()
+	onUnitDeindex() ->
+		getIndexingUnit().removeBuildingSite()
 	// Adjust progress of all building sites:
 	let finishedBuildings = CreateGroup()
 	doPeriodically(BUILDING_ADJUSTMENT_RATE) cb ->

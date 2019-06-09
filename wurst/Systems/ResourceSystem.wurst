@@ -18,6 +18,7 @@ import UtilityFunctions
 import Stock
 import StorageSystem
 import UnitMap
+import UnitIndexer
 
 
 // --------------------
@@ -158,6 +159,10 @@ public function unit.findNextResource() returns unit
 public function unit.getResource() returns Resource
 	return RESOURCE_MAP.tryGet(this)
 
+/** Returns the count of all resources. */
+public function getResourceCount() returns int
+	return RESOURCE_MAP.getValueCount()
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
 	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
@@ -171,5 +176,5 @@ init
 	onEnter() ->
 		getEnterLeaveUnit().addResource()
 	// Remove resource from every appropriate removed unit:
-	onLeave() ->
-		getEnterLeaveUnit().removeResource()
+	onUnitDeindex() ->
+		getIndexingUnit().removeResource()

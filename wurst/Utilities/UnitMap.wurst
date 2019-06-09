@@ -31,28 +31,33 @@ public interface UnitMap<T>
 	function remove(unit key)
 	function tryRemove(unit key) returns T
 
+/** Uses hash table entries (via HashMap) to map units to the given values. */
 public class UnitHashMap<T> implements UnitMap<T>
 	protected let map = new HashMap<unit, T>
 
 	ondestroy
 		destroy map
 
+	/** Checks if the given key is mapped. */
 	override function has(unit key) returns bool
 		return map.has(key)
 
+	/** Returns the value of given key. */
 	override function get(unit key) returns T
 		return map.get(key)
 
-	/** Returns null if given key isn't mapped instead of throwing an error. */
+	/** Returns the value of given key. Instead of throwing an error returns the null element if given key isn't mapped. */
 	override function tryGet(unit key) returns T
 		if map.has(key)
 			return map.get(key)
 		else
 			return null
 
+	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
 		map.put(key, value)
 
+	/** Removes the key-value pair saved under the given key. */
 	override function remove(unit key)
 		map.remove(key)
 
@@ -65,6 +70,8 @@ public class UnitHashMap<T> implements UnitMap<T>
 		else
 			return null
 
+/** Uses unit user data (via UnitIndexer) to quickly map units to the given values. Size of used value array is dynamically adjusted.
+Use "onUnitDeindex" instead of "onLeave" for value removal of this map (because otherwise the units index might already be 0). */
 public class UnitDynamicIndexMap<T> implements UnitMap<T>
 	protected constant ArrayList<T> values  // Uses ArrayList as a dynamically growing array where unused slots are set to the null element
 	protected constant T nullElem  // Is required because some types (like int) can't be null
@@ -83,23 +90,27 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 	ondestroy
 		destroy values
 
+	/** Checks if the given key is mapped. */
 	override function has(unit key) returns bool
 		let index = key.getIndex()  // Unindexed keys will have index 0
 		return index != 0 and values.size() - 1 >= index and values.get(index) != nullElem
 
+	/** Returns the value of given key. */
 	override function get(unit key) returns T
 		return values.get(key.toUnitIndex() castTo int)  // Indexes key if necessary so that an error is thrown if unmapped
 
-	/** Returns the null element if given key isn't mapped instead of throwing an error. */
+	/** Returns the value of given key. Instead of throwing an error returns the null element if given key isn't mapped. */
 	override function tryGet(unit key) returns T
 		let index = key.getIndex()  // Unindexed keys will have index 0
 		if index == 0 or values.size() - 1 < index
 			return nullElem
 		return values.get(index)
 
+	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
 		values.setWithResize(key.toUnitIndex() castTo int, value, nullElem)  // Automatically indexes key if previously unmapped
 
+	/** Removes the key-value pair saved under the given key. */
 	override function remove(unit key)
 		values.set(key.toUnitIndex() castTo int, nullElem)  // Automatically indexes key if previously unmapped
 
@@ -113,6 +124,17 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 		else
 			return nullElem
 
+	/** Returns the count of all non null value elements. */
+	function getValueCount() returns int
+		var counter = 0
+		let iterator = values.iteratorIgnoreNull(nullElem)
+		for T _elem from iterator
+			counter += 1
+		iterator.close()
+		return counter
+
+/** Uses unit user data (via UnitIndexer) to quickly map units to the given values. Size of used value array is fixed to 8192.
+Use "onUnitDeindex" instead of "onLeave" for value removal of this map (because otherwise the units index might already be 0). */
 public class UnitFixedIndexMap<T> implements UnitMap<T>
 	protected let size = 8192
 	protected T array[size] values
@@ -120,19 +142,23 @@ public class UnitFixedIndexMap<T> implements UnitMap<T>
 	construct()
 		values[0] = null  // Null first slot for unindexed units
 
+	/** Checks if the given key is mapped. */
 	override function has(unit key) returns bool
 		return values[key.getIndex()] != null  // Unindexed keys will use first nulled slot
 
+	/** Returns the value of given key. */
 	override function get(unit key) returns T
 		return values[key.toUnitIndex() castTo int]  // Indexes key if necessary so that an error is thrown if unmapped
 
-	/** Returns null if given key isn't mapped instead of throwing an error. */
+	/** Returns the value of given key. Instead of throwing an error returns the null element if given key isn't mapped. */
 	override function tryGet(unit key) returns T
 		return values[key.getIndex()]  // Will return null if key isn't indexed
 
+	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
 		values[key.toUnitIndex() castTo int] = value  // Automatically indexes key if previously unmapped
 
+	/** Removes the key-value pair saved under the given key. */
 	override function remove(unit key)
 		values[key.toUnitIndex() castTo int] = null  // Automatically indexes key if previously unmapped
 
@@ -146,19 +172,13 @@ public class UnitFixedIndexMap<T> implements UnitMap<T>
 		else
 			return null
 
+/** Uses hash table entries (via HashMap) to map units to the given values.
+Map can be iterated over its keys. */
 public class IterableUnitHashMap<T> extends UnitHashMap<T>
 	protected let keys = new HashList<unit>
 
 	ondestroy
 		destroy keys
-
-	/** Returns an iterator that iterates over the map's keys. */
-	function iterator() returns HLIterator<unit>
-		return keys.iterator()
-
-	/** Returns the length of this iterable map. */
-	function size() returns int
-		return keys.size()
 
 	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
@@ -181,6 +201,17 @@ public class IterableUnitHashMap<T> extends UnitHashMap<T>
 		else
 			return null
 
+	/** Returns an iterator that iterates over the map's keys. */
+	function iterator() returns HLIterator<unit>
+		return keys.iterator()
+
+	/** Returns the length of this iterable map. */
+	function size() returns int
+		return keys.size()
+
+/** Uses unit user data (via UnitIndexer) to quickly map units to the given values. Size of used value array is dynamically adjusted.
+Map can be iterated over its keys.
+Use "onUnitDeindex" instead of "onLeave" for value removal of this map (because otherwise the units index might already be 0). */
 public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 	protected constant ArrayList<unit> keys
 
@@ -195,14 +226,6 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 
 	ondestroy
 		destroy keys
-
-	/** Returns an iterator that iterates over the map's keys. */
-	function iterator() returns ALIterator<unit>
-		return keys.iteratorIgnoreNull(null)
-
-	/** Returns the length of this iterable map. */
-	function size() returns int
-		return keys.size()
 
 	/** Saves the given value under the given key. */
 	override function put(unit key, T value)
@@ -224,6 +247,14 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 			return value
 		else
 			return null
+
+	/** Returns an iterator that iterates over the map's keys. */
+	function iterator() returns ALIterator<unit>
+		return keys.iteratorIgnoreNull(null)
+
+	/** Returns the length of this iterable map. */
+	function size() returns int
+		return keys.size()
 
 
 // --------------------

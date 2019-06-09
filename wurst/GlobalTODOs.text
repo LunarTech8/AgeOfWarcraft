@@ -19,9 +19,8 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Make a general unit to class hash map system with corresponding utility functions
-	>- Fix bug with BUILDING_SITE_MAP using IterableUnitDynamicIndexMap
-	>>>- Fix bug with RESOURCE_MAP and BUILDING_SITE_MAP using UnitDynamicIndexMap (new buildings are also resources after resources have been killed)
+!!>>- Make a general unit to class map system with corresponding utility functions
+	>- Fix bug with BUILDING_SITE_MAP using IterableUnitDynamicIndexMap (index out of bound)
 !!>>- Use different implementations of UnitMap wherever reasonable
 !!>>- Replace lists with ArrayList wherever reasonable
 

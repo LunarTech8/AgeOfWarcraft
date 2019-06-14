@@ -23,6 +23,8 @@ public function useTestName(string testName) returns string
 	var testNameCounter = 1
 	if TEST_NAME_MAP.has(testName)
 		testNameCounter = TEST_NAME_MAP.get(testName) + 1
+	else
+		print("[Start test for: " + testName + "]")
 	TEST_NAME_MAP.put(testName, testNameCounter)
 	return testName + " " + testNameCounter.toString()
 

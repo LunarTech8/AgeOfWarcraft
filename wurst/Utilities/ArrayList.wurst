@@ -827,6 +827,10 @@ public class ALIterator<T>
 		this.list = list
 		this.nullElem = nullElem
 		ignoreNull = true
+		let size = list.size()
+		// Skip null entries:
+		while i < size and list.get(i) == nullElem
+			i++
 
 	function hasNext() returns bool
 		return i < list.size()
@@ -838,14 +842,17 @@ public class ALIterator<T>
 		return retVal
 
 	function next() returns T
+		// Get next element:
 		i++
 		let nextValue = list.get(i - 1)
 		if ignoreNull
-			let size = list.size()
 			// Skip null entries:
+			let size = list.size()
 			while i < size and list.get(i) == nullElem
 				i++
 		return nextValue
+
+	function remove()
 
 	function close()
 		destroy this
@@ -981,11 +988,11 @@ public class ALIterator<T>
 	iteratorA.lookahead().assertEquals(testName, 4)
 	iteratorA.close()
 	// Step through string iterator with null entries and check:
-	var b = new ArrayList<string>(8)
-	b.add("a", "b", null, "d", null, null, "g", null)
-	b.get(1).assertEquals(testName, "b")
-	b.get(2).assertEquals(testName, null)
-	b.get(3).assertEquals(testName, "d")
+	var b = new ArrayList<string>(9)
+	b.add(null, "a", "b", null, "d", null, null, "g", null)
+	b.get(2).assertEquals(testName, "b")
+	b.get(3).assertEquals(testName, null)
+	b.get(4).assertEquals(testName, "d")
 	var iteratorB = b.iteratorIgnoreNull(null)
 	iteratorB.next().assertEquals(testName, "a")
 	iteratorB.next().assertEquals(testName, "b")

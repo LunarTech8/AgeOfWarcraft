@@ -293,7 +293,14 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 	b.put(unitB, 2)
 	b.put(unitC, 3)
 	b.get(unitC).assertEquals(testName, 3)
+	// Destroy class objects:
+	testDebug(testName, "destroy start")
+	destroy a
+	destroy b
+	testDebug(testName, "destroy end")
 	// Remove test units:
+	testDebug(testName, "remove start")
 	RemoveUnit(unitA)
 	RemoveUnit(unitB)
 	RemoveUnit(unitC)
+	testDebug(testName, "remove end")

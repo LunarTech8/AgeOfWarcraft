@@ -255,10 +255,7 @@ public function unit.findNextBuildingSite() returns unit
 
 /** Returns the building site of given unit. */
 public function unit.getBuildingSite() returns BuildingSite
-	if BUILDING_SITE_MAP.has(this)
-		return BUILDING_SITE_MAP.get(this)
-	else
-		return null
+	return BUILDING_SITE_MAP.tryGet(this)
 
 /** Returns the building site of given worker. */
 public function unit.getBuildingSiteOfWorker() returns BuildingSite

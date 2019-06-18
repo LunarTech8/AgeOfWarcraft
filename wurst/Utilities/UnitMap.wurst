@@ -240,7 +240,7 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
 	override function tryRemove(unit key) returns T
 		let index = key.getIndex()  // Unindexed keys will have index 0
-		if index != 0
+		if index != 0 and keys.size() - 1 >= index
 			let value = super.get(key)
 			super.remove(key)
 			keys.set(index, null)
@@ -293,14 +293,13 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 	b.put(unitB, 2)
 	b.put(unitC, 3)
 	b.get(unitC).assertEquals(testName, 3)
-	// Destroy class objects:
-	testDebug(testName, "destroy start")
-	destroy a
-	destroy b
-	testDebug(testName, "destroy end")
+	b.remove(unitB)
+	let unitD = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
 	// Remove test units:
-	testDebug(testName, "remove start")
 	RemoveUnit(unitA)
 	RemoveUnit(unitB)
 	RemoveUnit(unitC)
-	testDebug(testName, "remove end")
+	RemoveUnit(unitD)
+	// Destroy class objects:
+	destroy a
+	destroy b

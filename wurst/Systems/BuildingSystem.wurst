@@ -26,7 +26,6 @@ import Unit_TownHall
 import OrderSystem
 import UnitMap
 import UnitIndexer
-import UnitTest
 
 
 // --------------------
@@ -77,8 +76,8 @@ function getBuildingScaling(int buildingUnitId) returns real
 
 // let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>()
 let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(null, 256)
-let WORKER_MAP = new UnitHashMap<BuildingSite>()
-// let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, 256)
+// let WORKER_MAP = new UnitHashMap<BuildingSite>()
+let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, 256)
 
 class BuildingSite extends Stock
 	private real fullHP
@@ -201,7 +200,6 @@ function unit.addBuildingSite()
 		buildingGround.setMaxHP(max(1, (fullHP * BUILDING_START_HP_PERCENTAGE).toInt()))
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
-		testDebug(useTestName("BuildingSystem_addBuildingSite"), buildingGround.getName() + " added with index " + buildingGround.getIndex().toString())
 		if buildingSite.hasWares() == false
 			buildingSite.callOverIdleWorkers(null)
 		else
@@ -289,12 +287,10 @@ init
 	let finishedBuildings = CreateGroup()
 	doPeriodically(BUILDING_ADJUSTMENT_RATE) cb ->
 		for building in BUILDING_SITE_MAP
-			testDebug(useTestName("BuildingSystem_init"), building.getName() + " adjusted with index " + building.getIndex().toString())
 			if building != null and BUILDING_SITE_MAP.get(building).adjustProgress()
 				finishedBuildings.addUnit(building)
 		// Remove finished building sites:
 		for building from finishedBuildings
-			testDebug(useTestName("BuildingSystem_init"), building.getName() + " removed")
 			building.removeBuildingSite()
 	// Register construction starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_START) ->

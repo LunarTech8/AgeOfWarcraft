@@ -3,6 +3,7 @@
 // -------------
 
 Task priority:
+"!!!!-" = Blocker
 "!!!-" = Critical
 "!!-" = Major
 "!-" = Minor
@@ -24,9 +25,12 @@ Work status:
 
 !>- Add a priority and maxWorker count to resources
 
-!!- Orders like stop, move, smart, etc. should probably be nulled/removed after they are carried out (maybe add cyclic check functionality)
+!!!- Orders like stop, move, smart, etc. should probably be nulled/removed after they are carried out (maybe add cyclic check functionality)
+!!- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
+!!- Add colours to unit test messages to be able to fastly see errors vs info text
+!!- Tidy up all TODOs to GlobalTODOs or fix them
 !- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
@@ -37,7 +41,8 @@ Work status:
 !- Create a WeatherSystem
 !- Maybe use the 0.0.0 (Major.Minor.Patch) version system for the packages
 !- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
-!- replace every boolean with bool and integer with int in custom code
+!- Replace every boolean with bool and integer with int in custom code
+!- Maybe change growth factor of ArrayList from 2 to 1.5 with min size of 8 to reduce wasted memory
 
 
 // -------------

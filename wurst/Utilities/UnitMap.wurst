@@ -82,9 +82,9 @@ public class UnitDynamicIndexMap<T> implements UnitMap<T>
 	construct(T nullElem, int minSize)
 		values = new ArrayList<T>(minSize)
 		this.nullElem = nullElem
-	private construct()  // Needed because IterableUnitDynamicIndexMap can't pass null element in super call
+	private construct()  // Needed because generic variables can't be passed in super call
 		values = new ArrayList<T>()
-	private construct(int minSize)  // Needed because IterableUnitDynamicIndexMap can't pass null element in super call
+	private construct(int minSize)  // Needed because generic variables can't be passed in super call
 		values = new ArrayList<T>(minSize)
 
 	ondestroy
@@ -217,11 +217,11 @@ public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
 
 	construct(T nullElem)
 		super()
-		this.nullElem = nullElem  // Needed because null element can't be passed in super call
+		this.nullElem = nullElem  // Needed because generic variables can't be passed in super call
 		keys = new ArrayList<unit>()
 	construct(T nullElem, int minSize)
 		super(minSize)
-		this.nullElem = nullElem  // Needed because null element can't be passed in super call
+		this.nullElem = nullElem  // Needed because generic variables can't be passed in super call
 		keys = new ArrayList<unit>(minSize)
 
 	ondestroy

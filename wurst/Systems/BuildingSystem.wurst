@@ -15,7 +15,6 @@ package BuildingSystem
 import RegisterEvents
 import InstantDummyCaster
 import ClosureTimers
-import LinkedList
 import Icons
 import ConstantDataSystem
 import MultiboardPrioritySystem
@@ -26,6 +25,7 @@ import Unit_TownHall
 import OrderSystem
 import UnitMap
 import UnitIndexer
+import ArrayList
 
 
 // --------------------
@@ -41,8 +41,8 @@ let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
 let WORKERS_ICON_PATH = Icons.bTNBash
 
-function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+function getRequiredWares(int buildingUnitId) returns ArrayList<ware>
+	var wares = new ArrayList<ware>(2)
 	switch buildingUnitId
 		case UnitIdsCustom.farm
 			wares.add(ware(WareType.WOOD, 4))
@@ -84,7 +84,7 @@ class BuildingSite extends Stock
 	private real workPower
 	private int upgradeProgress
 
-	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
+	construct(unit building, real fullHP, ArrayList<ware> requiredWares)
 		super(requiredWares)
 		user = building
 		this.fullHP = fullHP
@@ -169,7 +169,7 @@ class BuildingSite extends Stock
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 
 	function transferWares(Storage source)
-		var leftRequiredWares = new LinkedList<ware>()
+		var leftRequiredWares = new ArrayList<ware>(STORAGE_MIN_WARE_TYPE_COUNT)
 		// Look through all required wares:
 		for i = 0 to getAmountOfWareTypes() - 1
 			var ware = getWare(i)
@@ -256,6 +256,14 @@ public function unit.getBuildingSite() returns BuildingSite
 /** Returns the building site of given worker. */
 public function unit.getBuildingSiteOfWorker() returns BuildingSite
 	return WORKER_MAP.tryGet(this)
+
+/** Returns the count of all building sites. */
+public function getBuildingSiteCount() returns int
+	return BUILDING_SITE_MAP.getValueCount()
+
+/** Returns the count of all workers. */
+public function getWorkerCount() returns int
+	return WORKER_MAP.getValueCount()
 
 /** Returns if the given worker type can work on given building type */
 public function int.isValidWorkerType(int workerUnitId) returns bool

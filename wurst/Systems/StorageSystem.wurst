@@ -11,18 +11,19 @@ Initial version.
 -------------------------------------------------------------*/
 package StorageSystem
 import OnUnitEnterLeave
-import LinkedList
 import Icons
 import ConstantDataSystem
 import MultiboardPrioritySystem
 import Stock
 import UnitMap
+import ArrayList
 
 
 // --------------------
 // Data code
 // --------------------
 
+public let STORAGE_MIN_WARE_TYPE_COUNT = 8
 let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
 
 function getMaxCapacity(int unitId) returns int
@@ -37,14 +38,14 @@ function getMaxCapacity(int unitId) returns int
 // Functional code
 // --------------------
 
-let STORAGE_MAP = new UnitHashMap<Storage>
+let STORAGE_MAP = new UnitDynamicIndexMap<Storage>(null, INIT_UNIT_INDEX_SIZE)
 
 public class Storage extends Stock
 	private int maxCapacity
 	private int usedCapacity
 
 	construct(unit storage, int maxCapacity)
-		super(new LinkedList<ware>())
+		super(new ArrayList<ware>(STORAGE_MIN_WARE_TYPE_COUNT))
 		user = storage
 		this.maxCapacity = maxCapacity
 		usedCapacity = 0
@@ -80,7 +81,7 @@ public class Storage extends Stock
 			// Return excess count:
 			return w.count
 
-	function addWares(LinkedList<ware> wares) returns int  // TODO: maybe have excess checked separately
+	function addWares(ArrayList<ware> wares) returns int  // TODO: maybe have excess checked separately
 		var excess = 0
 		// Add wares:
 		for iWare in wares

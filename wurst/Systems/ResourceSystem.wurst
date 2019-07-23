@@ -10,7 +10,6 @@ Gives predefined unit types resources wares that can be extracted by workers via
 Initial version.
 -------------------------------------------------------------*/
 package ResourceSystem
-import LinkedList
 import OnUnitEnterLeave
 import ConstantDataSystem
 import MultiboardPrioritySystem
@@ -19,6 +18,7 @@ import Stock
 import StorageSystem
 import UnitMap
 import UnitIndexer
+import ArrayList
 
 
 // --------------------
@@ -27,8 +27,8 @@ import UnitIndexer
 
 let MAX_AUTO_ORDER_RANGE = 1024.
 
-function getDefaultInitWares(int unitId) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+function getDefaultInitWares(int unitId) returns ArrayList<ware>
+	var wares = new ArrayList<ware>(1)
 	switch unitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
@@ -69,8 +69,8 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns
 		default
 			return 0.
 
-function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+function getWaresPerFinishedWork(int unitId) returns ArrayList<ware>
+	var wares = new ArrayList<ware>(1)
 	switch unitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.WOOD, 1))
@@ -87,13 +87,13 @@ function getWaresPerFinishedWork(int unitId) returns LinkedList<ware>
 // Functional code
 // --------------------
 
-let RESOURCE_MAP = new UnitDynamicIndexMap<Resource>(null, INIT_UNIT_INDEX_SIZE)
+let RESOURCE_MAP = new UnitHashMap<Resource>()
 
 class Resource extends Stock
 	private bool isKilledWhenDepleted
 	private real workProgress
 
-	construct(unit resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
+	construct(unit resource, bool isKilledWhenDepleted, ArrayList<ware> initWares)
 		super(initWares)
 		user = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
@@ -108,7 +108,7 @@ class Resource extends Stock
 			return false
 
 	/** Perform harvest and returns the harvested wares. */
-	function harvest(int workerUnitId) returns LinkedList<ware>
+	function harvest(int workerUnitId) returns ArrayList<ware>
 		let resourceUnitId = user.getUnitId()
 		// Work resource:
 		if work(getWorkProgressPerHarvest(workerUnitId, resourceUnitId))

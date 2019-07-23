@@ -70,6 +70,10 @@ public class UnitHashMap<T> implements UnitMap<T>
 		else
 			return null
 
+	/** Returns the count of all elements. */
+	function getValueCount() returns int
+		return map.size()
+
 /** Uses unit user data (via UnitIndexer) to quickly map units to the given values. Size of used value array is dynamically adjusted.
 Use "onUnitDeindex" instead of "onLeave" for value removal of this map (because otherwise the units index might already be 0). */
 public class UnitDynamicIndexMap<T> implements UnitMap<T>

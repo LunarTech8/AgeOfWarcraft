@@ -20,8 +20,7 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Use different implementations of UnitMap wherever reasonable
-!!>>- Replace lists with ArrayList wherever reasonable
+!!!>>>- Error: ArrayList <= 0 at removale of a Resource
 
 !>- Add a priority and maxWorker count to resources
 
@@ -32,7 +31,6 @@ Work status:
 !!- Add colours to unit test messages to be able to fastly see errors vs info text
 !!- Tidy up all TODOs to GlobalTODOs or fix them
 !- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
-!- Test and fix ArrayList so that it can be used in StorageSystem instead of LinkedList
 !- Implement different sizes for Array2D like in ArrayList
 !- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
@@ -52,6 +50,27 @@ Work status:
 !!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
 
 !!- Add settlements and homes and workplaces for people
+!- Main mechanics:
+	- Population management:
+		- Population growths on a percentage basis.
+		- Increased percentage by high happiness, food, commodities, etc.
+		- Reduction war, famine, reduction etc.
+		- Worker placement: Production vs. military vs. trader/logistics vs. explorer vs. science vs. aristocracy etc.
+		- Worker classes: How many in lower, middle, higher classes.
+	- Settlement management:
+		- Each settlement only has a limited amount of resources it can work (settlement range).
+		- Lots of settlements required to get all/more resources.
+		- Bigger settlements required for higher classes that allow for higher tier tech and wares.
+		- Bigger settlements are more defendable than smaller ones.
+		- Settlement gowth vs. settlement expansion: Which settlements to grow and in which specialization, in which direction to expande and how fast.
+	- Resource management:
+		- Resource exchange between settlements and military camps/outposts.
+		- Backpack carrier vs. wheelbarrow vs. carrier mule vs. chariot vs. ships (of different sizes and speeds) etc.
+		- Bigger settlements require more types and amount of resources that they can't all produce by their own.
+		- Bigger settlements require more logistic workers per settlement, bigger empires require more logistic workers because of longer routes.
+	- Military management:
+		- Soldiers are grouped in companies with a base camp or baracks for each that has to be supplied with food, ammunition, etc.
+		- Area control: Where to station how many companies.
 !- Refine prototype with generated elements on TemperateMap
 !- Add more ware types and resources
 !- Think about renaming ware to something different (item, good, commodity, article, product, ...)

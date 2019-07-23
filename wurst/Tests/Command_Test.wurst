@@ -1,6 +1,8 @@
 package Command_Test
 // import ConstantDataSystem
 import ResourceSystem
+import BuildingSystem
+import OrderSystem
 
 
 // --------------------
@@ -34,6 +36,10 @@ function executeCommand()
 	// print(AbilityIdsCustom.harvest + 0)
 	print("-------- Test " + testCounter.toString() + ":")
 	print("Current resources: " + getResourceCount().toString())
+	print("Current order sources: " + getOrderSourceCount().toString())
+	print("Current order targets: " + getOrderTargetCount().toString())
+	print("Current building sites: " + getBuildingSiteCount().toString())
+	print("Current workers: " + getWorkerCount().toString())
 
 init
 	CreateTrigger()

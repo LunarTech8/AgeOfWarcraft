@@ -11,8 +11,8 @@ Base class that should be extended into specialised classes.
 Initial version.
 -------------------------------------------------------------*/
 package Stock
-import LinkedList
 import Icons
+import ArrayList
 
 
 // --------------------
@@ -100,10 +100,10 @@ public function ware.changedCopy(WareType newWareType, int countChange) returns 
 	return ware(newWareType, this.count + countChange)
 
 public class Stock
-	protected LinkedList<ware> wares  // TODO: probably replace LinkedList with ArrayList with min size of 8 because the elements may change often but the overall size won't change that drastically
+	protected ArrayList<ware> wares
 	protected unit user
 
-	construct(LinkedList<ware> wares)
+	construct(ArrayList<ware> wares)
 		this.wares = wares
 
 	ondestroy
@@ -145,7 +145,7 @@ public class Stock
 		wares.add(w)
 
 	/** Add given wares to the stock. */
-	function addWares(LinkedList<ware> wares)
+	function addWares(ArrayList<ware> wares)
 		for iWare in wares
 			addWare(iWare)
 

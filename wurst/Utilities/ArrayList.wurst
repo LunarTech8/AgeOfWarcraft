@@ -36,7 +36,7 @@ class ArrayListBase<T>
 		if index > usedSlots - 1
 			Log.error("ERROR: Given index (" + index.toString() + ") is out of bounds (bigger than " + (usedSlots - 1).toString() + ")")
 		else if index < 0
-			Log.error("ERROR: Given index (" + index.toString() + ") has to be bigger than 0")
+			Log.error("ERROR: Given index (" + index.toString() + ") has to be bigger or equal to 0")
 
 	protected function checkSize(int size)
 		if usedSlots > size
@@ -795,8 +795,8 @@ public class ArrayList<T>
 
 	private function validizeSize(int newSize) returns int
 		// Check if newSize is between the general valid boundaries:
-		if newSize <= 0
-			Log.error("ERROR: Size of ArrayList has to be bigger than 0")
+		if newSize < 0
+			Log.error("ERROR: Size of ArrayList has to be bigger or equal to 0")
 		else if newSize > maxPossibleSize
 			Log.error("ERROR: Size of ArrayList can't be bigger than " + maxPossibleSize.toString())
 		// Evaluate min valid size:

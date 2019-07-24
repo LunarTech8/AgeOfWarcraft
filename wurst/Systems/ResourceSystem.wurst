@@ -27,9 +27,9 @@ import ArrayList
 
 let MAX_AUTO_ORDER_RANGE = 1024.
 
-function getDefaultInitWares(int unitId) returns ArrayList<ware>
+function getDefaultInitWares(int resourceUnitId) returns ArrayList<ware>
 	var wares = new ArrayList<ware>(1)
-	switch unitId
+	switch resourceUnitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
 		case UnitIdsCustom.birch
@@ -40,8 +40,8 @@ function getDefaultInitWares(int unitId) returns ArrayList<ware>
 			wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
 	return wares
 
-function isKilledWhenDepleted(int unitId) returns bool
-	switch unitId
+function isKilledWhenDepleted(int resourceUnitId) returns bool
+	switch resourceUnitId
 		case UnitIdsCustom.beech
 			return true
 		case UnitIdsCustom.birch
@@ -69,9 +69,9 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns
 		default
 			return 0.
 
-function getWaresPerFinishedWork(int unitId) returns ArrayList<ware>
+function getWaresPerFinishedWork(int resourceUnitId) returns ArrayList<ware>
 	var wares = new ArrayList<ware>(1)
-	switch unitId
+	switch resourceUnitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.WOOD, 1))
 		case UnitIdsCustom.birch
@@ -81,6 +81,19 @@ function getWaresPerFinishedWork(int unitId) returns ArrayList<ware>
 		case UnitIdsCustom.chestnut
 			wares.add(ware(WareType.WOOD, 1))
 	return wares
+
+/** Returns the harvest priority of given resource unit. Higher values mean a higher priority. */
+function getHarvestPriority(int resourceUnitId) returns int
+	switch resourceUnitId
+		case UnitIdsCustom.beech
+			return 2
+		case UnitIdsCustom.birch
+			return 1
+		case UnitIdsCustom.greyOak
+			return 3
+		case UnitIdsCustom.chestnut
+			return 2
+	return 0
 
 
 // --------------------
@@ -138,15 +151,20 @@ function unit.removeResource()
 	if resource != null
 		destroy resource
 
+var findNextResource_Priority = 0
 /** Returns next valid resource unit for the unit. */
 public function unit.findNextResource() returns unit
 	// Check if worker has enough free space:
 	if this.getStorage().getFreeCapacity() > 0
+		findNextResource_Priority = 0
 		var filter = Filter() ->
 			var conditionsFulfilled = false
-			let resource = GetFilterUnit().getResource()
-			// Only allow resources that have wares left:
-			if resource != null and resource.hasWares()
+			let filterUnit = GetFilterUnit()
+			let resource = filterUnit.getResource()
+			let priority = getHarvestPriority(filterUnit.getUnitId())
+			// Only allow resources that have wares left and a high enough priority:
+			if resource != null and resource.hasWares() and priority >= findNextResource_Priority
+				findNextResource_Priority = priority
 				conditionsFulfilled = true
 			return conditionsFulfilled
 		let target = this.getPos().getNearestUnit(MAX_AUTO_ORDER_RANGE, filter)

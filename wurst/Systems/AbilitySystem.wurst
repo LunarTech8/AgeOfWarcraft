@@ -219,12 +219,15 @@ init
 					target.getBuildingSite().addWorker(source)
 				case AbilityIdsCustom.harvest
 					// Perform harvest after ability is finished:
-					var orderAction = new OrderAction(AbilityData_Harvest.cooldown, () -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)) ->
+					let targetResource = target.getResource()
+					var orderAction = new OrderAction(AbilityData_Harvest.cooldown, () -> targetResource.removeWorker() and source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(true), true)) ->
 						if source.harvest(target)
 							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)  // Auto-recast on same target
 						else
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
+							targetResource.removeWorker()
+							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(true), true)  // Find and auto-recast on new target
 					source.setOrder(AbilityIdsCustom.harvest, target, orderAction)
+					targetResource.addWorker()
 		else if val != Validity.UNREGISTERED
 			source.reactOnInvalidAbility(abilityId, val)
 	// Register issued ability orders:
@@ -235,7 +238,9 @@ init
 			let target = GetOrderTargetUnit()
 			if target != null
 				// Override registered order in OrderSystem (works because through the dependency this function is called afterwards):
-				if target.getResource() != null
-					source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)))
+				let targetResource = target.getResource()
+				if targetResource != null
+					source.setOrder(issuedOrderId, target, new OrderAction(() -> targetResource.removeWorker() and source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(true), true)))
+					targetResource.addWorker()
 				if target.getBuildingSite() != null
 					source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true)))

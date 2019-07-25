@@ -19,6 +19,7 @@ import StorageSystem
 import UnitMap
 import UnitIndexer
 import ArrayList
+import UnitTest
 
 
 // --------------------
@@ -82,7 +83,7 @@ function getWaresPerFinishedWork(int resourceUnitId) returns ArrayList<ware>
 			wares.add(ware(WareType.WOOD, 1))
 	return wares
 
-/** Returns the harvest priority of given resource unit. Higher values mean a higher priority. */
+/** Returns the harvest priority of given resource unit type. Higher values mean a higher priority. */
 function getHarvestPriority(int resourceUnitId) returns int
 	switch resourceUnitId
 		case UnitIdsCustom.beech
@@ -95,6 +96,16 @@ function getHarvestPriority(int resourceUnitId) returns int
 			return 2
 	return 0
 
+/** Returns the maximum concurrent amount of workers allowed for of given resource unit type. */
+function getMaxWorkerCount(int resourceUnitId) returns int
+	switch resourceUnitId
+		case UnitIdsCustom.beech
+		case UnitIdsCustom.birch
+		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.chestnut
+			return 2
+	return 99
+
 
 // --------------------
 // Functional code
@@ -105,12 +116,14 @@ let RESOURCE_MAP = new UnitHashMap<Resource>()
 class Resource extends Stock
 	private bool isKilledWhenDepleted
 	private real workProgress
+	private int workerCount
 
 	construct(unit resource, bool isKilledWhenDepleted, ArrayList<ware> initWares)
 		super(initWares)
 		user = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
 		workProgress = 0.
+		workerCount = 0
 
 	private function work(real workProgress) returns bool
 		this.workProgress += workProgress
@@ -119,6 +132,9 @@ class Resource extends Stock
 			return true
 		else
 			return false
+
+	function getFreeWorkerSlots() returns int
+		return getMaxWorkerCount(user.getUnitId()) - workerCount
 
 	/** Perform harvest and returns the harvested wares. */
 	function harvest(int workerUnitId) returns ArrayList<ware>
@@ -129,6 +145,23 @@ class Resource extends Stock
 			return getWaresPerFinishedWork(resourceUnitId)
 		// No wares harvested yet:
 		return null
+
+	function addWorker() returns bool
+		if workerCount < getMaxWorkerCount(user.getUnitId())
+			workerCount += 1
+			testDebug(useTestName("Resource_addWorker"), "Added worker: " + workerCount.toString())
+			return true
+		else
+			testDebug(useTestName("Resource_addWorker"), "Can't add worker: " + workerCount.toString())
+			return false
+
+	function removeWorker() returns bool
+		if workerCount <= 0
+			Log.error("ERROR: can not remove more workers from resource (" + GetUnitName(user) + ")")
+			return false
+		workerCount -= 1
+		testDebug(useTestName("Resource_removeWorker"), "Removed worker: " + workerCount.toString())
+		return true
 
 	function checkForDepletionKill() returns bool
 		if isKilledWhenDepleted and wares.isEmpty()
@@ -152,8 +185,8 @@ function unit.removeResource()
 		destroy resource
 
 var findNextResource_Priority = 0
-/** Returns next valid resource unit for the unit. */
-public function unit.findNextResource() returns unit
+/** Returns next valid resource unit for the unit. Adds unit to found resource if requested. */
+public function unit.findNextResource(bool addToResource) returns unit
 	// Check if worker has enough free space:
 	if this.getStorage().getFreeCapacity() > 0
 		findNextResource_Priority = 0
@@ -162,13 +195,15 @@ public function unit.findNextResource() returns unit
 			let filterUnit = GetFilterUnit()
 			let resource = filterUnit.getResource()
 			let priority = getHarvestPriority(filterUnit.getUnitId())
-			// Only allow resources that have wares left and a high enough priority:
-			if resource != null and resource.hasWares() and priority >= findNextResource_Priority
+			// Only allow resources that have wares left, free worker slots and a high enough priority:
+			if resource != null and resource.hasWares() and resource.getFreeWorkerSlots() > 0 and priority >= findNextResource_Priority
 				findNextResource_Priority = priority
 				conditionsFulfilled = true
 			return conditionsFulfilled
 		let target = this.getPos().getNearestUnit(MAX_AUTO_ORDER_RANGE, filter)
 		filter.destr()
+		if addToResource
+			target.getResource().addWorker()
 		return target
 	else
 		return null

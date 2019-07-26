@@ -22,6 +22,7 @@ import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitMap
 import ConstantDataSystem
+import UnitTest
 
 
 // --------------------
@@ -38,7 +39,7 @@ let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
 let ORDER_SOURCE_MAP = new UnitDynamicIndexMap<OrderSource>(null, INIT_UNIT_INDEX_SIZE)
 let ORDER_TARGET_MAP = new UnitDynamicIndexMap<OrderTarget>(null, INIT_UNIT_INDEX_SIZE)
 
-interface CallbackSimple
+public interface CallbackSimple
 	function call()
 
 class OrderTarget
@@ -51,10 +52,10 @@ class OrderTarget
 		this.target = target
 
 	ondestroy
-		// Cancel and remove order for sources:
+		// Invalidate and remove order for sources:
 		var cancelList = sources.copy()  // Use copy so that sources can still remove themselfs from the original list
 		while cancelList.isEmpty() == false
-			cancelList.pop().cancel()
+			cancelList.pop().invalidate()
 		destroy cancelList
 		destroy sources
 
@@ -72,24 +73,42 @@ class OrderTarget
 
 public class OrderAction
 	private timer t
-	private CallbackSimple cancelCb
-	private CallbackSimple finishCb
+	private CallbackSimple invalidateCb  // Is called if order becomes invalid (eg. target becomes invalid) and resolves consequential actions
+	private CallbackSimple cancelCb  // Is called if order is overwritten by another order or becoming invalid and resolves clean up actions for the previous order
+	private CallbackSimple finishCb  // Is called after the given duration and resolves the execution actions of the order
 
-	construct(real duration, CallbackSimple cancelCb, CallbackSimple finishCb)
+	construct(CallbackSimple invalidateCb)
+		this.invalidateCb = invalidateCb
+		this.cancelCb = null
+		this.finishCb = null
+		t = null
+	construct(CallbackSimple invalidateCb, CallbackSimple cancelCb)
+		this.invalidateCb = invalidateCb
+		this.cancelCb = cancelCb
+		this.finishCb = null
+		t = null
+	construct(real duration, CallbackSimple invalidateCb, CallbackSimple finishCb)
+		this.invalidateCb = invalidateCb
+		this.cancelCb = null
+		this.finishCb = finishCb
+		t = getTimer()
+		t.setData(this castTo int)
+		t.start(duration, () -> finish())
+	construct(real duration, CallbackSimple invalidateCb, CallbackSimple cancelCb, CallbackSimple finishCb)
+		this.invalidateCb = invalidateCb
 		this.cancelCb = cancelCb
 		this.finishCb = finishCb
 		t = getTimer()
 		t.setData(this castTo int)
 		t.start(duration, () -> finish())
-	construct(CallbackSimple cancelCb)
-		this.cancelCb = cancelCb
-		this.finishCb = null
-		t = null
 
 	ondestroy
 		if t != null
 			t.release()
+		if invalidateCb != null
+			destroy invalidateCb
 		if cancelCb != null
+			cancelCb.call()
 			destroy cancelCb
 		if finishCb != null
 			destroy finishCb
@@ -99,15 +118,18 @@ public class OrderAction
 		thistype cb = t.getData() castTo thistype
 		cb.t = null
 		t.release()
+		if cb.invalidateCb != null
+			destroy cb.invalidateCb
+			cb.invalidateCb = null
 		if cb.cancelCb != null
 			destroy cb.cancelCb
 			cb.cancelCb = null
 		if cb.finishCb != null
 			cb.finishCb.call()
 
-	function cancel()
-		if cancelCb != null
-			cancelCb.call()
+	function invalidate()
+		if invalidateCb != null
+			invalidateCb.call()
 		destroy this
 
 class OrderSource
@@ -122,11 +144,12 @@ class OrderSource
 
 	ondestroy
 		if orderAction != null
+			testDebug(useTestName("OrderSource_ondestroy"), "Destroyed OrderSource for: " + source.getName())
 			destroy orderAction
 
-	function cancel()
+	function invalidate()
 		if orderAction != null
-			orderAction.cancel()
+			orderAction.invalidate()
 			orderAction = null
 		ORDER_SOURCE_MAP.put(source, null)
 		destroy this

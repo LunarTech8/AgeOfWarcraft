@@ -22,7 +22,6 @@ import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitMap
 import ConstantDataSystem
-import UnitTest
 
 
 // --------------------
@@ -144,13 +143,16 @@ class OrderSource
 
 	ondestroy
 		if orderAction != null
-			testDebug(useTestName("OrderSource_ondestroy"), "Destroyed OrderSource for: " + source.getName())
 			destroy orderAction
 
 	function invalidate()
 		if orderAction != null
 			orderAction.invalidate()
 			orderAction = null
+		ORDER_SOURCE_MAP.put(source, null)
+		destroy this
+
+	function cancel()
 		ORDER_SOURCE_MAP.put(source, null)
 		destroy this
 

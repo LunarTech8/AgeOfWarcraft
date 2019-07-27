@@ -1091,9 +1091,7 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	a.maxSize().assertEquals(testName, 8)
 	a.size().assertEquals(testName, 4)
 	a.remove(4)
-	testDebug(useTestName(testName), "test start")
 	a.remove(5)
-	testDebug(useTestName(testName), "test end")
 	a.maxSize().assertEquals(testName, 4)
 	a.size().assertEquals(testName, 2)
 	// Clear entries and check sizes:

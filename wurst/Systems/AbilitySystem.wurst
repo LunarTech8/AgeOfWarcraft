@@ -19,6 +19,7 @@ import BuildingSystem
 import ResourceSystem
 import OrderSystem
 import Ability_Harvest
+import UnitTest
 
 
 // --------------------
@@ -33,6 +34,7 @@ enum Validity
 	INVALID_SOURCE
 	INVALID_TARGET
 	WARES_NOT_AVAILABLE
+	NO_FREE_WORK_SLOT
 	NO_FREE_STORAGE
 	NO_REQUIRED_WARES
 	WORKER_ALREADY_BUILDING
@@ -72,6 +74,8 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "No storage for harvest"
 				case INVALID_TARGET
 					return "Harvest target is no resource"
+				case NO_FREE_WORK_SLOT
+					return "Target already reached its maximum of concurrent harvesters"
 				case NO_FREE_STORAGE
 					return "No free storage for harvest"
 				case RESOURCE_IS_DEPLETED
@@ -191,6 +195,8 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 			return Validity.NO_FREE_STORAGE
 		else if resource.hasWares() == false
 			return Validity.RESOURCE_IS_DEPLETED
+		else if resource.getFreeWorkerSlots() <= 0
+			return Validity.NO_FREE_WORK_SLOT
 	else
 		// Unregistered abilityId:
 		return Validity.UNREGISTERED
@@ -207,6 +213,9 @@ init
 		let source = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		let abilityId = GetSpellAbilityId()
+		let orderSource = source.getOrderSource()
+		if orderSource != null
+			orderSource.cancel()  // Cancel current target order for clean cast validity and ordering
 		let val = source.getAbilityValidity(abilityId, target)
 		if val == Validity.VALID
 			switch abilityId
@@ -221,15 +230,15 @@ init
 					// Perform harvest after ability is finished:
 					let targetResource = target.getResource()
 					CallbackSimple invalidateCb = () ->
-						source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(true), true)
+						source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)
 					CallbackSimple cancelCb = () ->
 						targetResource.removeWorker()
 					CallbackSimple finishCb = () ->
+						targetResource.removeWorker()
 						if source.harvest(target)
 							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)  // Auto-recast on same target
 						else
-							targetResource.removeWorker()
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(true), true)  // Find and auto-recast on new target
+							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
 					source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(AbilityData_Harvest.cooldown, invalidateCb, cancelCb, finishCb))
 					targetResource.addWorker()
 		else if val != Validity.UNREGISTERED
@@ -238,13 +247,23 @@ init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()
 		let source = GetOrderedUnit()
-		if issuedOrderId.getOrderName(source, true) != null
+		// Check for custom ability:
+		let orderName = issuedOrderId.getOrderName(source, true)
+		if orderName != null
 			let target = GetOrderTargetUnit()
 			if target != null
-				// Override registered order in OrderSystem (works because through the dependency this function is called afterwards):
-				let targetResource = target.getResource()
-				if targetResource != null
-					source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(true), true), () -> targetResource.removeWorker()))
-					targetResource.addWorker()
-				if target.getBuildingSite() != null
-					source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true)))
+				// Override registered order in OrderSystem to add fitting OrderAction and target handling (works because through the dependency this function is called afterwards):
+				switch orderName
+					case "harvest"
+						let abilityId = AbilityIdsCustom.harvest  // TODO: maybe add a orderId to abilityId
+						let val = source.getAbilityValidity(abilityId, target)
+						if val == Validity.VALID
+							let targetResource = target.getResource()
+							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true), () -> targetResource.removeWorker()))
+							targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
+						else if val != Validity.UNREGISTERED
+							source.reactOnInvalidAbility(abilityId, val)
+					case "build"
+						// TODO: refactor
+						if target.getBuildingSite() != null
+							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true)))

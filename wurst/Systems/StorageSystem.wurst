@@ -29,7 +29,8 @@ let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
 function getMaxCapacity(int unitId) returns int
 	switch unitId
 		case UnitIdsCustom.peasant
-			return 10
+			// return 10
+			return 100  // DEBUG
 		default
 			return 0
 

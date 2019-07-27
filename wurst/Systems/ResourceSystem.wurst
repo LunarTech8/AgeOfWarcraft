@@ -100,8 +100,11 @@ function getHarvestPriority(int resourceUnitId) returns int
 function getMaxWorkerCount(int resourceUnitId) returns int
 	switch resourceUnitId
 		case UnitIdsCustom.beech
+			return 2
 		case UnitIdsCustom.birch
+			return 1
 		case UnitIdsCustom.greyOak
+			return 3
 		case UnitIdsCustom.chestnut
 			return 2
 	return 99
@@ -134,6 +137,7 @@ class Resource extends Stock
 			return false
 
 	function getFreeWorkerSlots() returns int
+		// testDebug(useTestName("Resource_getFreeWorkerSlots"), "Free slots for: " + (getMaxWorkerCount(user.getUnitId()) - workerCount).toString())
 		return getMaxWorkerCount(user.getUnitId()) - workerCount
 
 	/** Perform harvest and returns the harvested wares. */
@@ -149,19 +153,17 @@ class Resource extends Stock
 	function addWorker() returns bool
 		if workerCount < getMaxWorkerCount(user.getUnitId())
 			workerCount += 1
-			testDebug(useTestName("Resource_addWorker"), "Added worker: " + workerCount.toString())
+			// testDebug(useTestName("Resource_addWorker"), "Added worker: " + workerCount.toString())
 			return true
 		else
 			testDebug(useTestName("Resource_addWorker"), "Can't add worker: " + workerCount.toString())
 			return false
 
-	function removeWorker() returns bool
+	function removeWorker()
 		if workerCount <= 0
 			Log.error("ERROR: can not remove more workers from resource (" + GetUnitName(user) + ")")
-			return false
 		workerCount -= 1
-		testDebug(useTestName("Resource_removeWorker"), "Removed worker: " + workerCount.toString())
-		return true
+		// testDebug(useTestName("Resource_removeWorker"), "Removed worker: " + workerCount.toString())
 
 	function checkForDepletionKill() returns bool
 		if isKilledWhenDepleted and wares.isEmpty()
@@ -185,8 +187,8 @@ function unit.removeResource()
 		destroy resource
 
 var findNextResource_Priority = 0
-/** Returns next valid resource unit for the unit. Adds unit to found resource if requested. */
-public function unit.findNextResource(bool addToResource) returns unit
+/** Returns next valid resource unit for the unit. */
+public function unit.findNextResource() returns unit
 	// Check if worker has enough free space:
 	if this.getStorage().getFreeCapacity() > 0
 		findNextResource_Priority = 0
@@ -202,8 +204,6 @@ public function unit.findNextResource(bool addToResource) returns unit
 			return conditionsFulfilled
 		let target = this.getPos().getNearestUnit(MAX_AUTO_ORDER_RANGE, filter)
 		filter.destr()
-		if addToResource
-			target.getResource().addWorker()
 		return target
 	else
 		return null

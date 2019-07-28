@@ -19,7 +19,6 @@ import BuildingSystem
 import ResourceSystem
 import OrderSystem
 import Ability_Harvest
-import UnitTest
 
 
 // --------------------
@@ -213,9 +212,7 @@ init
 		let source = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		let abilityId = GetSpellAbilityId()
-		let orderSource = source.getOrderSource()
-		if orderSource != null
-			orderSource.cancel()  // Cancel current target order for clean cast validity and ordering
+		source.getOrderSource().cancel()  // Cancel current target order for clean cast validity and ordering
 		let val = source.getAbilityValidity(abilityId, target)
 		if val == Validity.VALID
 			switch abilityId
@@ -253,17 +250,15 @@ init
 			let target = GetOrderTargetUnit()
 			if target != null
 				// Override registered order in OrderSystem to add fitting OrderAction and target handling (works because through the dependency this function is called afterwards):
-				switch orderName
-					case "harvest"
-						let abilityId = AbilityIdsCustom.harvest  // TODO: maybe add a orderId to abilityId
-						let val = source.getAbilityValidity(abilityId, target)
-						if val == Validity.VALID
+				let abilityId = orderName.getOrderNameAbility()
+				let val = source.getAbilityValidity(abilityId, target)
+				if val == Validity.VALID
+					switch orderName
+						case "harvest"
 							let targetResource = target.getResource()
 							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true), () -> targetResource.removeWorker()))
 							targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
-						else if val != Validity.UNREGISTERED
-							source.reactOnInvalidAbility(abilityId, val)
-					case "build"
-						// TODO: refactor
-						if target.getBuildingSite() != null
+						case "build"
 							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true)))
+				else if val != Validity.UNREGISTERED
+					source.reactOnInvalidAbility(abilityId, val)

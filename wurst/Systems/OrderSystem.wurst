@@ -146,14 +146,14 @@ class OrderSource
 			destroy orderAction
 
 	function invalidate()
+		ORDER_SOURCE_MAP.put(source, null)  // Has to be called first to avoid overwriting consequential callback orders
 		if orderAction != null
 			orderAction.invalidate()
 			orderAction = null
-		ORDER_SOURCE_MAP.put(source, null)
 		destroy this
 
 	function cancel()
-		ORDER_SOURCE_MAP.put(source, null)
+		ORDER_SOURCE_MAP.put(source, null)  // Has to be called first to avoid overwriting consequential callback orders
 		destroy this
 
 class OrderSourceU extends OrderSource

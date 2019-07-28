@@ -19,7 +19,7 @@ import StorageSystem
 import UnitMap
 import UnitIndexer
 import ArrayList
-import UnitTest
+import Icons
 
 
 // --------------------
@@ -27,6 +27,7 @@ import UnitTest
 // --------------------
 
 let MAX_AUTO_ORDER_RANGE = 1024.
+let WORKERS_ICON_PATH = Icons.bTNBash
 
 function getDefaultInitWares(int resourceUnitId) returns ArrayList<ware>
 	var wares = new ArrayList<ware>(1)
@@ -100,11 +101,11 @@ function getHarvestPriority(int resourceUnitId) returns int
 function getMaxWorkerCount(int resourceUnitId) returns int
 	switch resourceUnitId
 		case UnitIdsCustom.beech
-			return 2
+			return 1
 		case UnitIdsCustom.birch
 			return 1
 		case UnitIdsCustom.greyOak
-			return 3
+			return 2
 		case UnitIdsCustom.chestnut
 			return 2
 	return 99
@@ -136,8 +137,10 @@ class Resource extends Stock
 		else
 			return false
 
+	function getWorkerCount() returns int
+		return workerCount
+
 	function getFreeWorkerSlots() returns int
-		// testDebug(useTestName("Resource_getFreeWorkerSlots"), "Free slots for: " + (getMaxWorkerCount(user.getUnitId()) - workerCount).toString())
 		return getMaxWorkerCount(user.getUnitId()) - workerCount
 
 	/** Perform harvest and returns the harvested wares. */
@@ -150,20 +153,15 @@ class Resource extends Stock
 		// No wares harvested yet:
 		return null
 
-	function addWorker() returns bool
-		if workerCount < getMaxWorkerCount(user.getUnitId())
-			workerCount += 1
-			// testDebug(useTestName("Resource_addWorker"), "Added worker: " + workerCount.toString())
-			return true
-		else
-			testDebug(useTestName("Resource_addWorker"), "Can't add worker: " + workerCount.toString())
-			return false
+	function addWorker()
+		if workerCount >= getMaxWorkerCount(user.getUnitId())
+			Log.error("ERROR: can not add more workers to resource (" + GetUnitName(user) + ")")
+		workerCount += 1
 
 	function removeWorker()
 		if workerCount <= 0
 			Log.error("ERROR: can not remove more workers from resource (" + GetUnitName(user) + ")")
 		workerCount -= 1
-		// testDebug(useTestName("Resource_removeWorker"), "Removed worker: " + workerCount.toString())
 
 	function checkForDepletionKill() returns bool
 		if isKilledWhenDepleted and wares.isEmpty()
@@ -186,11 +184,14 @@ function unit.removeResource()
 	if resource != null
 		destroy resource
 
-var findNextResource_Priority = 0
+int findNextResource_Priority
+constant group findNextResource_ValidUnits = CreateGroup()
 /** Returns next valid resource unit for the unit. */
 public function unit.findNextResource() returns unit
 	// Check if worker has enough free space:
 	if this.getStorage().getFreeCapacity() > 0
+		let pos = this.getPos()
+		// Get valid units in range and highest priority:
 		findNextResource_Priority = 0
 		var filter = Filter() ->
 			var conditionsFulfilled = false
@@ -202,9 +203,14 @@ public function unit.findNextResource() returns unit
 				findNextResource_Priority = priority
 				conditionsFulfilled = true
 			return conditionsFulfilled
-		let target = this.getPos().getNearestUnit(MAX_AUTO_ORDER_RANGE, filter)
+		ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
 		filter.destr()
-		return target
+		// Remove lower priority units:
+		for target from ENUM_GROUP
+			if getHarvestPriority(target.getUnitId()) == findNextResource_Priority
+				findNextResource_ValidUnits.addUnit(target)
+		// Return nearest valid unit:
+		return pos.getNearestUnit(findNextResource_ValidUnits)
 	else
 		return null
 
@@ -219,6 +225,7 @@ public function getResourceCount() returns int
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
 	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + r.getWorkerCount().toString() + "/" + getMaxWorkerCount(r.user.getUnitId()).toString(), WORKERS_ICON_PATH)
 	for i = 0 to (r.getAmountOfWareTypes() - 1)
 		var ware = r.getWare(i)
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())

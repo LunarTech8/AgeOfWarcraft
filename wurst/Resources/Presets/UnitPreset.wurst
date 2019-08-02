@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
-Preset class based on UnitDefinition that adds additional preset functions for unit defintion packages.
+Preset class based on UnitDefinition that adds additional preset functions for unit definition packages.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package UnitPreset
@@ -23,10 +23,10 @@ import public ObjEditingCommons
 // --------------------
 
 public class UnitPreset extends UnitDefinition
-	
+
 	construct(int newId, int originId)
 		super(newId, originId)
-	
+
 	function presetStructuresBuilt(vararg int buildingIds)
 		var buildingString = ""
 		for buildingId in buildingIds

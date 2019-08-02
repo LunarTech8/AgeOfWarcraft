@@ -28,20 +28,16 @@ Work status:
 !!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Add colours to unit test messages to be able to fastly see errors vs info text
-!!- Tidy up all TODOs to GlobalTODOs or fix them
 !- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Implement different sizes for Array2D like in ArrayList
-!- Clean up Dataset in ObjectInfoSystem (only private properties)
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
-!- Maybe use the PreloadIO package to store/load generated maps into/from a file
 !- Add a description comment (/** */) to every public class and function
-!- Create a WeatherSystem
-!- Maybe use the 0.0.0 (Major.Minor.Patch) version system for the packages
-!- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
-!- Replace every boolean with bool and integer with int in custom code
-!- Maybe change growth factor of ArrayList from 2 to 1.5 with min size of 8 to reduce wasted memory
 !- Try to improve smart order reaction when harvesting (no overwriting by auto harvest)
--! Maybe have repeating order actions to have less object destruction
+!- Create a WeatherSystem
+!- Maybe use the PreloadIO package to store/load generated maps into/from a file
+!- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
+!- Maybe change growth factor of ArrayList from 2 to 1.5 with min size of 8 to reduce wasted memory
+!- Maybe have repeating order actions to have less object destruction
 
 
 // -------------

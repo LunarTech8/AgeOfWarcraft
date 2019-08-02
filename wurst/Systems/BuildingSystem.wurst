@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Allows buildings to require wares as building cost before the building process can be started. Also allows for worker and building type dependant build speed.
@@ -8,7 +8,7 @@ Uses the upgrade mechanism from a general building ground to have a fully contro
 Dynamically adjustes the building health stats based on the building progress.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package BuildingSystem
@@ -116,7 +116,7 @@ class BuildingSite extends Stock
 			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
 			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
 		else
-			Log.error("ERROR: can't add worker to this building site")
+			Log.error("ERROR: Can't add worker to this building site")
 
 	function removeWorker(unit worker)
 		if WORKER_MAP.get(worker) == this and workers.contains(worker)
@@ -126,7 +126,7 @@ class BuildingSite extends Stock
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
 		else
-			Log.error("ERROR: can't remove worker from this building site")
+			Log.error("ERROR: Can't remove worker from this building site")
 
 	function adjustProgress() returns bool
 		if workPower > 0.

@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
-Adds additional preset functions to UnitOrBuildingOrHeroDefinition for unit, building and hero defintion packages.
+Adds additional preset functions to UnitOrBuildingOrHeroDefinition for unit, building and hero definition packages.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package UnitsPresetFunctions

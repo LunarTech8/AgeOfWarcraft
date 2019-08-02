@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Handles all smart orders and allows for the addition of custom, unrestricted functionality.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package SmartOrderSystem

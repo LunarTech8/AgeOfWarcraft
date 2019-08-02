@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 This system shows each player informations about his currently targeted object in a multiboard and periodically refreshes these informations.
@@ -16,7 +16,7 @@ You can show different types of informations depending on the targeted object by
 Use "AddArrow" to mark objects that are linked in a way to the current targeted object.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package ObjectInfoSystem
@@ -50,8 +50,8 @@ class Dataset
 	private constant int playerID
 	private multiboard usedMultiboard
 	private timer adjustingTimer
-	unit targetedUnit  // TODO: make private and handle the variable over public functions instead
-	destructable targetedDestructable  // TODO: make private and handle the variable over public functions instead
+	protected unit targetedUnit
+	protected destructable targetedDestructable
 
 	construct(int playerID)
 		this.playerID = playerID
@@ -78,7 +78,7 @@ class Dataset
 			DestroyMultiboard(usedMultiboard)  // Use destroy because clear doesn't remove the lines
 			usedMultiboard = null
 
-	function displayMultiboard(integer playerID, boolean show)
+	function displayMultiboard(int playerID, bool show)
 		if usedMultiboard != null
 			if GetLocalPlayer() == Player(playerID)
 				// Use only local code (no net traffic) within this block to avoid desyncs.
@@ -93,7 +93,7 @@ class Dataset
 		else
 			adjustingTimer.pause()
 
-function deactivateDataset(integer playerID)
+function deactivateDataset(int playerID)
 	let dataset = datasets[playerID]
 	// Reset dataset:
 	dataset.setTimer(0.)
@@ -103,7 +103,7 @@ function deactivateDataset(integer playerID)
 	dataset.displayMultiboard(playerID, false)
 
 /** Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
-function createMultiboardLines(integer playerID) returns boolean
+function createMultiboardLines(int playerID) returns bool
 	var hasInfo = false
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
@@ -122,7 +122,7 @@ function createMultiboardLines(integer playerID) returns boolean
 		hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource) or hasInfo
 	return hasInfo
 
-function showObjectInfo(integer playerID)
+function showObjectInfo(int playerID)
 	var dataset = datasets[playerID]
 	// Check if unit is still selected:
 	if dataset.targetedUnit != null and IsUnitSelected(dataset.targetedUnit, Player(playerID)) == false

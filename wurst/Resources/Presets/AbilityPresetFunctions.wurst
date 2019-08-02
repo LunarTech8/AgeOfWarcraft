@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
-Adds additional preset functions to AbilityDefinition for ability defintion packages.
+Adds additional preset functions to AbilityDefinition for ability definition packages.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package AbilityPresetFunctions

@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Tracks the priority and name of the currently used multiboard for every player.
@@ -8,7 +8,7 @@ Checks if a new multiboard can be used through the return value of activateMulti
 Also provides standardized multiboard utility functions.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package MultiboardPrioritySystem
@@ -43,10 +43,10 @@ class Board
 		priority = 0
 		disableFunc = null
 
-public function isBoardActiv(integer playerID, string name) returns boolean
+public function isBoardActiv(int playerID, string name) returns bool
 	return name == currentBoards[playerID].name
 
-public function enableBoard(integer playerID, string name, integer priority, PlayerIDClosure disableFunc) returns boolean
+public function enableBoard(int playerID, string name, int priority, PlayerIDClosure disableFunc) returns bool
 	// Check if board is already active:
 	if isBoardActiv(playerID, name)
 		return true
@@ -63,7 +63,7 @@ public function enableBoard(integer playerID, string name, integer priority, Pla
 		return true
 	return false
 
-public function disableBoard(integer playerID, string name) returns boolean
+public function disableBoard(int playerID, string name) returns bool
 	// Check if board is active:
 	if isBoardActiv(playerID, name) == false
 		return false

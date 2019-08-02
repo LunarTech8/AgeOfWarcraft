@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
-Preset class based on BuildingDefinition that adds additional preset functions for building defintion packages.
+Preset class based on BuildingDefinition that adds additional preset functions for building definition packages.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package BuildingPreset

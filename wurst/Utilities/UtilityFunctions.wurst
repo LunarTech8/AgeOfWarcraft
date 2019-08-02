@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Contains generic utility functions that aren't tied directly to a specific system.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package UtilityFunctions
@@ -69,7 +69,7 @@ public function int.getAbilityOrder() returns string
 		case AbilityIdsCustom.addBuildingBuff
 			return "innerfire"
 		default
-			Log.error("ERROR: unmapped ability id (" + this.toString() + ")")
+			Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
 			return null
 
 /** Returns the ability id used for the given order name. */
@@ -84,7 +84,7 @@ public function string.getOrderNameAbility() returns int
 		case "transfer wares"
 			return AbilityIdsCustom.transferWares
 		default
-			Log.error("ERROR: unmapped order (" + this + ")")
+			Log.error("ERROR: Unmapped order (" + this + ")")
 			return 0
 
 /** Returns the order name of the given order or ability id. */
@@ -118,7 +118,7 @@ public function int.getOrderName() returns string
 			return "build"
 		default
 			if this < 2013265920  // Ignore unit ids
-				Log.error("ERROR: unmapped order/ability id (" + this.toString() + ")")
+				Log.error("ERROR: Unmapped order/ability id (" + this.toString() + ")")
 			return null
 /** Returns the order name of the given order id of the given unit. Returns null if onlyCustomAbilities is given and order doesn't fit to a custom ability of the given unit. */
 public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) returns string
@@ -139,7 +139,7 @@ public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) ret
 				return null
 			else
 				return this.getOrderName()
-	Log.error("ERROR: unmapped ability id (" + this.toString() + ")")
+	Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
 	return null
 /** Returns the order name of the given order id of the given unit. */
 public function int.getOrderName(unit orderedUnit) returns string
@@ -185,7 +185,7 @@ public function vec2.getNearestUnit(real maxRange, boolexpr filter) returns unit
 	return this.getNearestUnit(maxRange, filter, null)
 
 /** Issues unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
-public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns boolean
+public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns bool
 	if resetAbility
 		this.removeAbility(abilityId)
 		this.addAbility(abilityId)

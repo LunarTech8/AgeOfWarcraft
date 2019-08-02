@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Provides generic lists based on dynamic arrays.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package ArrayList
@@ -918,7 +918,7 @@ public class ArrayList<T>
 		resize(data.getUsedSlots())
 
 	/** Replaces the first occurence of 'whichElement' with 'newElement'. */
-	function replace(T whichElement, T newElement) returns boolean
+	function replace(T whichElement, T newElement) returns bool
 		let index = data.getIndex(whichElement)
 		if index < 0
 			return false

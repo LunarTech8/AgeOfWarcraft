@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Manages the type and count of wares that are associated with each unit.
 Base class that should be extended into specialised classes.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package Stock
@@ -70,9 +70,9 @@ public tuple ware(WareType wareType, int count)
 public function wareToIndex(ware w) returns int
 	let wareTypeInt = w.wareType castTo int
 	if w.count < 1 or w.count > MAX_COUNT
-		Log.error("ERROR: ware count (" + w.count.toString() + ") isn't allowed to be smaller than 1 or bigger than " + MAX_COUNT.toString())
+		Log.error("ERROR: Ware count (" + w.count.toString() + ") isn't allowed to be smaller than 1 or bigger than " + MAX_COUNT.toString())
 	else if wareTypeInt < 0 or wareTypeInt > MAX_WARE_TYPES
-		Log.error("ERROR: ware type (" + wareTypeInt.toString() + ") isn't allowed to be smaller than 0 or bigger than " + MAX_WARE_TYPES.toString())
+		Log.error("ERROR: Ware type (" + wareTypeInt.toString() + ") isn't allowed to be smaller than 0 or bigger than " + MAX_WARE_TYPES.toString())
 	return w.count + wareTypeInt * (MAX_COUNT + 1)
 
 public function wareFromIndex(int index) returns ware

@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 This system contains all custom global constant data like ids, paths etc. stored as better readable static constants in sorted classes for other systems to use.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package ConstantDataSystem
@@ -137,7 +137,7 @@ public abstract class ImportPaths
 // --------------------
 
 public class OffsetIdGenerator
-	private HashMap<int, boolean> usedIdsMap = new HashMap<int, boolean>
+	private HashMap<int, bool> usedIdsMap = new HashMap<int, bool>
 	private int i1
 	private int i2
 	private int i3
@@ -149,7 +149,7 @@ public class OffsetIdGenerator
 		i3 = (start mod 16777216) div 65536
 		i4 = start div 16777216
 
-	function isInvalid(int char) returns boolean
+	function isInvalid(int char) returns bool
 		return (char < 48 or (char > 57 and char < 97))
 
 	function getId(int offset) returns int

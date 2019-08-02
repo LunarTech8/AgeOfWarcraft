@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
-Ingame test alternative to the Wurstunit package.
+Ingame test alternative to the Wurstunit package with additional functionality.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package UnitTest
@@ -140,27 +140,27 @@ public function real.assertEquals(string testName, real expected, real delta)
 /**
  * Asserts that two booleans are equal. If they are not, an error is thrown with a message.
  */
-public function boolean.assertEquals(string testName, boolean expected)
+public function bool.assertEquals(string testName, bool expected)
 	let usedTestName = useTestName(testName)
 	if this != expected
 		testFail(usedTestName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
 
 /** Asserts that this booleans is true. If it is not, an error is thrown with a message. */
-public function boolean.assertTrue(string testName)
+public function bool.assertTrue(string testName)
 	this.assertEquals(testName, true)
 
 /** Asserts that this booleans is false. If it is not, an error is thrown with a message. */
-public function boolean.assertFalse(string testName)
+public function bool.assertFalse(string testName)
 	this.assertEquals(testName, false)
 
 /** Asserts that this booleans is true. If it is not, an error is thrown. */
-public function assertTrue(string testName, boolean b)
+public function assertTrue(string testName, bool b)
 	let usedTestName = useTestName(testName)
 	if not b
 		testFail(usedTestName, "Assertion failed")
 
 /** Asserts that this booleans is true. If it is not, an error is thrown with the supplied message. */
-public function assertTrue(string testName, boolean b, string msg)
+public function assertTrue(string testName, bool b, string msg)
 	let usedTestName = useTestName(testName)
 	if not b
 		testFail(usedTestName, "Assertion failed: " + msg)

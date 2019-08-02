@@ -1,12 +1,14 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
-TODO
+Stores the sources (OrderSource) and targets (OrderTarget) of all current unit orders on any kind of target.
+Targets automatically invalidate their sources if they get destroyed.
+Sources can have an attached OrderAction to their order that can store appropriate callbacks for when the order is invalidated, canceled or finished.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package OrderSystem
@@ -62,13 +64,13 @@ class OrderTarget
 		if sources.has(source) == false
 			sources.add(source)
 		else
-			Log.error("ERROR: source already has that target")
+			Log.error("ERROR: Source already has that target")
 
 	function removeSource(OrderSource source)
 		if sources.has(source)
 			sources.remove(source)
 		else
-			Log.error("ERROR: source does not have that target")
+			Log.error("ERROR: Source does not have that target")
 
 public class OrderAction
 	private timer t

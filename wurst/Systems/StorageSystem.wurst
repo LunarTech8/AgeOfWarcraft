@@ -1,12 +1,12 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 Extension of the Stock class that adds a capacity to every ware of size one and a unit type dependant max capacity.
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package StorageSystem
@@ -60,64 +60,44 @@ public class Storage extends Stock
 	function getFreeCapacity() returns int
 		return maxCapacity - usedCapacity
 
-	function addWare(ware w) returns int  // TODO: maybe have excess checked separately
-		var excess = 0
-		var freeCapacity = getFreeCapacity()
-		if freeCapacity > 0
-			// Check and adjust capacity:
-			if w.count > freeCapacity
-				excess = w.count - freeCapacity
-			usedCapacity += w.count - excess
-			// Adjust ware:
-			for iWare in wares
-				if iWare.hasSameType(w)
-					wares.replace(iWare, iWare.changedCopy(w.count - excess))
-					// Return excess count:
-					return excess
-			// Add new ware if none exists of that type yet:
-			wares.add(w.changedCopy(-excess))
-			// Return excess count:
-			return excess
-		else
-			// Return excess count:
-			return w.count
+	override function addWare(ware w)
+		if w.count > getFreeCapacity()
+			Log.error("ERROR: Not enough free capacity to add given ware to storage of " + user.getName())
+		usedCapacity =- w.count
+		super.addWare(w)
 
-	function addWares(ArrayList<ware> wares) returns int  // TODO: maybe have excess checked separately
-		var excess = 0
-		// Add wares:
+	override function addWares(ArrayList<ware> wares)
 		for iWare in wares
-			excess += addWare(iWare)
-		// Return excess count:
-		return excess
+			addWare(iWare)
 
-	function removeWare(ware w) returns int  // TODO: maybe have shortage checked separately
+	override function removeWare(ware w)
 		for iWare in wares
 			if iWare.hasSameType(w)
-				var shortage = 0
 				// Check and adjust ware:
-				if iWare.count <= w.count
-					shortage = w.count - iWare.count
+				if iWare.count < w.count
+					Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware count is to low")
+				else if iWare.count == w.count
 					wares.remove(iWare)
 				else
 					wares.replace(iWare, iWare.changedCopy(-w.count))
 				// Adjust capacity:
-				usedCapacity -= w.count - shortage
-				// Return shortage count:
-				return shortage
-		// Return shortage count:
-		return w.count
+				usedCapacity -= w.count
+				return
+		Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware type is not available")
 
 	/** Returns the amount of wares that couldn't be transfered. */
 	function transferWares(Storage target) returns int
 		// Transfer last ware of source until it is empty or target is full:
+		var targetFreeCapacity = target.getFreeCapacity()
 		while hasWares()
-			var ware = getLastWare()
-			var excess = target.addWare(ware)
-			if excess < ware.count
-				ware.count -= excess
-				removeWare(ware)
-			if excess > 0
+			if targetFreeCapacity <= 0
 				return usedCapacity
+			var ware = getLastWare()
+			if targetFreeCapacity < ware.count
+				ware.count = targetFreeCapacity
+			targetFreeCapacity -= ware.count
+			target.addWare(ware)
+			removeWare(ware)
 		return 0
 
 

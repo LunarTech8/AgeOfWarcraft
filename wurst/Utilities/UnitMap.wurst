@@ -1,13 +1,13 @@
 /*-------------------------------------------------------------
 // Version number:
-1.01
+1.0.0
 
 // Description:
 General unit to generic class map that allows for definition of custom utility functions and the use of different data handling solutions.
 (Eg. allows use of unit index with an array instead of a hash map.)
 
 // Changelog:
-- 1.01:
+- 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package UnitMap

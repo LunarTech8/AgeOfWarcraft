@@ -17,6 +17,7 @@ import MultiboardPrioritySystem
 import Stock
 import UnitMap
 import ArrayList
+import UnitTest
 
 
 // --------------------
@@ -63,12 +64,12 @@ public class Storage extends Stock
 	override function addWare(ware w)
 		if w.count > getFreeCapacity()
 			Log.error("ERROR: Not enough free capacity to add given ware to storage of " + user.getName())
-		usedCapacity =- w.count
+		usedCapacity += w.count
 		super.addWare(w)
 
 	override function addWares(ArrayList<ware> wares)
 		for iWare in wares
-			addWare(iWare)
+			addWare(iWare)  // Use capacity based method
 
 	override function removeWare(ware w)
 		for iWare in wares
@@ -84,6 +85,10 @@ public class Storage extends Stock
 				usedCapacity -= w.count
 				return
 		Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware type is not available")
+
+	override function removeWares(ArrayList<ware> wares)
+		for iWare in wares
+			removeWare(iWare)  // Use capacity based method
 
 	/** Returns the amount of wares that couldn't be transfered. */
 	function transferWares(Storage target) returns int
@@ -133,3 +138,70 @@ init
 	// Remove storage from every appropriate removed unit:
 	onLeave() ->
 		getEnterLeaveUnit().removeStorage()
+
+
+// --------------------
+// Test code
+// --------------------
+
+@Test public function testStorageSystem_AddAndRemove()
+	let testName = "testStorageSystem_AddAndRemove"
+	// Create new storage and check capacities:
+	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+	let a = new Storage(unitA, 8)
+	a.getMaxCapacity().assertEquals(testName, 8)
+	a.getUsedCapacity().assertEquals(testName, 0)
+	a.getFreeCapacity().assertEquals(testName, 8)
+	// Add wares and check capacities:
+	a.addWare(ware(WareType.FOOD, 3))
+	a.addWare(ware(WareType.STONE, 2))
+	a.addWare(ware(WareType.FOOD, 1))
+	a.getMaxCapacity().assertEquals(testName, 8)
+	a.getUsedCapacity().assertEquals(testName, 6)
+	a.getFreeCapacity().assertEquals(testName, 2)
+	// Remove wares and check capacities:
+	a.removeWare(ware(WareType.FOOD, 2))
+	a.removeWare(ware(WareType.STONE, 2))
+	a.getMaxCapacity().assertEquals(testName, 8)
+	a.getUsedCapacity().assertEquals(testName, 2)
+	a.getFreeCapacity().assertEquals(testName, 6)
+	// Create another storage and check capacities:
+	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+	let b = new Storage(unitA, 13)
+	b.getMaxCapacity().assertEquals(testName, 13)
+	b.getUsedCapacity().assertEquals(testName, 0)
+	b.getFreeCapacity().assertEquals(testName, 13)
+	// Add wares and check capacities:
+	let waresA = new ArrayList<ware>()
+	waresA.add(ware(WareType.FOOD, 2))
+	waresA.add(ware(WareType.STONE, 3))
+	waresA.add(ware(WareType.FOOD, 1))
+	waresA.add(ware(WareType.WOOD, 6))
+	b.addWares(waresA)
+	b.getMaxCapacity().assertEquals(testName, 13)
+	b.getUsedCapacity().assertEquals(testName, 12)
+	b.getFreeCapacity().assertEquals(testName, 1)
+	// Remove wares and check capacities:
+	let waresB = new ArrayList<ware>()
+	waresB.add(ware(WareType.FOOD, 3))
+	waresB.add(ware(WareType.WOOD, 1))
+	b.removeWares(waresB)
+	b.getMaxCapacity().assertEquals(testName, 13)
+	b.getUsedCapacity().assertEquals(testName, 8)
+	b.getFreeCapacity().assertEquals(testName, 5)
+	// Transfer wares and check capacities:
+	b.transferWares(a).assertEquals(testName, 2)
+	a.getMaxCapacity().assertEquals(testName, 8)
+	a.getUsedCapacity().assertEquals(testName, 8)
+	a.getFreeCapacity().assertEquals(testName, 0)
+	b.getMaxCapacity().assertEquals(testName, 13)
+	b.getUsedCapacity().assertEquals(testName, 2)
+	b.getFreeCapacity().assertEquals(testName, 11)
+	// Remove test units:
+	RemoveUnit(unitA)
+	RemoveUnit(unitB)
+	// Destroy class objects:
+	destroy a
+	destroy b
+	destroy waresA
+	destroy waresB

@@ -1,6 +1,7 @@
 package Command_UnitTests
 import ArrayList
 import UnitMap
+import StorageSystem
 
 
 // --------------------
@@ -25,6 +26,8 @@ function executeCommand()
 	testArrayList_SetWithResize()
 	// UnitMap:
 	testUnitDynamicIndexMap_AddAndRemove()
+	// StorageSystem:
+	testStorageSystem_AddAndRemove()
 
 init
 	CreateTrigger()

@@ -1010,7 +1010,7 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	a.has(5).assertTrue(testName)
 	a.getLast().assertEquals(testName, 5)
 	// Create another list and check sizes:
-	var b = new ArrayList<int>(5)
+	let b = new ArrayList<int>(5)
 	b.maxSize().assertEquals(testName, 8)
 	b.size().assertEquals(testName, 0)
 	// Add entry and check sizes:
@@ -1021,12 +1021,15 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	b.peek().assertEquals(testName, 7)
 	testDebug(useTestName(testName), "Following test has to fail for working testing functionality")
 	b.getLast().assertEquals(testName, 6)  // TEST: should be wrong (check for working testing functionality)
+	// Destroy class objects:
+	destroy a
+	destroy b
 
 @Test public function testArrayList_AddAndRemove()
 	let testName = "testArrayList_AddAndRemove"
 	string usedTestName
 	// Create and check empty list:
-	var a = new ArrayList<int>(4)
+	let a = new ArrayList<int>(4)
 	usedTestName = useTestName(testName)
 	if a.isEmpty() != true
 		testFail(usedTestName, "Test failed")
@@ -1067,11 +1070,13 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	usedTestName = useTestName(testName)
 	if a.get(0) != 4
 		testFail(usedTestName, "Test failed")
+	// Destroy class objects:
+	destroy a
 
 @Test public function testArrayList_Resizing()
 	let testName = "testArrayList_Resizing"
 	// Create and check dynamic list:
-	var a = new ArrayList<int>()
+	let a = new ArrayList<int>()
 	a.maxSize().assertEquals(testName, 2)
 	a.size().assertEquals(testName, 0)
 	// Add entries and check max size:
@@ -1098,11 +1103,13 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	a.clear()
 	a.maxSize().assertEquals(testName, 2)
 	a.size().assertEquals(testName, 0)
+	// Destroy class objects:
+	destroy a
 
 @Test public function testArrayList_Iterating()
 	let testName = "testArrayList_Iterating"
 	// Create and fill list:
-	var a = new ArrayList<int>(8)
+	let a = new ArrayList<int>(8)
 	a.add(1, 2, 3, 4, 5, 6, 7)
 	a.get(4).assertEquals(testName, 5)
 	// Iterate through list and check:
@@ -1126,12 +1133,12 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	iteratorA.lookahead().assertEquals(testName, 4)
 	iteratorA.close()
 	// Step through string iterator with null entries and check:
-	var b = new ArrayList<string>(9)
+	let b = new ArrayList<string>(9)
 	b.add(null, "a", "b", null, "d", null, null, "g", null)
 	b.get(2).assertEquals(testName, "b")
 	b.get(3).assertEquals(testName, null)
 	b.get(4).assertEquals(testName, "d")
-	var iteratorB = b.iteratorIgnoreNull(null)
+	let iteratorB = b.iteratorIgnoreNull(null)
 	iteratorB.next().assertEquals(testName, "a")
 	iteratorB.next().assertEquals(testName, "b")
 	iteratorB.next().assertEquals(testName, "d")
@@ -1139,12 +1146,12 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	iteratorB.hasNext().assertFalse(testName)
 	iteratorB.close()
 	// Step through int iterator with null entries and check:
-	var c = new ArrayList<int>(8)
+	let c = new ArrayList<int>(8)
 	c.add(1, 0, 3, 4, 0, 0, 7)
 	c.get(0).assertEquals(testName, 1)
 	c.get(1).assertEquals(testName, 0)
 	c.get(2).assertEquals(testName, 3)
-	var iteratorC = c.iteratorIgnoreNull(0)
+	let iteratorC = c.iteratorIgnoreNull(0)
 	iteratorC.next().assertEquals(testName, 1)
 	iteratorC.next().assertEquals(testName, 3)
 	iteratorC.next().assertEquals(testName, 4)
@@ -1152,11 +1159,15 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	iteratorC.next().assertEquals(testName, 7)
 	iteratorC.hasNext().assertFalse(testName)
 	iteratorC.close()
+	// Destroy class objects:
+	destroy a
+	destroy b
+	destroy c
 
 @Test public function testArrayList_SetWithResize()
 	let testName = "testArrayList_SetWithResize"
 	// Set element with resize and check:
-	var a = new ArrayList<int>(4)
+	let a = new ArrayList<int>(4)
 	a.add(1, 2, 3)
 	a.setWithResize(6, 7, 0)
 	a.get(0).assertEquals(testName, 1)
@@ -1165,3 +1176,5 @@ public class ALIteratorIgnoreNull<T> extends ALIterator<T>
 	a.get(4).assertEquals(testName, 0)
 	a.get(6).assertEquals(testName, 7)
 	a.size().assertEquals(testName, 7)
+	// Destroy class objects:
+	destroy a

@@ -5,6 +5,9 @@
 // Description:
 Ingame test alternative to the Wurstunit package with additional functionality.
 
+// Examples:
+testDebug(useTestName("test<SystemName>_<FunctionName>"), "Debug message")  // DEBUG: only for testing
+
 // Changelog:
 - 1.0.0:
 Initial version.

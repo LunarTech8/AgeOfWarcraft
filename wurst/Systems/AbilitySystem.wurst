@@ -19,6 +19,8 @@ import BuildingSystem
 import ResourceSystem
 import OrderSystem
 import Ability_Harvest
+import InstantDummyCaster
+import DummyRecycler
 
 
 // --------------------
@@ -213,34 +215,42 @@ init
 		let source = GetTriggerUnit()
 		let target = GetSpellTargetUnit()
 		let abilityId = GetSpellAbilityId()
-		source.getOrderSource().cancel()  // Cancel current target order for clean cast validity and ordering
-		let val = source.getAbilityValidity(abilityId, target)
-		if val == Validity.VALID
-			switch abilityId
-				case AbilityIdsCustom.transferWares
-					// Transfer wares from source to target:
-					source.transferWares(target)
-				case AbilityIdsCustom.build
-					// Add worker to building site:
-					source.setOrder(AbilityIdsCustom.build, target)
-					target.getBuildingSite().addWorker(source)
-				case AbilityIdsCustom.harvest
-					// Perform harvest after ability is finished:
-					let targetResource = target.getResource()
-					CallbackSimple invalidateCb = () ->
-						source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)
-					CallbackSimple cancelCb = () ->
-						targetResource.removeWorker()
-					CallbackSimple finishCb = () ->
-						targetResource.removeWorker()
-						if source.harvest(target)
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)  // Auto-recast on same target
-						else
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
-					source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(AbilityData_Harvest.cooldown, invalidateCb, cancelCb, finishCb))
-					targetResource.addWorker()
-		else if val != Validity.UNREGISTERED
-			source.reactOnInvalidAbility(abilityId, val)
+		let sourceUnitId = source.getUnitId()
+		if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
+			// Cancel current target order for clean cast validity and ordering:
+			let orderSource = source.getOrderSource()
+			if orderSource == null
+				Log.warn("WARNING: " + source.getName() + " cast " + abilityId.getOrderName() + " on " + target.getName() + " without being registered as an OrderSource")
+			else
+				orderSource.cancel()
+			// Check ability validity:
+			let val = source.getAbilityValidity(abilityId, target)
+			if val == Validity.VALID
+				switch abilityId
+					case AbilityIdsCustom.transferWares
+						// Transfer wares from source to target:
+						source.transferWares(target)
+					case AbilityIdsCustom.build
+						// Add worker to building site:
+						source.setOrder(AbilityIdsCustom.build, target)
+						target.getBuildingSite().addWorker(source)
+					case AbilityIdsCustom.harvest
+						// Perform harvest after ability is finished:
+						let targetResource = target.getResource()
+						CallbackSimple invalidateCb = () ->
+							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)
+						CallbackSimple cancelCb = () ->
+							targetResource.removeWorker()
+						CallbackSimple finishCb = () ->
+							targetResource.removeWorker()
+							if source.harvest(target)
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)  // Auto-recast on same target
+							else
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
+						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(AbilityData_Harvest.cooldown, invalidateCb, cancelCb, finishCb))
+						targetResource.addWorker()
+			else if val != Validity.UNREGISTERED
+				source.reactOnInvalidAbility(abilityId, val)
 	// Register issued ability orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()

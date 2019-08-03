@@ -159,6 +159,11 @@ public class Stock
 				else
 					wares.replace(iWare, iWare.changedCopy(-w.count))
 
+	/** Remove given wares from the stock. */
+	function removeWares(ArrayList<ware> wares)
+		for iWare in wares
+			removeWare(iWare)
+
 	/** Returns if the stock has any wares of given target stock. */
 	function containsAny(Stock targetStock) returns bool
 		for iWare in wares

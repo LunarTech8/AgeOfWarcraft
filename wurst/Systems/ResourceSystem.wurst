@@ -155,12 +155,12 @@ class Resource extends Stock
 
 	function addWorker()
 		if workerCount >= getMaxWorkerCount(user.getUnitId())
-			Log.error("ERROR: Can not add more workers to resource (" + GetUnitName(user) + ")")
+			Log.error("ERROR: Can not add more workers to resource (" + user.getName() + ")")
 		workerCount += 1
 
 	function removeWorker()
 		if workerCount <= 0
-			Log.error("ERROR: Can not remove more workers from resource (" + GetUnitName(user) + ")")
+			Log.error("ERROR: Can not remove more workers from resource (" + user.getName() + ")")
 		workerCount -= 1
 
 	function checkForDepletionKill() returns bool

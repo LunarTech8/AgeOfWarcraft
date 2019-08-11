@@ -20,8 +20,8 @@ Work status:
 // Programming:
 // -------------
 
+!!>>>- Use counter adjusted in AbilitySystem instead of group in BuildingSystem for building sites
 !!>- Add unit tests for BuildingSystem
-!!>- Maybe use counter adjusted in AbilitySystem instead of group in BuildingSystem for building sites
 
 !!!- Orders like stop, move, smart, etc. should probably be nulled/removed after they are carried out (maybe add cyclic check functionality)
 !!- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory

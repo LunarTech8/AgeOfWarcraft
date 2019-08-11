@@ -21,7 +21,6 @@ import OrderSystem
 import Ability_Harvest
 import InstantDummyCaster
 import DummyRecycler
-import UnitTest
 import ClosureTimers
 
 
@@ -238,7 +237,6 @@ init
 						CallbackSimple invalidateCb = () ->
 							doAfter(MIN_TRIGGER_SLEEP_TIME, () -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true))
 						CallbackSimple cancelCb = () ->
-							testDebug(useTestName("testAbilitySystem_init"), "Order canceled")  // DEBUG: only for testing
 							targetBuildingSite.removeWorker(source)
 						source.setOrder(AbilityIdsCustom.build, target, new OrderAction(invalidateCb, cancelCb))
 						targetBuildingSite.addWorker(source)

@@ -79,7 +79,7 @@ let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, INIT_UNIT_INDEX_SIZ
 
 class BuildingSite extends Stock
 	private real fullHP
-	private group workers
+	private int workerCount
 	private real workProgress
 	private real workPower
 	private int upgradeProgress
@@ -88,13 +88,10 @@ class BuildingSite extends Stock
 		super(requiredWares)
 		user = building
 		this.fullHP = fullHP
-		workers = CreateGroup()
+		workerCount = 0
 		workProgress = 0.
 		workPower = 0.
 		upgradeProgress = 1
-
-	ondestroy
-		workers.destr()
 
 	function getWorkProgress() returns real
 		return workProgress
@@ -103,23 +100,25 @@ class BuildingSite extends Stock
 		return workPower
 
 	function getWorkerCount() returns int
-		return workers.size()
+		return workerCount
 
 	function addWorker(unit worker)
-		if WORKER_MAP.has(worker) == false and workers.contains(worker) == false
+		if WORKER_MAP.has(worker) == false
 			WORKER_MAP.put(worker, this)
 			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
-			workers.addUnit(worker)
+			workerCount += 1
 			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
 			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
 		else
 			Log.error("ERROR: Can't add worker to this building site")
 
 	function removeWorker(unit worker)
-		if WORKER_MAP.get(worker) == this and workers.contains(worker)
+		if workerCount <= 0
+			Log.error("ERROR: Can not remove more workers from building site (" + user.getName() + ")")
+		else if WORKER_MAP.get(worker) == this
 			WORKER_MAP.remove(worker)
 			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
-			workers.removeUnit(worker)
+			workerCount -= 1
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
 		else

@@ -1,0 +1,30 @@
+package Command_GiveWares
+import Stock
+import StorageSystem
+
+
+// --------------------
+// Data code
+// --------------------
+
+let USER_PLAYER = Player(0)
+let COMMAND = "give wares"
+let COMMAND_SHORT = "gw"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+function executeCommand()
+	ENUM_GROUP.enumUnitsSelected(USER_PLAYER, null)
+	for u from ENUM_GROUP
+		let storage = u.getStorage()
+		if storage != null
+			storage.addWare(ware(WareType.WOOD, 4))
+
+init
+	CreateTrigger()
+	..addAction(function executeCommand)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)

@@ -88,7 +88,9 @@ function generateWorld()
 
 init
     // Use a trigger to allow the use of TriggerSleepAction:
-    // TEST: following lines are deactivated for StartMap development
+    // DEBUG: following lines are deactivated for StartMap development
     // CreateTrigger()
     // ..addAction(function generateWorld)
     // ..execute()
+    // DEBUG: following lines are only for development
+    SetMusicVolume(0)

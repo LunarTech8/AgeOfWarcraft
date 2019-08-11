@@ -94,9 +94,6 @@ class BuildingSite extends Stock
 		upgradeProgress = 1
 
 	ondestroy
-		for worker in workers
-			removeWorker(worker)
-			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> worker.issueTargetAbilityOrder(AbilityIdsCustom.build, worker.findNextBuildingSite(), true))
 		workers.destr()
 
 	function getWorkProgress() returns real
@@ -208,12 +205,6 @@ function unit.removeBuildingSite()
 	if buildingSite != null
 		destroy buildingSite
 
-/** If worker is building stop him. */
-function unit.stopBuilding()
-	let buildingSite = WORKER_MAP.tryGet(this)
-	if buildingSite != null
-		buildingSite.removeWorker(this)
-
 function findNextBuildingSite_GetFilter() returns filterfunc
 	return Filter() ->
 		var conditionsFulfilled = false
@@ -309,9 +300,3 @@ init
 		building.removeBuildingSite()
 		building.kill()
 		building.remove()
-	// Register building stops:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> GetTriggerUnit().stopBuilding())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> GetTriggerUnit().stopBuilding())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, () -> GetTriggerUnit().stopBuilding())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, () -> GetTriggerUnit().stopBuilding())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, () -> GetTriggerUnit().stopBuilding())

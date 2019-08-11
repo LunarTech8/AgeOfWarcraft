@@ -112,6 +112,8 @@ public function int.getOrderName() returns string
 			return "repair on"
 		case OrderIds.repairoff
 			return "repair off"
+		case OrderIds.stunned
+			return "stunned"
 		case OrderIds.undefend
 			return null
 		case AbilityIdsCustom.harvest

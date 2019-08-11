@@ -21,6 +21,8 @@ import OrderSystem
 import Ability_Harvest
 import InstantDummyCaster
 import DummyRecycler
+import UnitTest
+import ClosureTimers
 
 
 // --------------------
@@ -232,8 +234,14 @@ init
 						source.transferWares(target)
 					case AbilityIdsCustom.build
 						// Add worker to building site:
-						source.setOrder(AbilityIdsCustom.build, target)
-						target.getBuildingSite().addWorker(source)
+						let targetBuildingSite = target.getBuildingSite()
+						CallbackSimple invalidateCb = () ->
+							doAfter(MIN_TRIGGER_SLEEP_TIME, () -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true))
+						CallbackSimple cancelCb = () ->
+							testDebug(useTestName("testAbilitySystem_init"), "Order canceled")  // DEBUG: only for testing
+							targetBuildingSite.removeWorker(source)
+						source.setOrder(AbilityIdsCustom.build, target, new OrderAction(invalidateCb, cancelCb))
+						targetBuildingSite.addWorker(source)
 					case AbilityIdsCustom.harvest
 						// Perform harvest after ability is finished:
 						let targetResource = target.getResource()

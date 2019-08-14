@@ -26,6 +26,7 @@ import OrderSystem
 import UnitMap
 import UnitIndexer
 import ArrayList
+import UnitTest
 
 
 // --------------------
@@ -299,3 +300,47 @@ init
 		building.removeBuildingSite()
 		building.kill()
 		building.remove()
+
+
+// --------------------
+// Test code
+// --------------------
+
+@Test public function testBuildingSystem_Build()
+	let testName = "testBuildingSystem_Build"
+	string usedTestName
+	// Order to build:
+	let unitA = createUnit(Player(0), UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+	let storageA = unitA.getStorage()
+	usedTestName = useTestName(testName)
+	if storageA == null
+		testFail(usedTestName, "Test failed")
+	storageA.addWare(ware(WareType.WOOD, 5))
+	var workerCount = getWorkerCount()
+	var buildingSiteCount = getBuildingSiteCount()
+	unitA.issuePointOrderById(UnitIdsCustom.farm, vec2(0, 0))
+	// Check worker and building site:
+	doAfter(MIN_TRIGGER_SLEEP_TIME) () ->
+		// Check unit mappings:
+		(getWorkerCount() - workerCount).assertEquals(1)
+		(getBuildingSiteCount() - buildingSiteCount).assertEquals(1)
+		WORKER_MAP.has(unitA).assertTrue()
+		let a = unitA.getBuildingSiteOfWorker()
+		usedTestName = useTestName(testName)
+		if a == null
+			testFail(usedTestName, "Test failed")
+		usedTestName = useTestName(testName)
+		if a.user.getBuildingSite() != a
+			testFail(usedTestName, "Test failed")
+		usedTestName = useTestName(testName)
+		if unitA.findNextBuildingSite() != a.user
+			testFail(usedTestName, "Test failed")
+		// Check building site status:
+		a.getWorkProgress().assertEquals(0.)
+		a.getWorkPower().assertEquals(0.05)
+		a.getWorkerCount().assertEquals(1)
+		a.hasWares().assertFalse()
+		// Remove test units:
+		RemoveUnit(unitA)
+		// Destroy class objects:
+		destroy a

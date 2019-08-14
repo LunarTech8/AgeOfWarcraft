@@ -2,6 +2,7 @@ package Command_UnitTests
 import ArrayList
 import UnitMap
 import StorageSystem
+import BuildingSystem
 
 
 // --------------------
@@ -28,6 +29,8 @@ function executeCommand()
 	testUnitDynamicIndexMap_AddAndRemove()
 	// StorageSystem:
 	testStorageSystem_AddAndRemove()
+	// BuildingSystem:
+	testBuildingSystem_Build()
 
 init
 	CreateTrigger()

@@ -1,5 +1,4 @@
 package Command_UnitTests
-import ArrayList
 import UnitMap
 import StorageSystem
 import BuildingSystem
@@ -19,14 +18,8 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	// ArrayList:
-	testArrayList_CreateAndSize()
-	testArrayList_AddAndRemove()
-	testArrayList_Resizing()
-	testArrayList_Iterating()
-	testArrayList_SetWithResize()
 	// UnitMap:
-	testUnitDynamicIndexMap_AddAndRemove()
+	testUnitHashMap_AddAndRemove()
 	// StorageSystem:
 	testStorageSystem_AddAndRemove()
 	// BuildingSystem:

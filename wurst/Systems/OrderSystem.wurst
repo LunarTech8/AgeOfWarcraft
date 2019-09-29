@@ -23,7 +23,6 @@ import Icons
 import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitMap
-import ConstantDataSystem
 
 
 // --------------------
@@ -37,8 +36,8 @@ let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
 // Functional code
 // --------------------
 
-let ORDER_SOURCE_MAP = new UnitDynamicIndexMap<OrderSource>(null, INIT_UNIT_INDEX_SIZE)
-let ORDER_TARGET_MAP = new UnitDynamicIndexMap<OrderTarget>(null, INIT_UNIT_INDEX_SIZE)
+let ORDER_SOURCE_MAP = new UnitHashMap<OrderSource>(null)
+let ORDER_TARGET_MAP = new UnitHashMap<OrderTarget>(null)
 
 public interface CallbackSimple
 	function call()

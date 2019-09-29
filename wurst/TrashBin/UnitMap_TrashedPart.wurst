@@ -1,0 +1,166 @@
+// import ArrayList
+// import UnitTest
+// import ConstantDataSystem
+
+
+// --------------------
+// Functional code
+// --------------------
+
+// /** Uses unit user data (via UnitIndexer) to quickly map units to the given values. Size of used value array is dynamically adjusted.
+// Use "onUnitDeindex" instead of "onLeave" for value removal of this map (because otherwise the units index might already be 0). */
+// public class UnitDynamicIndexMap<T> implements UnitMap<T>
+// 	protected constant ArrayList<T> values  // Uses ArrayList as a dynamically growing array where unused slots are set to the null element
+// 	protected constant T nullElem  // Is required because some types (like int) can't be null
+
+// 	construct(T nullElem)
+// 		values = new ArrayList<T>()
+// 		this.nullElem = nullElem
+// 	construct(T nullElem, int minSize)
+// 		values = new ArrayList<T>(minSize)
+// 		this.nullElem = nullElem
+// 	private construct()  // Needed because generic variables can't be passed in super call
+// 		values = new ArrayList<T>()
+// 	private construct(int minSize)  // Needed because generic variables can't be passed in super call
+// 		values = new ArrayList<T>(minSize)
+
+// 	ondestroy
+// 		destroy values
+
+// 	/** Checks if the given key is mapped. */
+// 	override function has(unit key) returns bool
+// 		let index = key.getIndex()  // Unindexed keys will have index 0
+// 		return index != 0 and values.size() - 1 >= index and values.get(index) != nullElem
+
+// 	/** Returns the value of given key. */
+// 	override function get(unit key) returns T
+// 		return values.get(key.toUnitIndex() castTo int)  // Indexes key if necessary so that an error is thrown if unmapped
+
+// 	/** Returns the value of given key. Instead of throwing an error returns the null element if given key isn't mapped. */
+// 	override function tryGet(unit key) returns T
+// 		let index = key.getIndex()  // Unindexed keys will have index 0
+// 		if index == 0 or values.size() - 1 < index
+// 			return nullElem
+// 		return values.get(index)
+
+// 	/** Saves the given value under the given key. */
+// 	override function put(unit key, T value)
+// 		values.setWithResize(key.toUnitIndex() castTo int, value, nullElem)  // Automatically indexes key if previously unmapped
+
+// 	/** Removes the key-value pair saved under the given key. */
+// 	override function remove(unit key)
+// 		values.set(key.toUnitIndex() castTo int, nullElem)  // Automatically indexes key if previously unmapped
+
+// 	/** Removes and returns the value of given key. Returns the null element instead if given key isn't mapped. */
+// 	override function tryRemove(unit key) returns T
+// 		let index = key.getIndex()  // Unindexed keys will have index 0
+// 		if index != 0 and values.size() - 1 >= index
+// 			let value = values.get(index)
+// 			values.set(index, nullElem)
+// 			return value
+// 		else
+// 			return nullElem
+
+// 	/** Returns the count of all non null value elements. */
+// 	function getValueCount() returns int
+// 		var counter = 0
+// 		let iterator = values.iteratorIgnoreNull(nullElem)
+// 		for T _elem from iterator
+// 			counter += 1
+// 		iterator.close()
+// 		return counter
+
+// /** Uses unit user data (via UnitIndexer) to quickly map units to the given values. Size of used value array is dynamically adjusted.
+// Map can be iterated over its keys.
+// Use "onUnitDeindex" instead of "onLeave" for value removal of this map (because otherwise the units index might already be 0). */
+// public class IterableUnitDynamicIndexMap<T> extends UnitDynamicIndexMap<T>
+// 	protected constant ArrayList<unit> keys
+
+// 	construct(T nullElem)
+// 		super()
+// 		this.nullElem = nullElem  // Needed because generic variables can't be passed in super call
+// 		keys = new ArrayList<unit>()
+// 	construct(T nullElem, int minSize)
+// 		super(minSize)
+// 		this.nullElem = nullElem  // Needed because generic variables can't be passed in super call
+// 		keys = new ArrayList<unit>(minSize)
+
+// 	ondestroy
+// 		destroy keys
+
+// 	/** Saves the given value under the given key. */
+// 	override function put(unit key, T value)
+// 		super.put(key, value)
+// 		keys.setWithResize(key.toUnitIndex() castTo int, key, null)  // Automatically indexes key if previously unmapped
+
+// 	/** Removes the key-value pair saved under the given key. */
+// 	override function remove(unit key)
+// 		super.remove(key)
+// 		keys.set(key.toUnitIndex() castTo int, null)  // Automatically indexes key if previously unmapped
+
+// 	/** Removes and returns the value of given key. Returns null instead if given key isn't mapped. */
+// 	override function tryRemove(unit key) returns T
+// 		let index = key.getIndex()  // Unindexed keys will have index 0
+// 		if index != 0 and keys.size() - 1 >= index
+// 			let value = super.get(key)
+// 			super.remove(key)
+// 			keys.set(index, null)
+// 			return value
+// 		else
+// 			return null
+
+// 	/** Returns an iterator that iterates over the map's keys. */
+// 	function iterator() returns ALIterator<unit>
+// 		return keys.iteratorIgnoreNull(null)
+
+// 	/** Returns the length of this iterable map. */
+// 	function size() returns int
+// 		return keys.size()
+
+
+// --------------------
+// Test code
+// --------------------
+
+// @Test public function testUnitDynamicIndexMap_AddAndRemove()
+// 	let testName = "testUnitDynamicIndexMap_AddAndRemove"
+// 	// Create new map:
+// 	let a = new UnitDynamicIndexMap<string>(null, 4)
+// 	a.has(null).assertFalse(testName)
+// 	// Add entries and check:
+// 	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+// 	a.put(unitA, "unitA")
+// 	a.get(unitA).assertEquals(testName, "unitA")
+// 	a.has(unitA).assertTrue(testName)
+// 	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+// 	a.put(unitB, "unitB")
+// 	a.get(unitB).assertEquals(testName, "unitB")
+// 	// Remove entry and check:
+// 	a.remove(unitA)
+// 	a.has(unitA).assertFalse(testName)
+// 	a.tryGet(unitA).assertEquals(testName, null)
+// 	a.tryRemove(unitA).assertEquals(testName, null)
+// 	a.get(unitB).assertEquals(testName, "unitB")
+// 	a.tryGet(unitB).assertEquals(testName, "unitB")
+// 	let unitC = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+// 	a.put(unitC, "unitC")
+// 	a.tryRemove(unitC).assertEquals(testName, "unitC")
+// 	// Create another map:
+// 	let b = new UnitDynamicIndexMap<int>(0, 2)
+// 	b.has(unitB).assertFalse(testName)
+// 	b.put(unitA, 1)
+// 	b.get(unitA).assertEquals(testName, 1)
+// 	a.has(unitA).assertFalse(testName)
+// 	b.put(unitB, 2)
+// 	b.put(unitC, 3)
+// 	b.get(unitC).assertEquals(testName, 3)
+// 	b.remove(unitB)
+// 	let unitD = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+// 	// Remove test units:
+// 	RemoveUnit(unitA)
+// 	RemoveUnit(unitB)
+// 	RemoveUnit(unitC)
+// 	RemoveUnit(unitD)
+// 	// Destroy class objects:
+// 	destroy a
+// 	destroy b

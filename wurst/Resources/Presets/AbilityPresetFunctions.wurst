@@ -11,7 +11,6 @@ Initial version.
 -------------------------------------------------------------*/
 package AbilityPresetFunctions
 import LinkedList
-import StringUtils
 import ObjectIds
 import public Orders
 import public Assets

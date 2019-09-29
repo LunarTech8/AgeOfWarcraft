@@ -12,7 +12,7 @@ Initial version.
 -------------------------------------------------------------*/
 package Stock
 import Icons
-import ArrayList
+import LinkedList
 
 
 // --------------------
@@ -100,10 +100,10 @@ public function ware.changedCopy(WareType newWareType, int countChange) returns 
 	return ware(newWareType, this.count + countChange)
 
 public class Stock
-	protected ArrayList<ware> wares
+	protected LinkedList<ware> wares
 	protected unit user
 
-	construct(ArrayList<ware> wares)
+	construct(LinkedList<ware> wares)
 		this.wares = wares
 
 	ondestroy
@@ -145,7 +145,7 @@ public class Stock
 		wares.add(w)
 
 	/** Add given wares to the stock. */
-	function addWares(ArrayList<ware> wares)
+	function addWares(LinkedList<ware> wares)
 		for iWare in wares
 			addWare(iWare)
 
@@ -160,7 +160,7 @@ public class Stock
 					wares.replace(iWare, iWare.changedCopy(-w.count))
 
 	/** Remove given wares from the stock. */
-	function removeWares(ArrayList<ware> wares)
+	function removeWares(LinkedList<ware> wares)
 		for iWare in wares
 			removeWare(iWare)
 

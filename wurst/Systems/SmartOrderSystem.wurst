@@ -15,15 +15,15 @@ import Orders
 import ConstantDataSystem
 import UtilityFunctions
 import AbilitySystem
-import ArrayList
+import LinkedList
 
 
 // --------------------
 // Data code
 // --------------------
 
-function getSmartUsedAbilityIds() returns ArrayList<int>
-	var abilityIds = new ArrayList<int>(3)
+function getSmartUsedAbilityIds() returns LinkedList<int>
+	var abilityIds = new LinkedList<int>()
 	// Add ability ids in order of their priority:
 	abilityIds.add(AbilityIdsCustom.harvest)
 	abilityIds.add(AbilityIdsCustom.build)
@@ -37,7 +37,7 @@ function getSmartUsedAbilityIds() returns ArrayList<int>
 
 let SMART_USED_ABILITY_IDS = getSmartUsedAbilityIds()
 
-function unit.searchForValidAbility(unit target, ArrayList<int> abilityIds)
+function unit.searchForValidAbility(unit target, LinkedList<int> abilityIds)
 	for abilityId in abilityIds
 		if this.isAbilityValid(abilityId, target)
 			// Issue found valid ability order and end search:

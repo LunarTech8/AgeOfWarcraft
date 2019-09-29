@@ -18,7 +18,7 @@ import Stock
 import StorageSystem
 import UnitMap
 import UnitIndexer
-import ArrayList
+import LinkedList
 import Icons
 
 
@@ -29,8 +29,8 @@ import Icons
 let MAX_AUTO_ORDER_RANGE = 1024.
 let WORKERS_ICON_PATH = Icons.bTNBash
 
-function getDefaultInitWares(int resourceUnitId) returns ArrayList<ware>
-	var wares = new ArrayList<ware>(1)
+function getDefaultInitWares(int resourceUnitId) returns LinkedList<ware>
+	var wares = new LinkedList<ware>()
 	switch resourceUnitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
@@ -71,8 +71,8 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns
 		default
 			return 0.
 
-function getWaresPerFinishedWork(int resourceUnitId) returns ArrayList<ware>
-	var wares = new ArrayList<ware>(1)
+function getWaresPerFinishedWork(int resourceUnitId) returns LinkedList<ware>
+	var wares = new LinkedList<ware>()
 	switch resourceUnitId
 		case UnitIdsCustom.beech
 			wares.add(ware(WareType.WOOD, 1))
@@ -115,14 +115,14 @@ function getMaxWorkerCount(int resourceUnitId) returns int
 // Functional code
 // --------------------
 
-let RESOURCE_MAP = new UnitHashMap<Resource>()
+let RESOURCE_MAP = new UnitHashMap<Resource>(null)
 
 class Resource extends Stock
 	private bool isKilledWhenDepleted
 	private real workProgress
 	private int workerCount
 
-	construct(unit resource, bool isKilledWhenDepleted, ArrayList<ware> initWares)
+	construct(unit resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
 		super(initWares)
 		user = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
@@ -144,7 +144,7 @@ class Resource extends Stock
 		return getMaxWorkerCount(user.getUnitId()) - workerCount
 
 	/** Perform harvest and returns the harvested wares. */
-	function harvest(int workerUnitId) returns ArrayList<ware>
+	function harvest(int workerUnitId) returns LinkedList<ware>
 		let resourceUnitId = user.getUnitId()
 		// Work resource:
 		if work(getWorkProgressPerHarvest(workerUnitId, resourceUnitId))

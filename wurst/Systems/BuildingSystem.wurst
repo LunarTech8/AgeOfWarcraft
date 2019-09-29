@@ -25,7 +25,7 @@ import Unit_TownHall
 import OrderSystem
 import UnitMap
 import UnitIndexer
-import ArrayList
+import LinkedList
 import UnitTest
 
 
@@ -42,8 +42,8 @@ let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
 let WORKERS_ICON_PATH = Icons.bTNBash
 
-function getRequiredWares(int buildingUnitId) returns ArrayList<ware>
-	var wares = new ArrayList<ware>(2)
+function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
+	var wares = new LinkedList<ware>()
 	switch buildingUnitId
 		case UnitIdsCustom.farm
 			wares.add(ware(WareType.WOOD, 4))
@@ -75,8 +75,8 @@ function getBuildingScaling(int buildingUnitId) returns real
 // Functional code
 // --------------------
 
-let BUILDING_SITE_MAP = new IterableUnitDynamicIndexMap<BuildingSite>(null, INIT_UNIT_INDEX_SIZE)
-let WORKER_MAP = new UnitDynamicIndexMap<BuildingSite>(null, INIT_UNIT_INDEX_SIZE)
+let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>(null)
+let WORKER_MAP = new UnitHashMap<BuildingSite>(null)
 
 class BuildingSite extends Stock
 	private real fullHP
@@ -85,7 +85,7 @@ class BuildingSite extends Stock
 	private real workPower
 	private int upgradeProgress
 
-	construct(unit building, real fullHP, ArrayList<ware> requiredWares)
+	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
 		super(requiredWares)
 		user = building
 		this.fullHP = fullHP
@@ -166,7 +166,7 @@ class BuildingSite extends Stock
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 
 	function transferWares(Storage source)
-		var leftRequiredWares = new ArrayList<ware>(STORAGE_MIN_WARE_TYPE_COUNT)
+		var leftRequiredWares = new LinkedList<ware>()
 		// Look through all required wares:
 		for i = 0 to getAmountOfWareTypes() - 1
 			var ware = getWare(i)
@@ -306,6 +306,7 @@ init
 // Test code
 // --------------------
 
+unit testBuildingSystem_Build_building = null
 @Test public function testBuildingSystem_Build()
 	let testName = "testBuildingSystem_Build"
 	string usedTestName
@@ -314,13 +315,14 @@ init
 	let storageA = unitA.getStorage()
 	usedTestName = useTestName(testName)
 	if storageA == null
-		testFail(usedTestName, "Test failed")
+		testFail(usedTestName, "Test failed: Couldn't get Storage of unitA")
 	storageA.addWare(ware(WareType.WOOD, 5))
 	var workerCount = getWorkerCount()
 	var buildingSiteCount = getBuildingSiteCount()
 	unitA.issuePointOrderById(UnitIdsCustom.farm, vec2(0, 0))
+	testBuildingSystem_Build_building = null
 	// Check worker and building site:
-	doAfter(MIN_TRIGGER_SLEEP_TIME) () ->
+	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
 		(getWorkerCount() - workerCount).assertEquals(1)
 		(getBuildingSiteCount() - buildingSiteCount).assertEquals(1)
@@ -328,19 +330,29 @@ init
 		let a = unitA.getBuildingSiteOfWorker()
 		usedTestName = useTestName(testName)
 		if a == null
-			testFail(usedTestName, "Test failed")
+			testFail(usedTestName, "Test failed: Couldn't get BuildingSite of worker unitA")
 		usedTestName = useTestName(testName)
-		if a.user.getBuildingSite() != a
-			testFail(usedTestName, "Test failed")
+		testBuildingSystem_Build_building = a.user
+		if testBuildingSystem_Build_building == null
+			testFail(usedTestName, "Test failed: Couldn't get unit of BuildingSite a")
+		if testBuildingSystem_Build_building.getBuildingSite() != a
+			testFail(usedTestName, "Test failed: Couldn't get BuildingSite via function getBuildingSite")
 		usedTestName = useTestName(testName)
-		if unitA.findNextBuildingSite() != a.user
-			testFail(usedTestName, "Test failed")
+		if unitA.findNextBuildingSite() != testBuildingSystem_Build_building
+			testFail(usedTestName, "Test failed: Couldn't find BuildingSite via function findNextBuildingSite")
 		// Check building site status:
 		a.getWorkProgress().assertEquals(0.)
 		a.getWorkPower().assertEquals(0.05)
 		a.getWorkerCount().assertEquals(1)
 		a.hasWares().assertFalse()
-		// Remove test units:
-		RemoveUnit(unitA)
-		// Destroy class objects:
-		destroy a
+	// Simulate construction abortion:
+	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
+		if testBuildingSystem_Build_building == null
+			testFail(usedTestName, "Test failed: unitB is null")
+		testBuildingSystem_Build_building.removeBuildingSite()
+		testBuildingSystem_Build_building.kill()
+		testBuildingSystem_Build_building.remove()
+	// Remove test units:
+	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
+		unitA.kill()
+		unitA.remove()

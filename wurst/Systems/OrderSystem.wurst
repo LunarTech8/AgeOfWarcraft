@@ -30,6 +30,8 @@ import UnitMap
 // --------------------
 
 let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
+let POS_TOLERANCE_RANGE = 16.
+let POS_CHECK_RATE = 1.
 
 
 // --------------------
@@ -41,6 +43,9 @@ let ORDER_TARGET_MAP = new UnitHashMap<OrderTarget>(null)
 
 public interface CallbackSimple
 	function call()
+
+public interface CallbackCondition
+	function call() returns bool
 
 class OrderTarget
 	private unit target
@@ -76,31 +81,25 @@ public class OrderAction
 	private CallbackSimple invalidateCb  // Is called if order becomes invalid (eg. target becomes invalid) and resolves consequential actions
 	private CallbackSimple cancelCb  // Is called if order is overwritten by another order or becoming invalid and resolves clean up actions for the previous order
 	private CallbackSimple finishCb  // Is called after the given duration and resolves the execution actions of the order
+	private CallbackCondition finishCondition  // Is called repeatedly after the given duration and returns if the order action can be finished
 
-	construct(CallbackSimple invalidateCb)
-		this.invalidateCb = invalidateCb
-		this.cancelCb = null
-		this.finishCb = null
-		t = null
 	construct(CallbackSimple invalidateCb, CallbackSimple cancelCb)
 		this.invalidateCb = invalidateCb
 		this.cancelCb = cancelCb
 		this.finishCb = null
+		this.finishCondition = null
 		t = null
-	construct(real duration, CallbackSimple invalidateCb, CallbackSimple finishCb)
-		this.invalidateCb = invalidateCb
-		this.cancelCb = null
-		this.finishCb = finishCb
-		t = getTimer()
-		t.setData(this castTo int)
-		t.start(duration, () -> finish())
-	construct(real duration, CallbackSimple invalidateCb, CallbackSimple cancelCb, CallbackSimple finishCb)
+	construct(CallbackSimple invalidateCb, CallbackSimple cancelCb, CallbackSimple finishCb, real duration, CallbackCondition finishCondition)
 		this.invalidateCb = invalidateCb
 		this.cancelCb = cancelCb
 		this.finishCb = finishCb
+		this.finishCondition = finishCondition
 		t = getTimer()
 		t.setData(this castTo int)
-		t.start(duration, () -> finish())
+		if finishCondition == null
+			t.start(duration, () -> finish())
+		else
+			t.startPeriodic(duration, () -> finish())
 
 	ondestroy
 		if t != null
@@ -112,20 +111,23 @@ public class OrderAction
 			destroy cancelCb
 		if finishCb != null
 			destroy finishCb
+		if finishCondition != null
+			destroy finishCondition
 
 	private static function finish()
 		timer t = GetExpiredTimer()
 		thistype cb = t.getData() castTo thistype
-		cb.t = null
-		t.release()
-		if cb.invalidateCb != null
-			destroy cb.invalidateCb
-			cb.invalidateCb = null
-		if cb.cancelCb != null
-			destroy cb.cancelCb
-			cb.cancelCb = null
-		if cb.finishCb != null
-			cb.finishCb.call()
+		if cb.finishCondition == null or cb.finishCondition.call()
+			cb.t = null
+			t.release()
+			if cb.invalidateCb != null
+				destroy cb.invalidateCb
+				cb.invalidateCb = null
+			if cb.cancelCb != null
+				destroy cb.cancelCb
+				cb.cancelCb = null
+			if cb.finishCb != null
+				cb.finishCb.call()
 
 	function invalidate()
 		if invalidateCb != null
@@ -242,8 +244,14 @@ public function unit.isOrder(int orderId, unit target) returns bool
 	else
 		return false
 
+/** Clear unit as order source. */
+public function unit.removeSourceOrder()
+	let orderSource = ORDER_SOURCE_MAP.tryRemove(this)
+	if orderSource != null
+		destroy orderSource
+
 /** Clear unit as order source and target. */
-public function unit.removeOrders()
+public function unit.removeAllOrders()
 	let orderSource = ORDER_SOURCE_MAP.tryRemove(this)
 	if orderSource != null
 		destroy orderSource
@@ -274,27 +282,51 @@ public function multiboard.setObjectInfoMultiboard(OrderSource o) returns bool
 
 init
 	// Remove order source and target from every appropriate unit:
-	onLeave(() -> getEnterLeaveUnit().removeOrders())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removeOrders())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL, () -> GetTriggerUnit().removeOrders())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().removeOrders())
+	onLeave(() -> getEnterLeaveUnit().removeAllOrders())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removeAllOrders())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL, () -> GetTriggerUnit().removeAllOrders())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().removeAllOrders())
 	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()
 		if issuedOrderId != OrderIds.stunned  // Ignore callback orders
 			let source = GetOrderedUnit()
+			OrderAction orderAction = null
 			let targetU = GetOrderTargetUnit()
 			if targetU != null
 				let sourceUnitId = source.getUnitId()
 				if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
-					source.setOrder(issuedOrderId, targetU)
+					if targetU.isType(UNIT_TYPE_STRUCTURE) and issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
+						print(issuedOrderId.getOrderName())
+						// TODO: doesn't factor in collision sizes, instead check if unit is still moving by storing the current position
+						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetU.getPos(), POS_TOLERANCE_RANGE))
+					source.setOrder(issuedOrderId, targetU, orderAction)
 			else
 				let targetD = GetOrderTargetDestructable()
 				if targetD != null
-					source.setOrder(issuedOrderId, targetD)
+					if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
+						// TODO: doesn't factor in collision sizes, instead check if unit is still moving by storing the current position
+						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetD.getPos(), POS_TOLERANCE_RANGE))
+					source.setOrder(issuedOrderId, targetD, orderAction)
 				else
 					let targetI = GetOrderTargetItem()
 					if targetI != null
-						source.setOrder(issuedOrderId, targetI)
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId()))
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, () -> GetOrderedUnit().setOrder(GetIssuedOrderId(), vec2(GetOrderPointX(), GetOrderPointY())))
+						if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
+							orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetI.getPos(), POS_TOLERANCE_RANGE))
+						source.setOrder(issuedOrderId, targetI, orderAction)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER) ->
+		let issuedOrderId = GetIssuedOrderId()
+		let source = GetOrderedUnit()
+		OrderAction orderAction = null
+		if issuedOrderId == OrderIds.stop
+			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), MIN_ACTION_SLEEP_TIME, null)
+		source.setOrder(issuedOrderId, orderAction)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER) ->
+		let issuedOrderId = GetIssuedOrderId()
+		let source = GetOrderedUnit()
+		let targetPos = vec2(GetOrderPointX(), GetOrderPointY())
+		OrderAction orderAction = null
+		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attackground
+			// FIXME: doesn't work for formation orders because of offset, maybe also or instead check if unit is still moving by storing the current position
+			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetPos, POS_TOLERANCE_RANGE))
+		source.setOrder(issuedOrderId, targetPos, orderAction)

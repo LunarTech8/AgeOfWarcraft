@@ -253,7 +253,7 @@ init
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)  // Auto-recast on same target
 							else
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
-						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(AbilityData_Harvest.cooldown, invalidateCb, cancelCb, finishCb))
+						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 			else if val != Validity.UNREGISTERED
 				source.reactOnInvalidAbility(abilityId, val)
@@ -276,6 +276,6 @@ init
 							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true), () -> targetResource.removeWorker()))
 							targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
 						case "build"
-							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true)))
+							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true), null))
 				else if val != Validity.UNREGISTERED
 					source.reactOnInvalidAbility(abilityId, val)

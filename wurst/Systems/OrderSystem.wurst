@@ -30,7 +30,7 @@ import UnitMap
 // --------------------
 
 let ORDER_ICON_PATH = Icons.bTNSnazzyScroll
-let POS_TOLERANCE_RANGE = 16.
+let POS_TOLERANCE_RANGE = 1.
 let POS_CHECK_RATE = 1.
 
 
@@ -198,6 +198,17 @@ class OrderSourceV extends OrderSource
 		this.target = target
 
 
+function unit.getFinishConditionNoMovement() returns CallbackCondition
+	var _lastPos = this.getPos()
+	CallbackCondition finishCondition = () ->
+		var newPos = this.getPos()
+		var noMomvement = true
+		if newPos.distanceToSq(_lastPos) > POS_TOLERANCE_RANGE
+			_lastPos = newPos
+			noMomvement = false
+		return noMomvement
+	return finishCondition
+
 function unit.setOrder(OrderSource order)
 	// Remove old order:
 	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
@@ -297,16 +308,13 @@ init
 				let sourceUnitId = source.getUnitId()
 				if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
 					if targetU.isType(UNIT_TYPE_STRUCTURE) and issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-						print(issuedOrderId.getOrderName())
-						// TODO: doesn't factor in collision sizes, instead check if unit is still moving by storing the current position
-						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetU.getPos(), POS_TOLERANCE_RANGE))
+						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getFinishConditionNoMovement())
 					source.setOrder(issuedOrderId, targetU, orderAction)
 			else
 				let targetD = GetOrderTargetDestructable()
 				if targetD != null
 					if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-						// TODO: doesn't factor in collision sizes, instead check if unit is still moving by storing the current position
-						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetD.getPos(), POS_TOLERANCE_RANGE))
+						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getFinishConditionNoMovement())
 					source.setOrder(issuedOrderId, targetD, orderAction)
 				else
 					let targetI = GetOrderTargetItem()
@@ -326,7 +334,6 @@ init
 		let source = GetOrderedUnit()
 		let targetPos = vec2(GetOrderPointX(), GetOrderPointY())
 		OrderAction orderAction = null
-		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attackground
-			// FIXME: doesn't work for formation orders because of offset, maybe also or instead check if unit is still moving by storing the current position
-			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetPos, POS_TOLERANCE_RANGE))
+		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attack
+			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getFinishConditionNoMovement())
 		source.setOrder(issuedOrderId, targetPos, orderAction)

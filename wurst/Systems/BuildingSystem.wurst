@@ -321,6 +321,9 @@ unit testBuildingSystem_Build_building = null
 	var buildingSiteCount = getBuildingSiteCount()
 	unitA.issuePointOrderById(UnitIdsCustom.farm, vec2(0, 0))
 	testBuildingSystem_Build_building = null
+	// FIXME: testDebug doesn't seem to work
+	testDebug(useTestName(testName), "test")  // DEBUG:
+	testDebug(useTestName(testName), 1)  // DEBUG:
 	// Check worker and building site:
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
@@ -331,10 +334,11 @@ unit testBuildingSystem_Build_building = null
 		usedTestName = useTestName(testName)
 		if a == null
 			testFail(usedTestName, "Test failed: Couldn't get BuildingSite of worker unitA")
-		usedTestName = useTestName(testName)
 		testBuildingSystem_Build_building = a.user
+		usedTestName = useTestName(testName)
 		if testBuildingSystem_Build_building == null
 			testFail(usedTestName, "Test failed: Couldn't get unit of BuildingSite a")
+		usedTestName = useTestName(testName)
 		if testBuildingSystem_Build_building.getBuildingSite() != a
 			testFail(usedTestName, "Test failed: Couldn't get BuildingSite via function getBuildingSite")
 		usedTestName = useTestName(testName)
@@ -347,8 +351,10 @@ unit testBuildingSystem_Build_building = null
 		a.hasWares().assertFalse()
 	// Simulate construction abortion:
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
+		usedTestName = useTestName(testName)
 		if testBuildingSystem_Build_building == null
 			testFail(usedTestName, "Test failed: unitB is null")
+		// FIXME: removeWorker in cancelCb has invalid object -> maybe problem of "simulation" (EVENT_PLAYER_UNIT_UPGRADE_CANCEL might cause workers to stop beforehand) or with timing
 		testBuildingSystem_Build_building.removeBuildingSite()
 		testBuildingSystem_Build_building.kill()
 		testBuildingSystem_Build_building.remove()

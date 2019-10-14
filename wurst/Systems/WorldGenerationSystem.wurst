@@ -25,14 +25,15 @@ import UtilityFunctions
 // --------------------
 
 // Terrain:
-let TILES_X = 16
-let TILES_Y = 16
+let TILES_X = 12
+let TILES_Y = 12
 let TILE_DISTANCE = 128.
-let MIN_TERRAIN_HEIGHT = -128.
-let MAX_TERRAIN_HEIGHT = 256.
+// INFO: Min height is -64.; Min above water height is 181.5
+let MIN_TERRAIN_HEIGHT = 128.  // Min addition to start height
+let MAX_TERRAIN_HEIGHT = 384.  // Max addition to start height
+let ORIGIN_VEC = vec2(-2048., -2048.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
 // General:
-let ORIGIN_VEC = vec2(-0.5 * TILES_X, -0.5 * TILES_Y) * TILE_DISTANCE
 let USER_PLAYER = Player(0)
 
 // Player units:
@@ -63,7 +64,8 @@ function generateWorld()
     Array2D<real> heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
-            ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))
+            ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it ot show up
+    // FIXME: pathing has to be updatet manually to allow building on above water ground
     TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
     // Create player units:
     newInitStatus("player units creation")
@@ -88,9 +90,7 @@ function generateWorld()
 
 init
     // Use a trigger to allow the use of TriggerSleepAction:
-    // DEBUG: following lines are deactivated for StartMap development
-    // CreateTrigger()
-    // ..addAction(function generateWorld)
-    // ..execute()
-    // DEBUG: following lines are only for development
-    SetMusicVolume(0)
+    CreateTrigger()
+    ..addAction(function generateWorld)
+    ..execute()
+    SetMusicVolume(0)  // DEBUG: only for development

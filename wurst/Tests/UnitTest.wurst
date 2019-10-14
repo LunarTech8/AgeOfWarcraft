@@ -45,7 +45,7 @@ public function testFail(string usedTestName, string msg)
 	printLog(Loglevel.ERROR, "[" + usedTestName + "] " + msg)
 
 public function testDebug(string usedTestName, string msg)
-	printLog(Loglevel.DEBUG, "[" + usedTestName + "] " + msg)
+	printLog(Loglevel.WARNING, "[" + usedTestName + "] " + msg)
 public function testDebug(string usedTestName, int msg)
 	testDebug(usedTestName, msg.toString())
 

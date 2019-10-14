@@ -20,9 +20,7 @@ Work status:
 // Programming:
 // -------------
 
-!!>- Fix unit test testBuildingSystem_Build
 !!- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
-!!- Fix problem that water doesn't show properly after terrain deformation or use custom water models
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
 !- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty

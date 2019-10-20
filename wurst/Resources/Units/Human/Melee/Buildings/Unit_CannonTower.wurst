@@ -1,0 +1,18 @@
+package Unit_CannonTower
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.cannonTower, UnitIds.cannontower)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Cannon Tower", "Advanced defence structure.")

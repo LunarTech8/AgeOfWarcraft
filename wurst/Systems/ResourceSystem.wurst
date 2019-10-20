@@ -32,41 +32,41 @@ let WORKERS_ICON_PATH = Icons.bTNBash
 function getDefaultInitWares(int resourceUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch resourceUnitId
-		case UnitIdsCustom.beech
+		case UnitIdsCustom.Trees.beech
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
-		case UnitIdsCustom.birch
+		case UnitIdsCustom.Trees.birch
 			wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
-		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.Trees.greyOak
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
-		case UnitIdsCustom.chestnut
+		case UnitIdsCustom.Trees.chestnut
 			wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
 	return wares
 
 function isKilledWhenDepleted(int resourceUnitId) returns bool
 	switch resourceUnitId
-		case UnitIdsCustom.beech
+		case UnitIdsCustom.Trees.beech
 			return true
-		case UnitIdsCustom.birch
+		case UnitIdsCustom.Trees.birch
 			return true
-		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.Trees.greyOak
 			return true
-		case UnitIdsCustom.chestnut
+		case UnitIdsCustom.Trees.chestnut
 			return true
 		default
 			return false
 
 function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns real
 	switch resourceUnitId
-		case UnitIdsCustom.beech
+		case UnitIdsCustom.Trees.beech
 			switch workerUnitId
-				case UnitIdsCustom.peasant
+				case UnitIdsCustom.Melee.peasant
 					return 0.67
 			return 0.5
-		case UnitIdsCustom.birch
+		case UnitIdsCustom.Trees.birch
 			return 0.5
-		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.Trees.greyOak
 			return 0.5
-		case UnitIdsCustom.chestnut
+		case UnitIdsCustom.Trees.chestnut
 			return 0.5
 		default
 			return 0.
@@ -74,39 +74,39 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns
 function getWaresPerFinishedWork(int resourceUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch resourceUnitId
-		case UnitIdsCustom.beech
+		case UnitIdsCustom.Trees.beech
 			wares.add(ware(WareType.WOOD, 1))
-		case UnitIdsCustom.birch
+		case UnitIdsCustom.Trees.birch
 			wares.add(ware(WareType.WOOD, 1))
-		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.Trees.greyOak
 			wares.add(ware(WareType.WOOD, 1))
-		case UnitIdsCustom.chestnut
+		case UnitIdsCustom.Trees.chestnut
 			wares.add(ware(WareType.WOOD, 1))
 	return wares
 
 /** Returns the harvest priority of given resource unit type. Higher values mean a higher priority. */
 function getHarvestPriority(int resourceUnitId) returns int
 	switch resourceUnitId
-		case UnitIdsCustom.beech
+		case UnitIdsCustom.Trees.beech
 			return 2
-		case UnitIdsCustom.birch
+		case UnitIdsCustom.Trees.birch
 			return 1
-		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.Trees.greyOak
 			return 3
-		case UnitIdsCustom.chestnut
+		case UnitIdsCustom.Trees.chestnut
 			return 2
 	return 0
 
 /** Returns the maximum concurrent amount of workers allowed for of given resource unit type. */
 function getMaxWorkerCount(int resourceUnitId) returns int
 	switch resourceUnitId
-		case UnitIdsCustom.beech
+		case UnitIdsCustom.Trees.beech
 			return 1
-		case UnitIdsCustom.birch
+		case UnitIdsCustom.Trees.birch
 			return 1
-		case UnitIdsCustom.greyOak
+		case UnitIdsCustom.Trees.greyOak
 			return 2
-		case UnitIdsCustom.chestnut
+		case UnitIdsCustom.Trees.chestnut
 			return 2
 	return 99
 

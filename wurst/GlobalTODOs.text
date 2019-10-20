@@ -20,9 +20,9 @@ Work status:
 // Programming:
 // -------------
 
-!!- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
+!- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
 !- Implement different sizes for Array2D like in ArrayList
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed

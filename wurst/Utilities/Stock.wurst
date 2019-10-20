@@ -26,6 +26,8 @@ public enum WareType
 	WOOD
 	STONE
 	FOOD
+	IRON_ORE
+	COAL
 	WOODEN_BOARD
 	WOODEN_STICK
 	STRAW
@@ -38,6 +40,14 @@ function WareType.toString() returns string
 			return "stone"
 		case FOOD
 			return "food"
+		case IRON_ORE
+			return "iron ore"
+		case COAL
+			return "coal"
+		case WOODEN_BOARD
+			return "wooden board"
+		case WOODEN_STICK
+			return "wooden stick"
 		case STRAW
 			return "straw"
 		default

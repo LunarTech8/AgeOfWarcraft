@@ -38,7 +38,7 @@ let BUILDING_ADJUSTMENT_RATE = 0.1
 let BUILDING_START_HP_PERCENTAGE = 0.1  // Has to be smaller than 1 and bigger than 0
 let MAX_AUTO_ORDER_RANGE = 1024.
 let MAX_NEAR_BY_RANGE = 256.
-let BUILDING_GROUND_UNIT_ID = UnitIdsCustom.buildingGround
+let BUILDING_GROUND_UNIT_ID = UnitIdsCustom.Custom.buildingGround
 let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
 let WORKERS_ICON_PATH = Icons.bTNBash
@@ -46,28 +46,28 @@ let WORKERS_ICON_PATH = Icons.bTNBash
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch buildingUnitId
-		case UnitIdsCustom.farm
+		case UnitIdsCustom.Melee.farm
 			wares.add(ware(WareType.WOOD, 4))
-		case UnitIdsCustom.townHall
+		case UnitIdsCustom.Melee.townHall
 			wares.add(ware(WareType.WOOD, 4))
 			wares.add(ware(WareType.STONE, 3))
 	return wares
 
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
 	switch workerUnitId
-		case UnitIdsCustom.peasant
+		case UnitIdsCustom.Melee.peasant
 			switch buildingUnitId
-				case UnitIdsCustom.farm
+				case UnitIdsCustom.Melee.farm
 					return 0.05
-				case UnitIdsCustom.townHall
+				case UnitIdsCustom.Melee.townHall
 					return 0.01
 	return 0.
 
 function getBuildingScaling(int buildingUnitId) returns real
 	switch buildingUnitId
-		case UnitIdsCustom.farm
+		case UnitIdsCustom.Melee.farm
 			return 1.
-		case UnitIdsCustom.townHall
+		case UnitIdsCustom.Melee.townHall
 			return UnitData_Townhall.scalingValue
 	return 0.
 
@@ -314,7 +314,7 @@ unit testBuildingSystem_Build_building = null
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(Rect(-128., -128., 128., 128.)), () -> GetEnumUnit().remove())
 	// Order to build:
-	let unitA = createUnit(Player(0), UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
 	let storageA = unitA.getStorage()
 	usedTestName = useTestName(testName)
 	if storageA == null
@@ -322,7 +322,7 @@ unit testBuildingSystem_Build_building = null
 	storageA.addWare(ware(WareType.WOOD, 5))
 	var workerCount = getWorkerCount()
 	var buildingSiteCount = getBuildingSiteCount()
-	unitA.issuePointOrderById(UnitIdsCustom.farm, vec2(0, 0))
+	unitA.issuePointOrderById(UnitIdsCustom.Melee.farm, vec2(0, 0))
 	testBuildingSystem_Build_building = null
 	// Check worker and building site:
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->

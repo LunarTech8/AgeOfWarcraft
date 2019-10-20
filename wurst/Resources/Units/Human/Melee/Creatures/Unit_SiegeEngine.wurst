@@ -1,0 +1,27 @@
+package Unit_SiegeEngine
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.Melee.siegeEngine, UnitIds.siegeengine)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(.75)
+    ..setSelectionScale(2.)
+    ..presetShadowImage(90., 225.)
+    // Combat:
+    ..presetAttackRange(true, 300, 125.)
+    ..presetAttack1TargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.debris, TargetsAllowed.item_t, TargetsAllowed.ward)
+    // Movement:
+    ..setSpeedBase(80)
+    // Pathing:
+    ..setCollisionSize(24.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(false, "Siege Engine", "Advanced armoured siege unit.")

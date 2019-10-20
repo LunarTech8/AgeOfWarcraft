@@ -28,7 +28,7 @@ let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
 
 function getMaxCapacity(int unitId) returns int
 	switch unitId
-		case UnitIdsCustom.peasant
+		case UnitIdsCustom.Melee.peasant
 			// return 10
 			return 100  // DEBUG
 		default
@@ -146,7 +146,7 @@ init
 @Test public function testStorageSystem_AddAndRemove()
 	let testName = "testStorageSystem_AddAndRemove"
 	// Create new storage and check capacities:
-	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
 	let a = new Storage(unitA, 8)
 	a.getMaxCapacity().assertEquals(testName, 8)
 	a.getUsedCapacity().assertEquals(testName, 0)
@@ -165,7 +165,7 @@ init
 	a.getUsedCapacity().assertEquals(testName, 2)
 	a.getFreeCapacity().assertEquals(testName, 6)
 	// Create another storage and check capacities:
-	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.peasant, vec2(0, 0), angle(0))
+	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
 	let b = new Storage(unitA, 13)
 	b.getMaxCapacity().assertEquals(testName, 13)
 	b.getUsedCapacity().assertEquals(testName, 0)

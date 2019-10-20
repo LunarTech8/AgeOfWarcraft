@@ -1,0 +1,26 @@
+package Unit_MortarTeam
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.Melee.mortarTeam, UnitIds.mortarteam)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(.4)
+    ..setSelectionScale(.65)
+    ..presetShadowImage(22.5, 60.)
+    // Combat:
+    ..presetAttackRange(true, 600, 125.)
+    // Movement:
+    ..setSpeedBase(60)
+    // Pathing:
+    ..setCollisionSize(16.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(false, "Mortar Team", "Advanced artillery unit.")

@@ -70,12 +70,12 @@ function generateWorld()
     // Create player units:
     newInitStatus("player units creation")
     for i = 1 to START_PEASANT_COUNT
-        var u = createUnit(USER_PLAYER, UnitIdsCustom.peasant, START_VEC, angle(0.))
+        var u = createUnit(USER_PLAYER, UnitIdsCustom.Melee.peasant, START_VEC, angle(0.))
         nullTimer() ->
             let storage = u.getStorage()
             if storage != null
                 storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
-    createUnit(USER_PLAYER, UnitIdsCustom.footman, START_VEC, angle(0.))
+    createUnit(USER_PLAYER, UnitIdsCustom.Melee.footman, START_VEC, angle(0.))
     // Create trees:
     newInitStatus("trees creation")
     Array2D<real> treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
@@ -83,7 +83,7 @@ function generateWorld()
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(0., 1.)
                 var v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
-                createUnit(NATURE_PLAYER, UnitIdsCustom.beech.getUnitTypeId(), v, getRandomAngle())
+                createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())
     // Initialisation finished:
     newInitStatus(null)
     print("Finished initialisation")

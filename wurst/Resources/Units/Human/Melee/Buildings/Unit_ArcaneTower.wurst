@@ -1,0 +1,18 @@
+package Unit_ArcaneTower
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.arcaneTower, UnitIds.humanarcanetower)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Arcane Tower", "Advanced defence structure.")

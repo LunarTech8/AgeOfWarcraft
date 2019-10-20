@@ -1,0 +1,18 @@
+package Unit_GryphonAviary
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.gryphonAviary, UnitIds.gryphonaviary)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUnitsTrained(UnitIdsCustom.Melee.gryphonRider, UnitIdsCustom.Melee.dragonhawkRider)
+    // Text:
+    ..presetNameAndTooltips(true, "Gryphon Aviary", "Primary air unit training structure.")

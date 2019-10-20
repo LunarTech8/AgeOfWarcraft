@@ -1,0 +1,20 @@
+package Unit_Castle
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.castle, UnitIds.castle)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUnitsTrained(UnitIdsCustom.Melee.peasant)
+    // Text:
+    ..presetNameAndTooltips(true, "Castle", "Primary settlement structure.")

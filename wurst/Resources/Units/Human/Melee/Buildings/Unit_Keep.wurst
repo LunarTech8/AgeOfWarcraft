@@ -1,0 +1,21 @@
+package Unit_Keep
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.keep, UnitIds.keep)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUnitsTrained(UnitIdsCustom.Melee.peasant)
+    ..presetUpgradesTo(UnitIdsCustom.Melee.castle)
+    // Text:
+    ..presetNameAndTooltips(true, "Keep", "Primary settlement structure.")

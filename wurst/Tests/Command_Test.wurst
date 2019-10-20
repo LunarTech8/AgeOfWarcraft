@@ -21,9 +21,9 @@ let COMMAND_SHORT = "t"
 function executeCommand()
 	var testCounter = 1
 	// print("-------- Test " + testCounter.toString() + ":")
-	// print(UnitIdsCustom.altarOfKings)
-	// print(UnitIdsCustom.beech)
-	// print(UnitIdsCustom.beech_Var1)
+	// print(UnitIdsCustom.Melee.altarOfKings)
+	// print(UnitIdsCustom.Trees.beech)
+	// print(UnitIdsCustom.Trees.beech_Var1)
 	// print("-------- Test " + testCounter.toString() + ":")
 	// print(Acos(0.5))
 	// print(Acos(-0.5))

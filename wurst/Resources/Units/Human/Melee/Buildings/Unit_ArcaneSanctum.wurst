@@ -1,0 +1,21 @@
+package Unit_ArcaneSanctum
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.arcaneSanctum, UnitIds.arcanesanctum)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.2)
+    ..setSelectionScale(4.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUnitsTrained(UnitIdsCustom.Melee.sorceress, UnitIdsCustom.Melee.spellBreaker)
+    // Text:
+    ..presetNameAndTooltips(true, "Arcane Sanctum", "Primary magic training structure.")

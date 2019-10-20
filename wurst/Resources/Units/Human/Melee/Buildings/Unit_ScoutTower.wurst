@@ -1,0 +1,20 @@
+package Unit_ScoutTower
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.scoutTower, UnitIds.scouttower)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.1)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUpgradesTo(UnitIdsCustom.Melee.guardTower, UnitIdsCustom.Melee.cannonTower, UnitIdsCustom.Melee.arcaneTower)
+    // Text:
+    ..presetNameAndTooltips(true, "Scout Tower", "Basic defence structure.")

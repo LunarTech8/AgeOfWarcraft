@@ -1,0 +1,22 @@
+package Unit_LumberMill
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.lumberMill, UnitIds.humanlumbermill)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("OMED")  // Altar of Storms, Barracks, ...
+    ..setScalingValue(0.8)
+    ..setSelectionScale(3.)
+    // Pathing:
+    ..setPathingMap("PathTextures\\6x6SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Lumber Mill", "Wood processing building.")

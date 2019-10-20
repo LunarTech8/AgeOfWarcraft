@@ -1,0 +1,32 @@
+package Unit_ForesterHut
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Custom.foresterHut, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("EMDB")  // Altar of Elders, Hunter's Hall, ...
+    ..setIconGameInterface(Icons.bTNOrcMeleeUpOne)
+    ..presetMaximumAngles(5., 5.)
+    ..setModelFile(ImportPaths.multiHut)
+    ..setRequiredAnimationNames("upgrade,third")
+    ..setSelectionScale(3.)
+    // Pathing:
+    ..setCollisionSize(96.)
+    ..setPathingMap("PathTextures\\6x6SimpleSolid.tga")
+    // Sound:
+    ..setUnitSoundSet("")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    ..presetSightRadius(0, 0)
+    // Techtree:
+    ..presetUpgradesUsed()
+    // Text:
+    ..presetNameAndTooltips(true, "Forester Hut", "")

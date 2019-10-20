@@ -1,0 +1,31 @@
+package Unit_FisherHut
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Custom.fisherHut, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("OSMA")  // Orc Shipyard, Orc Burrow, ...
+    ..setIconGameInterface(Icons.bTNNagaUnBurrow)
+    ..presetMaximumAngles(5., 5.)
+    ..setModelFile(ImportPaths.multiHut)
+    ..setSelectionScale(3.)
+    // Pathing:
+    ..setCollisionSize(96.)
+    ..setPathingMap("PathTextures\\6x6SimpleSolid.tga")
+    // Sound:
+    ..setUnitSoundSet("")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    ..presetSightRadius(0, 0)
+    // Techtree:
+    ..presetUpgradesUsed()
+    // Text:
+    ..presetNameAndTooltips(true, "Fisher Hut", "")

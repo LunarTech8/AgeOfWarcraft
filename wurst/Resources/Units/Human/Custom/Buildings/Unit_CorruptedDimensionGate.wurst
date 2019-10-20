@@ -1,0 +1,27 @@
+package Unit_CorruptedDimensionGate
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Custom.corruptedDimensionGate, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("DPSW")  // Dimensional Gate (facing southwest)
+    ..setIconGameInterface(Icons.bTNDarkPortal)
+    ..setModelFile(Buildings.darkPortal)
+    ..setRequiredAnimationNames("work")
+    ..setSelectionScale(10.)
+    ..setShadowTextureBuilding("ShadowPortalSW")
+    // Pathing:
+    ..setPathingMap("PathTextures\\DarkPortalSW.tga")
+    // Stats:
+    ..setRace(Race.Critters)
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    // Text:
+    ..presetNameAndTooltips(true, "Corrupted Dimension Gate", "")

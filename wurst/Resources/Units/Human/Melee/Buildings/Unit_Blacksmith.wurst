@@ -1,0 +1,23 @@
+package Unit_Blacksmith
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.blacksmith, UnitIds.blacksmith)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("HSMA")  // Arcane Tower, Cannon Tower, ...
+    ..setScalingValue(0.65)
+    ..setSelectionScale(2.5)
+    ..setShadowTextureBuilding(Textures.shadowHouse)
+    // Pathing:
+    ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Blacksmith", "Iron processing building.")

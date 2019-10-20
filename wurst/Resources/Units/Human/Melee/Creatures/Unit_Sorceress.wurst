@@ -1,0 +1,26 @@
+package Unit_Sorceress
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.Melee.sorceress, UnitIds.sorceress)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(.5)
+    ..setSelectionScale(.5)
+    ..presetShadowImage(22.5, 50.)
+    // Combat:
+    ..presetAttackRange(true, 300, 125.)
+    // Movement:
+    ..setSpeedBase(100)
+    // Pathing:
+    ..setCollisionSize(12.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(false, "Sorceress", "Magic support unit.")

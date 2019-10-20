@@ -1,0 +1,25 @@
+package Unit_AltarOfKings
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.altarOfKings, UnitIds.altarofkings)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(0.65)
+    ..setSelectionScale(2.5)
+    ..setShadowTextureBuilding(Textures.shadowHouse)
+    // Pathing:
+    ..setCollisionSize(72.)
+    ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUnitsTrained(UnitIdsCustom.Melee.priest)
+    // Text:
+    ..presetNameAndTooltips(true, "Altar of Kings", "Religion structure.")

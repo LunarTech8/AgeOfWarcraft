@@ -1,0 +1,23 @@
+package Unit_Barracks
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.Melee.barracks, UnitIds.humanbarracks)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setScalingValue(1.2)
+    ..setSelectionScale(5.5)
+    // Pathing:
+    ..setPathingMap("PathTextures\\10x10SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Techtree:
+    ..presetUnitsTrained(UnitIdsCustom.Melee.footman, UnitIdsCustom.Melee.rifleman, UnitIdsCustom.Melee.knight)
+    // Text:
+    ..presetNameAndTooltips(true, "Barracks", "Primary military training structure.")

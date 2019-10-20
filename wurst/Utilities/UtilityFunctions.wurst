@@ -28,32 +28,32 @@ public let MIN_ACTION_SLEEP_TIME = 0.25
 
 function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	let map = new HashMap<int, int>
-	map.put(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech)
-	map.put(UnitIdsCustom.beech_Var2, UnitIdsCustom.beech)
-	map.put(UnitIdsCustom.beech_Var3, UnitIdsCustom.beech)
-	map.put(UnitIdsCustom.beech_Var4, UnitIdsCustom.beech)
-	map.put(UnitIdsCustom.birch_Var1, UnitIdsCustom.birch)
-	map.put(UnitIdsCustom.birch_Var2, UnitIdsCustom.birch)
-	map.put(UnitIdsCustom.birch_Var3, UnitIdsCustom.birch)
-	map.put(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak)
-	map.put(UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak)
-	map.put(UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak)
-	map.put(UnitIdsCustom.greyOak_Var4, UnitIdsCustom.greyOak)
-	map.put(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut)
-	map.put(UnitIdsCustom.chestnut_Var2, UnitIdsCustom.chestnut)
+	map.put(UnitIdsCustom.Trees.beech_Var1, UnitIdsCustom.Trees.beech)
+	map.put(UnitIdsCustom.Trees.beech_Var2, UnitIdsCustom.Trees.beech)
+	map.put(UnitIdsCustom.Trees.beech_Var3, UnitIdsCustom.Trees.beech)
+	map.put(UnitIdsCustom.Trees.beech_Var4, UnitIdsCustom.Trees.beech)
+	map.put(UnitIdsCustom.Trees.birch_Var1, UnitIdsCustom.Trees.birch)
+	map.put(UnitIdsCustom.Trees.birch_Var2, UnitIdsCustom.Trees.birch)
+	map.put(UnitIdsCustom.Trees.birch_Var3, UnitIdsCustom.Trees.birch)
+	map.put(UnitIdsCustom.Trees.greyOak_Var1, UnitIdsCustom.Trees.greyOak)
+	map.put(UnitIdsCustom.Trees.greyOak_Var2, UnitIdsCustom.Trees.greyOak)
+	map.put(UnitIdsCustom.Trees.greyOak_Var3, UnitIdsCustom.Trees.greyOak)
+	map.put(UnitIdsCustom.Trees.greyOak_Var4, UnitIdsCustom.Trees.greyOak)
+	map.put(UnitIdsCustom.Trees.chestnut_Var1, UnitIdsCustom.Trees.chestnut)
+	map.put(UnitIdsCustom.Trees.chestnut_Var2, UnitIdsCustom.Trees.chestnut)
 	return map
 
 /** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
 public function int.getUnitTypeId() returns int
 	switch this
-		case UnitIdsCustom.beech
-			return getRandomInputInt(UnitIdsCustom.beech_Var1, UnitIdsCustom.beech_Var2, UnitIdsCustom.beech_Var3, UnitIdsCustom.beech_Var4)
-		case UnitIdsCustom.birch
-			return getRandomInputInt(UnitIdsCustom.birch_Var1, UnitIdsCustom.birch_Var2, UnitIdsCustom.birch_Var3)
-		case UnitIdsCustom.greyOak
-			return getRandomInputInt(UnitIdsCustom.greyOak_Var1, UnitIdsCustom.greyOak_Var2, UnitIdsCustom.greyOak_Var3, UnitIdsCustom.greyOak_Var4)
-		case UnitIdsCustom.chestnut
-			return getRandomInputInt(UnitIdsCustom.chestnut_Var1, UnitIdsCustom.chestnut_Var2)
+		case UnitIdsCustom.Trees.beech
+			return getRandomInputInt(UnitIdsCustom.Trees.beech_Var1, UnitIdsCustom.Trees.beech_Var2, UnitIdsCustom.Trees.beech_Var3, UnitIdsCustom.Trees.beech_Var4)
+		case UnitIdsCustom.Trees.birch
+			return getRandomInputInt(UnitIdsCustom.Trees.birch_Var1, UnitIdsCustom.Trees.birch_Var2, UnitIdsCustom.Trees.birch_Var3)
+		case UnitIdsCustom.Trees.greyOak
+			return getRandomInputInt(UnitIdsCustom.Trees.greyOak_Var1, UnitIdsCustom.Trees.greyOak_Var2, UnitIdsCustom.Trees.greyOak_Var3, UnitIdsCustom.Trees.greyOak_Var4)
+		case UnitIdsCustom.Trees.chestnut
+			return getRandomInputInt(UnitIdsCustom.Trees.chestnut_Var1, UnitIdsCustom.Trees.chestnut_Var2)
 	return this
 
 /** Returns the order needed to cast the given ability id. */

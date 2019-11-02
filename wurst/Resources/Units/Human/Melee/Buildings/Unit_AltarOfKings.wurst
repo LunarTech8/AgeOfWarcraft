@@ -6,12 +6,15 @@ import BuildingPreset
 // Data code
 // --------------------
 
+public class UnitData_AltarOfKings
+    static constant scalingValue = 0.65
+
 @compiletime function genObj()
     new BuildingPreset(UnitIdsCustom.Melee.altarOfKings, UnitIds.altarofkings)
     // Abilities:
     ..presetNormalAbilities()
     // Art:
-    ..setScalingValue(0.65)
+    ..setScalingValue(UnitData_AltarOfKings.scalingValue)
     ..setSelectionScale(2.5)
     ..setShadowTextureBuilding(Textures.shadowHouse)
     // Pathing:
@@ -20,6 +23,6 @@ import BuildingPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetUnitsTrained(UnitIdsCustom.Melee.priest)
+    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.priest))
     // Text:
     ..presetNameAndTooltips(true, "Altar of Kings", "Religion structure.")

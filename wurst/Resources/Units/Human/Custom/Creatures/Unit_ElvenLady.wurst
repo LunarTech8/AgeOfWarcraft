@@ -21,6 +21,6 @@ import UnitPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetStructuresBuilt(UnitIdsCustom.Melee.townHall, UnitIdsCustom.Melee.farm, UnitIdsCustom.Melee.barracks, UnitIdsCustom.Melee.blacksmith, UnitIdsCustom.Melee.scoutTower, UnitIdsCustom.Melee.altarOfKings, UnitIdsCustom.Melee.workshop, UnitIdsCustom.Melee.arcaneSanctum, UnitIdsCustom.Melee.lumberMill, UnitIdsCustom.Melee.gryphonAviary, UnitIdsCustom.Melee.arcaneVault)
+    ..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.Melee.townHall, UnitIdsCustom.Melee.farm, UnitIdsCustom.Melee.barracks, UnitIdsCustom.Melee.blacksmith, UnitIdsCustom.Melee.scoutTower, UnitIdsCustom.Melee.altarOfKings, UnitIdsCustom.Melee.workshop, UnitIdsCustom.Melee.arcaneSanctum, UnitIdsCustom.Melee.lumberMill, UnitIdsCustom.Melee.gryphonAviary, UnitIdsCustom.Melee.arcaneVault))
     // Text:
     ..presetNameAndTooltips(false, "Elven Lady", "")

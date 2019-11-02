@@ -21,13 +21,25 @@ import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
 import StorageSystem
-import Unit_TownHall
 import OrderSystem
 import UnitMap
 import UnitIndexer
 import LinkedList
 import UnitTest
 import Orders
+import Unit_TownHall
+import Unit_AltarOfKings
+import Unit_ArcaneSanctum
+import Unit_ArcaneTower
+import Unit_ArcaneVault
+import Unit_ScoutTower
+import Unit_LumberMill
+import Unit_Keep
+import Unit_Barracks
+import Unit_Blacksmith
+import Unit_CannonTower
+import Unit_Castle
+import Unit_GuardTower
 
 
 // --------------------
@@ -43,6 +55,61 @@ let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
 let WORKERS_ICON_PATH = Icons.bTNBash
 
+function isBuilding(int buildingUnitId) returns bool
+	switch buildingUnitId
+		case UnitIdsCustom.Melee.townHall
+			return true
+		case UnitIdsCustom.Melee.farm
+			return true
+		case UnitIdsCustom.Melee.blacksmith
+			return true
+		case UnitIdsCustom.Melee.lumberMill
+			return true
+		case UnitIdsCustom.Melee.arcaneVault
+			return true
+		case UnitIdsCustom.Melee.scoutTower
+			return true
+		case UnitIdsCustom.Melee.barracks
+			return true
+		case UnitIdsCustom.Melee.altarOfKings
+			return true
+		case UnitIdsCustom.Melee.workshop
+			return true
+		case UnitIdsCustom.Melee.arcaneSanctum
+			return true
+		case UnitIdsCustom.Melee.gryphonAviary
+			return true
+	return false
+
+/** Returns the build progress in percentage that the given worker type does per second on the given building type. */
+function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
+	switch workerUnitId
+		case UnitIdsCustom.Melee.peasant
+			switch buildingUnitId
+				case UnitIdsCustom.Melee.townHall
+					return 0.00556  // 180 sec
+				case UnitIdsCustom.Melee.farm
+					return 0.02857  // 35 sec
+				case UnitIdsCustom.Melee.blacksmith
+					return 0.01429  // 70 sec
+				case UnitIdsCustom.Melee.lumberMill
+					return 0.01667  // 60 sec
+				case UnitIdsCustom.Melee.arcaneVault
+					return 0.01667  // 60 sec
+				case UnitIdsCustom.Melee.scoutTower
+					return 0.04000  // 25 sec
+				case UnitIdsCustom.Melee.barracks
+					return 0.01667  // 60 sec
+				case UnitIdsCustom.Melee.altarOfKings
+					return 0.01667  // 60 sec
+				case UnitIdsCustom.Melee.workshop
+					return 0.01667  // 60 sec
+				case UnitIdsCustom.Melee.arcaneSanctum
+					return 0.01429  // 70 sec
+				case UnitIdsCustom.Melee.gryphonAviary
+					return 0.01333  // 75 sec
+	return 0.
+
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch buildingUnitId
@@ -51,25 +118,64 @@ function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 		case UnitIdsCustom.Melee.townHall
 			wares.add(ware(WareType.WOOD, 4))
 			wares.add(ware(WareType.STONE, 3))
+			wares.add(ware(WareType.METAL, 2))
+		case UnitIdsCustom.Melee.blacksmith
+			wares.add(ware(WareType.STONE, 3))
+			wares.add(ware(WareType.METAL, 2))
+		case UnitIdsCustom.Melee.lumberMill
+			wares.add(ware(WareType.WOOD, 4))
+		case UnitIdsCustom.Melee.arcaneVault
+			wares.add(ware(WareType.METAL, 2))
+		case UnitIdsCustom.Melee.scoutTower
+			wares.add(ware(WareType.WOOD, 4))
+			wares.add(ware(WareType.STONE, 3))
+		case UnitIdsCustom.Melee.barracks
+			wares.add(ware(WareType.WOOD, 4))
+			wares.add(ware(WareType.STONE, 3))
+		case UnitIdsCustom.Melee.altarOfKings
+			wares.add(ware(WareType.STONE, 3))
+			wares.add(ware(WareType.METAL, 2))
+		case UnitIdsCustom.Melee.workshop
+			wares.add(ware(WareType.WOOD, 4))
+			wares.add(ware(WareType.METAL, 2))
+		case UnitIdsCustom.Melee.arcaneSanctum
+			wares.add(ware(WareType.WOOD, 4))
+			wares.add(ware(WareType.STONE, 3))
+			wares.add(ware(WareType.METAL, 2))
+		case UnitIdsCustom.Melee.gryphonAviary
+			wares.add(ware(WareType.WOOD, 4))
 	return wares
-
-function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
-	switch workerUnitId
-		case UnitIdsCustom.Melee.peasant
-			switch buildingUnitId
-				case UnitIdsCustom.Melee.farm
-					return 0.05
-				case UnitIdsCustom.Melee.townHall
-					return 0.01
-	return 0.
 
 function getBuildingScaling(int buildingUnitId) returns real
 	switch buildingUnitId
-		case UnitIdsCustom.Melee.farm
-			return 1.
+		case UnitIdsCustom.Melee.altarOfKings
+			return UnitData_AltarOfKings.scalingValue
+		case UnitIdsCustom.Melee.arcaneSanctum
+			return UnitData_ArcaneSanctum.scalingValue
+		case UnitIdsCustom.Melee.arcaneTower
+			return UnitData_ArcaneTower.scalingValue
+		case UnitIdsCustom.Melee.arcaneVault
+			return UnitData_ArcaneVault.scalingValue
+		case UnitIdsCustom.Melee.barracks
+			return UnitData_Barracks.scalingValue
+		case UnitIdsCustom.Melee.blacksmith
+			return UnitData_Blacksmith.scalingValue
+		case UnitIdsCustom.Melee.cannonTower
+			return UnitData_CannonTower.scalingValue
+		case UnitIdsCustom.Melee.castle
+			return UnitData_Castle.scalingValue
+		case UnitIdsCustom.Melee.guardTower
+			return UnitData_GuardTower.scalingValue
+		case UnitIdsCustom.Melee.keep
+			return UnitData_Keep.scalingValue
+		case UnitIdsCustom.Melee.lumberMill
+			return UnitData_LumberMill.scalingValue
+		case UnitIdsCustom.Melee.scoutTower
+			return UnitData_ScoutTower.scalingValue
 		case UnitIdsCustom.Melee.townHall
 			return UnitData_Townhall.scalingValue
-	return 0.
+		default
+			return 1.
 
 
 // --------------------
@@ -293,7 +399,7 @@ init
 	// Register construction starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_START) ->
 		let building = GetConstructingStructure()
-		if getBuildingScaling(building.getUnitId()) > 0.
+		if isBuilding(building.getUnitId())
 			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> building.addBuildingSite())
 	// Register construction abortions:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL) ->

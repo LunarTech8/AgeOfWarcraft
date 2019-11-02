@@ -47,7 +47,7 @@ Work status:
 	- Population management:
 		- Population growths on a percentage basis.
 		- Increased percentage by high happiness, food, commodities, etc.
-		- Reduction war, famine, reduction etc.
+		- Reduction by war, famine, sicknesses, etc.
 		- Worker placement: Production vs. military vs. trader/logistics vs. explorer vs. science vs. aristocracy etc.
 		- Worker classes: How many in lower, middle, higher classes.
 	- Settlement management:
@@ -62,7 +62,7 @@ Work status:
 		- Bigger settlements require more types and amount of resources that they can't all produce by their own.
 		- Bigger settlements require more logistic workers per settlement, bigger empires require more logistic workers because of longer routes.
 	- Military management:
-		- Soldiers are grouped in companies with a base camp or baracks for each that has to be supplied with food, ammunition, etc.
+		- Soldiers are grouped in companies with a base camp or barracks for each that has to be supplied with food, ammunition, etc.
 		- Area control: Where to station how many companies.
 !- Refine prototype with generated elements on TemperateMap
 !- Add more ware types and resources

@@ -13,6 +13,7 @@ import BuildingPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetUnitsTrained(UnitIdsCustom.Melee.gryphonRider, UnitIdsCustom.Melee.dragonhawkRider)
+    ..setRequirements(getUnitIdsString(UnitIdsCustom.Melee.castle, UnitIdsCustom.Melee.lumberMill))
+    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.gryphonRider, UnitIdsCustom.Melee.dragonhawkRider))
     // Text:
     ..presetNameAndTooltips(true, "Gryphon Aviary", "Primary air unit training structure.")

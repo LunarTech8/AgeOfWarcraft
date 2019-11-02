@@ -22,6 +22,8 @@ function executeCommand()
 		let storage = u.getStorage()
 		if storage != null
 			storage.addWare(ware(WareType.WOOD, 4))
+			storage.addWare(ware(WareType.STONE, 3))
+			storage.addWare(ware(WareType.METAL, 2))
 
 init
 	CreateTrigger()

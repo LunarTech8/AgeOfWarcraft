@@ -6,18 +6,21 @@ import BuildingPreset
 // Data code
 // --------------------
 
+public class UnitData_Barracks
+    static constant scalingValue = 1.2
+
 @compiletime function genObj()
     new BuildingPreset(UnitIdsCustom.Melee.barracks, UnitIds.humanbarracks)
     // Abilities:
     ..presetNormalAbilities()
     // Art:
-    ..setScalingValue(1.2)
+    ..setScalingValue(UnitData_Barracks.scalingValue)
     ..setSelectionScale(5.5)
     // Pathing:
     ..setPathingMap("PathTextures\\10x10SimpleSolid.tga")
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetUnitsTrained(UnitIdsCustom.Melee.footman, UnitIdsCustom.Melee.rifleman, UnitIdsCustom.Melee.knight)
+    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.footman, UnitIdsCustom.Melee.rifleman, UnitIdsCustom.Melee.knight))
     // Text:
     ..presetNameAndTooltips(true, "Barracks", "Primary military training structure.")

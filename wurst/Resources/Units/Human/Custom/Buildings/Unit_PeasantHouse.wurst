@@ -25,7 +25,7 @@ function genObjVariation(int id, string requiredAnimations, int food, string suf
     ..setFoodProduced(food)
     ..presetSightRadius(0, 0)
     // Techtree:
-    ..presetUpgradesUsed()
+    ..setUpgradesUsed("")
     // Text:
     ..presetNameAndTooltips(true, "Peasant House", suffix, "House building for peasants.")
 

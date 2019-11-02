@@ -27,6 +27,6 @@ import BuildingPreset
     ..setFoodProduced(0)
     ..presetSightRadius(0, 0)
     // Techtree:
-    ..presetUpgradesUsed()
+    ..setUpgradesUsed("")
     // Text:
     ..presetNameAndTooltips(true, "Storehouse", "")

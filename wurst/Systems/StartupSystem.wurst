@@ -1,0 +1,74 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Initializes startup processes.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package StartupSystem
+import ConstantDataSystem
+import ClosureTimers
+import StorageSystem
+import Stock
+// import WorldGenerationSystem
+// import UtilityFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+// General:
+let USER_PLAYER = Player(0)
+
+// Player units:
+let START_VEC = vec2(0., 0.)
+let START_PEASANT_COUNT = 5
+let START_WOOD_COUNT_PER_PEASANT = 5
+
+
+// --------------------
+// Functional code
+// --------------------
+
+string currentInitStatus = null
+
+function newInitStatus(string statusName)
+	if currentInitStatus != null
+		print("Initialisation: Finished " + currentInitStatus)
+	currentInitStatus = statusName
+	if currentInitStatus != null
+		print("Initialisation: Starting " + currentInitStatus)
+
+function runStartup()
+	SetMusicVolume(0)  // DEBUG: only for development
+	// DEBUG: not used for now
+	// // Create terrain:
+	// newInitStatus("terrain creation")
+	// generateTerrain()
+	// TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+	// // Create plants:
+	// newInitStatus("plants creation")
+	// generatePlants()
+	// Create player units:
+	newInitStatus("player units creation")
+	for i = 1 to START_PEASANT_COUNT
+		var u = createUnit(USER_PLAYER, UnitIdsCustom.Melee.peasant, START_VEC, angle(0.))
+		nullTimer() ->
+			let storage = u.getStorage()
+			if storage != null
+				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
+	createUnit(USER_PLAYER, UnitIdsCustom.Melee.footman, START_VEC, angle(0.))
+	// Initialisation finished:
+	newInitStatus(null)
+	print("Finished initialisation")
+
+init
+	// Use a trigger to allow the use of TriggerSleepAction:
+	CreateTrigger()
+	..addAction(function runStartup)
+	..execute()

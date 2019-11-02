@@ -19,6 +19,6 @@ import BuildingPreset
     ..presetNoGoldAndLumber()
     ..setFoodProduced(0)
     // Techtree:
-    ..presetUpgradesTo(UnitIdsCustom.Melee.farm, UnitIdsCustom.Melee.townHall)
+    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.Melee.townHall, UnitIdsCustom.Melee.farm, UnitIdsCustom.Melee.barracks, UnitIdsCustom.Melee.blacksmith, UnitIdsCustom.Melee.scoutTower, UnitIdsCustom.Melee.altarOfKings, UnitIdsCustom.Melee.workshop, UnitIdsCustom.Melee.arcaneSanctum, UnitIdsCustom.Melee.lumberMill, UnitIdsCustom.Melee.gryphonAviary, UnitIdsCustom.Melee.arcaneVault))
     // Text:
     ..presetNameAndTooltips(true, "Building Ground", "")

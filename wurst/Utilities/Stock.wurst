@@ -25,6 +25,7 @@ let MAX_WARE_TYPES = 9999  // Is limited to allow tuple to be converted into a s
 public enum WareType
 	WOOD
 	STONE
+	METAL
 	FOOD
 	IRON_ORE
 	COAL
@@ -38,6 +39,8 @@ function WareType.toString() returns string
 			return "wood"
 		case STONE
 			return "stone"
+		case METAL
+			return "metal"
 		case FOOD
 			return "food"
 		case IRON_ORE
@@ -59,6 +62,8 @@ function WareType.getIconPath() returns string
 			return Icons.bTNBundleOfLumber
 		case STONE
 			return "Icons\\BTNINV_Stone_12.blp"
+		case METAL
+			return Icons.bTNHumanArmorUpOne
 		case FOOD
 			return Icons.bTNMonsterLure
 		case WOODEN_BOARD

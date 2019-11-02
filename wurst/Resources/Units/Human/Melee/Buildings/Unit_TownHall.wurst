@@ -18,7 +18,7 @@ public class UnitData_Townhall
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetUnitsTrained(UnitIdsCustom.Melee.peasant)
-    ..presetUpgradesTo(UnitIdsCustom.Melee.keep)
+    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.peasant))
+    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.Melee.keep))
     // Text:
     ..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")

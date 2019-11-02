@@ -13,6 +13,7 @@ import BuildingPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetUnitsTrained(UnitIdsCustom.Melee.mortarTeam, UnitIdsCustom.Melee.siegeEngine, UnitIdsCustom.Melee.flyingMachine)
+    ..setRequirements(getUnitIdsString(UnitIdsCustom.Melee.keep, UnitIdsCustom.Melee.blacksmith))
+    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.mortarTeam, UnitIdsCustom.Melee.siegeEngine, UnitIdsCustom.Melee.flyingMachine))
     // Text:
     ..presetNameAndTooltips(true, "Workshop", "Mechanical construction building.")

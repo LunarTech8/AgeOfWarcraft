@@ -11,11 +11,11 @@ Initial version.
 -------------------------------------------------------------*/
 package BuildingPreset
 import UnitObjEditing
-import ObjectIds
 import public Assets
 import public ConstantDataSystem
 import public UnitsPresetFunctions
 import public ObjEditingCommons
+import public UtilityFunctions
 
 
 // --------------------
@@ -26,27 +26,3 @@ public class BuildingPreset extends BuildingDefinition
 
 	construct(int newId, int originId)
 		super(newId, originId)
-
-	function presetUpgradesTo(vararg int buildingIds)
-		var buildingString = ""
-		for buildingId in buildingIds
-			buildingString += buildingId.toRawCode() + ","
-		if buildingString != ""
-			buildingString = buildingString.substring(0, buildingString.length()-1)
-		this.setUpgradesTo(buildingString)
-
-	function presetUpgradesUsed(vararg int buildingIds)
-		var buildingString = ""
-		for buildingId in buildingIds
-			buildingString += buildingId.toRawCode() + ","
-		if buildingString != ""
-			buildingString = buildingString.substring(0, buildingString.length()-1)
-		this.setUpgradesUsed(buildingString)
-
-	function presetUnitsTrained(vararg int unitIds)
-		var unitString = ""
-		for unitId in unitIds
-			unitString += unitId.toRawCode() + ","
-		if unitString != ""
-			unitString = unitString.substring(0, unitString.length()-1)
-		this.setUnitsTrained(unitString)

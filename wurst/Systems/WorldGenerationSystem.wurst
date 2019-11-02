@@ -12,11 +12,8 @@ Initial version.
 package WorldGenerationSystem
 import TerrainUtils
 import Interpolation
-import ClosureTimers
-import Stock
 import Array2D
 import ConstantDataSystem
-import StorageSystem
 import UtilityFunctions
 
 
@@ -33,14 +30,6 @@ let MIN_TERRAIN_HEIGHT = 128.  // Min addition to start height
 let MAX_TERRAIN_HEIGHT = 384.  // Max addition to start height
 let ORIGIN_VEC = vec2(-2048., -2048.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
-// General:
-let USER_PLAYER = Player(0)
-
-// Player units:
-let START_VEC = vec2(0., 0.)
-let START_PEASANT_COUNT = 5
-let START_WOOD_COUNT_PER_PEASANT = 5
-
 // Nature:
 let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
 
@@ -49,48 +38,17 @@ let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
 // Functional code
 // --------------------
 
-string currentInitStatus = null
-
-function newInitStatus(string statusName)
-    if currentInitStatus != null
-        print("Initialisation: Finished " + currentInitStatus)
-    currentInitStatus = statusName
-    if currentInitStatus != null
-        print("Initialisation: Starting " + currentInitStatus)
-
-function generateWorld()
-    // Create terrain:
-    newInitStatus("terrain creation")
+public function generateTerrain()
     Array2D<real> heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
             ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it ot show up
     // FIXME: pathing has to be updatet manually to allow building on above water ground
-    TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
-    // Create player units:
-    newInitStatus("player units creation")
-    for i = 1 to START_PEASANT_COUNT
-        var u = createUnit(USER_PLAYER, UnitIdsCustom.Melee.peasant, START_VEC, angle(0.))
-        nullTimer() ->
-            let storage = u.getStorage()
-            if storage != null
-                storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
-    createUnit(USER_PLAYER, UnitIdsCustom.Melee.footman, START_VEC, angle(0.))
-    // Create trees:
-    newInitStatus("trees creation")
+
+public function generatePlants()
     Array2D<real> treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(0., 1.)
                 var v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())
-    // Initialisation finished:
-    newInitStatus(null)
-    print("Finished initialisation")
-
-init
-    // Use a trigger to allow the use of TriggerSleepAction:
-    CreateTrigger()
-    ..addAction(function generateWorld)
-    ..execute()
-    SetMusicVolume(0)  // DEBUG: only for development

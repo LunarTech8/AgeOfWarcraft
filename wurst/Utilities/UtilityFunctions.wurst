@@ -15,6 +15,7 @@ import ConstantDataSystem
 import Interpolation
 import Array2D
 import Orders
+import ObjectIds
 
 
 // --------------------
@@ -212,6 +213,15 @@ public function unit.replace(int unitTypeId) returns unit
 	this.kill()
 	this.remove()
 	return newUnit
+
+/** Returns a string of the given unit ids. */
+public function getUnitIdsString(vararg int unitIds) returns string
+	var unitString = ""
+	for unitId in unitIds
+		unitString += unitId.toRawCode() + ","
+	if unitString != ""
+		unitString = unitString.substring(0, unitString.length()-1)
+	return unitString
 
 /** Returns random value of given inputs. */
 public function getRandomInputInt(vararg int inputs) returns int

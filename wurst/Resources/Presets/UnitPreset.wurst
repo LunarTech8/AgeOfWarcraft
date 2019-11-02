@@ -10,12 +10,12 @@ Preset class based on UnitDefinition that adds additional preset functions for u
 Initial version.
 -------------------------------------------------------------*/
 package UnitPreset
-import ObjectIds
 import public Assets
 import public ConstantDataSystem
 import public UnitsPresetFunctions
 import public UnitObjEditing
 import public ObjEditingCommons
+import public UtilityFunctions
 
 
 // --------------------
@@ -26,14 +26,6 @@ public class UnitPreset extends UnitDefinition
 
 	construct(int newId, int originId)
 		super(newId, originId)
-
-	function presetStructuresBuilt(vararg int buildingIds)
-		var buildingString = ""
-		for buildingId in buildingIds
-			buildingString += buildingId.toRawCode() + ","
-		if buildingString != ""
-			buildingString = buildingString.substring(0, buildingString.length()-1)
-		setStructuresBuilt(buildingString)
 
 	function presetShadowImage(real centerX, real centerY, real width, real height)
 		setShadowImageCenterX(centerX)

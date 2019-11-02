@@ -6,16 +6,20 @@ import BuildingPreset
 // Data code
 // --------------------
 
+public class UnitData_ArcaneSanctum
+    static constant scalingValue = 1.2
+
 @compiletime function genObj()
     new BuildingPreset(UnitIdsCustom.Melee.arcaneSanctum, UnitIds.arcanesanctum)
     // Abilities:
     ..presetNormalAbilities()
     // Art:
-    ..setScalingValue(1.2)
+    ..setScalingValue(UnitData_ArcaneSanctum.scalingValue)
     ..setSelectionScale(4.)
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..presetUnitsTrained(UnitIdsCustom.Melee.sorceress, UnitIdsCustom.Melee.spellBreaker)
+    ..setRequirements(getUnitIdsString(UnitIdsCustom.Melee.keep))
+    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.sorceress, UnitIdsCustom.Melee.spellBreaker))
     // Text:
     ..presetNameAndTooltips(true, "Arcane Sanctum", "Primary magic training structure.")

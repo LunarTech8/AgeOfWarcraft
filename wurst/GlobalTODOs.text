@@ -41,8 +41,9 @@ Work status:
 // -------------
 
 !!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
+!!>- Add settlements and homes and workplaces for people
+	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 
-!!- Add settlements and homes and workplaces for people
 !- Main mechanics:
 	- Population management:
 		- Population growths on a percentage basis.

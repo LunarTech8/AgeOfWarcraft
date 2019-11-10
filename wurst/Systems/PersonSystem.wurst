@@ -1,0 +1,99 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+TODO
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package PersonSystem
+import OnUnitEnterLeave
+import ConstantDataSystem
+import MultiboardPrioritySystem
+import Icons
+import UnitMap
+
+
+// --------------------
+// Data code
+// --------------------
+
+let FOOD_ICON_PATH = Icons.bTNMonsterLure
+let ENERGY_ICON_PATH = Icons.bTNSleep
+let HOUSE_ICON_PATH = Icons.bTNFarm
+let WORKPLACE_ICON_PATH = Icons.bTNWorkshop
+
+function isPersonType(int unitId) returns bool
+	switch unitId
+		case UnitIdsCustom.Melee.peasant
+			return true
+		default
+			return false
+
+function getRandomName() returns string
+	// TODO: implement
+	return "TEST NAME"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+let PERSON_MAP = new UnitHashMap<Person>(null)
+
+public class Person
+	private unit user
+	private string name
+	protected real food
+	protected real energy
+	protected unit house
+	protected unit workplace
+
+	construct(unit person, string name)
+		user = person
+		this.name = name
+		food = 100.
+		energy = 100.
+		house = null
+		workplace = null
+
+	function getName() returns string
+		return name
+
+
+function unit.addPerson(string name)
+	if PERSON_MAP.has(this) == false
+		if isPersonType(GetUnitTypeId(this))
+			var person = new Person(this, name)
+			PERSON_MAP.put(this, person)
+
+function unit.removePerson()
+	let person = PERSON_MAP.tryRemove(this)
+	if person != null
+		destroy person
+
+/** Returns the person of given unit. */
+public function unit.getPerson() returns Person
+	return PERSON_MAP.tryGet(this)
+
+/** Sets system relevant infos for given object in target multiboard. */
+public function multiboard.setObjectInfoMultiboard(Person p) returns bool
+	this.addMultiboardLine(p.getName() + ":", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Food: " + p.food.toString(), FOOD_ICON_PATH)
+	this.addMultiboardLine("Energy: " + p.energy.toString(), ENERGY_ICON_PATH)
+	if p.house != null
+		this.addMultiboardLine("House: " + p.house.getName(), HOUSE_ICON_PATH)
+	if p.workplace != null
+		this.addMultiboardLine("Workplace: " + p.workplace.getName(), WORKPLACE_ICON_PATH)
+	return true
+
+init
+	// Add person to every appropriate new unit:
+	onEnter() ->
+		getEnterLeaveUnit().addPerson(getRandomName())
+	// Remove person from every appropriate removed unit:
+	onLeave() ->
+		getEnterLeaveUnit().removePerson()

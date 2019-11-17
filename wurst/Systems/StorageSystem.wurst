@@ -31,6 +31,10 @@ function getMaxCapacity(int unitId) returns int
 		case UnitIdsCustom.Melee.peasant
 			// return 10
 			return 100  // DEBUG
+		case UnitIdsCustom.Melee.lumberMill
+			return 50
+		case UnitIdsCustom.Melee.blacksmith
+			return 50
 		default
 			return 0
 
@@ -93,7 +97,7 @@ public class Storage extends Stock
 	function transferWares(Storage target) returns int
 		// Transfer last ware of source until it is empty or target is full:
 		var targetFreeCapacity = target.getFreeCapacity()
-		while hasWares()
+		while isEmpty() == false
 			if targetFreeCapacity <= 0
 				return usedCapacity
 			var ware = getLastWare()

@@ -29,6 +29,7 @@ import BuildingSystem
 import ConstantDataSystem
 import OrderSystem
 import PersonSystem
+import WorkshopSystem
 
 
 // --------------------
@@ -106,24 +107,27 @@ function deactivateDataset(int playerID)
 /** Checks if targeted unit of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
 function createMultiboardLines(int playerID) returns bool
 	var hasInfo = false
-	// Check info sources that require ownerhsip by the given player:
-	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
-		var storage = datasets[playerID].targetedUnit.getStorage()
-		if storage != null
-			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo
-		var buildingSite = datasets[playerID].targetedUnit.getBuildingSite()
-		if buildingSite != null
-			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite) or hasInfo
-		var orderSource = datasets[playerID].targetedUnit.getOrderSource()
-		if orderSource != null
-			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource) or hasInfo
-		var person = datasets[playerID].targetedUnit.getPerson()
-		if person != null
-			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(person) or hasInfo
 	// Check info sources that do not require specific ownerhsip:
 	var resource = datasets[playerID].targetedUnit.getResource()
 	if resource != null
 		hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource) or hasInfo
+	// Check info sources that require ownerhsip by the given player:
+	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
+		var buildingSite = datasets[playerID].targetedUnit.getBuildingSite()
+		if buildingSite != null
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite) or hasInfo
+		var person = datasets[playerID].targetedUnit.getPerson()
+		if person != null
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(person) or hasInfo
+		var workshop = datasets[playerID].targetedUnit.getWorkshop()
+		if workshop != null
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(workshop) or hasInfo
+		var storage = datasets[playerID].targetedUnit.getStorage()
+		if storage != null
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo
+		var orderSource = datasets[playerID].targetedUnit.getOrderSource()
+		if orderSource != null
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource) or hasInfo
 	return hasInfo
 
 function showObjectInfo(int playerID)

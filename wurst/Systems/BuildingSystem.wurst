@@ -55,59 +55,60 @@ let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
 let WORKERS_ICON_PATH = Icons.bTNBash
 
-function isBuilding(int buildingUnitId) returns bool
-	switch buildingUnitId
-		case UnitIdsCustom.Melee.townHall
-			return true
-		case UnitIdsCustom.Melee.farm
-			return true
-		case UnitIdsCustom.Melee.blacksmith
-			return true
-		case UnitIdsCustom.Melee.lumberMill
-			return true
-		case UnitIdsCustom.Melee.arcaneVault
-			return true
-		case UnitIdsCustom.Melee.scoutTower
-			return true
-		case UnitIdsCustom.Melee.barracks
-			return true
-		case UnitIdsCustom.Melee.altarOfKings
-			return true
-		case UnitIdsCustom.Melee.workshop
-			return true
-		case UnitIdsCustom.Melee.arcaneSanctum
-			return true
-		case UnitIdsCustom.Melee.gryphonAviary
-			return true
-	return false
-
-/** Returns the build progress in percentage that the given worker type does per second on the given building type. */
+/** Returns the build progress that the given worker type does per second on the given building type. */
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
 	switch workerUnitId
 		case UnitIdsCustom.Melee.peasant
 			switch buildingUnitId
 				case UnitIdsCustom.Melee.townHall
-					return 0.00556  // 180 sec
+					return 1.
 				case UnitIdsCustom.Melee.farm
-					return 0.02857  // 35 sec
+					return 1.
 				case UnitIdsCustom.Melee.blacksmith
-					return 0.01429  // 70 sec
+					return 1.
 				case UnitIdsCustom.Melee.lumberMill
-					return 0.01667  // 60 sec
+					return 1.
 				case UnitIdsCustom.Melee.arcaneVault
-					return 0.01667  // 60 sec
+					return 1.
 				case UnitIdsCustom.Melee.scoutTower
-					return 0.04000  // 25 sec
+					return 1.
 				case UnitIdsCustom.Melee.barracks
-					return 0.01667  // 60 sec
+					return 1.
 				case UnitIdsCustom.Melee.altarOfKings
-					return 0.01667  // 60 sec
+					return 1.
 				case UnitIdsCustom.Melee.workshop
-					return 0.01667  // 60 sec
+					return 1.
 				case UnitIdsCustom.Melee.arcaneSanctum
-					return 0.01429  // 70 sec
+					return 1.
 				case UnitIdsCustom.Melee.gryphonAviary
-					return 0.01333  // 75 sec
+					return 1.
+	return 0.
+
+/** Returns the required build progress in seconds of the given building type. */
+function getRequiredWorkPower(int buildingUnitId) returns real
+	switch buildingUnitId
+		case UnitIdsCustom.Melee.townHall
+			return 180.
+		case UnitIdsCustom.Melee.farm
+			return 35.
+		case UnitIdsCustom.Melee.blacksmith
+			return 70.
+		case UnitIdsCustom.Melee.lumberMill
+			return 60.
+		case UnitIdsCustom.Melee.arcaneVault
+			return 60.
+		case UnitIdsCustom.Melee.scoutTower
+			return 25.
+		case UnitIdsCustom.Melee.barracks
+			return 60.
+		case UnitIdsCustom.Melee.altarOfKings
+			return 60.
+		case UnitIdsCustom.Melee.workshop
+			return 60.
+		case UnitIdsCustom.Melee.arcaneSanctum
+			return 70.
+		case UnitIdsCustom.Melee.gryphonAviary
+			return 75.
 	return 0.
 
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
@@ -188,7 +189,8 @@ let WORKER_MAP = new UnitHashMap<BuildingSite>(null)
 class BuildingSite extends Stock
 	private real fullHP
 	private int workerCount
-	private real workProgress
+	private real workProgressCurrent
+	private real workProgressFinished
 	private real workPower
 	private int upgradeProgress
 
@@ -197,18 +199,22 @@ class BuildingSite extends Stock
 		user = building
 		this.fullHP = fullHP
 		workerCount = 0
-		workProgress = 0.
+		workProgressCurrent = 0.
+		workProgressFinished = getRequiredWorkPower(building.getUnitId())
 		workPower = 0.
 		upgradeProgress = 1
 
-	function getWorkProgress() returns real
-		return workProgress
+	function getWorkerCount() returns int
+		return workerCount
+
+	function getWorkProgressPercentage() returns real
+		return workProgressCurrent / workProgressFinished
+
+	function getWorkProgressLeft() returns real
+		return workProgressFinished - workProgressCurrent
 
 	function getWorkPower() returns real
 		return workPower
-
-	function getWorkerCount() returns int
-		return workerCount
 
 	function addWorker(unit worker)
 		if WORKER_MAP.has(worker) == false
@@ -235,22 +241,22 @@ class BuildingSite extends Stock
 	function adjustProgress() returns bool
 		if workPower > 0.
 			// Adjust work progress:
-			workProgress += workPower * BUILDING_ADJUSTMENT_RATE
-			if workProgress >= 1.
+			workProgressCurrent += workPower * BUILDING_ADJUSTMENT_RATE
+			if workProgressCurrent >= workProgressFinished
 				// Finish construction:
 				UnitSetUpgradeProgress(user, 100)
 				return true
 			else
 				// Recalculate values:
-				user.setMaxHP(max(1, (fullHP * (workProgress * (1 - BUILDING_START_HP_PERCENTAGE) + BUILDING_START_HP_PERCENTAGE)).toInt()))
+				user.setMaxHP(max(1, (fullHP * ((workProgressCurrent / workProgressFinished) * (1 - BUILDING_START_HP_PERCENTAGE) + BUILDING_START_HP_PERCENTAGE)).toInt()))
 				user.addHP(fullHP * (1 - BUILDING_START_HP_PERCENTAGE) * workPower * BUILDING_ADJUSTMENT_RATE)
-				upgradeProgress = min(max(1, (workProgress * 100.).toInt()), 99)
+				upgradeProgress = min(max(1, ((workProgressCurrent / workProgressFinished) * 100.).toInt()), 99)
 		// Always adjust upgrade progress so that it stays correct:
 		UnitSetUpgradeProgress(user, upgradeProgress)
 		return false
 
 	function hasCarrierRequiredResources(unit carrier) returns bool
-		if this.hasWares()
+		if this.isEmpty() == false
 			var carrierStorage = carrier.getStorage()
 			if carrierStorage != null and carrierStorage.containsAny(this)
 				return true
@@ -302,7 +308,7 @@ function unit.addBuildingSite()
 		buildingGround.setMaxHP(max(1, (fullHP * BUILDING_START_HP_PERCENTAGE).toInt()))
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
-		if buildingSite.hasWares() == false
+		if buildingSite.isEmpty()
 			buildingSite.callOverIdleWorkers(null)
 		else
 			buildingSite.callOverIdleWareCarriers()
@@ -317,7 +323,7 @@ function findNextBuildingSite_GetFilter() returns filterfunc
 		var conditionsFulfilled = false
 		let buildingSite = GetFilterUnit().getBuildingSite()
 		// Only allow building sites that don't have any required wares left:
-		if buildingSite != null and buildingSite.hasWares() == false
+		if buildingSite != null and buildingSite.isEmpty()
 			conditionsFulfilled = true
 		return conditionsFulfilled
 /** Returns next valid building site unit at the position for given player. */
@@ -370,10 +376,10 @@ public function int.isValidWorkerType(int workerUnitId) returns bool
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 	this.addMultiboardLine("Building site:", HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Build progress: " + (bs.getWorkProgress() * 100.).toInt().toString() + "%", BUILD_PROGRESS_ICON_PATH)
+	this.addMultiboardLine("Build progress: " + bs.getWorkProgressPercentage().toInt().toString() + "%", BUILD_PROGRESS_ICON_PATH)
 	let workPower = bs.getWorkPower()
 	if workPower > 0.
-		this.addMultiboardLine("Build time left: " + ((1 - bs.getWorkProgress()) / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
+		this.addMultiboardLine("Build time left: " + (bs.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
 		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString(), WORKERS_ICON_PATH)
 	let amountOfWareTypes = bs.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
@@ -384,7 +390,7 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 	return true
 
 init
-	// Remove resource from every appropriate removed unit:
+	// Remove building site from every appropriate removed unit:
 	onUnitDeindex() ->
 		getIndexingUnit().removeBuildingSite()
 	// Adjust progress of all building sites:
@@ -399,7 +405,7 @@ init
 	// Register construction starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_CONSTRUCT_START) ->
 		let building = GetConstructingStructure()
-		if isBuilding(building.getUnitId())
+		if getRequiredWorkPower(building.getUnitId()) > 0.
 			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> building.addBuildingSite())
 	// Register construction abortions:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL) ->
@@ -451,10 +457,10 @@ unit testBuildingSystem_Build_building = null
 		if unitA.findNextBuildingSite() != testBuildingSystem_Build_building
 			testFail(usedTestName, "Test failed: Couldn't find BuildingSite via function findNextBuildingSite")
 		// Check building site status:
-		a.getWorkProgress().assertEquals(0.)
+		a.getWorkProgressPercentage().assertEquals(0.)
 		a.getWorkPower().assertEquals(0.05)
 		a.getWorkerCount().assertEquals(1)
-		a.hasWares().assertFalse()
+		a.isEmpty().assertTrue()
 	// Abort construction:
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		testBuildingSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)

@@ -29,8 +29,8 @@ public enum WareType
 	FOOD
 	IRON_ORE
 	COAL
-	WOODEN_BOARD
-	WOODEN_STICK
+	WOODEN_BOARDS
+	WOODEN_STICKS
 	STRAW
 
 function WareType.toString() returns string
@@ -47,10 +47,10 @@ function WareType.toString() returns string
 			return "iron ore"
 		case COAL
 			return "coal"
-		case WOODEN_BOARD
-			return "wooden board"
-		case WOODEN_STICK
-			return "wooden stick"
+		case WOODEN_BOARDS
+			return "wooden boards"
+		case WOODEN_STICKS
+			return "wooden sticks"
 		case STRAW
 			return "straw"
 		default
@@ -66,9 +66,9 @@ function WareType.getIconPath() returns string
 			return Icons.bTNHumanArmorUpOne
 		case FOOD
 			return Icons.bTNMonsterLure
-		case WOODEN_BOARD
+		case WOODEN_BOARDS
 			return Icons.bTNHumanLumberUpgrade2
-		case WOODEN_STICK
+		case WOODEN_STICKS
 			return Icons.bTNHumanLumberUpgrade1
 		case STRAW
 			return "Icons\\BTNStrawBunch.blp"
@@ -124,9 +124,9 @@ public class Stock
 	ondestroy
 		destroy wares
 
-	/** Returns if the stock has any wares. */
-	function hasWares() returns bool
-		return wares.isEmpty() == false
+	/** Returns if the stock has no wares. */
+	function isEmpty() returns bool
+		return wares.isEmpty()
 
 	/** Returns the ware by given index of the stock. */
 	function getWare(int index) returns ware
@@ -148,6 +148,24 @@ public class Stock
 			if iWare.wareType == wt
 				return iWare.count
 		return 0
+
+	/** Returns if the stock has the given ware. */
+	function hasWare(ware w) returns bool
+		for iWare in wares
+			if iWare.hasSameType(w)
+				// Check ware:
+				if iWare.count <= w.count
+					return true
+				else
+					return false
+		return false
+
+	/** Returns if the stock has the given wares. */
+	function hasWares(LinkedList<ware> wares) returns bool
+		for iWare in wares
+			if hasWare(iWare) == false
+				return false
+		return true
 
 	/** Add given wares to the stock. */
 	function addWare(ware w)

@@ -135,7 +135,7 @@ function unit.transferWares(unit target)
 			// Take wares from source storage:
 			targetBuildingSite.transferWares(sourceStorage)
 			// Call over idel workers if no required wares are missing:
-			if targetBuildingSite.hasWares() == false
+			if targetBuildingSite.isEmpty()
 				targetBuildingSite.callOverIdleWorkers(this)
 
 /** Run general reaction on invalid ability command. */
@@ -170,7 +170,7 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		if targetStorage != null and targetStorage.getFreeCapacity() <= 0
 			return Validity.NO_FREE_STORAGE
 		// Check if target requires wares:
-		if targetBuildingSite != null and targetBuildingSite.hasWares() == false
+		if targetBuildingSite != null and targetBuildingSite.isEmpty()
 			return Validity.NO_REQUIRED_WARES
 	else if abilityId == AbilityIdsCustom.build
 		// Check if source and target are valid:
@@ -180,7 +180,7 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		if buildingSite == null
 			return Validity.INVALID_TARGET
 		// Check if required wares are available:
-		if buildingSite.hasWares()
+		if buildingSite.isEmpty() == false
 			return Validity.WARES_NOT_AVAILABLE
 		// Check if worker is already building:
 		if this.getBuildingSiteOfWorker() != null
@@ -196,7 +196,7 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		// Check if wares can be harvested:
 		if storage.getFreeCapacity() <= 0
 			return Validity.NO_FREE_STORAGE
-		else if resource.hasWares() == false
+		else if resource.isEmpty()
 			return Validity.RESOURCE_IS_DEPLETED
 		else if resource.getFreeWorkerSlots() <= 0
 			return Validity.NO_FREE_WORK_SLOT

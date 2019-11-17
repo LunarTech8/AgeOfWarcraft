@@ -199,7 +199,7 @@ public function unit.findNextResource() returns unit
 			let resource = filterUnit.getResource()
 			let priority = getHarvestPriority(filterUnit.getUnitId())
 			// Only allow resources that have wares left, free worker slots and a high enough priority:
-			if resource != null and resource.hasWares() and resource.getFreeWorkerSlots() > 0 and priority >= findNextResource_Priority
+			if resource != null and resource.isEmpty() == false and resource.getFreeWorkerSlots() > 0 and priority >= findNextResource_Priority
 				findNextResource_Priority = priority
 				conditionsFulfilled = true
 			return conditionsFulfilled

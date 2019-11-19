@@ -208,7 +208,7 @@ class BuildingSite extends Stock
 		return workerCount
 
 	function getWorkProgressPercentage() returns real
-		return workProgressCurrent / workProgressFinished
+		return 100. * workProgressCurrent / workProgressFinished
 
 	function getWorkProgressLeft() returns real
 		return workProgressFinished - workProgressCurrent
@@ -383,7 +383,7 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString(), WORKERS_ICON_PATH)
 	let amountOfWareTypes = bs.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
-		this.addMultiboardLine("Required wares:", HEADLINE_ICON_PATH)
+		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
 		for i = 0 to (amountOfWareTypes - 1)
 			var ware = bs.getWare(i)
 			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())

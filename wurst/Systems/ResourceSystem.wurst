@@ -171,13 +171,12 @@ class Resource extends Stock
 
 function unit.addResource()
 	if RESOURCE_MAP.has(this) == false
-		var unitType = this.getUnitId()
-		var wares = getDefaultInitWares(unitType)
+		let unitId = this.getUnitId()
+		let wares = getDefaultInitWares(unitId)
 		if wares.isEmpty()
 			destroy wares
 		else
-			var resource = new Resource(this, isKilledWhenDepleted(unitType), wares)
-			RESOURCE_MAP.put(this, resource)
+			RESOURCE_MAP.put(this, new Resource(this, isKilledWhenDepleted(unitId), wares))
 
 function unit.removeResource()
 	let resource = RESOURCE_MAP.tryRemove(this)

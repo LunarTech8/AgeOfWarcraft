@@ -22,6 +22,7 @@ import Ability_Harvest
 import InstantDummyCaster
 import DummyRecycler
 import ClosureTimers
+import WorkshopSystem
 
 
 // --------------------
@@ -130,6 +131,10 @@ function unit.transferWares(unit target)
 		if targetStorage != null
 			// Give wares to target storage:
 			sourceStorage.transferWares(targetStorage)
+		var targetWorkshop = target.getWorkshop()
+		if targetWorkshop != null
+			// Give wares to target workshop:
+			sourceStorage.transferWares(targetWorkshop)
 		var targetBuildingSite = target.getBuildingSite()
 		if targetBuildingSite != null
 			// Take wares from source storage:
@@ -156,18 +161,19 @@ function unit.reactOnInvalidAbility(int abilityId, Validity val)
 function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 	if abilityId == AbilityIdsCustom.transferWares
 		// Check if source and target are valid:
-		var sourceStorage = this.getStorage()
+		let sourceStorage = this.getStorage()
 		if sourceStorage == null
 			return Validity.INVALID_SOURCE
-		var targetStorage = target.getStorage()
-		var targetBuildingSite = target.getBuildingSite()
-		if targetStorage == null and targetBuildingSite == null
+		let targetStorage = target.getStorage()
+		let targetWorkshop = target.getWorkshop()
+		let targetBuildingSite = target.getBuildingSite()
+		if targetStorage == null and targetWorkshop == null and targetBuildingSite == null
 			return Validity.INVALID_TARGET
 		// Check if wares are available:
 		if sourceStorage.getUsedCapacity() <= 0
 			return Validity.WARES_NOT_AVAILABLE
 		// Check if target has free storage:
-		if targetStorage != null and targetStorage.getFreeCapacity() <= 0
+		if (targetStorage != null or targetWorkshop != null) and targetStorage.getFreeCapacity() <= 0
 			return Validity.NO_FREE_STORAGE
 		// Check if target requires wares:
 		if targetBuildingSite != null and targetBuildingSite.isEmpty()

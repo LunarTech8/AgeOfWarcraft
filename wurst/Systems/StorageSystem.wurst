@@ -18,6 +18,7 @@ import Stock
 import UnitMap
 import LinkedList
 import UnitTest
+import WorkshopSystem
 
 
 // --------------------
@@ -26,7 +27,7 @@ import UnitTest
 
 let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
 
-function getMaxCapacity(int unitId) returns int
+function getStorageMaxCapacity(int unitId) returns int
 	switch unitId
 		case UnitIdsCustom.Melee.peasant
 			// return 10
@@ -107,14 +108,14 @@ public class Storage extends Stock
 			target.addWare(ware)
 			removeWare(ware)
 		return 0
+	function transferWares(Workshop target) returns int
+		// TODO: implement
 
 
 function unit.addStorage()
-	if STORAGE_MAP.has(this) == false
-		var maxCapacity = getMaxCapacity(GetUnitTypeId(this))
-		if maxCapacity > 0
-			var storage = new Storage(this, maxCapacity)
-			STORAGE_MAP.put(this, storage)
+	let maxCapacity = getStorageMaxCapacity(GetUnitTypeId(this))
+	if STORAGE_MAP.has(this) == false and maxCapacity > 0
+		STORAGE_MAP.put(this, new Storage(this, maxCapacity))
 
 function unit.removeStorage()
 	let storage = STORAGE_MAP.tryRemove(this)

@@ -121,7 +121,7 @@ function createMultiboardLines(int playerID) returns bool
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(person) or hasInfo
 		var workshop = datasets[playerID].targetedUnit.getWorkshop()
 		if workshop != null
-			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(workshop, true) or hasInfo
+			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(workshop) or hasInfo
 		var storage = datasets[playerID].targetedUnit.getStorage()
 		if storage != null
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo

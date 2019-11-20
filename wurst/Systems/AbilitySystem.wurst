@@ -133,8 +133,8 @@ function unit.transferWares(unit target)
 			sourceStorage.transferWares(targetStorage)
 		var targetWorkshop = target.getWorkshop()
 		if targetWorkshop != null
-			// Give wares to target workshop:
-			sourceStorage.transferWares(targetWorkshop)
+			// Exchange wares with source storage:
+			targetWorkshop.transferWares(sourceStorage)
 		var targetBuildingSite = target.getBuildingSite()
 		if targetBuildingSite != null
 			// Take wares from source storage:
@@ -173,11 +173,17 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		if sourceStorage.getUsedCapacity() <= 0
 			return Validity.WARES_NOT_AVAILABLE
 		// Check if target has free storage:
-		if (targetStorage != null or targetWorkshop != null) and targetStorage.getFreeCapacity() <= 0
+		if targetStorage != null and targetStorage.getFreeCapacity() <= 0
 			return Validity.NO_FREE_STORAGE
 		// Check if target requires wares:
 		if targetBuildingSite != null and targetBuildingSite.isEmpty()
 			return Validity.NO_REQUIRED_WARES
+		if targetWorkshop != null
+			let educts = targetWorkshop.getEducts()
+			let hasAnyEducts = sourceStorage.hasWaresAny(educts)
+			destroy educts
+			if hasAnyEducts
+				return Validity.NO_REQUIRED_WARES
 	else if abilityId == AbilityIdsCustom.build
 		// Check if source and target are valid:
 		if target.getUnitId().isValidWorkerType(this.getUnitId()) == false

@@ -21,26 +21,19 @@ import ClosureTimers
 import OnUnitEnterLeave
 import Icons
 import RegisterEvents
+import StorageSystem
 
 
 // --------------------
 // Data code
 // --------------------
 
+let MAX_STORABLE_EDUCTS = 5
+let MAX_STORABLE_PRODUCTS = 3
 let PRODUCTION_ADJUSTMENT_RATE = 0.1
 let PRODUCTION_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let PRODUCTION_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
 let WORKERS_ICON_PATH = Icons.bTNBash
-let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
-
-function getWorkshopMaxCapacity(int buildingId) returns int
-	switch buildingId
-		case UnitIdsCustom.Melee.lumberMill
-			return 50
-		case UnitIdsCustom.Melee.blacksmith
-			return 50
-		default
-			return 0
 
 /** Returns the production progress that the given worker type does per second in the given building type. */
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
@@ -76,7 +69,7 @@ function getMaxWorkers(int buildingUnitId) returns int
 			return 3
 	return 0
 
-function getEducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
+function getWorkshopEducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch workshopUnitId
 		case UnitIdsCustom.Melee.lumberMill
@@ -92,7 +85,7 @@ function getEducts(int workshopUnitId, int productionVariant) returns LinkedList
 					wares.add(ware(WareType.COAL, 1))
 	return wares
 
-function getProducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
+function getWorkshopProducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch workshopUnitId
 		case UnitIdsCustom.Melee.lumberMill
@@ -115,19 +108,15 @@ function getProducts(int workshopUnitId, int productionVariant) returns LinkedLi
 let WORKSHOP_MAP = new IterableUnitHashMap<Workshop>(null)
 
 class Workshop extends Stock
-	private int maxCapacity
-	private int usedCapacity
 	private int productionVariant
 	private real workProgressCurrent
 	private real workProgressFinished
 	private real workPower
 	private group workers
 
-	construct(unit workshop, int maxCapacity)
+	construct(unit workshop)
 		super(new LinkedList<ware>())
 		user = workshop
-		this.maxCapacity = maxCapacity
-		usedCapacity = 0
 		productionVariant = 1
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(workshop.getUnitId(), productionVariant)
@@ -139,47 +128,9 @@ class Workshop extends Stock
 			worker.show()
 		workers.destr()
 
-	function getMaxCapacity() returns int
-		return maxCapacity
-
-	function getUsedCapacity() returns int
-		return usedCapacity
-
-	function getFreeCapacity() returns int
-		return maxCapacity - usedCapacity
-
-	override function addWare(ware w)
-		if w.count > getFreeCapacity()
-			Log.error("ERROR: Not enough free capacity to add given ware to storage of " + user.getName())
-		usedCapacity += w.count
-		super.addWare(w)
-
-	override function addWares(LinkedList<ware> wares)
-		for iWare in wares
-			addWare(iWare)  // Use capacity based method
-
-	override function removeWare(ware w)
-		for iWare in wares
-			if iWare.hasSameType(w)
-				// Check and adjust ware:
-				if iWare.count < w.count
-					Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware count is to low")
-				else if iWare.count == w.count
-					wares.remove(iWare)
-				else
-					wares.replace(iWare, iWare.changedCopy(-w.count))
-				// Adjust capacity:
-				usedCapacity -= w.count
-				return
-		Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware type is not available")
-
-	override function removeWares(LinkedList<ware> wares)
-		for iWare in wares
-			removeWare(iWare)  // Use capacity based method
-
 	private function startProduction() returns bool
 		// Check if a new production can be startet:
-		let educts = getEducts(user.getUnitId(), productionVariant)
+		let educts = getWorkshopEducts(user.getUnitId(), productionVariant)
 		if hasWares(educts)
 			// Start production:
 			removeWares(educts)
@@ -190,11 +141,27 @@ class Workshop extends Stock
 			destroy educts
 			return false
 
-	function getUnitId() returns int
-		return user.getUnitId()
+	function getStoredEducts() returns int
+		var amount = MAX_WARE_COUNT
+		let educts = getWorkshopEducts(user.getUnitId(), productionVariant)
+		for iWare in educts
+			amount = min(amount, getWareCount(iWare.wareType) div iWare.count)
+		destroy educts
+		return amount
 
-	function getProductionVariant() returns int
-		return productionVariant
+	function getStoredProducts() returns int
+		var amount = MAX_WARE_COUNT
+		let products = getWorkshopProducts(user.getUnitId(), productionVariant)
+		for iWare in products
+			amount = min(amount, getWareCount(iWare.wareType) div iWare.count)
+		destroy products
+		return amount
+
+	function getProducts() returns LinkedList<ware>
+		return getWorkshopProducts(user.getUnitId(), productionVariant)
+
+	function getEducts() returns LinkedList<ware>
+		return getWorkshopEducts(user.getUnitId(), productionVariant)
 
 	function getWorkerCount() returns int
 		return workers.size()
@@ -233,7 +200,7 @@ class Workshop extends Stock
 			workProgressCurrent += workPower * PRODUCTION_ADJUSTMENT_RATE
 			if workProgressCurrent >= workProgressFinished
 				// Finish production:
-				let products = getProducts(user.getUnitId(), productionVariant)
+				let products = getWorkshopProducts(user.getUnitId(), productionVariant)
 				addWares(products)
 				destroy products
 				// Directly start with next production if possible:
@@ -244,11 +211,30 @@ class Workshop extends Stock
 				return true
 		return false
 
+	function transferWares(Storage source)
+		// TODO: implement
+		// var leftRequiredWares = new LinkedList<ware>()
+		// // Look through all required wares:
+		// for i = 0 to getAmountOfWareTypes() - 1
+		// 	var ware = getWare(i)
+		// 	var count = source.getWareCount(ware.wareType)
+		// 	if count < ware.count
+		// 		// Note down still missing wares:
+		// 		leftRequiredWares.add(ware(ware.wareType, ware.count - count))
+		// 	else
+		// 		// Limit taken wares to required amount:
+		// 		count = ware.count
+		// 	if count > 0
+		// 		// Remove taken wares from source:
+		// 		source.removeWare(ware(ware.wareType, count))
+		// // Update still required wares:
+		// destroy wares
+		// wares = leftRequiredWares
+
 
 function unit.addWorkshop()
-	let maxCapacity = getWorkshopMaxCapacity(this.getUnitId())
-	if WORKSHOP_MAP.has(this) == false and maxCapacity > 0
-		WORKSHOP_MAP.put(this, new Workshop(this, maxCapacity))
+	if WORKSHOP_MAP.has(this) == false and getRequiredWorkPower(this.getUnitId(), 1) > 0.
+		WORKSHOP_MAP.put(this, new Workshop(this))
 
 function unit.removeWorkshop()
 	let workshop = WORKSHOP_MAP.tryRemove(this)
@@ -259,31 +245,24 @@ function unit.removeWorkshop()
 public function unit.getWorkshop() returns Workshop
 	return WORKSHOP_MAP.tryGet(this)
 
-/** Sets system relevant infos for given object in target multiboard. _isWorkshop only exists to avoid ambiguity with StorageSystem. */
-public function multiboard.setObjectInfoMultiboard(Workshop ws, bool _isWorkshop) returns bool
+/** Sets system relevant infos for given object in target multiboard. */
+public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
 	this.addMultiboardLine("Workshop:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Production progress: " + ws.getWorkProgressPercentage().toInt().toString() + "%", PRODUCTION_PROGRESS_ICON_PATH)
 	let workPower = ws.getWorkPower()
 	if workPower > 0.
 		this.addMultiboardLine("Production time left: " + (ws.getWorkProgressLeft() / workPower).toInt().toString() + "s", PRODUCTION_TIME_LEFT_ICON_PATH)
 		this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString(), WORKERS_ICON_PATH)
-	let unitId = ws.getUnitId()
-	let productionVariant = ws.getProductionVariant()
-	this.addMultiboardLine("Educts:", SUB_HEADLINE_ICON_PATH)
-	let educts = getEducts(unitId, productionVariant)
+	this.addMultiboardLine("Educts (" + ws.getStoredEducts().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
+	let educts = ws.getEducts()
 	for ware in educts
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy educts
-	this.addMultiboardLine("Products:", SUB_HEADLINE_ICON_PATH)
-	let products = getProducts(unitId, productionVariant)
+	this.addMultiboardLine("Products (" + ws.getStoredProducts().toString() + "/" + MAX_STORABLE_PRODUCTS.toString() + ")", SUB_HEADLINE_ICON_PATH)
+	let products = ws.getProducts()
 	for ware in products
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy products
-	this.addMultiboardLine("Storage:", SUB_HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Capacity: " + ws.getUsedCapacity().toString() + "/" + ws.getMaxCapacity().toString(), CAPACITY_ICON_PATH)
-	for i = 0 to (ws.getAmountOfWareTypes() - 1)
-		var ware = ws.getWare(i)
-		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init

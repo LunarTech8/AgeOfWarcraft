@@ -18,7 +18,6 @@ import Stock
 import UnitMap
 import LinkedList
 import UnitTest
-import WorkshopSystem
 
 
 // --------------------
@@ -108,8 +107,6 @@ public class Storage extends Stock
 			target.addWare(ware)
 			removeWare(ware)
 		return 0
-	function transferWares(Workshop target) returns int
-		// TODO: implement
 
 
 function unit.addStorage()

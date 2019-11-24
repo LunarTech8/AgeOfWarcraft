@@ -154,7 +154,7 @@ public class Stock
 		for iWare in wares
 			if iWare.hasSameType(w)
 				// Check ware:
-				if iWare.count <= w.count
+				if iWare.count >= w.count
 					return true
 				else
 					return false

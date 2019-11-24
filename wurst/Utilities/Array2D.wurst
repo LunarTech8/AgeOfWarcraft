@@ -1,6 +1,7 @@
 /*-------------------------------------------------------------
 // Version number:
 1.0.0
+// -> PROBLEM: Wurst generates gigantic if-else statements with one array variable for each slot (8192 arrays for the 8192 sized arrays) -> That may crash Wc3
 
 // Description:
 Provides a two dimensional array.

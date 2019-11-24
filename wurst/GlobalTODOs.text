@@ -22,16 +22,15 @@ Work status:
 
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
+!!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
 !- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
-!- Implement different sizes for Array2D like in ArrayList
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Add a description comment (/** */) to every public class and function
 !- Try to improve smart order reaction when harvesting (no overwriting by auto harvest)
 !- Create a WeatherSystem
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
 !- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
-!- Maybe change growth factor of ArrayList from 2 to 1.5 with min size of 8 to reduce wasted memory
 !- Maybe have repeating order actions to have less object destruction
 !- Add unit tests to all bigger / more complexe systems
 
@@ -45,7 +44,6 @@ Work status:
 	>>- Create a WorkshopSystem that allows buildings to process different educts into products
 		- Add a button for workshops to cycle through the products
 		- Add a button for workshops to remove a worker
-		>>- Make transfer wares on a workshop add educts from the caster and remove products to the caster
 		- Add an "enter building" ability for workers that takes educts from the caster and adds him as worker to the workshop
 		- Add smart order functionality
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.

@@ -182,7 +182,7 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 			let educts = targetWorkshop.getEducts()
 			let hasAnyEducts = sourceStorage.hasWaresAny(educts)
 			destroy educts
-			if hasAnyEducts
+			if hasAnyEducts == false
 				return Validity.NO_REQUIRED_WARES
 	else if abilityId == AbilityIdsCustom.build
 		// Check if source and target are valid:

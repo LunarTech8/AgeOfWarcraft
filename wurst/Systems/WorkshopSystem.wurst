@@ -129,9 +129,17 @@ class Workshop extends Stock
 		workers.destr()
 
 	private function startProduction() returns bool
-		// Check if a new production can be startet:
-		let educts = getWorkshopEducts(user.getUnitId(), productionVariant)
+		// Check if there are enough educts:
+		let educts = getEducts()
 		if hasWares(educts)
+			// Check if there is enough free space for the products:
+			let products = getProducts()
+			for iWare in products
+				if getWareCount(iWare.wareType) > iWare.count * (MAX_STORABLE_PRODUCTS - 1)
+					// Too many products:
+					destroy products
+					return false
+			destroy products
 			// Start production:
 			removeWares(educts)
 			destroy educts
@@ -143,7 +151,7 @@ class Workshop extends Stock
 
 	function getStoredEducts() returns int
 		var amount = MAX_WARE_COUNT
-		let educts = getWorkshopEducts(user.getUnitId(), productionVariant)
+		let educts = getEducts()
 		for iWare in educts
 			amount = min(amount, getWareCount(iWare.wareType) div iWare.count)
 		destroy educts
@@ -151,7 +159,7 @@ class Workshop extends Stock
 
 	function getStoredProducts() returns int
 		var amount = MAX_WARE_COUNT
-		let products = getWorkshopProducts(user.getUnitId(), productionVariant)
+		let products = getProducts()
 		for iWare in products
 			amount = min(amount, getWareCount(iWare.wareType) div iWare.count)
 		destroy products
@@ -200,7 +208,7 @@ class Workshop extends Stock
 			workProgressCurrent += workPower * PRODUCTION_ADJUSTMENT_RATE
 			if workProgressCurrent >= workProgressFinished
 				// Finish production:
-				let products = getWorkshopProducts(user.getUnitId(), productionVariant)
+				let products = getProducts()
 				addWares(products)
 				destroy products
 				// Directly start with next production if possible:
@@ -212,24 +220,24 @@ class Workshop extends Stock
 		return false
 
 	function transferWares(Storage source)
-		// TODO: implement
-		// var leftRequiredWares = new LinkedList<ware>()
-		// // Look through all required wares:
-		// for i = 0 to getAmountOfWareTypes() - 1
-		// 	var ware = getWare(i)
-		// 	var count = source.getWareCount(ware.wareType)
-		// 	if count < ware.count
-		// 		// Note down still missing wares:
-		// 		leftRequiredWares.add(ware(ware.wareType, ware.count - count))
-		// 	else
-		// 		// Limit taken wares to required amount:
-		// 		count = ware.count
-		// 	if count > 0
-		// 		// Remove taken wares from source:
-		// 		source.removeWare(ware(ware.wareType, count))
-		// // Update still required wares:
-		// destroy wares
-		// wares = leftRequiredWares
+		// Look for educts in source:
+		let educts = getEducts()
+		for iWare in educts
+			var wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - getWareCount(iWare.wareType), source.getWareCount(iWare.wareType))
+			if wareCount > 0
+				// Transfer ware:
+				source.removeWare(ware(iWare.wareType, wareCount))
+				addWare(ware(iWare.wareType, wareCount))
+		destroy educts
+		// Look for products in workshop:
+		let products = getProducts()
+		for iWare in products
+			var wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
+			if wareCount > 0
+				// Transfer ware:
+				removeWare(ware(iWare.wareType, wareCount))
+				source.addWare(ware(iWare.wareType, wareCount))
+		destroy products
 
 
 function unit.addWorkshop()

@@ -27,6 +27,10 @@ public function AbilityDefinition.presetNameAndTooltips(string name, string tool
 	this.presetTooltipNormal((int lvl) -> name)
 	this.presetTooltipNormalExtended((int lvl) -> tooltipExtended)
 
+public function AbilityDefinition.presetTurnOffTooltips(string tooltip)
+	this.presetTooltipTurnOff((int lvl) -> tooltip)
+	this.presetTooltipTurnOffExtended((int lvl) -> tooltip)
+
 public function AbilityDefinition.presetDuration(real duration)
 	this.presetDurationNormal((int lvl) -> duration)
 	this.presetDurationHero((int lvl) -> duration)

@@ -1,0 +1,32 @@
+package Ability_EnterBuilding
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new AbilityDefinitionInnerFireCreep(AbilityIdsCustom.enterBuilding)
+    // Ability specific data:
+    ..presetAutocastRange((int lvl) -> 0.)
+    ..presetDamageIncrease((int lvl) -> 0.)
+    ..presetDefenseIncrease((int lvl) -> 0)
+    // Art:
+    ..presetButtonPosNormal(1, 1)
+    ..setIconNormal(Icons.bTNLoad)
+    ..setIconTurnOff("")
+    // Stats:
+    ..presetBuffs(BuffIdsCustom.emptyBuff)
+    ..presetCastRange(32.)
+    ..presetCooldown(1.)
+    ..presetDuration(.01)
+    ..presetManaCost(0)
+    ..setRace(Race.Other)
+    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air, TargetsAllowed.structure)
+    // Techtree:
+    ..presetNoRequirements()
+    // Text:
+    ..setHotkeyNormal("E")
+    ..presetNameAndTooltips("Enter building", "Enter target building.")
+    ..presetTurnOffTooltips("")

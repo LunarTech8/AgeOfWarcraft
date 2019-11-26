@@ -23,6 +23,7 @@ import InstantDummyCaster
 import DummyRecycler
 import ClosureTimers
 import WorkshopSystem
+import PersonSystem
 
 
 // --------------------
@@ -83,6 +84,16 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "No free storage for harvest"
 				case RESOURCE_IS_DEPLETED
 					return "Harvest target is already depleted"
+				default
+					return null
+		case AbilityIdsCustom.enterBuilding
+			switch val
+				case INVALID_SOURCE
+					return "Unit can't enter target building type"
+				case INVALID_TARGET
+					return "Target building is no workshop"
+				case NO_FREE_WORK_SLOT
+					return "Target already reached its maximum of concurrent units"
 				default
 					return null
 	return null
@@ -211,6 +222,16 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		else if resource.isEmpty()
 			return Validity.RESOURCE_IS_DEPLETED
 		else if resource.getFreeWorkerSlots() <= 0
+			return Validity.NO_FREE_WORK_SLOT
+	else if abilityId == AbilityIdsCustom.enterBuilding
+		// Check if source and target are valid:
+		let targetWorkshop = target.getWorkshop()
+		if targetWorkshop == null
+			return Validity.INVALID_TARGET
+		if targetWorkshop.isValidWorkerType(this.getUnitId())
+			return Validity.INVALID_SOURCE
+		// Check if target has free work slot:
+		if targetWorkshop.getWorkerCount() >= getMaxWorkers(target.getUnitId())
 			return Validity.NO_FREE_WORK_SLOT
 	else
 		// Unregistered abilityId:

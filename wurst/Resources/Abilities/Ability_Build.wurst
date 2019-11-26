@@ -14,7 +14,7 @@ import AbilityPresetFunctions
     ..presetInitialDamage((int lvl) -> 0.)
     ..presetMovementSpeedFactor((int lvl) -> 0.)
     // Art:
-    ..presetButtonPosNormal(2, 2)
+    ..presetButtonPosNormal(1, 2)
     ..setIconNormal(Icons.bTNBash)
     ..setMissileArt("")
     ..setMissileSpeed(0)

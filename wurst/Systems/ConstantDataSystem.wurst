@@ -20,7 +20,7 @@ import HashMap
 // --------------------
 
 public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 62
-public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 6
+public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 9
 public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
 
 public class UnitIdsCustom
@@ -111,6 +111,9 @@ public abstract class AbilityIdsCustom
 	static constant build = compiletime(OFFSET_ABIL_ID_GEN.getId(2))
 	static constant transferWares = compiletime(OFFSET_ABIL_ID_GEN.getId(3))
 	static constant addBuildingBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(4))
+	static constant enterBuilding = compiletime(OFFSET_ABIL_ID_GEN.getId(7))
+	static constant changeProduct = compiletime(OFFSET_ABIL_ID_GEN.getId(8))
+	static constant removeWorker = compiletime(OFFSET_ABIL_ID_GEN.getId(9))
 
 public abstract class BuffIdsCustom
 	static constant emptyBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(5))

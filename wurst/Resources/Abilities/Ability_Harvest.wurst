@@ -15,7 +15,7 @@ public class AbilityData_Harvest
     ..presetDamage((int lvl) -> 0.)
     // Art:
     ..setAnimationNames("attack")
-    ..presetButtonPosNormal(1, 2)
+    ..presetButtonPosNormal(2, 2)
     ..setIconNormal(Icons.bTNGatherGold)
     ..setMissileArt("")
     ..setMissileSpeed(0)

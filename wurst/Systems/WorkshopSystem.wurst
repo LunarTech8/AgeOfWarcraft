@@ -61,14 +61,6 @@ function getRequiredWorkPower(int buildingUnitId, int productionVariant) returns
 					return 20.
 	return 0.
 
-function getMaxWorkers(int buildingUnitId) returns int
-	switch buildingUnitId
-		case UnitIdsCustom.Melee.lumberMill
-			return 3
-		case UnitIdsCustom.Melee.blacksmith
-			return 3
-	return 0
-
 function getWorkshopEducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
 	var wares = new LinkedList<ware>()
 	switch workshopUnitId
@@ -99,6 +91,15 @@ function getWorkshopProducts(int workshopUnitId, int productionVariant) returns 
 				case 1
 					wares.add(ware(WareType.METAL, 1))
 	return wares
+
+/** Returns the maximum allowed amount of workers of the given building type. */
+public function getMaxWorkers(int buildingUnitId) returns int
+	switch buildingUnitId
+		case UnitIdsCustom.Melee.lumberMill
+			return 3
+		case UnitIdsCustom.Melee.blacksmith
+			return 3
+	return 0
 
 
 // --------------------
@@ -148,6 +149,9 @@ class Workshop extends Stock
 			// Not enough educts:
 			destroy educts
 			return false
+
+	function isValidWorkerType(int unitId) returns bool
+		return getUnitWorkPower(unitId, user.getUnitId()) > 0.
 
 	function getStoredEducts() returns int
 		var amount = MAX_WARE_COUNT

@@ -13,7 +13,7 @@ import AbilityPresetFunctions
     ..presetSpecificTargetDamage((int lvl) -> 0.)
     // Art:
     ..setAnimationNames("")
-    ..presetButtonPosNormal(3, 2)
+    ..presetButtonPosNormal(0, 1)
     ..setArtEffect("")
     ..setIconNormal(Icons.bTNPickUpItem)
     // Stats:

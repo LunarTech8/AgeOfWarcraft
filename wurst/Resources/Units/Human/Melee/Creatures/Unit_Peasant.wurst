@@ -9,7 +9,7 @@ import UnitPreset
 @compiletime function genObj()
     new UnitPreset(UnitIdsCustom.Melee.peasant, UnitIds.peasant)
     // Abilities:
-    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.build, AbilityIdsCustom.transferWares, AbilityIdsMissing.repairHuman)
+    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.build, AbilityIdsCustom.transferWares, AbilityIdsCustom.enterBuilding, AbilityIdsMissing.repairHuman)
     // Art:
     ..setScalingValue(.5)
     ..setSelectionScale(.5)

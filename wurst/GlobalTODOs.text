@@ -42,9 +42,7 @@ Work status:
 !!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a WorkshopSystem that allows buildings to process different educts into products
-		>- Add a button for workshops to cycle through the products
-		>- Add a button for workshops to remove a worker
-		>>- Add an "enter building" ability for workers that takes educts from the caster and adds him as worker to the workshop
+		>>- Add a button for workshops to cycle through the products
 		- Add smart order functionality
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 

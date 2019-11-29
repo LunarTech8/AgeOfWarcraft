@@ -195,13 +195,16 @@ class Workshop extends Stock
 		else
 			Log.error("ERROR: Can't add worker to this workshop")
 
-	function removeWorker(unit worker)
-		if workers.contains(worker)
-			workers.removeUnit(worker)
+	function removeWorker()
+		if workers.size() > 0
+			let worker = workers.next()  // Also removes unit from the group
 			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
 			worker.show()
 		else
 			Log.error("ERROR: Can't remove worker from this workshop")
+
+	function changeProduct()
+		// TODO: implement
 
 	function adjustProgress() returns bool
 		if workPower > 0.

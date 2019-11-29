@@ -13,6 +13,7 @@ Initial version.
 package Stock
 import Icons
 import LinkedList
+import UnitTest
 
 
 // --------------------
@@ -210,3 +211,66 @@ public class Stock
 			if targetStock.getWareCount(iWare.wareType) > 0
 				return true
 		return false
+
+
+// --------------------
+// Test code
+// --------------------
+
+@Test public function testStockSystem_AddAndRemove()
+	let testName = "testStockSystem_AddAndRemove"
+	// Create new stock and check content:
+	let a = new Stock(new LinkedList<ware>())
+	a.isEmpty().assertTrue(testName)
+	a.getAmountOfWareTypes().assertEquals(testName, 0)
+	// Add wares and check content:
+	a.addWare(ware(WareType.FOOD, 3))
+	a.addWare(ware(WareType.STONE, 2))
+	a.addWare(ware(WareType.FOOD, 1))
+	a.isEmpty().assertFalse(testName)
+	a.getAmountOfWareTypes().assertEquals(testName, 3)
+	a.getWareCount(WareType.FOOD).assertEquals(testName, 3)
+	(a.getLastWare().wareType == WareType.FOOD).assertTrue(testName)
+	(a.getWare(2).wareType == WareType.STONE).assertTrue(testName)
+	a.hasWare(ware(WareType.STONE, 3)).assertFalse(testName)
+	a.hasWare(ware(WareType.STONE, 1)).assertTrue(testName)
+	// Remove wares and check content:
+	a.removeWare(ware(WareType.FOOD, 2))
+	a.removeWare(ware(WareType.STONE, 2))
+	a.getAmountOfWareTypes().assertEquals(testName, 2)
+	a.getWareCount(WareType.FOOD).assertEquals(testName, 1)
+	// Create another storage and check content:
+	let b = new Stock(new LinkedList<ware>())
+	b.isEmpty().assertTrue(testName)
+	b.getAmountOfWareTypes().assertEquals(testName, 0)
+	// Add wares and check content:
+	let waresA = new LinkedList<ware>()
+	waresA.add(ware(WareType.FOOD, 2))
+	waresA.add(ware(WareType.STONE, 3))
+	waresA.add(ware(WareType.FOOD, 1))
+	waresA.add(ware(WareType.WOOD, 6))
+	b.addWares(waresA)
+	b.isEmpty().assertFalse(testName)
+	b.getAmountOfWareTypes().assertEquals(testName, 4)
+	// TODO: implement
+	// // Remove wares and check content:
+	// let waresB = new LinkedList<ware>()
+	// waresB.add(ware(WareType.FOOD, 3))
+	// waresB.add(ware(WareType.WOOD, 1))
+	// b.removeWares(waresB)
+	// b.getMaxCapacity().assertEquals(testName, 13)
+	// b.getUsedCapacity().assertEquals(testName, 8)
+	// b.getFreeCapacity().assertEquals(testName, 5)
+	// // Transfer wares and check content:
+	// b.transferWares(a).assertEquals(testName, 2)
+	// a.getMaxCapacity().assertEquals(testName, 8)
+	// a.getUsedCapacity().assertEquals(testName, 8)
+	// a.getFreeCapacity().assertEquals(testName, 0)
+	// b.getMaxCapacity().assertEquals(testName, 13)
+	// b.getUsedCapacity().assertEquals(testName, 2)
+	// b.getFreeCapacity().assertEquals(testName, 11)
+	// Destroy class objects:
+	destroy a
+	destroy b
+	destroy waresA
+	// destroy waresB

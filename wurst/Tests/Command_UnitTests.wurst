@@ -1,5 +1,6 @@
 package Command_UnitTests
 import UnitMap
+import Stock
 import StorageSystem
 import BuildingSystem
 
@@ -20,6 +21,8 @@ let COMMAND_SHORT = "ut"
 function executeCommand()
 	// UnitMap:
 	testUnitHashMap_AddAndRemove()
+	// StockSystem:
+	testStockSystem_AddAndRemove()
 	// StorageSystem:
 	testStorageSystem_AddAndRemove()
 	// BuildingSystem:

@@ -35,9 +35,11 @@ let INFO_MSG_TIME = 2.
 enum Validity
 	VALID
 	UNREGISTERED
+	ERROR
 	INVALID_SOURCE
 	INVALID_TARGET
 	WARES_NOT_AVAILABLE
+	WORKERS_NOT_AVAILABLE
 	NO_FREE_WORK_SLOT
 	NO_FREE_STORAGE
 	NO_REQUIRED_WARES
@@ -94,6 +96,12 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "Target building is no workshop"
 				case NO_FREE_WORK_SLOT
 					return "Target already reached its maximum of concurrent units"
+				default
+					return null
+		case AbilityIdsCustom.removeWorker
+			switch val
+				case WORKERS_NOT_AVAILABLE
+					return "No workers left to remove"
 				default
 					return null
 	return null
@@ -233,6 +241,21 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		// Check if target has free work slot:
 		if targetWorkshop.getWorkerCount() >= getMaxWorkers(target.getUnitId())
 			return Validity.NO_FREE_WORK_SLOT
+	else if abilityId == AbilityIdsCustom.removeWorker
+		// Check if source is valid:
+		let sourceWorkshop = this.getWorkshop()
+		if sourceWorkshop == null
+			Log.error("ERROR: Casting building is no workshop (" + this.getName() + ")")
+			return Validity.ERROR
+		// Check if source has workers:
+		if sourceWorkshop.getWorkerCount() <= 0
+			return Validity.WORKERS_NOT_AVAILABLE
+	else if abilityId == AbilityIdsCustom.changeProduct
+		// Check if source is valid:
+		let sourceWorkshop = this.getWorkshop()
+		if sourceWorkshop == null
+			Log.error("ERROR: Casting building is no workshop (" + this.getName() + ")")
+			return Validity.ERROR
 	else
 		// Unregistered abilityId:
 		return Validity.UNREGISTERED
@@ -288,6 +311,14 @@ init
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
 						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
+					case AbilityIdsCustom.enterBuilding
+						// Add source to target workshop as worker:
+						target.getWorkshop().addWorker(source)
+					case AbilityIdsCustom.removeWorker
+						// Remove a worker from source workshop:
+						source.getWorkshop().removeWorker()
+					case AbilityIdsCustom.changeProduct
+						// TODO: implement
 			else if val != Validity.UNREGISTERED
 				source.reactOnInvalidAbility(abilityId, val)
 	// Register issued ability orders:

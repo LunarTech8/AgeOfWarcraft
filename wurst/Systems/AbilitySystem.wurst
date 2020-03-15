@@ -121,8 +121,8 @@ function unit.harvest(unit target) returns bool
 		// Transfere wares:
 		for iWare in wares
 			// Check resource count:
-			var resourceWareCount = resource.getWareCount(iWare.wareType)
-			var freeCapacity = storage.getFreeCapacity()
+			let resourceWareCount = resource.getWareCount(iWare.wareType)
+			let freeCapacity = storage.getFreeCapacity()
 			if resourceWareCount > 0 and freeCapacity > 0
 				// Limit by resource count:
 				if resourceWareCount < iWare.count
@@ -143,18 +143,18 @@ function unit.harvest(unit target) returns bool
 /** Transfer wares from the unit to the given target. */
 function unit.transferWares(unit target)
 	// Check if wares can be transfered:
-	var sourceStorage = this.getStorage()
+	let sourceStorage = this.getStorage()
 	if sourceStorage != null
 		// Check for possible transfer methods based on target:
-		var targetStorage = target.getStorage()
+		let targetStorage = target.getStorage()
 		if targetStorage != null
 			// Give wares to target storage:
 			sourceStorage.transferWares(targetStorage)
-		var targetWorkshop = target.getWorkshop()
+		let targetWorkshop = target.getWorkshop()
 		if targetWorkshop != null
 			// Exchange wares with source storage:
 			targetWorkshop.transferWares(sourceStorage)
-		var targetBuildingSite = target.getBuildingSite()
+		let targetBuildingSite = target.getBuildingSite()
 		if targetBuildingSite != null
 			// Take wares from source storage:
 			targetBuildingSite.transferWares(sourceStorage)
@@ -207,7 +207,7 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		// Check if source and target are valid:
 		if target.getUnitId().isValidWorkerType(this.getUnitId()) == false
 			return Validity.INVALID_SOURCE
-		var buildingSite = target.getBuildingSite()
+		let buildingSite = target.getBuildingSite()
 		if buildingSite == null
 			return Validity.INVALID_TARGET
 		// Check if required wares are available:
@@ -218,10 +218,10 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 			return Validity.WORKER_ALREADY_BUILDING
 	else if abilityId == AbilityIdsCustom.harvest
 		// Check if source and target are valid:
-		var storage = this.getStorage()
+		let storage = this.getStorage()
 		if storage == null
 			return Validity.INVALID_SOURCE
-		var resource = target.getResource()
+		let resource = target.getResource()
 		if resource == null
 			return Validity.INVALID_TARGET
 		// Check if wares can be harvested:

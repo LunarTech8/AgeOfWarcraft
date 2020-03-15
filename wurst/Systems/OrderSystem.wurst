@@ -58,7 +58,7 @@ class OrderTarget
 
 	ondestroy
 		// Invalidate and remove order for sources:
-		var cancelList = sources.copy()  // Use copy so that sources can still remove themselfs from the original list
+		let cancelList = sources.copy()  // Use copy so that sources can still remove themselfs from the original list
 		while cancelList.isEmpty() == false
 			cancelList.pop().invalidate()
 		destroy cancelList
@@ -115,7 +115,7 @@ public class OrderAction
 			destroy finishCondition
 
 	private static function finish()
-		timer t = GetExpiredTimer()
+		let t = GetExpiredTimer()
 		thistype cb = t.getData() castTo thistype
 		if cb.finishCondition == null or cb.finishCondition.call()
 			cb.t = null
@@ -201,7 +201,7 @@ class OrderSourceV extends OrderSource
 function unit.getFinishConditionNoMovement() returns CallbackCondition
 	var _lastPos = this.getPos()
 	CallbackCondition finishCondition = () ->
-		var newPos = this.getPos()
+		let newPos = this.getPos()
 		var noMomvement = true
 		if newPos.distanceToSq(_lastPos) > POS_TOLERANCE_RANGE
 			_lastPos = newPos

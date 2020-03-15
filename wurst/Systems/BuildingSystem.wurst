@@ -112,7 +112,7 @@ function getRequiredWorkPower(int buildingUnitId) returns real
 	return 0.
 
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+	let wares = new LinkedList<ware>()
 	switch buildingUnitId
 		case UnitIdsCustom.Melee.farm
 			wares.add(ware(WareType.WOOD, 4))
@@ -257,7 +257,7 @@ class BuildingSite extends Stock
 
 	function hasCarrierRequiredResources(unit carrier) returns bool
 		if this.isEmpty() == false
-			var carrierStorage = carrier.getStorage()
+			let carrierStorage = carrier.getStorage()
 			if carrierStorage != null and carrierStorage.containsAny(this)
 				return true
 		return false
@@ -279,10 +279,10 @@ class BuildingSite extends Stock
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 
 	function transferWares(Storage source)
-		var leftRequiredWares = new LinkedList<ware>()
+		let leftRequiredWares = new LinkedList<ware>()
 		// Look through all required wares:
 		for i = 0 to getAmountOfWareTypes() - 1
-			var ware = getWare(i)
+			let ware = getWare(i)
 			var count = source.getWareCount(ware.wareType)
 			if count < ware.count
 				// Note down still missing wares:
@@ -328,7 +328,7 @@ function findNextBuildingSite_GetFilter() returns filterfunc
 		return conditionsFulfilled
 /** Returns next valid building site unit at the position for given player. */
 public function vec2.findNextBuildingSite(player owner) returns unit
-	var filter = findNextBuildingSite_GetFilter()
+	let filter = findNextBuildingSite_GetFilter()
 	let building = this.getNearestUnit(MAX_AUTO_ORDER_RANGE, filter, owner)
 	filter.destr()
 	return building
@@ -337,7 +337,7 @@ public function unit.findNextBuildingSite() returns unit
 	let owner = this.getOwner()
 	let pos = this.getPos()
 	let workerUnitId = this.getUnitId()
-	var filter = findNextBuildingSite_GetFilter()
+	let filter = findNextBuildingSite_GetFilter()
 	// Set init values:
 	var bestDistanceSq = REAL_MAX
 	unit nearestBuilding = null
@@ -385,7 +385,7 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 	if amountOfWareTypes > 0
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
 		for i = 0 to (amountOfWareTypes - 1)
-			var ware = bs.getWare(i)
+			let ware = bs.getWare(i)
 			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
@@ -432,8 +432,8 @@ unit testBuildingSystem_Build_building = null
 	if storageA == null
 		testFail(usedTestName, "Test failed: Couldn't get Storage of unitA")
 	storageA.addWare(ware(WareType.WOOD, 5))
-	var workerCount = getWorkerCount()
-	var buildingSiteCount = getBuildingSiteCount()
+	let workerCount = getWorkerCount()
+	let buildingSiteCount = getBuildingSiteCount()
 	unitA.issuePointOrderById(UnitIdsCustom.Melee.farm, vec2(0, 0))
 	testBuildingSystem_Build_building = null
 	// Check worker and building site:

@@ -62,7 +62,7 @@ function getRequiredWorkPower(int buildingUnitId, int productionVariant) returns
 	return 0.
 
 function getWorkshopEducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+	let wares = new LinkedList<ware>()
 	switch workshopUnitId
 		case UnitIdsCustom.Melee.lumberMill
 			switch productionVariant
@@ -78,7 +78,7 @@ function getWorkshopEducts(int workshopUnitId, int productionVariant) returns Li
 	return wares
 
 function getWorkshopProducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+	let wares = new LinkedList<ware>()
 	switch workshopUnitId
 		case UnitIdsCustom.Melee.lumberMill
 			switch productionVariant
@@ -230,7 +230,7 @@ class Workshop extends Stock
 		// Look for educts in source:
 		let educts = getEducts()
 		for iWare in educts
-			var wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - getWareCount(iWare.wareType), source.getWareCount(iWare.wareType))
+			let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - getWareCount(iWare.wareType), source.getWareCount(iWare.wareType))
 			if wareCount > 0
 				// Transfer ware:
 				source.removeWare(ware(iWare.wareType, wareCount))
@@ -239,7 +239,7 @@ class Workshop extends Stock
 		// Look for products in workshop:
 		let products = getProducts()
 		for iWare in products
-			var wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
+			let wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
 			if wareCount > 0
 				// Transfer ware:
 				removeWare(ware(iWare.wareType, wareCount))

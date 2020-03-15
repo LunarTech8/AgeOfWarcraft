@@ -39,16 +39,16 @@ let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
 // --------------------
 
 public function generateTerrain()
-    Array2D<real> heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
             ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it ot show up
     // FIXME: pathing has to be updatet manually to allow building on above water ground
 
 public function generatePlants()
-    Array2D<real> treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    let treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(0., 1.)
-                var v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
+                let v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())

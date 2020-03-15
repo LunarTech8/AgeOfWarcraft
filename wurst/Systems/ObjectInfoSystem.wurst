@@ -108,30 +108,30 @@ function deactivateDataset(int playerID)
 function createMultiboardLines(int playerID) returns bool
 	var hasInfo = false
 	// Check info sources that do not require specific ownerhsip:
-	var resource = datasets[playerID].targetedUnit.getResource()
+	let resource = datasets[playerID].targetedUnit.getResource()
 	if resource != null
 		hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource) or hasInfo
 	// Check info sources that require ownerhsip by the given player:
 	if datasets[playerID].targetedUnit.getOwner() == Player(playerID)
-		var buildingSite = datasets[playerID].targetedUnit.getBuildingSite()
+		let buildingSite = datasets[playerID].targetedUnit.getBuildingSite()
 		if buildingSite != null
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite) or hasInfo
-		var person = datasets[playerID].targetedUnit.getPerson()
+		let person = datasets[playerID].targetedUnit.getPerson()
 		if person != null
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(person) or hasInfo
-		var workshop = datasets[playerID].targetedUnit.getWorkshop()
+		let workshop = datasets[playerID].targetedUnit.getWorkshop()
 		if workshop != null
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(workshop) or hasInfo
-		var storage = datasets[playerID].targetedUnit.getStorage()
+		let storage = datasets[playerID].targetedUnit.getStorage()
 		if storage != null
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo
-		var orderSource = datasets[playerID].targetedUnit.getOrderSource()
+		let orderSource = datasets[playerID].targetedUnit.getOrderSource()
 		if orderSource != null
 			hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource) or hasInfo
 	return hasInfo
 
 function showObjectInfo(int playerID)
-	var dataset = datasets[playerID]
+	let dataset = datasets[playerID]
 	// Check if unit is still selected:
 	if dataset.targetedUnit != null and IsUnitSelected(dataset.targetedUnit, Player(playerID)) == false
 		disableBoard(playerID, MULTIBOARD_NAME)
@@ -155,7 +155,7 @@ init
 			Log.error("ERROR: InfoBoard struct cap exceeded")
 	// Register unit selections:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED) ->
-		var playerID = GetPlayerId(GetTriggerPlayer())
+		let playerID = GetPlayerId(GetTriggerPlayer())
 		var dataset = datasets[playerID]
 		// Remove old informations:
 		dataset.setTimer(0.)
@@ -168,8 +168,8 @@ init
 	// Register showTargetInfo spell:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
 		if GetSpellAbilityId() == AbilityIdsCustom.showTargetInfo
-			var playerID = GetPlayerId(GetTriggerPlayer())
-			var targetUnit = GetSpellTargetUnit()
+			let playerID = GetPlayerId(GetTriggerPlayer())
+			let targetUnit = GetSpellTargetUnit()
 			var dataset = datasets[playerID]
 			// TEST START
 			print("SHOW_TARGET_INFO cast")

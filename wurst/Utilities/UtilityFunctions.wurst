@@ -306,22 +306,22 @@ function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) 
 	let sampleFrequency = 1. / samplePeriod
 	for i = 0 to width - 1
 		// Calculate the horizontal sampling indices:
-		var horizontalSampleA = (i div samplePeriod) * samplePeriod
-		var horizontalSampleB = (horizontalSampleA + samplePeriod) mod width  // Wrap around
+		let horizontalSampleA = (i div samplePeriod) * samplePeriod
+		let horizontalSampleB = (horizontalSampleA + samplePeriod) mod width  // Wrap around
 		var horizontalBlend = (i - horizontalSampleA) * sampleFrequency
 		if interpolationMethod == 1
 			horizontalBlend = (1 - Cos(horizontalBlend * PI)) * 0.5
 		for j = 0 to height - 1
 			// Calculate the vertical sampling indices:
-			var verticalSampleA = (j div samplePeriod) * samplePeriod
-			var verticalSampleB = (verticalSampleA + samplePeriod) mod height  // Wrap around
+			let verticalSampleA = (j div samplePeriod) * samplePeriod
+			let verticalSampleB = (verticalSampleA + samplePeriod) mod height  // Wrap around
 			var verticalBlend = (j - verticalSampleA) * sampleFrequency
 			if interpolationMethod == 1
 				verticalBlend = (1 - Cos(verticalBlend * PI)) * 0.5
 			// Blend the top two corners:
-			var top = linear(baseNoise.get(horizontalSampleA, verticalSampleA), baseNoise.get(horizontalSampleB, verticalSampleA), horizontalBlend)
+			let top = linear(baseNoise.get(horizontalSampleA, verticalSampleA), baseNoise.get(horizontalSampleB, verticalSampleA), horizontalBlend)
 			// Blend the bottom two corners:
-			var bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
+			let bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
 			// Final blend:
 			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
 			compCost += 0.3
@@ -356,7 +356,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		// Blend noise together:
 		perlinNoise = new Array2D<real>(width, height)
 		for octave = octaveCount - 1 downto 0
-			var smoothNoise = smoothNoise(baseNoise, interpolation, octave)
+			let smoothNoise = smoothNoise(baseNoise, interpolation, octave)
 			compCost += (width * height * 0.3) % MAX_COMPUTATION_COST_PER_CYCLE  // Factor in residual computation cost
 			amplitude *= persistance
 			totalAmplitude += amplitude
@@ -394,10 +394,10 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		for i = 0 to (width div 2) - 1
 			for j = 0 to height - 1
 				// Reverse Box–Muller transformation:
-				var z1 = perlinNoise.get(i, j)
-				var z2 = perlinNoise.get(width - 1 - i, j)
+				let z1 = perlinNoise.get(i, j)
+				let z2 = perlinNoise.get(width - 1 - i, j)
 				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
-				var acosInput = z1 / (z1 * z1 + z2 * z2).divByZeroProt()
+				let acosInput = z1 / (z1 * z1 + z2 * z2).divByZeroProt()
 				if acosInput.abs() > 1
 					Log.error("Acos only allows numbers between -1 and 1")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))

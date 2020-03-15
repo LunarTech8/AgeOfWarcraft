@@ -30,7 +30,7 @@ let MAX_AUTO_ORDER_RANGE = 1024.
 let WORKERS_ICON_PATH = Icons.bTNBash
 
 function getDefaultInitWares(int resourceUnitId) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+	let wares = new LinkedList<ware>()
 	switch resourceUnitId
 		case UnitIdsCustom.Trees.beech
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
@@ -72,7 +72,7 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceUnitId) returns
 			return 0.
 
 function getWaresPerFinishedWork(int resourceUnitId) returns LinkedList<ware>
-	var wares = new LinkedList<ware>()
+	let wares = new LinkedList<ware>()
 	switch resourceUnitId
 		case UnitIdsCustom.Trees.beech
 			wares.add(ware(WareType.WOOD, 1))
@@ -192,7 +192,7 @@ public function unit.findNextResource() returns unit
 		let pos = this.getPos()
 		// Get valid units in range and highest priority:
 		findNextResource_Priority = 0
-		var filter = Filter() ->
+		let filter = Filter() ->
 			var conditionsFulfilled = false
 			let filterUnit = GetFilterUnit()
 			let resource = filterUnit.getResource()
@@ -226,7 +226,7 @@ public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
 	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + r.getWorkerCount().toString() + "/" + getMaxWorkerCount(r.user.getUnitId()).toString(), WORKERS_ICON_PATH)
 	for i = 0 to (r.getAmountOfWareTypes() - 1)
-		var ware = r.getWare(i)
+		let ware = r.getWare(i)
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 

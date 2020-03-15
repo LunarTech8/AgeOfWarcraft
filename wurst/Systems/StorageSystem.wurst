@@ -128,7 +128,7 @@ public function multiboard.setObjectInfoMultiboard(Storage s) returns bool
 	this.addMultiboardLine("Storage:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + s.getUsedCapacity().toString() + "/" + s.getMaxCapacity().toString(), CAPACITY_ICON_PATH)
 	for i = 0 to (s.getAmountOfWareTypes() - 1)
-		var ware = s.getWare(i)
+		let ware = s.getWare(i)
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 

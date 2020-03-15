@@ -47,7 +47,7 @@ function isPersonType(int unitId) returns bool
 			return false
 
 function getRandomForename() returns string
-	var i = GetRandomInt(1, 4)
+	let i = GetRandomInt(1, 4)
 	switch i
 		case 1
 			return "Peter"
@@ -113,7 +113,7 @@ function getRandomName() returns string
 function unit.addPerson(string name)
 	if PERSON_MAP.has(this) == false
 		if isPersonType(GetUnitTypeId(this))
-			var person = new Person(this, name)
+			let person = new Person(this, name)
 			PERSON_MAP.put(this, person)
 
 function unit.removePerson()

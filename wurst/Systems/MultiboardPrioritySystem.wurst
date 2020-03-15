@@ -79,7 +79,7 @@ public function disableBoard(int playerID, string name) returns bool
 
 /** Adds a standardized multiboard line at the bottom of given multiboard. */
 public function multiboard.addMultiboardLine(string text, string iconPath)
-	var lineNumber = MultiboardGetRowCount(this) + 1
+	let lineNumber = MultiboardGetRowCount(this) + 1
 	MultiboardSetRowCount(this, lineNumber)
 	let multiboardItem = MultiboardGetItem(this, lineNumber - 1, 0)
 	MultiboardSetItemValue(multiboardItem, text)

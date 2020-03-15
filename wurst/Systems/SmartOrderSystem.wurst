@@ -23,7 +23,7 @@ import LinkedList
 // --------------------
 
 function getSmartUsedAbilityIds() returns LinkedList<int>
-	var abilityIds = new LinkedList<int>()
+	let abilityIds = new LinkedList<int>()
 	// Add ability ids in order of their priority:
 	abilityIds.add(AbilityIdsCustom.harvest)
 	abilityIds.add(AbilityIdsCustom.build)

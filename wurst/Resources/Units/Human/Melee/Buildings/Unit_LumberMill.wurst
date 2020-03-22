@@ -21,5 +21,7 @@ public class UnitData_LumberMill
     ..setPathingMap("PathTextures\\6x6SimpleSolid.tga")
     // Stats:
     ..presetNoGoldAndLumber()
+    // Techtree:
+    ..setResearchesAvailable("")
     // Text:
     ..presetNameAndTooltips(true, "Lumber Mill", "Wood processing building.")

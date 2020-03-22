@@ -318,7 +318,8 @@ init
 						// Remove a worker from source workshop:
 						source.getWorkshop().removeWorker()
 					case AbilityIdsCustom.changeProduct
-						// TODO: implement
+						// Cancel current production and change it to the next variant:
+						source.getWorkshop().changeProduct()
 			else if val != Validity.UNREGISTERED
 				source.reactOnInvalidAbility(abilityId, val)
 	// Register issued ability orders:

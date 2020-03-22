@@ -150,6 +150,16 @@ class Workshop extends Stock
 			destroy educts
 			return false
 
+	private function cancelProduction()
+		// Check if a production is in progress:
+		if workProgressCurrent > 0.
+			// Reset work progress:
+			workProgressCurrent = 0.
+			// Regain educts:
+			let educts = getEducts()
+			addWares(educts)
+			destroy educts
+
 	function isValidWorkerType(int unitId) returns bool
 		return getUnitWorkPower(unitId, user.getUnitId()) > 0.
 
@@ -204,7 +214,12 @@ class Workshop extends Stock
 			Log.error("ERROR: Can't remove worker from this workshop")
 
 	function changeProduct()
-		// TODO: implement
+		if getRequiredWorkPower(user.getUnitId(), productionVariant + 1) > 0.
+			cancelProduction()
+			productionVariant = productionVariant + 1
+		else if productionVariant != 1
+			cancelProduction()
+			productionVariant = 1
 
 	function adjustProgress() returns bool
 		if workPower > 0.

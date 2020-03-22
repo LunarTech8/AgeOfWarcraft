@@ -249,28 +249,26 @@ public class Stock
 	waresA.add(ware(WareType.STONE, 3))
 	waresA.add(ware(WareType.FOOD, 1))
 	waresA.add(ware(WareType.WOOD, 6))
+	b.hasWaresAny(waresA).assertFalse(testName)
+	b.containsAny(a).assertFalse(testName)
 	b.addWares(waresA)
 	b.isEmpty().assertFalse(testName)
 	b.getAmountOfWareTypes().assertEquals(testName, 4)
-	// TODO: implement
-	// // Remove wares and check content:
-	// let waresB = new LinkedList<ware>()
-	// waresB.add(ware(WareType.FOOD, 3))
-	// waresB.add(ware(WareType.WOOD, 1))
-	// b.removeWares(waresB)
-	// b.getMaxCapacity().assertEquals(testName, 13)
-	// b.getUsedCapacity().assertEquals(testName, 8)
-	// b.getFreeCapacity().assertEquals(testName, 5)
-	// // Transfer wares and check content:
-	// b.transferWares(a).assertEquals(testName, 2)
-	// a.getMaxCapacity().assertEquals(testName, 8)
-	// a.getUsedCapacity().assertEquals(testName, 8)
-	// a.getFreeCapacity().assertEquals(testName, 0)
-	// b.getMaxCapacity().assertEquals(testName, 13)
-	// b.getUsedCapacity().assertEquals(testName, 2)
-	// b.getFreeCapacity().assertEquals(testName, 11)
+	b.hasWares(waresA).assertTrue(testName)
+	b.containsAny(a).assertTrue(testName)
+	// Remove wares and check content:
+	let waresB = new LinkedList<ware>()
+	waresB.add(ware(WareType.FOOD, 3))
+	waresB.add(ware(WareType.WOOD, 1))
+	b.removeWares(waresB)
+	b.isEmpty().assertFalse(testName)
+	b.getAmountOfWareTypes().assertEquals(testName, 3)
+	b.getWareCount(WareType.FOOD).assertEquals(testName, 0)
+	b.getWareCount(WareType.WOOD).assertEquals(testName, 5)
+	b.hasWares(waresB).assertFalse(testName)
+	b.hasWaresAny(waresB).assertTrue(testName)
 	// Destroy class objects:
 	destroy a
 	destroy b
 	destroy waresA
-	// destroy waresB
+	destroy waresB

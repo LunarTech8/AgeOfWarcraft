@@ -15,6 +15,7 @@ import AbilityPresetFunctions
     // Art:
     ..setAnimationNames("")
     ..presetButtonPosNormal(0, 3)
+    ..setArtEffect("")
     ..setIconNormal(Icons.bTNReplay_SpeedDown)
     // Stats:
     ..presetAreaofEffect(0.)

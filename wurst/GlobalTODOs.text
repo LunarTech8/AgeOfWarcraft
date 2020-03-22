@@ -20,6 +20,9 @@ Work status:
 // Programming:
 // -------------
 
+!!!>- Enter building from peasant on lumber mill doesn't work and throws undetected ability id
+!!!>- StockSystem unit test throws errors
+
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
@@ -34,6 +37,8 @@ Work status:
 !- Maybe have repeating order actions to have less object destruction
 !- Add unit tests to all bigger / more complexe systems
 
+INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for compatibility
+
 
 // -------------
 // Game design:
@@ -42,10 +47,10 @@ Work status:
 !!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a WorkshopSystem that allows buildings to process different educts into products
-		>>- Add a button for workshops to cycle through the products
 		- Add smart order functionality
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 
+!!- Reorder ability positions (e.g. for peasant)
 !- Main mechanics:
 	- Population management:
 		- Population growths on a percentage basis.

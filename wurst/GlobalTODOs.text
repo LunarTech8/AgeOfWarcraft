@@ -21,7 +21,6 @@ Work status:
 // -------------
 
 !!!>- Enter building from peasant on lumber mill doesn't work and throws undetected ability id
-!!!>- StockSystem unit test throws errors
 
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)

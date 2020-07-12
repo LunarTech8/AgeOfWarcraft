@@ -146,7 +146,9 @@ init
 // --------------------
 
 @Test public function testStorageSystem_AddAndRemove()
-	let testName = "testStorageSystem_AddAndRemove"
+	testStorageSystem_AddAndRemove(false)
+public function testStorageSystem_AddAndRemove(bool isInGameTest)
+	let testName = setTestName("testStorageSystem_AddAndRemove", isInGameTest)
 	// Create new storage and check capacities:
 	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
 	let a = new Storage(unitA, 8)
@@ -198,9 +200,11 @@ init
 	b.getMaxCapacity().assertEquals(testName, 13)
 	b.getUsedCapacity().assertEquals(testName, 2)
 	b.getFreeCapacity().assertEquals(testName, 11)
+	testSuccess(testName)
 	// Remove test units:
-	unitA.remove()
-	unitB.remove()
+	if isInGameTest
+		unitA.remove()
+		unitB.remove()
 	// Destroy class objects:
 	destroy a
 	destroy b

@@ -218,22 +218,26 @@ public class Stock
 // --------------------
 
 @Test public function testStockSystem_AddAndRemove()
-	let testName = "testStockSystem_AddAndRemove"
+	testStockSystem_AddAndRemove(false)
+public function testStockSystem_AddAndRemove(bool isInGameTest)
+	let testName = setTestName("testStockSystem_AddAndRemove", isInGameTest)
 	// Create new stock and check content:
 	let a = new Stock(new LinkedList<ware>())
 	a.isEmpty().assertTrue(testName)
 	a.getAmountOfWareTypes().assertEquals(testName, 0)
 	// Add wares and check content:
-	a.addWare(ware(WareType.FOOD, 3))
+	a.addWare(ware(WareType.FOOD, 2))
 	a.addWare(ware(WareType.STONE, 2))
+	a.addWare(ware(WareType.STRAW, 1))
 	a.addWare(ware(WareType.FOOD, 1))
 	a.isEmpty().assertFalse(testName)
 	a.getAmountOfWareTypes().assertEquals(testName, 3)
 	a.getWareCount(WareType.FOOD).assertEquals(testName, 3)
-	(a.getLastWare().wareType == WareType.FOOD).assertTrue(testName)
-	(a.getWare(2).wareType == WareType.STONE).assertTrue(testName)
+	(a.getLastWare().wareType == WareType.STRAW).assertTrue(testName)
+	(a.getWare(0).wareType == WareType.FOOD).assertTrue(testName)
+	(a.getWare(1).wareType == WareType.STONE).assertTrue(testName)
 	a.hasWare(ware(WareType.STONE, 3)).assertFalse(testName)
-	a.hasWare(ware(WareType.STONE, 1)).assertTrue(testName)
+	a.hasWare(ware(WareType.STONE, 2)).assertTrue(testName)
 	// Remove wares and check content:
 	a.removeWare(ware(WareType.FOOD, 2))
 	a.removeWare(ware(WareType.STONE, 2))
@@ -247,7 +251,7 @@ public class Stock
 	let waresA = new LinkedList<ware>()
 	waresA.add(ware(WareType.FOOD, 2))
 	waresA.add(ware(WareType.STONE, 3))
-	waresA.add(ware(WareType.FOOD, 1))
+	waresA.add(ware(WareType.STRAW, 1))
 	waresA.add(ware(WareType.WOOD, 6))
 	b.hasWaresAny(waresA).assertFalse(testName)
 	b.containsAny(a).assertFalse(testName)
@@ -267,6 +271,7 @@ public class Stock
 	b.getWareCount(WareType.WOOD).assertEquals(testName, 5)
 	b.hasWares(waresB).assertFalse(testName)
 	b.hasWaresAny(waresB).assertTrue(testName)
+	testSuccess(testName)
 	// Destroy class objects:
 	destroy a
 	destroy b

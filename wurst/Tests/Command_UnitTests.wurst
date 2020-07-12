@@ -20,11 +20,11 @@ let COMMAND_SHORT = "ut"
 
 function executeCommand()
 	// UnitMap:
-	testUnitHashMap_AddAndRemove()
+	testUnitHashMap_AddAndRemove(true)
 	// StockSystem:
-	testStockSystem_AddAndRemove()
+	testStockSystem_AddAndRemove(true)
 	// StorageSystem:
-	testStorageSystem_AddAndRemove()
+	testStorageSystem_AddAndRemove(true)
 	// BuildingSystem:
 	testBuildingSystem_Build()
 

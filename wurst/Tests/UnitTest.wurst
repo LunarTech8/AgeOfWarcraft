@@ -6,7 +6,7 @@
 Ingame test alternative to the Wurstunit package with additional functionality.
 
 // Examples:
-testDebug(useTestName("test<SystemName>_<FunctionName>"), "Debug message")  // DEBUG: only for testing
+testDebug("test<SystemName>_<FunctionName>", "Debug message")  // DEBUG: only for testing
 
 // Changelog:
 - 1.0.0:
@@ -21,6 +21,7 @@ import HashMap
 // --------------------
 
 let SHOW_START_TEST_MESSAGE = true
+let TEST_NAME_WURSTUNIT = "UseWurstunit"
 
 
 // --------------------
@@ -29,7 +30,7 @@ let SHOW_START_TEST_MESSAGE = true
 
 let TEST_NAME_MAP = new HashMap<string, int>
 
-public function useTestName(string testName) returns string
+function useTestName(string testName) returns string
 	var testNameCounter = 1
 	if TEST_NAME_MAP.has(testName)
 		testNameCounter = TEST_NAME_MAP.get(testName) + 1
@@ -38,104 +39,108 @@ public function useTestName(string testName) returns string
 	TEST_NAME_MAP.put(testName, testNameCounter)
 	return testName + " " + testNameCounter.toString()
 
-public function testSuccess(string usedTestName)
-	printLog(Loglevel.INFO, "[" + usedTestName + "] " + "Test successful")
+public function setTestName(string testName, bool isInGameTest) returns string
+	if isInGameTest
+		return testName
+	else
+		return TEST_NAME_WURSTUNIT
 
-public function testFail(string usedTestName, string msg)
-	printLog(Loglevel.ERROR, "[" + usedTestName + "] " + msg)
+public function testSuccess(string testName)
+	if testName == TEST_NAME_WURSTUNIT
+		testSuccess()
+	else
+		printLog(Loglevel.INFO, "[" + useTestName(testName) + "] " + "Test successful")
 
-public function testDebug(string usedTestName, string msg)
-	printLog(Loglevel.WARNING, "[" + usedTestName + "] " + msg)
-public function testDebug(string usedTestName, int msg)
-	testDebug(usedTestName, msg.toString())
+public function testFail(string testName, string msg)
+	if testName == TEST_NAME_WURSTUNIT
+		testFail(msg)
+	else
+		printLog(Loglevel.ERROR, "[" + useTestName(testName) + "] " + msg)
+
+public function testDebug(string testName, string msg)
+	if testName == TEST_NAME_WURSTUNIT
+		println(msg)
+	else
+		printLog(Loglevel.WARNING, "[" + useTestName(testName) + "] " + msg)
+public function testDebug(string testName, int msg)
+	testDebug(testName, msg.toString())
 
 /**
  * Asserts that two ints are equal. If they are not, an error is thrown with a message.
  */
 public function int.assertEquals(string testName, int expected)
-	let usedTestName = useTestName(testName)
 	if this != expected
-		testFail(usedTestName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
+		testFail(testName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
 
 /**
  * Asserts that the passed int is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function int.assertGreaterThan(string testName, int less)
-	let usedTestName = useTestName(testName)
 	if this <= less
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be greater than <" + less.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be greater than <" + less.toString() + ">")
 
 /**
  * Asserts that the passed int is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function int.assertGreaterThanOrEqual(string testName, int less)
-	let usedTestName = useTestName(testName)
 	if this < less
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be greater than or equal to <" + less.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be greater than or equal to <" + less.toString() + ">")
 
 /**
  * Asserts that the passed int is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function int.assertLessThan(string testName, int greater)
-	let usedTestName = useTestName(testName)
 	if this >= greater
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be less than <" + greater.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be less than <" + greater.toString() + ">")
 
 /**
  * Asserts that the passed int is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function int.assertLessThanOrEqual(string testName, int greater)
-	let usedTestName = useTestName(testName)
 	if this > greater
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be less than or equal to <" + greater.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be less than or equal to <" + greater.toString() + ">")
 
 /**
  * Asserts that two strings are equal. If they are not, an error is thrown with a message.
  */
 public function string.assertEquals(string testName, string expected)
-	let usedTestName = useTestName(testName)
 	if this != expected
-		testFail(usedTestName, "Expected <" + expected + ">, Actual <" + this + ">")
+		testFail(testName, "Expected <" + expected + ">, Actual <" + this + ">")
 
 /**
  * Asserts that two reals are equal. If they are not, an error is thrown with a message.
  */
 public function real.assertEquals(string testName, real expected)
-	let usedTestName = useTestName(testName)
 	if this != expected
-		testFail(usedTestName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
+		testFail(testName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
 
 /**
  * Asserts that the passed real is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function real.assertGreaterThan(string testName, real less)
-	let usedTestName = useTestName(testName)
 	if this <= less
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be greater than <" + less.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be greater than <" + less.toString() + ">")
 
 /**
  * Asserts that the passed real is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function real.assertGreaterThanOrEqual(string testName, real less)
-	let usedTestName = useTestName(testName)
 	if this < less
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be greater than or equal to <" + less.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be greater than or equal to <" + less.toString() + ">")
 
 /**
  * Asserts that the passed real is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function real.assertLessThan(string testName, real greater)
-	let usedTestName = useTestName(testName)
 	if this >= greater
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be less than <" + greater.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be less than <" + greater.toString() + ">")
 
 /**
  * Asserts that the passed real is greater than the parameter. If they are not, an error is thrown with a message.
  */
 public function real.assertLessThanOrEqual(string testName, real greater)
-	let usedTestName = useTestName(testName)
 	if this > greater
-		testFail(usedTestName, "Expected <" + this.toString() + "> to be less than or equal to <" + greater.toString() + ">")
+		testFail(testName, "Expected <" + this.toString() + "> to be less than or equal to <" + greater.toString() + ">")
 
 
 /**
@@ -143,17 +148,15 @@ public function real.assertLessThanOrEqual(string testName, real greater)
  * with a message.
  */
 public function real.assertEquals(string testName, real expected, real delta)
-	let usedTestName = useTestName(testName)
 	if (this - expected > delta) or (expected - this > delta)
-		testFail(usedTestName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + " with delta " + delta.toString() + ">")
+		testFail(testName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + " with delta " + delta.toString() + ">")
 
 /**
  * Asserts that two booleans are equal. If they are not, an error is thrown with a message.
  */
 public function bool.assertEquals(string testName, bool expected)
-	let usedTestName = useTestName(testName)
 	if this != expected
-		testFail(usedTestName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
+		testFail(testName, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + ">")
 
 /** Asserts that this booleans is true. If it is not, an error is thrown with a message. */
 public function bool.assertTrue(string testName)
@@ -165,18 +168,20 @@ public function bool.assertFalse(string testName)
 
 /** Asserts that this booleans is true. If it is not, an error is thrown. */
 public function assertTrue(string testName, bool b)
-	let usedTestName = useTestName(testName)
 	if not b
-		testFail(usedTestName, "Assertion failed")
+		testFail(testName, "Assertion failed")
 
 /** Asserts that this booleans is true. If it is not, an error is thrown with the supplied message. */
 public function assertTrue(string testName, bool b, string msg)
-	let usedTestName = useTestName(testName)
 	if not b
-		testFail(usedTestName, "Assertion failed: " + msg)
+		testFail(testName, "Assertion failed: " + msg)
 
-/** Asserts that the reference t is not null */
+/** Asserts that the reference t is not null. */
 public function assertNotNull<T>(string testName, T t)
-	let usedTestName = useTestName(testName)
 	if t == null
-		testFail(usedTestName, "Assertion failed: Reference was null.")
+		testFail(testName, "Assertion failed: Reference was null.")
+
+/** Asserts that the references a and b are pointing to the same target. */
+public function assertEquals<T>(string testName, T a, T b)
+	if a != b
+		testFail(testName, "Assertion failed: References were not equal.")

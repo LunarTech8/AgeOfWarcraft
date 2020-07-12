@@ -420,17 +420,14 @@ init
 // --------------------
 
 unit testBuildingSystem_Build_building = null
-@Test public function testBuildingSystem_Build()
-	let testName = "testBuildingSystem_Build"
-	string usedTestName
+public function testBuildingSystem_Build()
+	let testName = setTestName("testBuildingSystem_Build", true)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(Rect(-128., -128., 128., 128.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
 	let storageA = unitA.getStorage()
-	usedTestName = useTestName(testName)
-	if storageA == null
-		testFail(usedTestName, "Test failed: Couldn't get Storage of unitA")
+	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))
 	let workerCount = getWorkerCount()
 	let buildingSiteCount = getBuildingSiteCount()
@@ -439,28 +436,21 @@ unit testBuildingSystem_Build_building = null
 	// Check worker and building site:
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
-		(getWorkerCount() - workerCount).assertEquals(1)
-		(getBuildingSiteCount() - buildingSiteCount).assertEquals(1)
-		WORKER_MAP.has(unitA).assertTrue()
+		(getWorkerCount() - workerCount).assertEquals(testName, 1)
+		(getBuildingSiteCount() - buildingSiteCount).assertEquals(testName, 1)
+		WORKER_MAP.has(unitA).assertTrue(testName)
 		let a = unitA.getBuildingSiteOfWorker()
-		usedTestName = useTestName(testName)
-		if a == null
-			testFail(usedTestName, "Test failed: Couldn't get BuildingSite of worker unitA")
+		assertNotNull(testName, a)
 		testBuildingSystem_Build_building = a.user
-		usedTestName = useTestName(testName)
-		if testBuildingSystem_Build_building == null
-			testFail(usedTestName, "Test failed: Couldn't get unit of BuildingSite a")
-		usedTestName = useTestName(testName)
-		if testBuildingSystem_Build_building.getBuildingSite() != a
-			testFail(usedTestName, "Test failed: Couldn't get BuildingSite via function getBuildingSite")
-		usedTestName = useTestName(testName)
-		if unitA.findNextBuildingSite() != testBuildingSystem_Build_building
-			testFail(usedTestName, "Test failed: Couldn't find BuildingSite via function findNextBuildingSite")
+		assertNotNull(testName, testBuildingSystem_Build_building)
+		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), a)
+		assertEquals(testName, unitA.findNextBuildingSite(), testBuildingSystem_Build_building)
 		// Check building site status:
-		a.getWorkProgressPercentage().assertEquals(0.)
-		a.getWorkPower().assertEquals(0.05)
-		a.getWorkerCount().assertEquals(1)
-		a.isEmpty().assertTrue()
+		a.getWorkProgressPercentage().assertEquals(testName, 0.)
+		a.getWorkPower().assertEquals(testName, 0.05)
+		a.getWorkerCount().assertEquals(testName, 1)
+		a.isEmpty().assertTrue(testName)
+		testSuccess(testName)
 	// Abort construction:
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		testBuildingSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)

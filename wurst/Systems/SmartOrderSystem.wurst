@@ -27,6 +27,7 @@ function getSmartUsedAbilityIds() returns LinkedList<int>
 	// Add ability ids in order of their priority:
 	abilityIds.add(AbilityIdsCustom.harvest)
 	abilityIds.add(AbilityIdsCustom.build)
+	abilityIds.add(AbilityIdsCustom.enterBuilding)
 	abilityIds.add(AbilityIdsCustom.transferWares)
 	return abilityIds
 

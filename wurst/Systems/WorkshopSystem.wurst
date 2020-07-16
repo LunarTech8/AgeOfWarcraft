@@ -13,6 +13,7 @@ package WorkshopSystem
 import ConstantDataSystem
 import UnitMap
 import LinkedList
+import UnitTest
 import Stock
 import UtilityFunctions
 import MultiboardPrioritySystem
@@ -22,6 +23,7 @@ import OnUnitEnterLeave
 import Icons
 import RegisterEvents
 import StorageSystem
+import Orders
 
 
 // --------------------
@@ -310,3 +312,70 @@ init
 		for building in WORKSHOP_MAP
 			if building != null
 				WORKSHOP_MAP.get(building).adjustProgress()
+
+
+// --------------------
+// Test code
+// --------------------
+
+public function testWorkshopSystem_Workers()
+	let testName = setTestName("testWorkshopSystem_Workers", true)
+	let testCentre = vec2(0., -384.)
+	// Remove units blocking the building:
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	// Create workshop:
+	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
+	let workshopA = unitA.getWorkshop()
+	assertNotNull(testName, workshopA)
+	workshopA.getWorkerCount().assertEquals(testName, 0)
+	workshopA.getWorkPower().assertEquals(testName, 0.)
+	// Add workers:
+	let unitB = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitC = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	unitB.issueTargetOrderById(OrderIds.smart, unitA)
+	unitC.issueTargetOrderById(OrderIds.smart, unitA)
+	let unitD = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitE = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	doAfter(MIN_ACTION_SLEEP_TIME) () ->
+		// Check workshop status:
+		workshopA.getWorkerCount().assertEquals(testName, 2)
+		workshopA.getWorkPower().assertEquals(testName, 2.)
+		// Add more workers:
+		unitD.issueTargetOrderById(OrderIds.smart, unitA)
+		unitE.issueTargetOrderById(OrderIds.smart, unitA)
+	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
+		// Check workshop status:
+		workshopA.getWorkerCount().assertEquals(testName, 3)
+		workshopA.getWorkPower().assertEquals(testName, 3.)
+		testSuccess(testName)
+	// Remove test units:
+	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
+		unitA.kill()
+		unitA.remove()
+		unitB.kill()
+		unitB.remove()
+		unitC.kill()
+		unitC.remove()
+		unitD.kill()
+		unitD.remove()
+		unitE.kill()
+		unitE.remove()
+
+public function testWorkshopSystem_Production()
+	let testName = setTestName("testWorkshopSystem_Production", true)
+	let testCentre = vec2(384., 0.)
+	// Remove units blocking the building:
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	// Create workshop:
+	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
+	let workshopA = unitA.getWorkshop()
+	assertNotNull(testName, workshopA)
+	workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
+	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
+	// TODO: finish implementation
+	// workshopA.getEducts()
+	// workshopA.getProducts()
+	testSuccess(testName)
+	// Remove test units:
+	unitA.kill()
+	unitA.remove()

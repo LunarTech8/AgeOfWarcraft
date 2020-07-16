@@ -23,7 +23,6 @@ import InstantDummyCaster
 import DummyRecycler
 import ClosureTimers
 import WorkshopSystem
-import PersonSystem
 
 
 // --------------------
@@ -236,7 +235,7 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		let targetWorkshop = target.getWorkshop()
 		if targetWorkshop == null
 			return Validity.INVALID_TARGET
-		if targetWorkshop.isValidWorkerType(this.getUnitId())
+		if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
 			return Validity.INVALID_SOURCE
 		// Check if target has free work slot:
 		if targetWorkshop.getWorkerCount() >= getMaxWorkers(target.getUnitId())
@@ -312,8 +311,10 @@ init
 						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
-						// Add source to target workshop as worker:
-						target.getWorkshop().addWorker(source)
+						// Transfer wares and add source to target workshop as worker:
+						let targetWorkshop = target.getWorkshop()
+						targetWorkshop.transferWares(source.getStorage())
+						targetWorkshop.addWorker(source)
 					case AbilityIdsCustom.removeWorker
 						// Remove a worker from source workshop:
 						source.getWorkshop().removeWorker()

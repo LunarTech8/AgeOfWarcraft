@@ -422,16 +422,17 @@ init
 unit testBuildingSystem_Build_building = null
 public function testBuildingSystem_Build()
 	let testName = setTestName("testBuildingSystem_Build", true)
+	let testCentre = vec2(0., 0.)
 	// Remove units blocking the building:
-	ForGroup(GetUnitsInRectAll(Rect(-128., -128., 128., 128.)), () -> GetEnumUnit().remove())
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
 	// Order to build:
-	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
+	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
 	let storageA = unitA.getStorage()
 	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))
 	let workerCount = getWorkerCount()
 	let buildingSiteCount = getBuildingSiteCount()
-	unitA.issuePointOrderById(UnitIdsCustom.Melee.farm, vec2(0, 0))
+	unitA.issuePointOrderById(UnitIdsCustom.Melee.farm, testCentre)
 	testBuildingSystem_Build_building = null
 	// Check worker and building site:
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
@@ -446,9 +447,9 @@ public function testBuildingSystem_Build()
 		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), a)
 		assertEquals(testName, unitA.findNextBuildingSite(), testBuildingSystem_Build_building)
 		// Check building site status:
-		a.getWorkProgressPercentage().assertEquals(testName, 0.)
-		a.getWorkPower().assertEquals(testName, 0.05)
+		a.getWorkPower().assertEquals(testName, 1.)
 		a.getWorkerCount().assertEquals(testName, 1)
+		a.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
 		a.isEmpty().assertTrue(testName)
 		testSuccess(testName)
 	// Abort construction:

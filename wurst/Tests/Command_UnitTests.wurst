@@ -3,6 +3,7 @@ import UnitMap
 import Stock
 import StorageSystem
 import BuildingSystem
+import WorkshopSystem
 
 
 // --------------------
@@ -19,6 +20,7 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
+	print("-------- Unit tests:")
 	// UnitMap:
 	testUnitHashMap_AddAndRemove(true)
 	// StockSystem:
@@ -27,6 +29,9 @@ function executeCommand()
 	testStorageSystem_AddAndRemove(true)
 	// BuildingSystem:
 	testBuildingSystem_Build()
+	// WorkshopSystem:
+	testWorkshopSystem_Workers()
+	testWorkshopSystem_Production()
 
 init
 	CreateTrigger()

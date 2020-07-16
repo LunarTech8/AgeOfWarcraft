@@ -7,7 +7,7 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionInnerFireCreep(AbilityIdsCustom.enterBuilding)
+    new AbilityDefinitionInnerFire(AbilityIdsCustom.enterBuilding)
     // Ability specific data:
     ..presetAutocastRange((int lvl) -> 0.)
     ..presetDamageIncrease((int lvl) -> 0.)

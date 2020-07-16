@@ -71,6 +71,8 @@ public function int.getAbilityOrder() returns string
 			return "frostnova"
 		case AbilityIdsCustom.addBuildingBuff
 			return "innerfire"
+		case AbilityIdsCustom.enterBuilding
+			return "innerfire"
 		default
 			Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
 			return null
@@ -88,6 +90,8 @@ public function string.getOrderNameAbility() returns int
 			return AbilityIdsCustom.transferWares
 		case "add building buff"
 			return AbilityIdsCustom.addBuildingBuff
+		case "enter building"
+			return AbilityIdsCustom.enterBuilding
 		default
 			Log.error("ERROR: Unmapped order (" + this + ")")
 			return 0
@@ -129,6 +133,8 @@ public function int.getOrderName() returns string
 			return "transfer wares"
 		case AbilityIdsCustom.addBuildingBuff
 			return "add building buff"
+		case AbilityIdsCustom.enterBuilding
+			return "enter building"
 		default
 			if this < 2013265920  // Ignore unit ids
 				Log.error("ERROR: Unmapped order/ability id (" + this.toString() + ")")
@@ -150,6 +156,8 @@ public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) ret
 		case OrderIds.innerfire
 			if orderedUnit.hasAbility(AbilityIdsCustom.addBuildingBuff)
 				return "add building buff"
+			else if orderedUnit.hasAbility(AbilityIdsCustom.enterBuilding)
+				return "enter building"
 		default
 			if onlyCustomAbilities
 				return null

@@ -115,6 +115,20 @@ public function ware.changedCopy(WareType newWareType) returns ware
 public function ware.changedCopy(WareType newWareType, int countChange) returns ware
 	return ware(newWareType, this.count + countChange)
 
+public function LinkedList<ware>.isEqual(LinkedList<ware> waresCompare) returns bool
+	for iWare in this
+		var hasWare = false
+		for jWare in waresCompare
+			if jWare.hasSameType(iWare)
+				if jWare.count == iWare.count
+					hasWare = true
+					break
+				else
+					return false
+		if hasWare == false
+			return false
+	return true
+
 public class Stock
 	protected LinkedList<ware> wares
 	protected unit user

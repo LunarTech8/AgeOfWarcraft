@@ -434,7 +434,6 @@ public function testBuildingSystem_Build()
 	let buildingSiteCount = getBuildingSiteCount()
 	unitA.issuePointOrderById(UnitIdsCustom.Melee.farm, testCentre)
 	testBuildingSystem_Build_building = null
-	// Check worker and building site:
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
 		(getWorkerCount() - workerCount).assertEquals(testName, 1)
@@ -452,10 +451,10 @@ public function testBuildingSystem_Build()
 		a.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
 		a.isEmpty().assertTrue(testName)
 		testSuccess(testName)
-	// Abort construction:
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
+		// Abort construction:
 		testBuildingSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)
-	// Remove test units:
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
+		// Remove test units:
 		unitA.kill()
 		unitA.remove()

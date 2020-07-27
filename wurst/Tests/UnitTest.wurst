@@ -20,7 +20,7 @@ import HashMap
 // Data code
 // --------------------
 
-let SHOW_START_TEST_MESSAGE = true
+let SHOW_START_TEST_MESSAGE = false
 let TEST_NAME_WURSTUNIT = "UseWurstunit"
 
 
@@ -36,9 +36,10 @@ function useTestName(string testName)
 		var testNameCounter = 1
 		if TEST_NAME_MAP.has(testName)
 			testNameCounter = TEST_NAME_MAP.get(testName) + 1
-		else if SHOW_START_TEST_MESSAGE
-			printLog(Loglevel.INFO, "[Start test for: " + testName + "]")
+		else
 			TEST_SUCCESS_MAP.put(testName, true)
+			if SHOW_START_TEST_MESSAGE
+				printLog(Loglevel.INFO, "[Start test for: " + testName + "]")
 		TEST_NAME_MAP.put(testName, testNameCounter)
 
 function getUsedTestName(string testName) returns string

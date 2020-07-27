@@ -20,7 +20,7 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	print("-------- Unit tests:")
+	print("-------- Unit tests (6):")
 	// UnitMap:
 	testUnitHashMap_AddAndRemove(true)
 	// StockSystem:

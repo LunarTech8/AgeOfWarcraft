@@ -44,7 +44,6 @@ INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for co
 !!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a WorkshopSystem that allows buildings to process different educts into products
-		>>- Implement unit tests for WorkshopSystem
 		>- Units entering a workshop should not take products (but still give educts)
 		>- Units without educts should still be able to take products
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.

@@ -222,6 +222,7 @@ class Workshop extends Stock
 		else if productionVariant != 1
 			cancelProduction()
 			productionVariant = 1
+		workProgressFinished = getRequiredWorkPower(user.getUnitId(), productionVariant)
 
 	function adjustProgress() returns bool
 		if workPower > 0.
@@ -329,6 +330,7 @@ public function testWorkshopSystem_Workers()
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkerCount().assertEquals(testName, 0)
 	workshopA.getWorkPower().assertEquals(testName, 0.)
+	workshopA.isValidWorkerType(UnitIdsCustom.Melee.peasant).assertTrue(testName)
 	// Add workers:
 	let unitB = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
 	let unitC = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
@@ -372,10 +374,74 @@ public function testWorkshopSystem_Production()
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
 	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
-	// TODO: finish implementation
-	// workshopA.getEducts()
-	// workshopA.getProducts()
-	testSuccess(testName)
-	// Remove test units:
-	unitA.kill()
-	unitA.remove()
+	workshopA.getStoredEducts().assertEquals(testName, 0)
+	workshopA.getStoredProducts().assertEquals(testName, 0)
+	let waresA = new LinkedList<ware>()
+	waresA.add(ware(WareType.WOOD, 3))
+	var waresB = workshopA.getEducts()
+	waresA.isEqual(waresB).assertTrue(testName)
+	waresA.clear()
+	waresA.add(ware(WareType.WOODEN_BOARDS, 2))
+	destroy waresB
+	waresB = workshopA.getProducts()
+	waresA.isEqual(waresB).assertTrue(testName)
+	// Change product:
+	workshopA.changeProduct()
+	workshopA.getWorkProgressLeft().assertEquals(testName, 10.)
+	waresA.clear()
+	waresA.add(ware(WareType.WOOD, 1))
+	destroy waresB
+	waresB = workshopA.getEducts()
+	waresA.isEqual(waresB).assertTrue(testName)
+	waresA.clear()
+	waresA.add(ware(WareType.WOODEN_STICKS, 1))
+	destroy waresB
+	waresB = workshopA.getProducts()
+	waresA.isEqual(waresB).assertTrue(testName)
+	workshopA.changeProduct()
+	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
+	// Add workers:
+	let unitB = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitC = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitD = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	workshopA.addWorker(unitB)
+	workshopA.addWorker(unitC)
+	workshopA.addWorker(unitD)
+	// Add educts:
+	waresA.clear()
+	waresA.add(ware(WareType.WOOD, 7))
+	workshopA.addWares(waresA)
+	workshopA.getStoredEducts().assertEquals(testName, 2)
+	workshopA.getStoredProducts().assertEquals(testName, 0)
+	doAfter(2.) () ->
+		// Check workshop status:
+		workshopA.getStoredEducts().assertEquals(testName, 1)
+		workshopA.getStoredProducts().assertEquals(testName, 0)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.4, 0.001)
+		workshopA.getWorkProgressLeft().assertEquals(testName, 9., 0.001)
+	doAfter(6.) () ->
+		// Check workshop status:
+		workshopA.getStoredEducts().assertEquals(testName, 0)
+		workshopA.getStoredProducts().assertEquals(testName, 1)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.2, 0.001)
+		workshopA.getWorkProgressLeft().assertEquals(testName, 12., 0.001)
+	doAfter(11.) () ->
+		// Check workshop status:
+		workshopA.getStoredEducts().assertEquals(testName, 0)
+		workshopA.getStoredProducts().assertEquals(testName, 2)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
+		workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
+		testSuccess(testName)
+	doAfter(12.) () ->
+		// Remove test units:
+		unitA.kill()
+		unitA.remove()
+		unitB.kill()
+		unitB.remove()
+		unitC.kill()
+		unitC.remove()
+		unitD.kill()
+		unitD.remove()
+		// Destroy class objects:
+		destroy waresA
+		destroy waresB

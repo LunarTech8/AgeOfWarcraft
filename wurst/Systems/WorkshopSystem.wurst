@@ -244,7 +244,9 @@ class Workshop extends Stock
 				return true
 		return false
 
-	function transferWares(Storage source)
+	/** Transfers as many educts as possible from source storage to this wokshop.
+	Afterwards transfers as many products as possible from this wokshop to source storage. */
+	function transferWares(Storage source, bool takeProducts)
 		// Look for educts in source:
 		let educts = getEducts()
 		for iWare in educts
@@ -255,14 +257,15 @@ class Workshop extends Stock
 				addWare(ware(iWare.wareType, wareCount))
 		destroy educts
 		// Look for products in workshop:
-		let products = getProducts()
-		for iWare in products
-			let wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
-			if wareCount > 0
-				// Transfer ware:
-				removeWare(ware(iWare.wareType, wareCount))
-				source.addWare(ware(iWare.wareType, wareCount))
-		destroy products
+		if takeProducts
+			let products = getProducts()
+			for iWare in products
+				let wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
+				if wareCount > 0
+					// Transfer ware:
+					removeWare(ware(iWare.wareType, wareCount))
+					source.addWare(ware(iWare.wareType, wareCount))
+			destroy products
 
 
 function unit.addWorkshop()
@@ -327,12 +330,17 @@ public function testWorkshopSystem_Workers()
 	// Create workshop:
 	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
+	workshopA.addWare(ware(WareType.WOODEN_BOARDS, 4))
+	workshopA.getStoredProducts().assertEquals(testName, 2)
+	workshopA.getStoredEducts().assertEquals(testName, 0)
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkerCount().assertEquals(testName, 0)
 	workshopA.getWorkPower().assertEquals(testName, 0.)
 	workshopA.isValidWorkerType(UnitIdsCustom.Melee.peasant).assertTrue(testName)
 	// Add workers:
 	let unitB = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let storageA = unitB.getStorage()
+	storageA.addWare(ware(WareType.WOOD, 6))
 	let unitC = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
 	unitB.issueTargetOrderById(OrderIds.smart, unitA)
 	unitC.issueTargetOrderById(OrderIds.smart, unitA)
@@ -342,6 +350,8 @@ public function testWorkshopSystem_Workers()
 		// Check workshop status:
 		workshopA.getWorkerCount().assertEquals(testName, 2)
 		workshopA.getWorkPower().assertEquals(testName, 2.)
+		workshopA.getStoredProducts().assertEquals(testName, 2)
+		workshopA.getStoredEducts().assertEquals(testName, 1)
 		// Add more workers:
 		unitD.issueTargetOrderById(OrderIds.smart, unitA)
 		unitE.issueTargetOrderById(OrderIds.smart, unitA)

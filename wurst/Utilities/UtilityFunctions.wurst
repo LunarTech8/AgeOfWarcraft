@@ -291,7 +291,7 @@ public function int.divByZeroProt() returns int
 public function checkComputationCost(real currentCompCost) returns real
 	if currentCompCost >= MAX_COMPUTATION_COST_PER_CYCLE
 		if currentCompCost >= 2 * MAX_COMPUTATION_COST_PER_CYCLE
-			Log.warn("DEBUG: Bad placement of checkComputationCost (Residual cost of " + (currentCompCost - MAX_COMPUTATION_COST_PER_CYCLE).toString() + ")")
+			Log.warn("Bad placement of checkComputationCost (Residual cost of " + (currentCompCost - MAX_COMPUTATION_COST_PER_CYCLE).toString() + ")")
 		TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
 		return 0.
 	return currentCompCost

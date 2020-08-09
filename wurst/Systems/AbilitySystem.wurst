@@ -152,7 +152,7 @@ function unit.transferWares(unit target)
 		let targetWorkshop = target.getWorkshop()
 		if targetWorkshop != null
 			// Exchange wares with source storage:
-			targetWorkshop.transferWares(sourceStorage)
+			targetWorkshop.transferWares(sourceStorage, true)
 		let targetBuildingSite = target.getBuildingSite()
 		if targetBuildingSite != null
 			// Take wares from source storage:
@@ -187,21 +187,28 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		let targetBuildingSite = target.getBuildingSite()
 		if targetStorage == null and targetWorkshop == null and targetBuildingSite == null
 			return Validity.INVALID_TARGET
-		// Check if wares are available:
-		if sourceStorage.getUsedCapacity() <= 0
-			return Validity.WARES_NOT_AVAILABLE
-		// Check if target has free storage:
-		if targetStorage != null and targetStorage.getFreeCapacity() <= 0
-			return Validity.NO_FREE_STORAGE
-		// Check if target requires wares:
-		if targetBuildingSite != null and targetBuildingSite.isEmpty()
-			return Validity.NO_REQUIRED_WARES
-		if targetWorkshop != null
+		// Check target type specific validities:
+		if targetStorage != null
+			// Check if target has free storage:
+			if targetStorage.getFreeCapacity() <= 0
+				return Validity.NO_FREE_STORAGE
+			// Check if source has wares that can be transfered:
+			if sourceStorage.getUsedCapacity() <= 0
+				return Validity.WARES_NOT_AVAILABLE
+		else if targetBuildingSite != null
+			// Check if target requires wares:
+			if targetBuildingSite.isEmpty()
+				return Validity.NO_REQUIRED_WARES
+			// Check if source has resources that can be transfered:
+			if sourceStorage.containsAny(targetBuildingSite) == false
+				return Validity.WARES_NOT_AVAILABLE
+		else if targetWorkshop != null
+			// Check if source has educts or target has products that can be transfered:
 			let educts = targetWorkshop.getEducts()
 			let hasAnyEducts = sourceStorage.hasWaresAny(educts)
 			destroy educts
-			if hasAnyEducts == false
-				return Validity.NO_REQUIRED_WARES
+			if hasAnyEducts == false and targetWorkshop.getStoredProducts() <= 0
+				return Validity.WARES_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.build
 		// Check if source and target are valid:
 		if target.getUnitId().isValidWorkerType(this.getUnitId()) == false
@@ -311,9 +318,9 @@ init
 						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
-						// Transfer wares and add source to target workshop as worker:
+						// Transfer educts and add source to target workshop as worker:
 						let targetWorkshop = target.getWorkshop()
-						targetWorkshop.transferWares(source.getStorage())
+						targetWorkshop.transferWares(source.getStorage(), false)
 						targetWorkshop.addWorker(source)
 					case AbilityIdsCustom.removeWorker
 						// Remove a worker from source workshop:

@@ -10,46 +10,47 @@ Task priority:
 "- ((" = Probably not needed
 
 Work status:
-"-" = Backlog
+"-" = Queued
 ">-" = Analysis
 ">>-" = Implementation
 ">>>-" = Testing
 
 
 // -------------
-// Programming:
+// Worklog:
+// -------------
+
+!!>- Add settlements and homes and workplaces for people
+	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
+		- Implement unit tests for PersonSystem
+!!- Implement harvesting of destructables
+!- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
+
+
+// -------------
+// Backlog:
 // -------------
 
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
+!!- Reorder ability positions (e.g. for peasant)
 !- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
-!- Get normal unit tests to work -> Maybe reinstall wurst or write to Frotty
-!- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 !- Add a description comment (/** */) to every public class and function
 !- Try to improve smart order reaction when harvesting (no overwriting by auto harvest)
 !- Create a WeatherSystem
 !- Maybe use the PreloadIO package to store/load generated maps into/from a file
 !- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
 !- Maybe have repeating order actions to have less object destruction
-!- Add unit tests to all bigger / more complexe systems
+!- Add unit tests to all bigger / more complexe systems (Missing systems: AbilitySystem, OrderSystem, PersonSystem, ResourceSystem, Array2D)
 
 INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for compatibility
 
 
 // -------------
-// Game design:
+// Ideas/Concepts:
 // -------------
 
-!!>- Work out a prototype with basic game mechanics on the StartMap -> Finish all major and critical tasks
-!!>- Add settlements and homes and workplaces for people
-	>>- Create a WorkshopSystem that allows buildings to process different educts into products
-		>- Units entering a workshop should not take products (but still give educts)
-		>- Units without educts should still be able to take products
-	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
-		- Implement unit tests for PersonSystem
-
-!!- Reorder ability positions (e.g. for peasant)
 !- Main mechanics:
 	- Population management:
 		- Population growths on a percentage basis.
@@ -77,14 +78,3 @@ INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for co
 !- Maybe add a Conventions.text like in C# projects
 !- Maybe add a top header entry with name of the selected object to ObjectInfoSystem
 !- Maybe show different info for ObjectInfoSystem if multiple units are selected
-
-
-// -------------
-// Resources:
-// -------------
-
-!!- Add all trees
-!!- Add rocks, berry bushes, grass and domestic animals
-!!- Add houses, storehouse, resource huts and farm
-!- Add all base human units
-!- Add walls and fortifications

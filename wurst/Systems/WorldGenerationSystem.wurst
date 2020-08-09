@@ -42,7 +42,7 @@ public function generateTerrain()
     let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
-            ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it ot show up
+            ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it to show up
     // FIXME: pathing has to be updatet manually to allow building on above water ground
 
 public function generatePlants()

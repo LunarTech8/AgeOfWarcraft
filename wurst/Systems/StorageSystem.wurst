@@ -93,7 +93,8 @@ public class Storage extends Stock
 		for iWare in wares
 			removeWare(iWare)  // Use capacity based method
 
-	/** Returns the amount of wares that couldn't be transfered. */
+	/** Transfers as many wares as possible from this storage to target storage.
+	Returns the amount of wares that couldn't be transfered. */
 	function transferWares(Storage target) returns int
 		// Transfer last ware of source until it is empty or target is full:
 		var targetFreeCapacity = target.getFreeCapacity()

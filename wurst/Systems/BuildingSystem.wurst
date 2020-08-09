@@ -278,6 +278,8 @@ class BuildingSite extends Stock
 			if carrier.getOwner() == owner and carrier.getOrderSource() == null and hasCarrierRequiredResources(carrier)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 
+	/** Transfers required wares from source storage to this building sie.
+	Returns a list of all wares that are still missing. */
 	function transferWares(Storage source)
 		let leftRequiredWares = new LinkedList<ware>()
 		// Look through all required wares:

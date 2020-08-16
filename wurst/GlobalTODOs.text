@@ -20,10 +20,13 @@ Work status:
 // Worklog:
 // -------------
 
+!!>>- Implement harvesting of destructables
+	- Handle destructable deaths (by attacks)
+	- Make trees smart orderable by peasants (maybe requires default harvest ability)
+	- Problem if auto target is not reachable (eg. because of cliff)
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 		- Implement unit tests for PersonSystem
-!!- Implement harvesting of destructables
 !- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 
 

@@ -111,6 +111,7 @@ public function getMaxWorkers(int buildingUnitId) returns int
 let WORKSHOP_MAP = new IterableUnitHashMap<Workshop>(null)
 
 class Workshop extends Stock
+	private unit user
 	private int productionVariant
 	private real workProgressCurrent
 	private real workProgressFinished
@@ -427,14 +428,14 @@ public function testWorkshopSystem_Production()
 		// Check workshop status:
 		workshopA.getStoredEducts().assertEquals(testName, 1)
 		workshopA.getStoredProducts().assertEquals(testName, 0)
-		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.4, 0.001)
-		workshopA.getWorkProgressLeft().assertEquals(testName, 9., 0.001)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.4, 0.02)
+		workshopA.getWorkProgressLeft().assertEquals(testName, 9., 0.3)
 	doAfter(6.) () ->
 		// Check workshop status:
 		workshopA.getStoredEducts().assertEquals(testName, 0)
 		workshopA.getStoredProducts().assertEquals(testName, 1)
-		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.2, 0.001)
-		workshopA.getWorkProgressLeft().assertEquals(testName, 12., 0.001)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.2, 0.02)
+		workshopA.getWorkProgressLeft().assertEquals(testName, 12., 0.3)
 	doAfter(11.) () ->
 		// Check workshop status:
 		workshopA.getStoredEducts().assertEquals(testName, 0)

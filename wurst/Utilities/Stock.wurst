@@ -3,7 +3,7 @@
 1.0.0
 
 // Description:
-Manages the type and count of wares that are associated with each unit.
+Manages the type and count of wares that are associated with a stock object.
 Base class that should be extended into specialised classes.
 
 // Changelog:
@@ -131,7 +131,6 @@ public function LinkedList<ware>.isEqual(LinkedList<ware> waresCompare) returns 
 
 public class Stock
 	protected LinkedList<ware> wares
-	protected unit user
 
 	construct(LinkedList<ware> wares)
 		this.wares = wares

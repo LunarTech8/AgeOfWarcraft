@@ -10,7 +10,7 @@ import UnitPreset
     new UnitPreset(UnitIdsCustom.Melee.footman, UnitIds.footman)
     // Abilities:
     // TEST START
-    ..presetNormalAbilities(AbilityIdsCustom.showTargetInfo, AbilityIds.ensnare)
+    ..presetNormalAbilities(AbilityIdsCustom.showTargetInfo)
     // TEST END
     // Art:
     ..setScalingValue(.5)

@@ -46,6 +46,7 @@ function getStorageMaxCapacity(int unitId) returns int
 let STORAGE_MAP = new UnitHashMap<Storage>(null)
 
 public class Storage extends Stock
+	private unit user
 	private int maxCapacity
 	private int usedCapacity
 

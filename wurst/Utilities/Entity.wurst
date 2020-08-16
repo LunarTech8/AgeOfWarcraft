@@ -1,0 +1,229 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Entity is a container tuple for a widget that can be a unit or a destructable and provides common functions.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package Entity
+import HashMap
+import UtilityFunctions
+import UnitTest
+import ConstantDataSystem
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public interface EntityMap<T>
+	function has(entity key) returns bool
+	function get(entity key) returns T
+	function tryGet(entity key) returns T
+	function put(entity key, T value)
+	function remove(entity key)
+	function tryRemove(entity key) returns T
+
+public tuple entity(unit userUnit, destructable userDest)
+
+public function entityToIndex(entity e) returns int
+	if e.userUnit != null
+		return unitToIndex(e.userUnit)
+	else if e.userDest != null
+		return -destructableToIndex(e.userDest)
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+		return 0
+
+public function entityFromIndex(int index) returns entity
+	if index >= 0
+		return entity(unitFromIndex(index), null)
+	else
+		return entity(null, destructableFromIndex(-index))
+
+public function entity.getTypeId() returns int
+	if this.userUnit != null
+		return this.userUnit.getUnitId()
+	else if this.userDest != null
+		return this.userDest.getTypeId()
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+		return 0
+
+public function entity.getName() returns string
+	if this.userUnit != null
+		return this.userUnit.getName()
+	else if this.userDest != null
+		return this.userDest.getName()
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+		return null
+
+public function entity.getWidget() returns widget
+	if this.userUnit != null
+		return this.userUnit
+	else if this.userDest != null
+		return this.userDest
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+		return null
+
+public function entity.assertUnit() returns unit
+	if this.userUnit == null
+		Log.error("ERROR: Asserted unit of entity is null")
+	return this.userUnit
+
+public function entity.assertDestructable() returns destructable
+	if this.userDest == null
+		Log.error("ERROR: Asserted destructable of entity is null")
+	return this.userDest
+
+public function entity.isEmpty() returns bool
+	return this.userUnit == null and this.userDest == null
+
+public function entity.remove()
+	if this.userUnit != null
+		this.userUnit.remove()
+	else if this.userDest != null
+		this.userDest.remove()
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+
+public function entity.kill()
+	if this.userUnit != null
+		this.userUnit.kill()
+	else if this.userDest != null
+		this.userDest.kill()
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+
+/** Uses hash table entries (via HashMap) to map entitys to the given values. */
+public class EntityHashMap<T> implements EntityMap<T>
+	protected let map = new HashMap<entity, T>
+	protected constant T nullElem  // Is required because some types (like int) can't be null
+
+	construct(T nullElem)
+		this.nullElem = nullElem
+	private construct()  // Needed because generic variables can't be passed in super call
+
+	ondestroy
+		destroy map
+
+	/** Checks if the given key is mapped. */
+	override function has(entity key) returns bool
+		return map.has(key)
+
+	/** Returns the value of given key. */
+	override function get(entity key) returns T
+		return map.get(key)
+
+	/** Returns the value of given key. Instead of throwing an error returns the null element if given key isn't mapped. */
+	override function tryGet(entity key) returns T
+		if map.has(key)
+			return map.get(key)
+		else
+			return nullElem
+
+	/** Saves the given value under the given key. */
+	override function put(entity key, T value)
+		map.put(key, value)
+
+	/** Removes the key-value pair saved under the given key. */
+	override function remove(entity key)
+		map.remove(key)
+
+	/** Removes and returns the value of given key. Returns the null element instead if given key isn't mapped. */
+	override function tryRemove(entity key) returns T
+		if map.has(key)
+			let value = map.get(key)
+			map.remove(key)
+			return value
+		else
+			return nullElem
+
+	/** Returns the count of all elements. */
+	function getValueCount() returns int
+		return map.size()
+
+
+// --------------------
+// Test code
+// --------------------
+
+@Test public function testEntity_CreateAndIndex()
+	testEntity_CreateAndIndex(false)
+public function testEntity_CreateAndIndex(bool isInGameTest)
+	let testName = setTestName("testEntity_CreateAndIndex", isInGameTest)
+	// Create entities:
+	let entityA = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0)), null)
+	let entityB = entity(null, createDestructable(DestructableIds.summerTreeWall, vec2(0, 0), angle(0), 1., 0))
+	let entityC = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0)), null)
+	assertNotNull(testName, entityA.assertUnit())
+	assertNotNull(testName, entityB.assertDestructable())
+	assertNotNull(testName, entityC.assertUnit())
+	// Check index handling:
+	let indexA = entityToIndex(entityA)
+	let indexB = entityToIndex(entityB)
+	let indexC = entityToIndex(entityC)
+	indexA.assertGreaterThan(testName, 0)
+	indexB.assertLessThan(testName, 0)
+	indexC.assertGreaterThan(testName, 0)
+	assertEquals(testName, entityFromIndex(indexA).assertUnit(), entityA.assertUnit())
+	assertEquals(testName, entityFromIndex(indexB).assertDestructable(), entityB.assertDestructable())
+	assertEquals(testName, entityFromIndex(indexC).assertUnit(), entityC.assertUnit())
+	testSuccess(testName)
+	// Remove test entities:
+	if isInGameTest
+		entityA.remove()
+		entityB.remove()
+		entityC.remove()
+
+@Test public function testEntity_HashMapAddAndRemove()
+	testEntity_HashMapAddAndRemove(false)
+public function testEntity_HashMapAddAndRemove(bool isInGameTest)
+	let testName = setTestName("testEntity_HashMapAddAndRemove", isInGameTest)
+	// Create new map:
+	let a = new EntityHashMap<string>(null)
+	// Add entries and check:
+	let entityA = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0)), null)
+	a.put(entityA, "entityA")
+	a.get(entityA).assertEquals(testName, "entityA")
+	a.has(entityA).assertTrue(testName)
+	let entityB = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0)), null)
+	a.put(entityB, "entityB")
+	a.get(entityB).assertEquals(testName, "entityB")
+	// Remove entry and check:
+	a.remove(entityA)
+	a.has(entityA).assertFalse(testName)
+	a.tryGet(entityA).assertEquals(testName, a.nullElem)
+	a.tryRemove(entityA).assertEquals(testName, a.nullElem)
+	a.get(entityB).assertEquals(testName, "entityB")
+	a.tryGet(entityB).assertEquals(testName, "entityB")
+	let entityC = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0)), null)
+	a.put(entityC, "entityC")
+	a.tryRemove(entityC).assertEquals(testName, "entityC")
+	// Create another map:
+	let b = new EntityHashMap<int>(0)
+	b.has(entityB).assertFalse(testName)
+	b.put(entityA, 1)
+	b.get(entityA).assertEquals(testName, 1)
+	a.has(entityA).assertFalse(testName)
+	b.put(entityB, 2)
+	b.put(entityC, 3)
+	b.get(entityC).assertEquals(testName, 3)
+	b.remove(entityB)
+	let entityD = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0)), null)
+	testSuccess(testName)
+	// Remove test entitys:
+	if isInGameTest
+		entityA.remove()
+		entityB.remove()
+		entityC.remove()
+		entityD.remove()
+	// Destroy class objects:
+	destroy a
+	destroy b

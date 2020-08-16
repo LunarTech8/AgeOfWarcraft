@@ -10,6 +10,7 @@ Contains generic utility functions that aren't tied directly to a specific syste
 Initial version.
 -------------------------------------------------------------*/
 package UtilityFunctions
+import LinkedList
 import HashMap
 import ConstantDataSystem
 import Interpolation
@@ -182,7 +183,7 @@ public function unit.getUnitId() returns int
 		return BASE_UNIT_TYPE_ID_MAP.get(id)
 	return id
 
-/** Returns the nearest unit from given pos in given group of given player. Given group is cleared but not destroyed. */
+/** Returns the nearest unit from this pos in given group of given player. Given group is cleared but not destroyed. */
 public function vec2.getNearestUnit(group validUnits, player owner) returns unit
 	// Set init values:
 	var bestDistanceSq = REAL_MAX
@@ -195,18 +196,31 @@ public function vec2.getNearestUnit(group validUnits, player owner) returns unit
 				bestDistanceSq = distanceSq
 				nearestUnit = target
 	return nearestUnit
-/** Returns the nearest unit from given pos in given group. Given group is cleared but not destroyed. */
+/** Returns the nearest unit from this pos in given group. Given group is cleared but not destroyed. */
 public function vec2.getNearestUnit(group validUnits) returns unit
 	return this.getNearestUnit(validUnits, null)
-/** Returns the nearest unit from given pos in given max range of given player. */
+/** Returns the nearest unit from this pos in given max range of given player. */
 public function vec2.getNearestUnit(real maxRange, boolexpr filter, player owner) returns unit
 	// Filter out invalid units in range:
 	ENUM_GROUP.enumUnitsInRange(this, maxRange, filter)
 	// Find nearest unit:
 	return this.getNearestUnit(ENUM_GROUP, owner)
-/** Returns the nearest unit from given pos in given max range. */
+/** Returns the nearest unit from this pos in given max range. */
 public function vec2.getNearestUnit(real maxRange, boolexpr filter) returns unit
 	return this.getNearestUnit(maxRange, filter, null)
+
+/** Returns the nearest destructable from this pos in given list.*/
+public function vec2.getNearestDestructable(LinkedList<destructable> validDestructables) returns destructable
+	// Set init values:
+	var bestDistanceSq = REAL_MAX
+	destructable nearestDest = null
+	// Find nearest destructable:
+	for target in validDestructables
+		let distanceSq = this.distanceToSq(target.getPos())
+		if distanceSq < bestDistanceSq
+			bestDistanceSq = distanceSq
+			nearestDest = target
+	return nearestDest
 
 /** Issues unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
 public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns bool

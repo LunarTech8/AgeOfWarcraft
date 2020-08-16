@@ -21,6 +21,7 @@ import InstantDummyCaster
 import DummyRecycler
 import Icons
 import UtilityFunctions
+import Entity
 import MultiboardPrioritySystem
 import UnitMap
 
@@ -246,6 +247,22 @@ public function unit.setOrder(int orderId, vec2 target)
 /** Sets the units order to the given order Id with given vector target and given order action. */
 public function unit.setOrder(int orderId, vec2 target, OrderAction orderAction)
 	this.setOrder(new OrderSourceV(this, orderId, target, orderAction))
+/** Sets the units order to the given order Id with given entity target. */
+public function unit.setOrder(int orderId, entity target)
+	if target.userUnit != null
+		this.setOrder(new OrderSourceU(this, orderId, target.userUnit, null))
+	else if target.userDest != null
+		this.setOrder(new OrderSourceD(this, orderId, target.userDest, null))
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+/** Sets the units order to the given order Id with given entity target and given order action. */
+public function unit.setOrder(int orderId, entity target, OrderAction orderAction)
+	if target.userUnit != null
+		this.setOrder(new OrderSourceU(this, orderId, target.userUnit, orderAction))
+	else if target.userDest != null
+		this.setOrder(new OrderSourceD(this, orderId, target.userDest, orderAction))
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
 
 /** Returns if the unit has order with given parameters. */
 public function unit.isOrder(int orderId, unit target) returns bool

@@ -13,6 +13,7 @@ package AbilitySystem
 import RegisterEvents
 import ConstantDataSystem
 import UtilityFunctions
+import Entity
 import Stock
 import StorageSystem
 import BuildingSystem
@@ -111,7 +112,7 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 // --------------------
 
 /** Perform harvest and returns if another harvest with the given target is still valid. */
-function unit.harvest(unit target) returns bool
+function unit.harvest(entity target) returns bool
 	let storage = this.getStorage()
 	let resource = target.getResource()
 	// Work resource:
@@ -176,15 +177,16 @@ function unit.reactOnInvalidAbility(int abilityId, Validity val)
 	this.abortOrder()
 
 /** Returns the units validity for casting given ability on given target. */
-function unit.getAbilityValidity(int abilityId, unit target) returns Validity
+function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 	if abilityId == AbilityIdsCustom.transferWares
+		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
 		let sourceStorage = this.getStorage()
 		if sourceStorage == null
 			return Validity.INVALID_SOURCE
-		let targetStorage = target.getStorage()
-		let targetWorkshop = target.getWorkshop()
-		let targetBuildingSite = target.getBuildingSite()
+		let targetStorage = targetUnit.getStorage()
+		let targetWorkshop = targetUnit.getWorkshop()
+		let targetBuildingSite = targetUnit.getBuildingSite()
 		if targetStorage == null and targetWorkshop == null and targetBuildingSite == null
 			return Validity.INVALID_TARGET
 		// Check target type specific validities:
@@ -210,10 +212,11 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 			if hasAnyEducts == false and targetWorkshop.getStoredProducts() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.build
+		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
-		if target.getUnitId().isValidWorkerType(this.getUnitId()) == false
+		if targetUnit.getUnitId().isValidWorkerType(this.getUnitId()) == false
 			return Validity.INVALID_SOURCE
-		let buildingSite = target.getBuildingSite()
+		let buildingSite = targetUnit.getBuildingSite()
 		if buildingSite == null
 			return Validity.INVALID_TARGET
 		// Check if required wares are available:
@@ -238,14 +241,15 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 		else if resource.getFreeWorkerSlots() <= 0
 			return Validity.NO_FREE_WORK_SLOT
 	else if abilityId == AbilityIdsCustom.enterBuilding
+		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
-		let targetWorkshop = target.getWorkshop()
+		let targetWorkshop = targetUnit.getWorkshop()
 		if targetWorkshop == null
 			return Validity.INVALID_TARGET
 		if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
 			return Validity.INVALID_SOURCE
 		// Check if target has free work slot:
-		if targetWorkshop.getWorkerCount() >= getMaxWorkers(target.getUnitId())
+		if targetWorkshop.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
 			return Validity.NO_FREE_WORK_SLOT
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
@@ -269,14 +273,14 @@ function unit.getAbilityValidity(int abilityId, unit target) returns Validity
 	return Validity.VALID
 
 /** Returns if casting given ability by the unit on given target is valid. */
-public function unit.isAbilityValid(int abilityId, unit target) returns bool
+public function unit.isAbilityValid(int abilityId, entity target) returns bool
 	return this.getAbilityValidity(abilityId, target) == Validity.VALID
 
 init
 	// Register abilities being cast:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
 		let source = GetTriggerUnit()
-		let target = GetSpellTargetUnit()
+		let target = entity(GetSpellTargetUnit(), GetSpellTargetDestructable())
 		let abilityId = GetSpellAbilityId()
 		let sourceUnitId = source.getUnitId()
 		if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
@@ -292,10 +296,10 @@ init
 				switch abilityId
 					case AbilityIdsCustom.transferWares
 						// Transfer wares from source to target:
-						source.transferWares(target)
+						source.transferWares(target.assertUnit())
 					case AbilityIdsCustom.build
 						// Add worker to building site:
-						let targetBuildingSite = target.getBuildingSite()
+						let targetBuildingSite = target.assertUnit().getBuildingSite()
 						CallbackSimple invalidateCb = () ->
 							doAfter(MIN_TRIGGER_SLEEP_TIME, () -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true))
 						CallbackSimple cancelCb = () ->
@@ -306,20 +310,20 @@ init
 						// Perform harvest after ability is finished:
 						let targetResource = target.getResource()
 						CallbackSimple invalidateCb = () ->
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)
+							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource().getWidget(), true)
 						CallbackSimple cancelCb = () ->
 							targetResource.removeWorker()
 						CallbackSimple finishCb = () ->
 							targetResource.removeWorker()
 							if source.harvest(target)
-								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target, true)  // Auto-recast on same target
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)  // Auto-recast on same target
 							else
-								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true)  // Find and auto-recast on new target
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource().getWidget(), true)  // Find and auto-recast on new target
 						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
 						// Transfer educts and add source to target workshop as worker:
-						let targetWorkshop = target.getWorkshop()
+						let targetWorkshop = target.assertUnit().getWorkshop()
 						targetWorkshop.transferWares(source.getStorage(), false)
 						targetWorkshop.addWorker(source)
 					case AbilityIdsCustom.removeWorker
@@ -337,18 +341,17 @@ init
 		// Check for custom ability:
 		let orderName = issuedOrderId.getOrderName(source, true)
 		if orderName != null
-			let target = GetOrderTargetUnit()
-			if target != null
-				// Override registered order in OrderSystem to add fitting OrderAction and target handling (works because through the dependency this function is called afterwards):
-				let abilityId = orderName.getOrderNameAbility()
-				let val = source.getAbilityValidity(abilityId, target)
-				if val == Validity.VALID
-					switch orderName
-						case "harvest"
-							let targetResource = target.getResource()
-							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource(), true), () -> targetResource.removeWorker()))
-							targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
-						case "build"
-							source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true), null))
-				else if val != Validity.UNREGISTERED
-					source.reactOnInvalidAbility(abilityId, val)
+			// Override registered order in OrderSystem to add fitting OrderAction and target handling (works because through the dependency this function is called afterwards):
+			let abilityId = orderName.getOrderNameAbility()
+			let target = entity(GetOrderTargetUnit(), GetOrderTargetDestructable())
+			let val = source.getAbilityValidity(abilityId, target)
+			if val == Validity.VALID
+				switch orderName
+					case "harvest"
+						let targetResource = target.getResource()
+						source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource().getWidget(), true), () -> targetResource.removeWorker()))
+						targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
+					case "build"
+						source.setOrder(issuedOrderId, target.assertUnit(), new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true), null))
+			else if val != Validity.UNREGISTERED
+				source.reactOnInvalidAbility(abilityId, val)

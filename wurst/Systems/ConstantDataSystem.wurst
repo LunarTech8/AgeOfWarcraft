@@ -105,6 +105,9 @@ public class UnitIdsCustom
 		static constant chestnut_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(61))
 		static constant chestnut_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(62))
 
+public class DestructableIds
+	static constant summerTreeWall = 'LTlt'
+
 public abstract class AbilityIdsCustom
 	static constant showTargetInfo = compiletime(OFFSET_ABIL_ID_GEN.getId(0))
 	static constant harvest = compiletime(OFFSET_ABIL_ID_GEN.getId(1))

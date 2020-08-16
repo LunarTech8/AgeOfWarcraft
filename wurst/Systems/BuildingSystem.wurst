@@ -187,6 +187,7 @@ let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>(null)
 let WORKER_MAP = new UnitHashMap<BuildingSite>(null)
 
 class BuildingSite extends Stock
+	private unit user
 	private real fullHP
 	private int workerCount
 	private real workProgressCurrent
@@ -203,6 +204,9 @@ class BuildingSite extends Stock
 		workProgressFinished = getRequiredWorkPower(building.getUnitId())
 		workPower = 0.
 		upgradeProgress = 1
+
+	function getUnit() returns unit
+		return user
 
 	function getWorkerCount() returns int
 		return workerCount
@@ -443,7 +447,7 @@ public function testBuildingSystem_Build()
 		WORKER_MAP.has(unitA).assertTrue(testName)
 		let a = unitA.getBuildingSiteOfWorker()
 		assertNotNull(testName, a)
-		testBuildingSystem_Build_building = a.user
+		testBuildingSystem_Build_building = a.getUnit()
 		assertNotNull(testName, testBuildingSystem_Build_building)
 		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), a)
 		assertEquals(testName, unitA.findNextBuildingSite(), testBuildingSystem_Build_building)

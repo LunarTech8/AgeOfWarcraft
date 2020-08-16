@@ -14,6 +14,7 @@ import RegisterEvents
 import Orders
 import ConstantDataSystem
 import UtilityFunctions
+import Entity
 import AbilitySystem
 import LinkedList
 
@@ -38,15 +39,15 @@ function getSmartUsedAbilityIds() returns LinkedList<int>
 
 let SMART_USED_ABILITY_IDS = getSmartUsedAbilityIds()
 
-function unit.searchForValidAbility(unit target, LinkedList<int> abilityIds)
+function unit.searchForValidAbility(entity target, LinkedList<int> abilityIds)
 	for abilityId in abilityIds
 		if this.isAbilityValid(abilityId, target)
 			// Issue found valid ability order and end search:
-			this.issueTargetAbilityOrder(abilityId, target, true)
+			this.issueTargetAbilityOrder(abilityId, target.getWidget(), true)
 			return
 
 init
 	// Register issued orders:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER) ->
 		if GetIssuedOrderId() == OrderIds.smart
-			GetTriggerUnit().searchForValidAbility(GetOrderTargetUnit(), SMART_USED_ABILITY_IDS)
+			GetTriggerUnit().searchForValidAbility(entity(GetOrderTargetUnit(), GetOrderTargetDestructable()), SMART_USED_ABILITY_IDS)

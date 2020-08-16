@@ -1,5 +1,6 @@
 package Command_UnitTests
 import UnitMap
+import Entity
 import Stock
 import StorageSystem
 import BuildingSystem
@@ -20,9 +21,12 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	print("-------- Unit tests (6):")
+	print("-------- Unit tests (8):")
 	// UnitMap:
+	testEntity_CreateAndIndex(true)
 	testUnitHashMap_AddAndRemove(true)
+	// EntityMap:
+	testEntity_HashMapAddAndRemove(true)
 	// StockSystem:
 	testStockSystem_AddAndRemove(true)
 	// StorageSystem:

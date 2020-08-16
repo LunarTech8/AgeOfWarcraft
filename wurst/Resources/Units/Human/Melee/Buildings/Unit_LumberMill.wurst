@@ -7,7 +7,7 @@ import BuildingPreset
 // --------------------
 
 public class UnitData_LumberMill
-    static constant scalingValue = 0.8
+    static constant scalingValue = 0.65
 
 @compiletime function genObj()
     new BuildingPreset(UnitIdsCustom.Melee.lumberMill, UnitIds.humanlumbermill)

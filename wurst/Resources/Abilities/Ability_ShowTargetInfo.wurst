@@ -25,7 +25,7 @@ import AbilityPresetFunctions
     ..setLevels(1)
     ..presetManaCost(0)
     ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.air)
+    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.air, TargetsAllowed.tree)
     // Text:
     ..setHotkeyNormal("S")
     ..presetNameAndTooltips("Show Target Info", "Get informations about the target.")

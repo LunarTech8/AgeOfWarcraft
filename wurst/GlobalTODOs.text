@@ -19,15 +19,10 @@ Work status:
 // -------------
 // Worklog:
 // -------------
-
-!!>>- Implement harvesting of destructables
-	- Handle destructable deaths (by attacks)
-	- Make trees smart orderable by peasants (maybe requires default harvest ability)
-	- Problem if auto target is not reachable (eg. because of cliff)
+!!!>- Fix bug: "when multiple workers work on same resource targetResource is already invalid for some"
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 		- Implement unit tests for PersonSystem
-!- Implement information display of destructables in ObjectInfoSystem or remove if not used/needed
 
 
 // -------------
@@ -38,6 +33,7 @@ Work status:
 !!- Building buff graphics isn't visible (buff is added correctly)
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
 !!- Reorder ability positions (e.g. for peasant)
+!!- Create a hero option unit for ShowTargetInfo and other globals abilities
 !- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !- Add a description comment (/** */) to every public class and function
 !- Try to improve smart order reaction when harvesting (no overwriting by auto harvest)

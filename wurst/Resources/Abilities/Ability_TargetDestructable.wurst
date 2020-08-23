@@ -1,0 +1,20 @@
+package Ability_TargetDestructable
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new AbilityDefinitionHarvest(AbilityIdsCustom.targetDestructable)
+    // Art:
+    ..setIconNormal(Icons.bTNReturnGoods)
+    ..setIconTurnOff("")
+    // Stats:
+    ..presetCastRange(1.)
+    ..setRace(Race.Other)
+    // Text:
+    ..setHotkeyNormal("")
+    ..setHotkeyTurnOff("")
+    ..presetNameAndTooltips("Target destructable", "")

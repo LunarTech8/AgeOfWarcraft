@@ -30,6 +30,7 @@ function getSmartUsedAbilityIds() returns LinkedList<int>
 	abilityIds.add(AbilityIdsCustom.build)
 	abilityIds.add(AbilityIdsCustom.enterBuilding)
 	abilityIds.add(AbilityIdsCustom.transferWares)
+	abilityIds.add(AbilityIdsCustom.targetDestructable)
 	return abilityIds
 
 

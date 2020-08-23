@@ -72,6 +72,15 @@ public function entity.getWidget() returns widget
 		Log.error("ERROR: Unit and destructable of entity are null")
 		return null
 
+public function entity.getPos() returns vec2
+	if this.userUnit != null
+		return this.userUnit.getPos()
+	else if this.userDest != null
+		return this.userDest.getPos()
+	else
+		Log.error("ERROR: Unit and destructable of entity are null")
+		return vec2(0, 0)
+
 public function entity.assertUnit() returns unit
 	if this.userUnit == null
 		Log.error("ERROR: Asserted unit of entity is null")

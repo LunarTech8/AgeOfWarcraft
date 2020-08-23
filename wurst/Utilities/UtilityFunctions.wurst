@@ -46,7 +46,7 @@ function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	map.put(UnitIdsCustom.Trees.chestnut_Var2, UnitIdsCustom.Trees.chestnut)
 	return map
 
-/** Returns the unit type id of a random variation of given base unit id. Required for unit creation. */
+/** Returns the unit type id of a random variation of this base unit id. Required for unit creation. */
 public function int.getUnitTypeId() returns int
 	switch this
 		case UnitIdsCustom.Trees.beech
@@ -59,7 +59,7 @@ public function int.getUnitTypeId() returns int
 			return getRandomInputInt(UnitIdsCustom.Trees.chestnut_Var1, UnitIdsCustom.Trees.chestnut_Var2)
 	return this
 
-/** Returns the order needed to cast the given ability id. */
+/** Returns the order needed to cast this ability id. */
 public function int.getAbilityOrder() returns string
 	switch this
 		case AbilityIdsCustom.harvest
@@ -74,11 +74,13 @@ public function int.getAbilityOrder() returns string
 			return "innerfire"
 		case AbilityIdsCustom.enterBuilding
 			return "innerfire"
+		case AbilityIdsCustom.targetDestructable
+			return "harvest"
 		default
 			Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
 			return null
 
-/** Returns the ability id used for the given order name. */
+/** Returns the ability id used for this order name. */
 public function string.getOrderNameAbility() returns int
 	switch this
 		case "harvest"
@@ -93,11 +95,13 @@ public function string.getOrderNameAbility() returns int
 			return AbilityIdsCustom.addBuildingBuff
 		case "enter building"
 			return AbilityIdsCustom.enterBuilding
+		case "target destructable"
+			return AbilityIdsCustom.targetDestructable
 		default
 			Log.error("ERROR: Unmapped order (" + this + ")")
 			return 0
 
-/** Returns the order name of the given order or ability id. */
+/** Returns the order name of this order or ability id. */
 public function int.getOrderName() returns string
 	switch this
 		case OrderIds.smart
@@ -136,11 +140,13 @@ public function int.getOrderName() returns string
 			return "add building buff"
 		case AbilityIdsCustom.enterBuilding
 			return "enter building"
+		case AbilityIdsCustom.targetDestructable
+			return "target destructable"
 		default
 			if this < 2013265920  // Ignore unit ids
 				Log.error("ERROR: Unmapped order/ability id (" + this.toString() + ")")
 			return null
-/** Returns the order name of the given order id of the given unit. Returns null if onlyCustomAbilities is given and order doesn't fit to a custom ability of the given unit. */
+/** Returns the order name of this order id of the given unit. Returns null if onlyCustomAbilities is given and order doesn't fit to a custom ability of the given unit. */
 public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) returns string
 	switch this
 		case OrderIds.thunderbolt
@@ -159,6 +165,9 @@ public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) ret
 				return "add building buff"
 			else if orderedUnit.hasAbility(AbilityIdsCustom.enterBuilding)
 				return "enter building"
+		case OrderIds.harvest
+			if orderedUnit.hasAbility(AbilityIdsCustom.targetDestructable)
+				return "target destructable"
 		default
 			if onlyCustomAbilities
 				return null
@@ -166,7 +175,7 @@ public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) ret
 				return this.getOrderName()
 	Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
 	return null
-/** Returns the order name of the given order id of the given unit. */
+/** Returns the order name of this order id of the given unit. */
 public function int.getOrderName(unit orderedUnit) returns string
 	return this.getOrderName(orderedUnit, false)
 
@@ -176,14 +185,14 @@ public function int.getOrderName(unit orderedUnit) returns string
 
 let BASE_UNIT_TYPE_ID_MAP = initBaseUnitTypeIdMap()
 
-/** Returns the base unit id of given unit. Required for data evaluation. */
+/** Returns the base unit id of this unit. Required for data evaluation. */
 public function unit.getUnitId() returns int
 	let id = GetUnitTypeId(this)
 	if BASE_UNIT_TYPE_ID_MAP.has(id)
 		return BASE_UNIT_TYPE_ID_MAP.get(id)
 	return id
 
-/** Returns the nearest unit from this pos in given group of given player. Given group is cleared but not destroyed. */
+/** Returns the nearest unit from this vector in given group of given player. Given group is cleared but not destroyed. */
 public function vec2.getNearestUnit(group validUnits, player owner) returns unit
 	// Set init values:
 	var bestDistanceSq = REAL_MAX
@@ -196,20 +205,20 @@ public function vec2.getNearestUnit(group validUnits, player owner) returns unit
 				bestDistanceSq = distanceSq
 				nearestUnit = target
 	return nearestUnit
-/** Returns the nearest unit from this pos in given group. Given group is cleared but not destroyed. */
+/** Returns the nearest unit from this vector in given group. Given group is cleared but not destroyed. */
 public function vec2.getNearestUnit(group validUnits) returns unit
 	return this.getNearestUnit(validUnits, null)
-/** Returns the nearest unit from this pos in given max range of given player. */
+/** Returns the nearest unit from this vector in given max range of given player. */
 public function vec2.getNearestUnit(real maxRange, boolexpr filter, player owner) returns unit
 	// Filter out invalid units in range:
 	ENUM_GROUP.enumUnitsInRange(this, maxRange, filter)
 	// Find nearest unit:
 	return this.getNearestUnit(ENUM_GROUP, owner)
-/** Returns the nearest unit from this pos in given max range. */
+/** Returns the nearest unit from this vector in given max range. */
 public function vec2.getNearestUnit(real maxRange, boolexpr filter) returns unit
 	return this.getNearestUnit(maxRange, filter, null)
 
-/** Returns the nearest destructable from this pos in given list.*/
+/** Returns the nearest destructable from this vector in given list.*/
 public function vec2.getNearestDestructable(LinkedList<destructable> validDestructables) returns destructable
 	// Set init values:
 	var bestDistanceSq = REAL_MAX
@@ -222,14 +231,14 @@ public function vec2.getNearestDestructable(LinkedList<destructable> validDestru
 			nearestDest = target
 	return nearestDest
 
-/** Issues unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
+/** Issues this unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
 public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns bool
 	if resetAbility
 		this.removeAbility(abilityId)
 		this.addAbility(abilityId)
 	return this.issueTargetOrder(abilityId.getAbilityOrder(), target)
 
-/** Replaces unit with a new unit of given type. */
+/** Replaces this unit with a new unit of given type. */
 public function unit.replace(int unitTypeId) returns unit
 	this.hide()
 	let newUnit = createUnit(this.getOwner(), unitTypeId, this.getPos(), this.getFacingAngle())
@@ -288,7 +297,7 @@ public function getRandomSign() returns int
 	else
 		return 1
 
-/** Throws an exception if the absolute of the given value is smaller than epsilon, else returns the value. */
+/** Throws an exception if the absolute of this value is smaller than epsilon, else returns the value. */
 public function real.divByZeroProt(real epsilon) returns real
 	if this.abs() <= epsilon
 		Log.error("Invalid divisor value (" + this.toString() + ")")

@@ -104,6 +104,12 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "No workers left to remove"
 				default
 					return null
+		case AbilityIdsCustom.targetDestructable
+			switch val
+				case INVALID_TARGET
+					return "Target is no destructable"
+				default
+					return null
 	return null
 
 
@@ -179,6 +185,8 @@ function unit.reactOnInvalidAbility(int abilityId, Validity val)
 /** Returns the units validity for casting given ability on given target. */
 function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 	if abilityId == AbilityIdsCustom.transferWares
+		if target.userUnit == null
+			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
 		let sourceStorage = this.getStorage()
@@ -212,6 +220,8 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if hasAnyEducts == false and targetWorkshop.getStoredProducts() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.build
+		if target.userUnit == null
+			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
 		if targetUnit.getUnitId().isValidWorkerType(this.getUnitId()) == false
@@ -241,6 +251,8 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		else if resource.getFreeWorkerSlots() <= 0
 			return Validity.NO_FREE_WORK_SLOT
 	else if abilityId == AbilityIdsCustom.enterBuilding
+		if target.userUnit == null
+			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
 		let targetWorkshop = targetUnit.getWorkshop()
@@ -266,6 +278,10 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		if sourceWorkshop == null
 			Log.error("ERROR: Casting building is no workshop (" + this.getName() + ")")
 			return Validity.ERROR
+	else if abilityId == AbilityIdsCustom.targetDestructable
+		// Check if target is valid:
+		if target.userDest == null or target.userUnit != null
+			return Validity.INVALID_TARGET
 	else
 		// Unregistered abilityId:
 		return Validity.UNREGISTERED
@@ -301,7 +317,10 @@ init
 						// Add worker to building site:
 						let targetBuildingSite = target.assertUnit().getBuildingSite()
 						CallbackSimple invalidateCb = () ->
-							doAfter(MIN_TRIGGER_SLEEP_TIME, () -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true))
+							doAfter(MIN_TRIGGER_SLEEP_TIME) ->
+								let nextBuildingSite = source.findNextBuildingSite()
+								if nextBuildingSite != null
+									source.issueTargetAbilityOrder(AbilityIdsCustom.build, nextBuildingSite, true)
 						CallbackSimple cancelCb = () ->
 							targetBuildingSite.removeWorker(source)
 						source.setOrder(AbilityIdsCustom.build, target, new OrderAction(invalidateCb, cancelCb))
@@ -310,15 +329,27 @@ init
 						// Perform harvest after ability is finished:
 						let targetResource = target.getResource()
 						CallbackSimple invalidateCb = () ->
-							source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource().getWidget(), true)
+							var nextResource = source.findNextResource()  // Look for new resource in range of worker
+							if nextResource.isEmpty()
+								nextResource = source.findNextResource(target.getPos())  // Look for new resource in range of last target
+							if nextResource.isEmpty() == false
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
+							else
+								printTimedToPlayer("Warning: Worker has no resource in range anymore", INFO_MSG_TIME, source.getOwner())
+								source.abortOrder()
 						CallbackSimple cancelCb = () ->
 							targetResource.removeWorker()
 						CallbackSimple finishCb = () ->
-							targetResource.removeWorker()
+							targetResource.removeWorker()  // FIXME: when multiple workers work on same resource targetResource is already invalid for some
 							if source.harvest(target)
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)  // Auto-recast on same target
 							else
-								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource().getWidget(), true)  // Find and auto-recast on new target
+								let nextResource = source.findNextResource()
+								if nextResource.isEmpty() == false
+									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)  // Auto-recast on new target
+								else
+									printTimedToPlayer("Warning: Worker has no resource in range anymore", INFO_MSG_TIME, source.getOwner())
+									source.abortOrder()
 						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
@@ -332,6 +363,8 @@ init
 					case AbilityIdsCustom.changeProduct
 						// Cancel current production and change it to the next variant:
 						source.getWorkshop().changeProduct()
+					default
+						Log.error("ERROR: Unmapped ability (" + abilityId.getOrderName() + ")")
 			else if val != Validity.UNREGISTERED
 				source.reactOnInvalidAbility(abilityId, val)
 	// Register issued ability orders:
@@ -344,14 +377,40 @@ init
 			// Override registered order in OrderSystem to add fitting OrderAction and target handling (works because through the dependency this function is called afterwards):
 			let abilityId = orderName.getOrderNameAbility()
 			let target = entity(GetOrderTargetUnit(), GetOrderTargetDestructable())
-			let val = source.getAbilityValidity(abilityId, target)
+			var val = source.getAbilityValidity(abilityId, target)
 			if val == Validity.VALID
 				switch orderName
 					case "harvest"
 						let targetResource = target.getResource()
-						source.setOrder(issuedOrderId, target, new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, source.findNextResource().getWidget(), true), () -> targetResource.removeWorker()))
+						CallbackSimple invalidateCb = () ->
+							let nextResource = source.findNextResource()
+							if nextResource.isEmpty() == false
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
+						CallbackSimple cancelCb = () ->
+							targetResource.removeWorker()
+						source.setOrder(issuedOrderId, target, new OrderAction(invalidateCb, cancelCb))
 						targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
 					case "build"
-						source.setOrder(issuedOrderId, target.assertUnit(), new OrderAction(() -> source.issueTargetAbilityOrder(AbilityIdsCustom.build, source.findNextBuildingSite(), true), null))
+						CallbackSimple invalidateCb = () ->
+							let nextBuildingSite = source.findNextBuildingSite()
+							if nextBuildingSite != null
+								source.issueTargetAbilityOrder(AbilityIdsCustom.build, nextBuildingSite, true)
+						source.setOrder(issuedOrderId, target.assertUnit(), new OrderAction(invalidateCb, null))
+					case "target destructable"
+						if source.hasAbility(AbilityIdsCustom.harvest)
+							val = source.getAbilityValidity(AbilityIdsCustom.harvest, target)
+							if val == Validity.VALID
+								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)
+							else if val == Validity.NO_FREE_WORK_SLOT
+								let nextResource = source.findNextResource(target.getPos())
+								if nextResource.isEmpty() == false
+									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
+								else
+									printTimedToPlayer("Invalid: No free resource in range", INFO_MSG_TIME, source.getOwner())
+									source.abortOrder()
+							else
+								source.reactOnInvalidAbility(AbilityIdsCustom.harvest, val)
+						else
+							source.issueTargetOrder("attack", target.getWidget())
 			else if val != Validity.UNREGISTERED
 				source.reactOnInvalidAbility(abilityId, val)

@@ -199,16 +199,16 @@ class OrderSourceV extends OrderSource
 		this.target = target
 
 
-function unit.getFinishConditionNoMovement() returns CallbackCondition
+function unit.getConditionNoMovement() returns CallbackCondition
 	var _lastPos = this.getPos()
-	CallbackCondition finishCondition = () ->
+	CallbackCondition condition = () ->
 		let newPos = this.getPos()
 		var noMomvement = true
 		if newPos.distanceToSq(_lastPos) > POS_TOLERANCE_RANGE
 			_lastPos = newPos
 			noMomvement = false
 		return noMomvement
-	return finishCondition
+	return condition
 
 function unit.setOrder(OrderSource order)
 	// Remove old order:
@@ -325,13 +325,13 @@ init
 				let sourceUnitId = source.getUnitId()
 				if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
 					if targetU.isType(UNIT_TYPE_STRUCTURE) and issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getFinishConditionNoMovement())
+						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 					source.setOrder(issuedOrderId, targetU, orderAction)
 			else
 				let targetD = GetOrderTargetDestructable()
 				if targetD != null
 					if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getFinishConditionNoMovement())
+						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 					source.setOrder(issuedOrderId, targetD, orderAction)
 				else
 					let targetI = GetOrderTargetItem()
@@ -352,5 +352,5 @@ init
 		let targetPos = vec2(GetOrderPointX(), GetOrderPointY())
 		OrderAction orderAction = null
 		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attack
-			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getFinishConditionNoMovement())
+			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 		source.setOrder(issuedOrderId, targetPos, orderAction)

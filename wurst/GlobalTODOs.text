@@ -19,7 +19,6 @@ Work status:
 // -------------
 // Worklog:
 // -------------
-!!!>- Fix bug: "when multiple workers work on same resource targetResource is already invalid for some"
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 		- Implement unit tests for PersonSystem

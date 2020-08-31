@@ -1,0 +1,4 @@
+package Printing_config
+
+
+@config var DEBUG_LEVEL = Loglevel.TRACE

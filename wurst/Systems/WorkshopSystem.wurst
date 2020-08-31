@@ -327,7 +327,7 @@ public function testWorkshopSystem_Workers()
 	let testName = setTestName("testWorkshopSystem_Workers", true)
 	let testCentre = vec2(0., -384.)
 	// Remove units blocking the building:
-	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
 	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
@@ -378,7 +378,7 @@ public function testWorkshopSystem_Production()
 	let testName = setTestName("testWorkshopSystem_Production", true)
 	let testCentre = vec2(384., 0.)
 	// Remove units blocking the building:
-	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
 	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()

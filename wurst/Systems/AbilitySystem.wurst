@@ -120,7 +120,7 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 /** Perform harvest and returns if another harvest with the given target is still valid. */
 function unit.harvest(entity target) returns bool
 	let storage = this.getStorage()
-	let resource = target.getResource()
+	let resource = target.getResource(true)
 	// Work resource:
 	let wares = resource.harvest(this.getUnitId())
 	if wares != null
@@ -240,7 +240,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		let storage = this.getStorage()
 		if storage == null
 			return Validity.INVALID_SOURCE
-		let resource = target.getResource()
+		let resource = target.getResource(false)
 		if resource == null
 			return Validity.INVALID_TARGET
 		// Check if wares can be harvested:
@@ -327,7 +327,7 @@ init
 						targetBuildingSite.addWorker(source)
 					case AbilityIdsCustom.harvest
 						// Perform harvest after ability is finished:
-						let targetResource = target.getResource()
+						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
 							var nextResource = source.findNextResource()  // Look for new resource in range of worker
 							if nextResource.isEmpty()
@@ -340,7 +340,7 @@ init
 						CallbackSimple cancelCb = () ->
 							targetResource.removeWorker()
 						CallbackSimple finishCb = () ->
-							targetResource.removeWorker()  // FIXME: when multiple workers work on same resource targetResource is already invalid for some
+							targetResource.removeWorker()
 							if source.harvest(target)
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)  // Auto-recast on same target
 							else
@@ -381,7 +381,7 @@ init
 			if val == Validity.VALID
 				switch orderName
 					case "harvest"
-						let targetResource = target.getResource()
+						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
 							let nextResource = source.findNextResource()
 							if nextResource.isEmpty() == false

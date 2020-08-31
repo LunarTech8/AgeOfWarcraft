@@ -105,7 +105,7 @@ function deactivateDataset(int playerID)
 /** Checks if targeted object of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
 function createMultiboardLines(int playerID) returns bool
 	var hasInfo = false
-	let resource = datasets[playerID].target.getResource()
+	let resource = datasets[playerID].target.getResource(false)
 	if resource != null
 		hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource) or hasInfo
 	if datasets[playerID].target.userUnit != null

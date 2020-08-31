@@ -17,6 +17,7 @@ import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
 import StorageSystem
+import OrderSystem
 import Entity
 import UnitIndexer
 import LinkedList
@@ -205,7 +206,7 @@ int findNextResource_Priority
 constant group findNextResource_ValidPriorityUnits = CreateGroup()
 constant LinkedList<destructable> findNextResource_ValidDestructables = new LinkedList<destructable>()
 function findNextResource_CheckValidity(entity filterEntity) returns bool
-	let resource = filterEntity.getResource()
+	let resource = filterEntity.getResource(false)
 	let priority = getHarvestPriority(filterEntity.getTypeId())
 	// Only allow resources that have wares left, free worker slots and a high enough priority:
 	if resource != null and resource.isEmpty() == false and resource.getFreeWorkerSlots() > 0 and priority >= findNextResource_Priority
@@ -250,8 +251,11 @@ public function unit.findNextResource() returns entity
 	return this.findNextResource(this.getPos())
 
 /** Returns the resource of given entity. */
-public function entity.getResource() returns Resource
-	return RESOURCE_MAP.tryGet(this)
+public function entity.getResource(bool assertNotNull) returns Resource
+	if assertNotNull
+		return RESOURCE_MAP.get(this)
+	else
+		return RESOURCE_MAP.tryGet(this)
 
 /** Returns the count of all resources. */
 public function getResourceCount() returns int
@@ -278,6 +282,8 @@ init
 		let enumDestructable = GetEnumDestructable()
 		entity(null, enumDestructable).addResource()
 		DESTRUCTABLE_DEATH_TRIGGER.registerDeathEvent(enumDestructable)
-	// Remove resource from every killed destructable:
+	// Remove resource and target order from every killed destructable:
 	DESTRUCTABLE_DEATH_TRIGGER.addAction() ->
-		entity(null, GetDyingDestructable()).removeResource()
+		let dyingEntity = entity(null, GetDyingDestructable())
+		dyingEntity.removeTargetOrder()
+		dyingEntity.removeResource()

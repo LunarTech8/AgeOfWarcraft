@@ -40,7 +40,7 @@ let POS_CHECK_RATE = 1.
 // --------------------
 
 let ORDER_SOURCE_MAP = new UnitHashMap<OrderSource>(null)
-let ORDER_TARGET_MAP = new UnitHashMap<OrderTarget>(null)
+let ORDER_TARGET_MAP = new EntityHashMap<OrderTarget>(null)
 
 public interface CallbackSimple
 	function call()
@@ -49,10 +49,10 @@ public interface CallbackCondition
 	function call() returns bool
 
 class OrderTarget
-	private unit target
+	private entity target
 	private LinkedList<OrderSource> sources
 
-	construct(unit target, OrderSource source)
+	construct(entity target, OrderSource source)
 		sources = new LinkedList<OrderSource>()
 		sources.add(source)
 		this.target = target
@@ -166,14 +166,15 @@ class OrderSourceU extends OrderSource
 	construct(unit source, int orderId, unit target, OrderAction orderAction)
 		super(source, orderId, orderAction)
 		this.target = target
-		let orderTarget = ORDER_TARGET_MAP.tryGet(target)
+		let targetEntity = entity(target, null)
+		let orderTarget = ORDER_TARGET_MAP.tryGet(targetEntity)
 		if orderTarget != null
 			orderTarget.addSource(this)
 		else
-			ORDER_TARGET_MAP.put(target, new OrderTarget(target, this))
+			ORDER_TARGET_MAP.put(targetEntity, new OrderTarget(targetEntity, this))
 
 	ondestroy
-		let orderTarget = ORDER_TARGET_MAP.tryGet(target)
+		let orderTarget = ORDER_TARGET_MAP.tryGet(entity(target, null))
 		if orderTarget != null
 			orderTarget.removeSource(this)
 
@@ -183,6 +184,18 @@ class OrderSourceD extends OrderSource
 	construct(unit source, int orderId, destructable target, OrderAction orderAction)
 		super(source, orderId, orderAction)
 		this.target = target
+		let targetEntity = entity(null, target)
+		let orderTarget = ORDER_TARGET_MAP.tryGet(targetEntity)
+		if orderTarget != null
+			orderTarget.addSource(this)
+		else
+			ORDER_TARGET_MAP.put(targetEntity, new OrderTarget(targetEntity, this))
+
+	ondestroy
+		let orderTarget = ORDER_TARGET_MAP.tryGet(entity(null, target))
+		if orderTarget != null
+			orderTarget.removeSource(this)
+
 
 class OrderSourceI extends OrderSource
 	protected item target
@@ -278,12 +291,18 @@ public function unit.removeSourceOrder()
 	if orderSource != null
 		destroy orderSource
 
+/** Clear entity as order target. */
+public function entity.removeTargetOrder()
+	let orderTarget = ORDER_TARGET_MAP.tryRemove(this)
+	if orderTarget != null
+		destroy orderTarget
+
 /** Clear unit as order source and target. */
 public function unit.removeAllOrders()
 	let orderSource = ORDER_SOURCE_MAP.tryRemove(this)
 	if orderSource != null
 		destroy orderSource
-	let orderTarget = ORDER_TARGET_MAP.tryRemove(this)
+	let orderTarget = ORDER_TARGET_MAP.tryRemove(entity(this, null))
 	if orderTarget != null
 		destroy orderTarget
 

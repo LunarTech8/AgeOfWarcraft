@@ -19,7 +19,7 @@ import HashMap
 // Data code
 // --------------------
 
-public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 62
+public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 70
 public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 10
 public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
 
@@ -28,82 +28,96 @@ public class UnitIdsCustom
 	// Human
 	//--------------
 
-	public static class Melee
+	public static class AoW
 		// Buildings:
-		static constant townHall = compiletime(OFFSET_UNIT_ID_GEN.getId(14))
-		static constant keep = compiletime(OFFSET_UNIT_ID_GEN.getId(15))
-		static constant castle = compiletime(OFFSET_UNIT_ID_GEN.getId(16))
-		static constant farm = compiletime(OFFSET_UNIT_ID_GEN.getId(17))
-		static constant altarOfKings = compiletime(OFFSET_UNIT_ID_GEN.getId(18))
-		static constant barracks = compiletime(OFFSET_UNIT_ID_GEN.getId(19))
-		static constant lumberMill = compiletime(OFFSET_UNIT_ID_GEN.getId(20))
-		static constant blacksmith = compiletime(OFFSET_UNIT_ID_GEN.getId(21))
-		static constant workshop = compiletime(OFFSET_UNIT_ID_GEN.getId(22))
-		static constant arcaneSanctum = compiletime(OFFSET_UNIT_ID_GEN.getId(23))
-		static constant gryphonAviary = compiletime(OFFSET_UNIT_ID_GEN.getId(24))
-		static constant scoutTower = compiletime(OFFSET_UNIT_ID_GEN.getId(25))
-		static constant guardTower = compiletime(OFFSET_UNIT_ID_GEN.getId(26))
-		static constant cannonTower = compiletime(OFFSET_UNIT_ID_GEN.getId(27))
-		static constant arcaneTower = compiletime(OFFSET_UNIT_ID_GEN.getId(28))
-		static constant arcaneVault = compiletime(OFFSET_UNIT_ID_GEN.getId(29))
+		static constant townHall = compiletime(OFFSET_UNIT_ID_GEN.getId(66))
+		static constant farm = compiletime(OFFSET_UNIT_ID_GEN.getId(67))
+		static constant barracks = compiletime(OFFSET_UNIT_ID_GEN.getId(68))
+		static constant lumberMill = compiletime(OFFSET_UNIT_ID_GEN.getId(69))
+		static constant blacksmith = compiletime(OFFSET_UNIT_ID_GEN.getId(70))
 		// Creatures:
-		static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(0))
-		static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(1))
-		static constant knight = compiletime(OFFSET_UNIT_ID_GEN.getId(2))
-		static constant rifleman = compiletime(OFFSET_UNIT_ID_GEN.getId(3))
-		static constant mortarTeam = compiletime(OFFSET_UNIT_ID_GEN.getId(4))
-		static constant flyingMachine = compiletime(OFFSET_UNIT_ID_GEN.getId(5))
-		static constant gryphonRider = compiletime(OFFSET_UNIT_ID_GEN.getId(6))
-		static constant priest = compiletime(OFFSET_UNIT_ID_GEN.getId(7))
-		static constant sorceress = compiletime(OFFSET_UNIT_ID_GEN.getId(8))
-		static constant siegeEngine = compiletime(OFFSET_UNIT_ID_GEN.getId(9))
-		static constant spellBreaker = compiletime(OFFSET_UNIT_ID_GEN.getId(10))
-		static constant dragonhawkRider = compiletime(OFFSET_UNIT_ID_GEN.getId(11))
+		static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(64))
+		static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(65))
+		// Special:
+		static constant buildingGround = compiletime(OFFSET_UNIT_ID_GEN.getId(63))
 
-	public static class Custom
-		// Buildings:
-		static constant buildingGround = compiletime(OFFSET_UNIT_ID_GEN.getId(30))
-		static constant dimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(31))
-		static constant corruptedDimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(32))
-		static constant peasantHouseL1 = compiletime(OFFSET_UNIT_ID_GEN.getId(33))
-		static constant peasantHouseL2 = compiletime(OFFSET_UNIT_ID_GEN.getId(34))
-		static constant peasantHouseL3 = compiletime(OFFSET_UNIT_ID_GEN.getId(35))
-		static constant artisanHouseL1 = compiletime(OFFSET_UNIT_ID_GEN.getId(36))
-		static constant artisanHouseL2 = compiletime(OFFSET_UNIT_ID_GEN.getId(37))
-		static constant artisanHouseL3 = compiletime(OFFSET_UNIT_ID_GEN.getId(38))
-		static constant storehouse = compiletime(OFFSET_UNIT_ID_GEN.getId(39))
-		static constant lumbermill = compiletime(OFFSET_UNIT_ID_GEN.getId(40))
-		static constant hunterHut = compiletime(OFFSET_UNIT_ID_GEN.getId(41))
-		static constant quarryHut = compiletime(OFFSET_UNIT_ID_GEN.getId(42))
-		static constant fisherHut = compiletime(OFFSET_UNIT_ID_GEN.getId(43))
-		static constant foresterHut = compiletime(OFFSET_UNIT_ID_GEN.getId(44))
-		static constant shepherdHut = compiletime(OFFSET_UNIT_ID_GEN.getId(45))
-		// Creatures:
-		static constant elvenLady = compiletime(OFFSET_UNIT_ID_GEN.getId(12))
-		static constant peasantGirl = compiletime(OFFSET_UNIT_ID_GEN.getId(13))
+	// public static class Melee
+	// 	// Buildings:
+	// 	static constant townHall = compiletime(OFFSET_UNIT_ID_GEN.getId(14))
+	// 	static constant keep = compiletime(OFFSET_UNIT_ID_GEN.getId(15))
+	// 	static constant castle = compiletime(OFFSET_UNIT_ID_GEN.getId(16))
+	// 	static constant farm = compiletime(OFFSET_UNIT_ID_GEN.getId(17))
+	// 	static constant altarOfKings = compiletime(OFFSET_UNIT_ID_GEN.getId(18))
+	// 	static constant barracks = compiletime(OFFSET_UNIT_ID_GEN.getId(19))
+	// 	static constant lumberMill = compiletime(OFFSET_UNIT_ID_GEN.getId(20))
+	// 	static constant blacksmith = compiletime(OFFSET_UNIT_ID_GEN.getId(21))
+	// 	static constant workshop = compiletime(OFFSET_UNIT_ID_GEN.getId(22))
+	// 	static constant arcaneSanctum = compiletime(OFFSET_UNIT_ID_GEN.getId(23))
+	// 	static constant gryphonAviary = compiletime(OFFSET_UNIT_ID_GEN.getId(24))
+	// 	static constant scoutTower = compiletime(OFFSET_UNIT_ID_GEN.getId(25))
+	// 	static constant guardTower = compiletime(OFFSET_UNIT_ID_GEN.getId(26))
+	// 	static constant cannonTower = compiletime(OFFSET_UNIT_ID_GEN.getId(27))
+	// 	static constant arcaneTower = compiletime(OFFSET_UNIT_ID_GEN.getId(28))
+	// 	static constant arcaneVault = compiletime(OFFSET_UNIT_ID_GEN.getId(29))
+	// 	// Creatures:
+	// 	static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(0))
+	// 	static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(1))
+	// 	static constant knight = compiletime(OFFSET_UNIT_ID_GEN.getId(2))
+	// 	static constant rifleman = compiletime(OFFSET_UNIT_ID_GEN.getId(3))
+	// 	static constant mortarTeam = compiletime(OFFSET_UNIT_ID_GEN.getId(4))
+	// 	static constant flyingMachine = compiletime(OFFSET_UNIT_ID_GEN.getId(5))
+	// 	static constant gryphonRider = compiletime(OFFSET_UNIT_ID_GEN.getId(6))
+	// 	static constant priest = compiletime(OFFSET_UNIT_ID_GEN.getId(7))
+	// 	static constant sorceress = compiletime(OFFSET_UNIT_ID_GEN.getId(8))
+	// 	static constant siegeEngine = compiletime(OFFSET_UNIT_ID_GEN.getId(9))
+	// 	static constant spellBreaker = compiletime(OFFSET_UNIT_ID_GEN.getId(10))
+	// 	static constant dragonhawkRider = compiletime(OFFSET_UNIT_ID_GEN.getId(11))
+
+	// public static class Custom
+	// 	// Buildings:
+	// 	static constant dimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(31))
+	// 	static constant corruptedDimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(32))
+	// 	static constant peasantHouseL1 = compiletime(OFFSET_UNIT_ID_GEN.getId(33))
+	// 	static constant peasantHouseL2 = compiletime(OFFSET_UNIT_ID_GEN.getId(34))
+	// 	static constant peasantHouseL3 = compiletime(OFFSET_UNIT_ID_GEN.getId(35))
+	// 	static constant artisanHouseL1 = compiletime(OFFSET_UNIT_ID_GEN.getId(36))
+	// 	static constant artisanHouseL2 = compiletime(OFFSET_UNIT_ID_GEN.getId(37))
+	// 	static constant artisanHouseL3 = compiletime(OFFSET_UNIT_ID_GEN.getId(38))
+	// 	static constant storehouse = compiletime(OFFSET_UNIT_ID_GEN.getId(39))
+	// 	static constant lumbermill = compiletime(OFFSET_UNIT_ID_GEN.getId(40))
+	// 	static constant hunterHut = compiletime(OFFSET_UNIT_ID_GEN.getId(41))
+	// 	static constant quarryHut = compiletime(OFFSET_UNIT_ID_GEN.getId(42))
+	// 	static constant fisherHut = compiletime(OFFSET_UNIT_ID_GEN.getId(43))
+	// 	static constant foresterHut = compiletime(OFFSET_UNIT_ID_GEN.getId(44))
+	// 	static constant shepherdHut = compiletime(OFFSET_UNIT_ID_GEN.getId(45))
+	// 	// Creatures:
+	// 	static constant elvenLady = compiletime(OFFSET_UNIT_ID_GEN.getId(12))
+	// 	static constant peasantGirl = compiletime(OFFSET_UNIT_ID_GEN.getId(13))
+	// 	// Special:
+	// 	static constant buildingGround = compiletime(OFFSET_UNIT_ID_GEN.getId(30))
 
 	//--------------
 	// Nature
 	//--------------
 
-	public static class Trees
-		static constant beech = compiletime(OFFSET_UNIT_ID_GEN.getId(46))
-		static constant beech_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(47))
-		static constant beech_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(48))
-		static constant beech_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(49))
-		static constant beech_Var4 = compiletime(OFFSET_UNIT_ID_GEN.getId(50))
-		static constant birch = compiletime(OFFSET_UNIT_ID_GEN.getId(51))
-		static constant birch_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(52))
-		static constant birch_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(53))
-		static constant birch_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(54))
-		static constant greyOak = compiletime(OFFSET_UNIT_ID_GEN.getId(55))
-		static constant greyOak_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(56))
-		static constant greyOak_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(57))
-		static constant greyOak_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(58))
-		static constant greyOak_Var4 = compiletime(OFFSET_UNIT_ID_GEN.getId(59))
-		static constant chestnut = compiletime(OFFSET_UNIT_ID_GEN.getId(60))
-		static constant chestnut_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(61))
-		static constant chestnut_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(62))
+	// public static class Trees
+	// 	static constant beech = compiletime(OFFSET_UNIT_ID_GEN.getId(46))
+	// 	static constant beech_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(47))
+	// 	static constant beech_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(48))
+	// 	static constant beech_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(49))
+	// 	static constant beech_Var4 = compiletime(OFFSET_UNIT_ID_GEN.getId(50))
+	// 	static constant birch = compiletime(OFFSET_UNIT_ID_GEN.getId(51))
+	// 	static constant birch_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(52))
+	// 	static constant birch_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(53))
+	// 	static constant birch_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(54))
+	// 	static constant greyOak = compiletime(OFFSET_UNIT_ID_GEN.getId(55))
+	// 	static constant greyOak_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(56))
+	// 	static constant greyOak_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(57))
+	// 	static constant greyOak_Var3 = compiletime(OFFSET_UNIT_ID_GEN.getId(58))
+	// 	static constant greyOak_Var4 = compiletime(OFFSET_UNIT_ID_GEN.getId(59))
+	// 	static constant chestnut = compiletime(OFFSET_UNIT_ID_GEN.getId(60))
+	// 	static constant chestnut_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(61))
+	// 	static constant chestnut_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(62))
 
 public class DestructableIds
 	static constant summerTreeWall = 'LTlt'

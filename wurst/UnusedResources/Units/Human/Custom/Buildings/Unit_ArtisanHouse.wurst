@@ -1,0 +1,36 @@
+// package Unit_ArtisanHouse
+// import BuildingPreset
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// function genObjVariation(int id, string requiredAnimations, int food, string suffix)
+//     new BuildingPreset(id, UnitIds.farm)
+//     // Abilities:
+//     ..presetNormalAbilities()
+//     // Art:
+//     ..setDeathTimeseconds(3.)
+//     ..setGroundTexture("")
+//     ..setIconGameInterface(Icons.bTNGenericHumanBuilding)
+//     ..presetMaximumAngles(5., 5.)
+//     ..setModelFile(ImportPaths.artisanHouse)
+//     ..setRequiredAnimationNames(requiredAnimations)
+//     ..setSelectionScale(3.5)
+//     // Pathing:
+//     ..setCollisionSize(96.)
+//     ..setPathingMap("PathTextures\\6x6SimpleSolid.tga")
+//     // Stats:
+//     ..presetNoGoldAndLumber()
+//     ..setFoodProduced(food)
+//     ..presetSightRadius(0, 0)
+//     // Techtree:
+//     ..setUpgradesUsed("")
+//     // Text:
+//     ..presetNameAndTooltips(true, "Artisan House", suffix, "House building for artisans.")
+
+// @compiletime function genObj()
+//     genObjVariation(UnitIdsCustom.Custom.artisanHouseL1, "", 4, "(Level 1)")
+//     genObjVariation(UnitIdsCustom.Custom.artisanHouseL2, "upgrade,first", 8, "(Level 2)")
+//     genObjVariation(UnitIdsCustom.Custom.artisanHouseL3, "upgrade,second", 12, "(Level 3)")

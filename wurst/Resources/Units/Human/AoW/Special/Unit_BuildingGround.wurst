@@ -1,0 +1,24 @@
+package Unit_BuildingGround
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.AoW.buildingGround, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Art:
+    ..setGroundTexture("")
+    ..setIconGameInterface(Icons.bTNHumanBuild)
+    // Pathing:
+    ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+    // Stats:
+    ..presetNoGoldAndLumber()
+    ..setFoodProduced(0)
+    // Techtree:
+    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.farm, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill))
+    // Text:
+    ..presetNameAndTooltips(true, "Building Ground", "")

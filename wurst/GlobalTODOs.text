@@ -21,6 +21,7 @@ Work status:
 // -------------
 !!>- Add settlements and homes and workplaces for people
 	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
+		- Make units able to enter houses for sleeping
 		- Implement unit tests for PersonSystem
 
 

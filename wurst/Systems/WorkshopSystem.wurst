@@ -23,6 +23,7 @@ import OnUnitEnterLeave
 import Icons
 import RegisterEvents
 import StorageSystem
+import PersonSystem
 import Orders
 
 
@@ -40,24 +41,24 @@ let WORKERS_ICON_PATH = Icons.bTNBash
 /** Returns the production progress that the given worker type does per second in the given building type. */
 function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
 	switch workerUnitId
-		case UnitIdsCustom.Melee.peasant
+		case UnitIdsCustom.AoW.peasant
 			switch buildingUnitId
-				case UnitIdsCustom.Melee.lumberMill
+				case UnitIdsCustom.AoW.lumberMill
 					return 1.
-				case UnitIdsCustom.Melee.blacksmith
+				case UnitIdsCustom.AoW.blacksmith
 					return 1.
 	return 0.
 
 /** Returns the required production progress in seconds of the given building type. */
 function getRequiredWorkPower(int buildingUnitId, int productionVariant) returns real
 	switch buildingUnitId
-		case UnitIdsCustom.Melee.lumberMill
+		case UnitIdsCustom.AoW.lumberMill
 			switch productionVariant
 				case 1
 					return 15.
 				case 2
 					return 10.
-		case UnitIdsCustom.Melee.blacksmith
+		case UnitIdsCustom.AoW.blacksmith
 			switch productionVariant
 				case 1
 					return 20.
@@ -66,13 +67,13 @@ function getRequiredWorkPower(int buildingUnitId, int productionVariant) returns
 function getWorkshopEducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
 	let wares = new LinkedList<ware>()
 	switch workshopUnitId
-		case UnitIdsCustom.Melee.lumberMill
+		case UnitIdsCustom.AoW.lumberMill
 			switch productionVariant
 				case 1
 					wares.add(ware(WareType.WOOD, 3))
 				case 2
 					wares.add(ware(WareType.WOOD, 1))
-		case UnitIdsCustom.Melee.blacksmith
+		case UnitIdsCustom.AoW.blacksmith
 			switch productionVariant
 				case 1
 					wares.add(ware(WareType.IRON_ORE, 1))
@@ -82,13 +83,13 @@ function getWorkshopEducts(int workshopUnitId, int productionVariant) returns Li
 function getWorkshopProducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
 	let wares = new LinkedList<ware>()
 	switch workshopUnitId
-		case UnitIdsCustom.Melee.lumberMill
+		case UnitIdsCustom.AoW.lumberMill
 			switch productionVariant
 				case 1
 					wares.add(ware(WareType.WOODEN_BOARDS, 2))
 				case 2
 					wares.add(ware(WareType.WOODEN_STICKS, 1))
-		case UnitIdsCustom.Melee.blacksmith
+		case UnitIdsCustom.AoW.blacksmith
 			switch productionVariant
 				case 1
 					wares.add(ware(WareType.METAL, 1))
@@ -97,9 +98,9 @@ function getWorkshopProducts(int workshopUnitId, int productionVariant) returns 
 /** Returns the maximum allowed amount of workers of the given building type. */
 public function getMaxWorkers(int buildingUnitId) returns int
 	switch buildingUnitId
-		case UnitIdsCustom.Melee.lumberMill
+		case UnitIdsCustom.AoW.lumberMill
 			return 3
-		case UnitIdsCustom.Melee.blacksmith
+		case UnitIdsCustom.AoW.blacksmith
 			return 3
 	return 0
 
@@ -204,6 +205,7 @@ class Workshop extends Stock
 		if workers.contains(worker) == false and workers.size() < getMaxWorkers(user.getUnitId())
 			workers.addUnit(worker)
 			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
+			worker.getPerson().workplace = user
 			worker.hide()
 		else
 			Log.error("ERROR: Can't add worker to this workshop")
@@ -212,6 +214,7 @@ class Workshop extends Stock
 		if workers.size() > 0
 			let worker = workers.next()  // Also removes unit from the group
 			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
+			worker.getPerson().workplace = null
 			worker.show()
 		else
 			Log.error("ERROR: Can't remove worker from this workshop")
@@ -329,7 +332,7 @@ public function testWorkshopSystem_Workers()
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
-	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
+	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
 	workshopA.addWare(ware(WareType.WOODEN_BOARDS, 4))
 	workshopA.getStoredProducts().assertEquals(testName, 2)
@@ -337,16 +340,16 @@ public function testWorkshopSystem_Workers()
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkerCount().assertEquals(testName, 0)
 	workshopA.getWorkPower().assertEquals(testName, 0.)
-	workshopA.isValidWorkerType(UnitIdsCustom.Melee.peasant).assertTrue(testName)
+	workshopA.isValidWorkerType(UnitIdsCustom.AoW.peasant).assertTrue(testName)
 	// Add workers:
-	let unitB = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let storageA = unitB.getStorage()
 	storageA.addWare(ware(WareType.WOOD, 6))
-	let unitC = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitC = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.issueTargetOrderById(OrderIds.smart, unitA)
 	unitC.issueTargetOrderById(OrderIds.smart, unitA)
-	let unitD = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
-	let unitE = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitD = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitE = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check workshop status:
 		workshopA.getWorkerCount().assertEquals(testName, 2)
@@ -380,7 +383,7 @@ public function testWorkshopSystem_Production()
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
-	let unitA = createUnit(Player(0), UnitIdsCustom.Melee.lumberMill, testCentre, angle(0))
+	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
@@ -412,9 +415,9 @@ public function testWorkshopSystem_Production()
 	workshopA.changeProduct()
 	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
 	// Add workers:
-	let unitB = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
-	let unitC = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
-	let unitD = createUnit(Player(0), UnitIdsCustom.Melee.peasant, testCentre, angle(0))
+	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitC = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitD = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	workshopA.addWorker(unitB)
 	workshopA.addWorker(unitC)
 	workshopA.addWorker(unitD)

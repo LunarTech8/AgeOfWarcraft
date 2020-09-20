@@ -1,0 +1,16 @@
+package Unit_Farm
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.AoW.farm, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities()
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Farm", "House building for peasants.")

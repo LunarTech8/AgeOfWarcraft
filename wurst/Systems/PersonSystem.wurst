@@ -39,9 +39,9 @@ int surnameCounter = 0
 
 function isPersonType(int unitId) returns bool
 	switch unitId
-		case UnitIdsCustom.Melee.peasant
+		case UnitIdsCustom.AoW.peasant
 			return true
-		case UnitIdsCustom.Melee.footman
+		case UnitIdsCustom.AoW.footman
 			return true
 		default
 			return false
@@ -63,17 +63,56 @@ function getRandomForename() returns string
 
 function getRandomSurname() returns string
 	surnameCounter++
-	if surnameCounter > 4
+	if surnameCounter > 23
 		surnameCounter = 1
 	switch surnameCounter
+		// Source: https://en.wiktionary.org/wiki/Category:English_surnames_from_Old_English
 		case 1
-			return "Smith"
+			return "Abram"
 		case 2
-			return "Miller"
+			return "Acker"
 		case 3
-			return "Baker"
+			return "Acton"
 		case 4
-			return "Wolf"
+			return "Addington"
+		case 5
+			return "Adley"
+		case 6
+			return "Ainsley"
+		case 7
+			return "Ainsworth"
+		case 8
+			return "Alby"
+		case 9
+			return "Allerton"
+		case 10
+			return "Alston"
+		case 11
+			return "Altham"
+		case 12
+			return "Alton"
+		case 13
+			return "Anderton"
+		case 14
+			return "Ansley"
+		case 15
+			return "Anstey"
+		case 16
+			return "Appleton"
+		case 17
+			return "Asheton"
+		case 18
+			return "Ashley"
+		case 19
+			return "Ashton"
+		case 20
+			return "Astley"
+		case 21
+			return "Atherton"
+		case 22
+			return "Atterton"
+		case 23
+			return "Axton"
 		default
 			error("Wrong configuration for getRandomSurname")
 			return null
@@ -87,11 +126,11 @@ let PERSON_MAP = new IterableUnitHashMap<Person>(null)
 
 public class Person
 	private unit user
-	protected string name
+	private string name
 	protected real food
 	protected real sleep
-	protected unit house
-	protected unit workplace
+	unit house
+	unit workplace
 
 	construct(unit person, string name)
 		user = person
@@ -101,7 +140,10 @@ public class Person
 		house = null
 		workplace = null
 
-	function reduceStats() returns bool
+	function getName() returns string
+		return name
+
+	protected function reduceStats() returns bool
 		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
 		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
 		return (food <= 0. or sleep <= 0.)
@@ -127,7 +169,7 @@ public function unit.getPerson() returns Person
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Person p) returns bool
-	this.addMultiboardLine(p.name + ":", HEADLINE_ICON_PATH)
+	this.addMultiboardLine(p.getName() + ":", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Food: " + p.food.toString(), FOOD_ICON_PATH)
 	this.addMultiboardLine("Sleep: " + p.sleep.toString(), SLEEP_ICON_PATH)
 	if p.house != null

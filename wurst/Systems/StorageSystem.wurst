@@ -28,12 +28,12 @@ let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
 
 function getStorageMaxCapacity(int unitId) returns int
 	switch unitId
-		case UnitIdsCustom.Melee.peasant
+		case UnitIdsCustom.AoW.peasant
 			// return 10
 			return 100  // DEBUG
-		case UnitIdsCustom.Melee.lumberMill
+		case UnitIdsCustom.AoW.lumberMill
 			return 50
-		case UnitIdsCustom.Melee.blacksmith
+		case UnitIdsCustom.AoW.blacksmith
 			return 50
 		default
 			return 0
@@ -152,7 +152,7 @@ init
 public function testStorageSystem_AddAndRemove(bool isInGameTest)
 	let testName = setTestName("testStorageSystem_AddAndRemove", isInGameTest)
 	// Create new storage and check capacities:
-	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
+	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, vec2(0, 0), angle(0))
 	let a = new Storage(unitA, 8)
 	a.getMaxCapacity().assertEquals(testName, 8)
 	a.getUsedCapacity().assertEquals(testName, 0)
@@ -171,7 +171,7 @@ public function testStorageSystem_AddAndRemove(bool isInGameTest)
 	a.getUsedCapacity().assertEquals(testName, 2)
 	a.getFreeCapacity().assertEquals(testName, 6)
 	// Create another storage and check capacities:
-	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.Melee.peasant, vec2(0, 0), angle(0))
+	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, vec2(0, 0), angle(0))
 	let b = new Storage(unitA, 13)
 	b.getMaxCapacity().assertEquals(testName, 13)
 	b.getUsedCapacity().assertEquals(testName, 0)

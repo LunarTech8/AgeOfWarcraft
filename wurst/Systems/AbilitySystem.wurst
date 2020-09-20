@@ -166,7 +166,7 @@ function unit.transferWares(unit target)
 			targetBuildingSite.transferWares(sourceStorage)
 			// Call over idel workers if no required wares are missing:
 			if targetBuildingSite.isEmpty()
-				targetBuildingSite.callOverIdleWorkers(this)
+				targetBuildingSite.callOverIdleWorkers()
 
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)

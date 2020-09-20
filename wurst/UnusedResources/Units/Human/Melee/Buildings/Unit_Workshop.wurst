@@ -1,0 +1,19 @@
+// package Unit_Workshop
+// import BuildingPreset
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// @compiletime function genObj()
+//     new BuildingPreset(UnitIdsCustom.Melee.workshop, UnitIds.workshop)
+//     // Abilities:
+//     ..presetNormalAbilities()
+//     // Stats:
+//     ..presetNoGoldAndLumber()
+//     // Techtree:
+//     ..setRequirements(getUnitIdsString(UnitIdsCustom.Melee.keep, UnitIdsCustom.Melee.blacksmith))
+//     ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.mortarTeam, UnitIdsCustom.Melee.siegeEngine, UnitIdsCustom.Melee.flyingMachine))
+//     // Text:
+//     ..presetNameAndTooltips(true, "Workshop", "Mechanical construction building.")

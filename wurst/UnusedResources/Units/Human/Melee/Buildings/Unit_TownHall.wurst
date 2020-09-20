@@ -1,0 +1,24 @@
+// package Unit_TownHall
+// import BuildingPreset
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// public class UnitData_Townhall
+//     static constant scalingValue = 1.1
+
+// @compiletime function genObj()
+//     new BuildingPreset(UnitIdsCustom.Melee.townHall, UnitIds.townhall)
+//     // Abilities:
+//     ..presetNormalAbilities()
+//     // Art:
+//     ..setScalingValue(UnitData_Townhall.scalingValue)
+//     // Stats:
+//     ..presetNoGoldAndLumber()
+//     // Techtree:
+//     ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.Melee.peasant))
+//     ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.Melee.keep))
+//     // Text:
+//     ..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")

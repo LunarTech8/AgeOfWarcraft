@@ -1,0 +1,26 @@
+// package Unit_Priest
+// import UnitPreset
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// @compiletime function genObj()
+//     new UnitPreset(UnitIdsCustom.Melee.priest, UnitIds.priest)
+//     // Abilities:
+//     ..presetNormalAbilities()
+//     // Art:
+//     ..setScalingValue(.55)
+//     ..setSelectionScale(.5)
+//     ..presetShadowImage(25., 60.)
+//     // Combat:
+//     ..presetAttackRange(true, 300, 125.)
+//     // Movement:
+//     ..setSpeedBase(100)
+//     // Pathing:
+//     ..setCollisionSize(12.)
+//     // Stats:
+//     ..presetNoGoldAndLumber()
+//     // Text:
+//     ..presetNameAndTooltips(false, "Priest", "Holy support unit.")

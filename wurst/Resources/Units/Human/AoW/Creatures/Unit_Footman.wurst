@@ -1,0 +1,28 @@
+package Unit_Footman
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.AoW.footman, UnitIds.footman)
+    // Abilities:
+    // TEST START
+    ..presetNormalAbilities(AbilityIdsCustom.showTargetInfo)
+    // TEST END
+    // Art:
+    ..setScalingValue(.5)
+    ..setSelectionScale(.5)
+    ..presetShadowImage(25., 70.)
+    // Combat:
+    ..presetAttackRange(true, 30, 100.)
+    // Movement:
+    ..setSpeedBase(100)
+    // Pathing:
+    ..setCollisionSize(14.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(false, "Footman", "Basic armoured melee unit.")

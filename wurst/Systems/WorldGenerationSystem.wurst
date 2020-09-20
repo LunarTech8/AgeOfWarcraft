@@ -51,4 +51,4 @@ public function generatePlants()
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(0., 1.)
                 let v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
-                createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())
+                // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())

@@ -1,0 +1,24 @@
+// package Unit_BuildingGround
+// import BuildingPreset
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// @compiletime function genObj()
+//     new BuildingPreset(UnitIdsCustom.Custom.buildingGround, UnitIds.farm)
+//     // Abilities:
+//     ..presetNormalAbilities()
+//     // Art:
+//     ..setGroundTexture("")
+//     ..setIconGameInterface(Icons.bTNHumanBuild)
+//     // Pathing:
+//     ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+//     // Stats:
+//     ..presetNoGoldAndLumber()
+//     ..setFoodProduced(0)
+//     // Techtree:
+//     ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.Melee.townHall, UnitIdsCustom.Melee.farm, UnitIdsCustom.Melee.barracks, UnitIdsCustom.Melee.blacksmith, UnitIdsCustom.Melee.scoutTower, UnitIdsCustom.Melee.altarOfKings, UnitIdsCustom.Melee.workshop, UnitIdsCustom.Melee.arcaneSanctum, UnitIdsCustom.Melee.lumberMill, UnitIdsCustom.Melee.gryphonAviary, UnitIdsCustom.Melee.arcaneVault))
+//     // Text:
+//     ..presetNameAndTooltips(true, "Building Ground", "")

@@ -1,0 +1,39 @@
+// package Unit_Chestnut
+// import BuildingPreset
+
+
+// // --------------------
+// // Data code
+// // --------------------
+
+// function genObjVariation(int id, string modelPath, string suffix)
+//     new BuildingPreset(id, UnitIds.murlochut0)
+//     // Art:
+//     ..setDeathTimeseconds(2.)
+//     ..setGroundTexture("")
+//     ..setIconGameInterface(Icons.bTNNightElfBuild)
+//     ..presetMaximumAngles(0., 0.)
+//     ..setModelFile(modelPath)
+//     ..setProjectileImpactZ(20.)
+//     ..setScalingValue(1.2)
+//     ..setSelectionScale(0.8)
+//     ..setShadowTextureBuilding("BuildingShadowSmall")
+//     // Editor:
+//     ..setCanDropItemsOnDeath(false)
+//     ..setCategorizationSpecial(false)
+//     ..setTilesets("*")  // All
+//     // Pathing:
+//     ..setCollisionSize(32.)
+//     ..setPathingMap("PathTextures\\2x2Default.tga")
+//     // Sound:
+//     ..setUnitSoundSet("")
+//     // Stats:
+//     ..setHitPointsMaximumBase(100)
+//     ..setRace(Race.Critters)
+//     ..setUnitClassification("ancient")
+//     // Text:
+//     ..presetNameAndTooltips(true, "Chestnut", suffix, "Small leaf tree.")
+
+// @compiletime function genObj()
+//     genObjVariation(UnitIdsCustom.Trees.chestnut_Var1, ImportPaths.chestnut_Var1, "(Variation 1)")
+//     genObjVariation(UnitIdsCustom.Trees.chestnut_Var2, ImportPaths.chestnut_Var2, "(Variation 2)")

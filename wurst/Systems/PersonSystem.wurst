@@ -26,7 +26,7 @@ import UtilityFunctions
 
 let FOOD_ICON_PATH = Icons.bTNMonsterLure
 let SLEEP_ICON_PATH = Icons.bTNSleep
-let HOUSE_ICON_PATH = Icons.bTNFarm
+let HOME_ICON_PATH = Icons.bTNFarm
 let WORKPLACE_ICON_PATH = Icons.bTNWorkshop
 
 let MAX_FOOD = 100.
@@ -45,6 +45,15 @@ function isPersonType(int unitId) returns bool
 			return true
 		default
 			return false
+
+/** Returns the sleep rate per day for the given building type. */
+function getSleepRate(int buildingUnitId) returns real
+	switch buildingUnitId
+		case 0  // Outside on the ground
+			return (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (24 / 10)
+		case UnitIdsCustom.AoW.peasantHouse
+			return (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (24 / 6)
+	return 0.
 
 function getRandomForename() returns string
 	let i = GetRandomInt(1, 4)
@@ -129,7 +138,8 @@ public class Person
 	private string name
 	protected real food
 	protected real sleep
-	unit house
+	protected real sleepRate
+	unit home
 	unit workplace
 
 	construct(unit person, string name)
@@ -137,16 +147,29 @@ public class Person
 		this.name = name
 		food = MAX_FOOD
 		sleep = MAX_SLEEP
-		house = null
+		sleepRate = 0.
+		home = null
 		workplace = null
-
-	function getName() returns string
-		return name
 
 	protected function reduceStats() returns bool
 		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
 		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
+		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
+		sleep = min(sleep, MAX_SLEEP)
 		return (food <= 0. or sleep <= 0.)
+
+	function getName() returns string
+		return name
+
+	function sleep(int buildingId)
+		if sleepRate > 0.
+			Log.error("ERROR: Person is already sleeping")
+		sleepRate = getSleepRate(buildingId)
+
+	function awake()
+		if sleepRate <= 0.
+			Log.error("ERROR: Person is already awake")
+		sleepRate = 0.
 
 
 function getRandomName() returns string
@@ -172,8 +195,8 @@ public function multiboard.setObjectInfoMultiboard(Person p) returns bool
 	this.addMultiboardLine(p.getName() + ":", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Food: " + p.food.toString(), FOOD_ICON_PATH)
 	this.addMultiboardLine("Sleep: " + p.sleep.toString(), SLEEP_ICON_PATH)
-	if p.house != null
-		this.addMultiboardLine("House: " + p.house.getName(), HOUSE_ICON_PATH)
+	if p.home != null
+		this.addMultiboardLine("Home: " + p.home.getName(), HOME_ICON_PATH)
 	if p.workplace != null
 		this.addMultiboardLine("Workplace: " + p.workplace.getName(), WORKPLACE_ICON_PATH)
 	return true

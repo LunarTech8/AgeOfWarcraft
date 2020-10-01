@@ -19,6 +19,6 @@ import BuildingPreset
     ..presetNoGoldAndLumber()
     ..setFoodProduced(0)
     // Techtree:
-    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.farm, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill))
+    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill))
     // Text:
     ..presetNameAndTooltips(true, "Building Ground", "")

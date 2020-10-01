@@ -23,6 +23,6 @@ import UnitPreset
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.farm, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill))
+    ..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill))
     // Text:
     ..presetNameAndTooltips(false, "Peasant", "Basic worker unit.")

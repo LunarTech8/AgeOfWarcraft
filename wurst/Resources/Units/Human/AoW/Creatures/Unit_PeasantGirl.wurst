@@ -1,0 +1,25 @@
+package Unit_PeasantGirl
+import UnitPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new UnitPreset(UnitIdsCustom.AoW.peasantGirl, UnitIds.villagerwoman)
+    // Abilities:
+    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.transferWares, AbilityIdsCustom.enterBuilding)
+    // Art:
+    ..setScalingValue(.43)
+    ..setSelectionScale(.5)
+    ..presetShadowImage(20., 50.)
+    // Movement:
+    ..setSpeedBase(80)
+    // Pathing:
+    ..setCollisionSize(12.)
+    // Stats:
+    ..presetNoGoldAndLumber()
+    ..setRace(Race.Human)
+    // Text:
+    ..presetNameAndTooltips(false, "Peasant Girl", "")

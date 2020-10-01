@@ -53,7 +53,7 @@ function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
 			switch buildingUnitId
 				case UnitIdsCustom.AoW.townHall
 					return 1.
-				case UnitIdsCustom.AoW.farm
+				case UnitIdsCustom.AoW.peasantHouse
 					return 1.
 				case UnitIdsCustom.AoW.blacksmith
 					return 1.
@@ -92,7 +92,7 @@ function getRequiredWorkPower(int buildingUnitId) returns real
 	switch buildingUnitId
 		case UnitIdsCustom.AoW.townHall
 			return 180.
-		case UnitIdsCustom.AoW.farm
+		case UnitIdsCustom.AoW.peasantHouse
 			return 35.
 		case UnitIdsCustom.AoW.barracks
 			return 60.
@@ -127,7 +127,7 @@ function getRequiredWorkPower(int buildingUnitId) returns real
 function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 	let wares = new LinkedList<ware>()
 	switch buildingUnitId
-		case UnitIdsCustom.AoW.farm
+		case UnitIdsCustom.AoW.peasantHouse
 			wares.add(ware(WareType.WOOD, 4))
 		case UnitIdsCustom.AoW.townHall
 			wares.add(ware(WareType.WOOD, 4))
@@ -474,7 +474,7 @@ public function testBuildingSystem_Build()
 	storageA.addWare(ware(WareType.WOOD, 5))
 	let workerCount = getWorkerCount()
 	let buildingSiteCount = getBuildingSiteCount()
-	unitA.issuePointOrderById(UnitIdsCustom.AoW.farm, testCentre)
+	unitA.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre)
 	testBuildingSystem_Build_building = null
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:

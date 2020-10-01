@@ -19,7 +19,7 @@ import HashMap
 // Data code
 // --------------------
 
-public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 70
+public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 71
 public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 10
 public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
 
@@ -31,13 +31,14 @@ public class UnitIdsCustom
 	public static class AoW
 		// Buildings:
 		static constant townHall = compiletime(OFFSET_UNIT_ID_GEN.getId(66))
-		static constant farm = compiletime(OFFSET_UNIT_ID_GEN.getId(67))
+		static constant peasantHouse = compiletime(OFFSET_UNIT_ID_GEN.getId(67))
 		static constant barracks = compiletime(OFFSET_UNIT_ID_GEN.getId(68))
 		static constant lumberMill = compiletime(OFFSET_UNIT_ID_GEN.getId(69))
 		static constant blacksmith = compiletime(OFFSET_UNIT_ID_GEN.getId(70))
 		// Creatures:
 		static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(64))
 		static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(65))
+		static constant peasantGirl = compiletime(OFFSET_UNIT_ID_GEN.getId(71))
 		// Special:
 		static constant buildingGround = compiletime(OFFSET_UNIT_ID_GEN.getId(63))
 

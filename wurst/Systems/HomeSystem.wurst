@@ -27,7 +27,8 @@ import PersonSystem
 
 let INHABITANTS_ICON_PATH = Icons.bTNSnazzyScroll
 
-public function isValidInhabitantType(int buildingId, int unitId) returns bool
+/** Returns if the given unit type can inhabit the given building type. */
+function isInhabitantable(int unitId, int buildingId) returns bool
 	switch buildingId
 		case UnitIdsCustom.AoW.peasantHouse
 			switch unitId
@@ -67,25 +68,45 @@ class Home
 	function getInhabitantCount() returns int
 		return inhabitants.size()
 
-	function addInhabitant(unit inhabitant)
-		if inhabitants.contains(inhabitant) == false and inhabitants.size() < getMaxInhabitants(user.getUnitId())
-			inhabitants.addUnit(inhabitant)
-			let person = inhabitant.getPerson()
-			person.home = user
-			person.sleep(user.getUnitId())
-			inhabitant.hide()
+	function isValidInhabitantType(int unitId) returns bool
+		return isInhabitantable(unitId, user.getUnitId())
+
+	function isInhabitant(Person person) returns bool
+		return inhabitants.contains(person.getUnit())
+
+	function addInhabitant(Person person)
+		if inhabitants.contains(person.getUnit()) == false and inhabitants.size() < getMaxInhabitants(user.getUnitId())
+			if person.homeBuilding != null
+				person.homeBuilding.getHome().removeInhabitant(person)
+			inhabitants.addUnit(person.getUnit())
+			person.homeBuilding = user
 		else
 			Log.error("ERROR: Can't add inhabitant to this home")
 
-	function removeInhabitant()
-		if inhabitants.size() > 0
-			let inhabitant = inhabitants.next()  // Also removes unit from the group
-			let person = inhabitant.getPerson()
-			person.awake()
-			person.home = null
-			inhabitant.show()
+	function removeInhabitant(Person person)
+		if inhabitants.contains(person.getUnit())
+			if person.enteredBuilding == user
+				leaveBuilding(person)
+			inhabitants.removeUnit(person.getUnit())
+			person.homeBuilding = null
 		else
 			Log.error("ERROR: Can't remove inhabitant from this home")
+
+	function enterBuilding(Person person)
+		if inhabitants.contains(person.getUnit()) and person.enteredBuilding == null
+			person.enteredBuilding = user
+			person.getUnit().hide()
+			person.sleep(user.getUnitId(), (Person person) -> leaveBuilding(person))
+		else
+			Log.error("ERROR: Inhabitant can't enter this home")
+
+	function leaveBuilding(Person person)
+		if inhabitants.contains(person.getUnit()) and person.enteredBuilding == user
+			person.enteredBuilding = null
+			person.getUnit().show()
+			person.awake()
+		else
+			Log.error("ERROR: Inhabitant can't leave this home")
 
 
 function unit.addHome()

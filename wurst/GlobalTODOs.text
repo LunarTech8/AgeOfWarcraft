@@ -19,21 +19,35 @@ Work status:
 // -------------
 // Worklog:
 // -------------
-!!>- Add settlements and homes and workplaces for people
-	>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
-		>>- Make units able to enter houses for sleeping
-		- Implement unit tests for PersonSystem
+
+!!>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
+	- Add/remove a debuff when sleep value descends/ascends a fixed low value
+	- Make person instantly fall asleep on the ground if sleep value reaches zero
+	- Separate add/remove and enter/leave for workplaces like with homes
+	>- Maybe have PersonSystem below WorkplaceSystem, HomeSystem, etc. to be able to do automatical controls from within the PersonSystem
+	   or have a separate PersonAiSystem that does all the controlling/adjusting and use PersonSystem only for the data
+	- Implement unit tests for PersonSystem
 
 
 // -------------
 // Backlog:
 // -------------
 
+!!- Create a SettlementSystem
+	- Buildings can only be build in range of a settlement centre building
+	- A settlement can only level up if it has a specific population count
+	- More advanced buildings require higher settlement levels
+	- Settlement centre buildings can't be build to close to each other
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
 !!- Reorder ability positions (e.g. for peasant)
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
+!- Create an ExperienceSystem that manages how good persons are in different tasks/jobs
+	- Have a level system (apprentice, journeyman, adept, master, expert, ...) that unlocks new abilities or improves them
+	- Each work step adds exp for that job
+	- To reach the highest job level persons have to work in that for most of their life
+!- Add a small storage to homes where food and commodities can be stored by wifes and used by the whole family
 !- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !- Add a description comment (/** */) to every public class and function
 !- Try to improve smart order reaction when harvesting (no overwriting by auto harvest)

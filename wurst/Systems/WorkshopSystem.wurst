@@ -205,7 +205,7 @@ class Workshop extends Stock
 		if workers.contains(worker) == false and workers.size() < getMaxWorkers(user.getUnitId())
 			workers.addUnit(worker)
 			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
-			worker.getPerson().workplace = user
+			worker.getPerson().workplaceBuilding = user
 			worker.hide()
 		else
 			Log.error("ERROR: Can't add worker to this workshop")
@@ -214,7 +214,7 @@ class Workshop extends Stock
 		if workers.size() > 0
 			let worker = workers.next()  // Also removes unit from the group
 			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
-			worker.getPerson().workplace = null
+			worker.getPerson().workplaceBuilding = null
 			worker.show()
 		else
 			Log.error("ERROR: Can't remove worker from this workshop")

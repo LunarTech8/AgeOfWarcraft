@@ -24,6 +24,8 @@ import InstantDummyCaster
 import DummyRecycler
 import ClosureTimers
 import WorkshopSystem
+import HomeSystem
+import PersonSystem
 
 
 // --------------------
@@ -40,7 +42,7 @@ enum Validity
 	INVALID_TARGET
 	WARES_NOT_AVAILABLE
 	WORKERS_NOT_AVAILABLE
-	NO_FREE_WORK_SLOT
+	NO_FREE_UNIT_SLOT
 	NO_FREE_STORAGE
 	NO_REQUIRED_WARES
 	WORKER_ALREADY_BUILDING
@@ -80,7 +82,7 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "No storage for harvest"
 				case INVALID_TARGET
 					return "Harvest target is no resource"
-				case NO_FREE_WORK_SLOT
+				case NO_FREE_UNIT_SLOT
 					return "Target already reached its maximum of concurrent harvesters"
 				case NO_FREE_STORAGE
 					return "No free storage for harvest"
@@ -93,8 +95,8 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 				case INVALID_SOURCE
 					return "Unit can't enter target building type"
 				case INVALID_TARGET
-					return "Target building is no workshop"
-				case NO_FREE_WORK_SLOT
+					return "Can't enter this kind of building"
+				case NO_FREE_UNIT_SLOT
 					return "Target already reached its maximum of concurrent units"
 				default
 					return null
@@ -172,7 +174,6 @@ function unit.transferWares(unit target)
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
 	if val == Validity.VALID or val == Validity.UNREGISTERED
 		Log.error("ERROR: Given validity is not invalid (" + (val castTo int).toString() + ")")
-
 	// React on invalid command:
 	let owner = this.getOwner()
 	if IsUnitSelected(this, owner)
@@ -249,20 +250,32 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		else if resource.isEmpty()
 			return Validity.RESOURCE_IS_DEPLETED
 		else if resource.getFreeWorkerSlots() <= 0
-			return Validity.NO_FREE_WORK_SLOT
+			return Validity.NO_FREE_UNIT_SLOT
 	else if abilityId == AbilityIdsCustom.enterBuilding
 		if target.userUnit == null
 			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
 		// Check if source and target are valid:
 		let targetWorkshop = targetUnit.getWorkshop()
-		if targetWorkshop == null
+		let targetHome = targetUnit.getHome()
+		if targetWorkshop == null and targetHome == null
 			return Validity.INVALID_TARGET
-		if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
-			return Validity.INVALID_SOURCE
-		// Check if target has free work slot:
-		if targetWorkshop.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
-			return Validity.NO_FREE_WORK_SLOT
+		// Check target type specific validities:
+		if targetWorkshop != null
+			// Check if source is allowed to work at target:
+			if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
+				return Validity.INVALID_SOURCE
+			// Check if target has free work slot:
+			if targetWorkshop.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
+				return Validity.NO_FREE_UNIT_SLOT
+		else if targetHome != null
+			// Check if source can inhabit target:
+			let sourcePerson = this.getPerson()
+			if sourcePerson == null or targetHome.isValidInhabitantType(this.getUnitId()) == false
+				return Validity.INVALID_SOURCE
+			// Check if source is inhabitant or target has free apartement slot:
+			if targetHome.isInhabitant(sourcePerson) == false and targetHome.getInhabitantCount() >= getMaxInhabitants(targetUnit.getUnitId())
+				return Validity.NO_FREE_UNIT_SLOT
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
 		let sourceWorkshop = this.getWorkshop()
@@ -353,10 +366,20 @@ init
 						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
-						// Transfer educts and add source to target workshop as worker:
-						let targetWorkshop = target.assertUnit().getWorkshop()
-						targetWorkshop.transferWares(source.getStorage(), false)
-						targetWorkshop.addWorker(source)
+						let targetUnit = target.assertUnit()
+						let targetWorkshop = targetUnit.getWorkshop()
+						let targetHome = targetUnit.getHome()
+						if targetWorkshop != null
+							// Transfer educts and add source to target workshop as worker:
+							targetWorkshop.transferWares(source.getStorage(), false)
+							targetWorkshop.addWorker(source)
+						else if targetHome != null
+							// Add source to target home as inhabitant or enter it:
+							let sourcePerson = source.getPerson()
+							if targetHome.isInhabitant(sourcePerson)
+								targetHome.enterBuilding(sourcePerson)
+							else
+								targetHome.addInhabitant(sourcePerson)
 					case AbilityIdsCustom.removeWorker
 						// Remove a worker from source workshop:
 						source.getWorkshop().removeWorker()
@@ -401,7 +424,7 @@ init
 							val = source.getAbilityValidity(AbilityIdsCustom.harvest, target)
 							if val == Validity.VALID
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)
-							else if val == Validity.NO_FREE_WORK_SLOT
+							else if val == Validity.NO_FREE_UNIT_SLOT
 								let nextResource = source.findNextResource(target.getPos())
 								if nextResource.isEmpty() == false
 									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)

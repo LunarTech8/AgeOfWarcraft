@@ -270,11 +270,10 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetHome != null
 			// Check if source can inhabit target:
-			let sourcePerson = this.getPerson()
-			if sourcePerson == null or targetHome.isValidInhabitantType(this.getUnitId()) == false
+			if targetHome.isValidInhabitantType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if source is inhabitant or target has free apartement slot:
-			if targetHome.isInhabitant(sourcePerson) == false and targetHome.getInhabitantCount() >= getMaxInhabitants(targetUnit.getUnitId())
+			if targetHome.isInhabitant(this) == false and targetHome.getInhabitantCount() >= getMaxInhabitants(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
@@ -370,19 +369,25 @@ init
 						let targetWorkshop = targetUnit.getWorkshop()
 						let targetHome = targetUnit.getHome()
 						if targetWorkshop != null
-							// Transfer educts and add source to target workshop as worker:
+							// Transfer educts, add source to target workshop as worker and enter it:
+							let sourcePerson = source.getPerson()
 							targetWorkshop.transferWares(source.getStorage(), false)
-							targetWorkshop.addWorker(source)
+							if targetWorkshop.isWorker(source) == false
+								sourcePerson.setWorkplaceBuilding(targetWorkshop)
+							sourcePerson.enterBuilding(targetUnit)
 						else if targetHome != null
 							// Add source to target home as inhabitant or enter it:
 							let sourcePerson = source.getPerson()
-							if targetHome.isInhabitant(sourcePerson)
-								targetHome.enterBuilding(sourcePerson)
+							if targetHome.isInhabitant(source)
+								sourcePerson.enterBuilding(targetUnit)
 							else
-								targetHome.addInhabitant(sourcePerson)
+								sourcePerson.setHomeBuilding(targetHome)
 					case AbilityIdsCustom.removeWorker
 						// Remove a worker from source workshop:
-						source.getWorkshop().removeWorker()
+						let person = source.getWorkshop().getFirstWorker().getPerson()
+						if person.enteredBuilding == source
+							person.leaveBuilding(source)
+						person.setWorkplaceBuilding(null)
 					case AbilityIdsCustom.changeProduct
 						// Cancel current production and change it to the next variant:
 						source.getWorkshop().changeProduct()

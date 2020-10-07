@@ -24,8 +24,6 @@ Work status:
 	- Add/remove a debuff when sleep value descends/ascends a fixed low value
 	- Make person instantly fall asleep on the ground if sleep value reaches zero
 	- Separate add/remove and enter/leave for workplaces like with homes
-	>- Maybe have PersonSystem below WorkplaceSystem, HomeSystem, etc. to be able to do automatical controls from within the PersonSystem
-	   or have a separate PersonAiSystem that does all the controlling/adjusting and use PersonSystem only for the data
 	- Implement unit tests for PersonSystem
 
 

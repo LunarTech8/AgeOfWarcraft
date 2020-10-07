@@ -23,7 +23,6 @@ import OnUnitEnterLeave
 import Icons
 import RegisterEvents
 import StorageSystem
-import PersonSystem
 import Orders
 
 
@@ -111,7 +110,7 @@ public function getMaxWorkers(int buildingUnitId) returns int
 
 let WORKSHOP_MAP = new IterableUnitHashMap<Workshop>(null)
 
-class Workshop extends Stock
+public class Workshop extends Stock
 	private unit user
 	private int productionVariant
 	private real workProgressCurrent
@@ -167,6 +166,9 @@ class Workshop extends Stock
 	function isValidWorkerType(int unitId) returns bool
 		return getUnitWorkPower(unitId, user.getUnitId()) > 0.
 
+	function getUnit() returns unit
+		return user
+
 	function getStoredEducts() returns int
 		var amount = MAX_WARE_COUNT
 		let educts = getEducts()
@@ -201,23 +203,39 @@ class Workshop extends Stock
 	function getWorkPower() returns real
 		return workPower
 
+	function getFirstWorker() returns unit
+		if workers.size() > 0
+			return workers.getUnitAt(0)
+		else
+			Log.error("ERROR: Workshop doesn't have any worker")
+			return null
+
+	function isWorker(unit worker) returns bool
+		return workers.contains(worker)
+
 	function addWorker(unit worker)
 		if workers.contains(worker) == false and workers.size() < getMaxWorkers(user.getUnitId())
 			workers.addUnit(worker)
-			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
-			worker.getPerson().workplaceBuilding = user
-			worker.hide()
 		else
 			Log.error("ERROR: Can't add worker to this workshop")
 
-	function removeWorker()
-		if workers.size() > 0
-			let worker = workers.next()  // Also removes unit from the group
-			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
-			worker.getPerson().workplaceBuilding = null
-			worker.show()
+	function removeWorker(unit worker)
+		if workers.contains(worker)
+			workers.removeUnit(worker)
 		else
 			Log.error("ERROR: Can't remove worker from this workshop")
+
+	function enterBuilding(unit worker)
+		if workers.contains(worker)
+			workPower += getUnitWorkPower(worker.getUnitId(), user.getUnitId())
+		else
+			Log.error("ERROR: Worker does not belong to this workshop")
+
+	function leaveBuilding(unit worker)
+		if workers.contains(worker)
+			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
+		else
+			Log.error("ERROR: Worker does not belong to this workshop")
 
 	function changeProduct()
 		if getRequiredWorkPower(user.getUnitId(), productionVariant + 1) > 0.

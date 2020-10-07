@@ -18,6 +18,8 @@ import UnitMap
 import ErrorHandling
 import ClosureTimers
 import UtilityFunctions
+import HomeSystem
+import WorkshopSystem
 
 
 // --------------------
@@ -134,19 +136,15 @@ function getRandomSurname() returns string
 
 let PERSON_MAP = new IterableUnitHashMap<Person>(null)
 
-public interface CallbackPerson
-	function call(Person person)
-
 public class Person
 	private unit user
 	private string name
-	private CallbackPerson maxSleepCb  // Is called if max sleep value is reached and resolves consequential actions
 	protected real food
 	protected real sleep
 	protected real sleepRate
+	protected Home home
+	protected Workshop workplace
 	unit enteredBuilding
-	unit homeBuilding
-	unit workplaceBuilding
 
 	construct(unit person, string name)
 		user = person
@@ -155,37 +153,65 @@ public class Person
 		sleep = MAX_SLEEP
 		sleepRate = 0.
 		enteredBuilding = null
-		homeBuilding = null
-		workplaceBuilding = null
-
-	ondestroy
-		if maxSleepCb != null
-			destroy maxSleepCb
+		home = null
+		workplace = null
 
 	protected function reduceStats() returns bool
 		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
 		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
 		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
 		sleep = min(sleep, MAX_SLEEP)
-		if sleep >= MAX_SLEEP and maxSleepCb != null
-			maxSleepCb.call(this)
-			destroy maxSleepCb
-			maxSleepCb = null
+		if sleep >= MAX_SLEEP and enteredBuilding == home.getUnit()
+			leaveBuilding(enteredBuilding)
 		return food <= 0.
-
-	function getUnit() returns unit
-		return user
 
 	function getName() returns string
 		return name
 
-	function sleep(int buildingId, CallbackPerson maxSleepCb)
+	function setHomeBuilding(Home home)
+		if this.home != null
+			this.home.removeInhabitant(user)
+		if home != null
+			home.addInhabitant(user)
+		this.home = home
+
+	function setWorkplaceBuilding(Workshop workplace)
+		if this.workplace != null
+			this.workplace.removeWorker(user)
+		if workplace != null
+			workplace.addWorker(user)
+		this.workplace = workplace
+
+	function enterBuilding(unit building)
+		if enteredBuilding == null
+			enteredBuilding = building
+			user.hide()
+			let targetHome = building.getHome()
+			let targetWorkshop = building.getWorkshop()
+			if targetHome != null and targetHome == home
+				sleep(getSleepRate(building.getUnitId()))
+			else if targetWorkshop != null and targetWorkshop == workplace
+				targetWorkshop.enterBuilding(user)
+		else
+			Log.error("ERROR: Person is already in a building")
+
+	function leaveBuilding(unit building)
+		if enteredBuilding == building
+			enteredBuilding = null
+			user.show()
+			let targetHome = building.getHome()
+			let targetWorkshop = building.getWorkshop()
+			if targetHome != null and targetHome == home
+				awake()
+			else if targetWorkshop != null and targetWorkshop == workplace
+				targetWorkshop.leaveBuilding(user)
+		else
+			Log.error("ERROR: Person isn't in this building")
+
+	function sleep(real sleepRate)
 		if sleepRate > 0.
 			Log.error("ERROR: Person is already sleeping")
-		sleepRate = getSleepRate(buildingId)
-		if this.maxSleepCb != null
-			destroy this.maxSleepCb
-		this.maxSleepCb = maxSleepCb
+		this.sleepRate = sleepRate
 
 	function awake()
 		if sleepRate <= 0.
@@ -216,10 +242,10 @@ public function multiboard.setObjectInfoMultiboard(Person p) returns bool
 	this.addMultiboardLine(p.getName() + ":", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Food: " + p.food.toString(), FOOD_ICON_PATH)
 	this.addMultiboardLine("Sleep: " + p.sleep.toString(), SLEEP_ICON_PATH)
-	if p.homeBuilding != null
-		this.addMultiboardLine("Home: " + p.homeBuilding.getName(), HOME_ICON_PATH)
-	if p.workplaceBuilding != null
-		this.addMultiboardLine("Workplace: " + p.workplaceBuilding.getName(), WORKPLACE_ICON_PATH)
+	if p.home != null
+		this.addMultiboardLine("Home: " + p.home.getUnit().getName(), HOME_ICON_PATH)
+	if p.workplace != null
+		this.addMultiboardLine("Workplace: " + p.workplace.getUnit().getName(), WORKPLACE_ICON_PATH)
 	return true
 
 init

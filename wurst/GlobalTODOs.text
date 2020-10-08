@@ -21,9 +21,6 @@ Work status:
 // -------------
 
 !!>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
-	- Add/remove a debuff when sleep value descends/ascends a fixed low value
-	- Make person instantly fall asleep on the ground if sleep value reaches zero
-	- Separate add/remove and enter/leave for workplaces like with homes
 	- Implement unit tests for PersonSystem
 
 

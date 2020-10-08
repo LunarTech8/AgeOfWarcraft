@@ -27,7 +27,7 @@ let MAX_COMPUTATION_COST_PER_CYCLE = 256.
 
 public let MIN_TRIGGER_SLEEP_TIME = 0.01
 public let MIN_ACTION_SLEEP_TIME = 0.25
-public let INGAME_DAY_SECONDS = 480.
+public let INGAME_DAY_DURATION = 480.  // In realtime seconds
 
 function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	let map = new HashMap<int, int>

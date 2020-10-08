@@ -20,7 +20,7 @@ import HashMap
 // --------------------
 
 public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 71
-public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 10
+public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 14
 public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
 
 public class UnitIdsCustom
@@ -133,10 +133,14 @@ public abstract class AbilityIdsCustom
 	static constant changeProduct = compiletime(OFFSET_ABIL_ID_GEN.getId(8))
 	static constant removeWorker = compiletime(OFFSET_ABIL_ID_GEN.getId(9))
 	static constant targetDestructable = compiletime(OFFSET_ABIL_ID_GEN.getId(10))
+	static constant addSleepingBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(11))
+	static constant addExhaustedBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(13))
 
 public abstract class BuffIdsCustom
 	static constant emptyBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(5))
 	static constant building = compiletime(OFFSET_ABIL_ID_GEN.getId(6))
+	static constant sleeping = compiletime(OFFSET_ABIL_ID_GEN.getId(12))
+	static constant exhausted = compiletime(OFFSET_ABIL_ID_GEN.getId(14))
 
 public abstract class ImportPaths
 	// Trees:

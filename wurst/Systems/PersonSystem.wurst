@@ -20,6 +20,7 @@ import ClosureTimers
 import UtilityFunctions
 import HomeSystem
 import WorkshopSystem
+import InstantDummyCaster
 
 
 // --------------------
@@ -33,9 +34,10 @@ let WORKPLACE_ICON_PATH = Icons.bTNWorkshop
 
 let MAX_FOOD = 100.
 let MAX_SLEEP = 100.
-let MAX_DAYS_NO_FOOD = 3
-let MAX_DAYS_NO_SLEEP = 5
-let STATS_ADJUSTMENT_RATE = INGAME_DAY_SECONDS / 24
+let MAX_DAYS_NO_FOOD = 4. // Max days of no food before person dies of starvation
+let MAX_DAYS_NO_SLEEP = 3.  // Max days of no sleep before person falls asleep on the ground
+let DAYS_TILL_EXHAUSTED = 1.  // Days of no sleep before person gets exhausted by sleep deprivation
+let STATS_ADJUSTMENT_RATE = INGAME_DAY_DURATION / 24.
 
 int surnameCounter = 0
 
@@ -156,13 +158,38 @@ public class Person
 		home = null
 		workplace = null
 
+	private function sleep(int buildingUnitId)
+		if sleepRate > 0.
+			Log.error("ERROR: Person is already sleeping")
+		sleepRate = getSleepRate(buildingUnitId)
+
+	private function awake()
+		if sleepRate <= 0.
+			Log.error("ERROR: Person is already awake")
+		sleepRate = 0.
+
 	protected function reduceStats() returns bool
-		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
-		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
-		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_SECONDS)
+		// Adjust food:
+		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		food = min(food, MAX_FOOD)
+		// Adjust sleep:
+		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
 		sleep = min(sleep, MAX_SLEEP)
-		if sleep >= MAX_SLEEP and enteredBuilding == home.getUnit()
-			leaveBuilding(enteredBuilding)
+		if sleep <= 0.
+			if enteredBuilding != null
+				leaveBuilding()
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addSleepingBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
+			sleep(0)
+		else if sleep <= DAYS_TILL_EXHAUSTED and user.hasAbility(BuffIdsCustom.exhausted) == false
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
+		else if sleep > DAYS_TILL_EXHAUSTED and user.hasAbility(BuffIdsCustom.exhausted)
+			user.removeAbility(BuffIdsCustom.exhausted)
+		if sleep >= MAX_SLEEP
+			if enteredBuilding == home.getUnit()
+				leaveBuilding()
+			else
+				user.removeAbility(BuffIdsCustom.sleeping)
 		return food <= 0.
 
 	function getName() returns string
@@ -189,34 +216,24 @@ public class Person
 			let targetHome = building.getHome()
 			let targetWorkshop = building.getWorkshop()
 			if targetHome != null and targetHome == home
-				sleep(getSleepRate(building.getUnitId()))
+				sleep(building.getUnitId())
 			else if targetWorkshop != null and targetWorkshop == workplace
 				targetWorkshop.enterBuilding(user)
 		else
 			Log.error("ERROR: Person is already in a building")
 
-	function leaveBuilding(unit building)
-		if enteredBuilding == building
-			enteredBuilding = null
-			user.show()
-			let targetHome = building.getHome()
-			let targetWorkshop = building.getWorkshop()
+	function leaveBuilding()
+		if enteredBuilding != null
+			let targetHome = enteredBuilding.getHome()
+			let targetWorkshop = enteredBuilding.getWorkshop()
 			if targetHome != null and targetHome == home
 				awake()
 			else if targetWorkshop != null and targetWorkshop == workplace
 				targetWorkshop.leaveBuilding(user)
+			enteredBuilding = null
+			user.show()
 		else
-			Log.error("ERROR: Person isn't in this building")
-
-	function sleep(real sleepRate)
-		if sleepRate > 0.
-			Log.error("ERROR: Person is already sleeping")
-		this.sleepRate = sleepRate
-
-	function awake()
-		if sleepRate <= 0.
-			Log.error("ERROR: Person is already awake")
-		sleepRate = 0.
+			Log.error("ERROR: Person is not in a building")
 
 
 function getRandomName() returns string

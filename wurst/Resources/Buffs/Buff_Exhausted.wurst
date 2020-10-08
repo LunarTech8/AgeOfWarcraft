@@ -1,0 +1,15 @@
+package Buff_Exhausted
+import BuffPresetFunctions
+import ObjEditingCommons
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuffDefinition(BuffIdsCustom.exhausted, 'Bcri')  // Buff based on cripple
+    // Stats:
+    ..setRace(Race.Other.toObjectString())
+    // Text:
+    ..presetNameAndTooltips("Exhausted", "This person is exhausted. It has reduced movement and attack speed.")

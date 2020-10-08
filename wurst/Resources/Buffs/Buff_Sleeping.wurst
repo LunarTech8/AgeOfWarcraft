@@ -1,0 +1,15 @@
+package Buff_Sleeping
+import BuffPresetFunctions
+import ObjEditingCommons
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuffDefinition(BuffIdsCustom.sleeping, 'BUsl')  // Buff based on sleep
+    // Stats:
+    ..setRace(Race.Other.toObjectString())
+    // Text:
+    ..presetNameAndTooltips("Sleeping", "This person is sleeping.")

@@ -386,7 +386,7 @@ init
 						// Remove a worker from source workshop:
 						let person = source.getWorkshop().getFirstWorker().getPerson()
 						if person.enteredBuilding == source
-							person.leaveBuilding(source)
+							person.leaveBuilding()
 						person.setWorkplaceBuilding(null)
 					case AbilityIdsCustom.changeProduct
 						// Cancel current production and change it to the next variant:

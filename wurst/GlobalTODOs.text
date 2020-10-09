@@ -21,7 +21,7 @@ Work status:
 // -------------
 
 !!>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
-	>>- Implement unit tests for PersonSystem
+	>>>- Implement unit tests for PersonSystem
 
 
 // -------------

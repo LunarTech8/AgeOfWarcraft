@@ -5,6 +5,7 @@ import Stock
 import StorageSystem
 import BuildingSystem
 import WorkshopSystem
+import PersonSystem
 
 
 // --------------------
@@ -31,11 +32,13 @@ function executeCommand()
 	testStockSystem_AddAndRemove(true)
 	// StorageSystem:
 	testStorageSystem_AddAndRemove(true)
+	// PersonSystem:
+	testPersonSystem_StatsAndBuildings(true)
 	// BuildingSystem:
-	testBuildingSystem_Build()
+	testBuildingSystem_Build(vec2(0., 0.))
 	// WorkshopSystem:
-	testWorkshopSystem_Workers()
-	testWorkshopSystem_Production()
+	testWorkshopSystem_Workers(vec2(0., -384.))
+	testWorkshopSystem_Production(vec2(384., 0.))
 
 init
 	CreateTrigger()

@@ -344,9 +344,8 @@ init
 // Test code
 // --------------------
 
-public function testWorkshopSystem_Workers()
+public function testWorkshopSystem_Workers(vec2 testCentre)
 	let testName = setTestName("testWorkshopSystem_Workers", true)
-	let testCentre = vec2(0., -384.)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
@@ -395,9 +394,8 @@ public function testWorkshopSystem_Workers()
 		unitE.kill()
 		unitE.remove()
 
-public function testWorkshopSystem_Production()
+public function testWorkshopSystem_Production(vec2 testCentre)
 	let testName = setTestName("testWorkshopSystem_Production", true)
-	let testCentre = vec2(384., 0.)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:

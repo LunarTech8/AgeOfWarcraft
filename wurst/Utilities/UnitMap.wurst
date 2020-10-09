@@ -167,14 +167,15 @@ public class IterableUnitHashMap<T> extends UnitHashMap<T>
 	testUnitHashMap_AddAndRemove(false)
 public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	let testName = setTestName("testUnitHashMap_AddAndRemove", isInGameTest)
+	let testCentre = vec2(0., 0.)
 	// Create new map:
 	let a = new UnitHashMap<string>(null)
 	// Add entries and check:
-	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, vec2(0, 0), angle(0))
+	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	a.put(unitA, "unitA")
 	a.get(unitA).assertEquals(testName, "unitA")
 	a.has(unitA).assertTrue(testName)
-	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, vec2(0, 0), angle(0))
+	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	a.put(unitB, "unitB")
 	a.get(unitB).assertEquals(testName, "unitB")
 	// Remove entry and check:
@@ -184,7 +185,7 @@ public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	a.tryRemove(unitA).assertEquals(testName, a.nullElem)
 	a.get(unitB).assertEquals(testName, "unitB")
 	a.tryGet(unitB).assertEquals(testName, "unitB")
-	let unitC = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, vec2(0, 0), angle(0))
+	let unitC = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	a.put(unitC, "unitC")
 	a.tryRemove(unitC).assertEquals(testName, "unitC")
 	// Create another map:
@@ -197,7 +198,7 @@ public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	b.put(unitC, 3)
 	b.get(unitC).assertEquals(testName, 3)
 	b.remove(unitB)
-	let unitD = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, vec2(0, 0), angle(0))
+	let unitD = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	testSuccess(testName)
 	// Remove test units:
 	if isInGameTest

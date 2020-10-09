@@ -462,9 +462,8 @@ init
 // --------------------
 
 unit testBuildingSystem_Build_building = null
-public function testBuildingSystem_Build()
+public function testBuildingSystem_Build(vec2 testCentre)
 	let testName = setTestName("testBuildingSystem_Build", true)
-	let testCentre = vec2(0., 0.)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
 	// Order to build:

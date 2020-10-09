@@ -21,6 +21,7 @@ import UtilityFunctions
 import HomeSystem
 import WorkshopSystem
 import InstantDummyCaster
+import UnitTest
 
 
 // --------------------
@@ -277,3 +278,67 @@ init
 		for person in PERSON_MAP
 			if person != null and PERSON_MAP.get(person).reduceStats()
 				// person.kill()  // DEBUG:
+
+
+// --------------------
+// Test code
+// --------------------
+@Test public function testPersonSystem_StatsAndBuildings()
+	testPersonSystem_StatsAndBuildings(false)
+public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
+	let testName = setTestName("testPersonSystem_StatsAndBuildings", isInGameTest)
+	let testCentre = vec2(0., 0.)
+	// Create person and reduce stats:
+	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let a = unitA.getPerson()
+	a.reduceStats()
+	a.reduceStats()
+	a.reduceStats()
+	a.reduceStats()
+	a.food.assertEquals(testName, MAX_FOOD * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_FOOD * INGAME_DAY_DURATION)))
+	a.sleep.assertEquals(testName, MAX_SLEEP * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)))
+	// Check home building and sleep:
+	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
+	let unitC = createUnit(Player(0), UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
+	let homeA = unitB.getHome()
+	let homeB = unitC.getHome()
+	a.setHomeBuilding(homeA)
+	homeA.isInhabitant(unitA).assertTrue(testName)
+	a.setHomeBuilding(homeB)
+	homeA.isInhabitant(unitA).assertFalse(testName)
+	homeB.isInhabitant(unitA).assertTrue(testName)
+	a.enterBuilding(unitB)
+	a.sleepRate.assertEquals(testName, 0.)
+	a.leaveBuilding()
+	a.enterBuilding(unitC)
+	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
+	a.reduceStats()
+	a.sleep.assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
+	a.sleepRate.assertEquals(testName, 0.)
+	// Check stat limits:
+	a.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)))
+	assertEquals(testName, a.enteredBuilding, unitC)
+	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
+	a.reduceStats()
+	a.sleep.assertEquals(testName, MAX_SLEEP)
+	assertEquals(testName, a.enteredBuilding, null)
+	a.sleepRate.assertEquals(testName, 0.)
+	let unitD = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let b = unitD.getPerson()
+	b.reduceStats()
+	// TODO: test lower limits
+	// Remove test units:
+	if isInGameTest
+		unitA.kill()
+		unitA.remove()
+		unitB.kill()
+		unitB.remove()
+		unitC.kill()
+		unitC.remove()
+		unitD.kill()
+		unitD.remove()
+	// Destroy class objects:
+	destroy a
+	destroy b
+	destroy homeA
+	destroy homeB

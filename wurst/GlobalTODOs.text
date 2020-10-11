@@ -22,17 +22,17 @@ Work status:
 
 !!>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
 	>>>- Implement unit tests for PersonSystem
+!!>>- Create a SettlementSystem
+	>>- Buildings can only be build in range of a settlement centre building
+	- A settlement can only level up if it has a specific population count
+	- More advanced buildings require higher settlement levels
+	- Settlement centre buildings can't be build to close to each other
 
 
 // -------------
 // Backlog:
 // -------------
 
-!!- Create a SettlementSystem
-	- Buildings can only be build in range of a settlement centre building
-	- A settlement can only level up if it has a specific population count
-	- More advanced buildings require higher settlement levels
-	- Settlement centre buildings can't be build to close to each other
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Building buff graphics isn't visible (buff is added correctly)
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members

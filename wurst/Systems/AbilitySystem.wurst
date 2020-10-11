@@ -32,8 +32,6 @@ import PersonSystem
 // Data code
 // --------------------
 
-let INFO_MSG_TIME = 2.
-
 enum Validity
 	VALID
 	UNREGISTERED

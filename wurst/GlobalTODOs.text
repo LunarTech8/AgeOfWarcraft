@@ -24,9 +24,10 @@ Work status:
 	>>>- Implement unit tests for PersonSystem
 !!>>- Create a SettlementSystem
 	>>- Buildings can only be build in range of a settlement centre building
+	>>- Create a settlement at start of construction for a settlement centre building
+	- Settlement centre buildings can't be build to close to each other
 	- A settlement can only level up if it has a specific population count
 	- More advanced buildings require higher settlement levels
-	- Settlement centre buildings can't be build to close to each other
 
 
 // -------------
@@ -71,7 +72,7 @@ INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for co
 		- Lots of settlements required to get all/more resources.
 		- Bigger settlements required for higher classes that allow for higher tier tech and wares.
 		- Bigger settlements are more defendable than smaller ones.
-		- Settlement gowth vs. settlement expansion: Which settlements to grow and in which specialization, in which direction to expande and how fast.
+		- Settlement growth vs. settlement expansion: Which settlements to grow and in which specialization, in which direction to expande and how fast.
 	- Resource management:
 		- Resource exchange between settlements and military camps/outposts.
 		- Backpack carrier vs. wheelbarrow vs. carrier mule vs. chariot vs. ships (of different sizes and speeds) etc.

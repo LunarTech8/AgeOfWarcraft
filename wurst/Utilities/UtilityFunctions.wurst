@@ -77,6 +77,14 @@ public function int.getAbilityOrder() returns string
 			return "innerfire"
 		case AbilityIdsCustom.targetDestructable
 			return "harvest"
+		case AbilityIdsCustom.addSleepingBuff
+			return "sleep"
+		case AbilityIdsCustom.addExhaustedBuff
+			return "cripple"
+		case AbilityIdsCustom.changeProduct
+			return "fanofknives"
+		case AbilityIdsCustom.removeWorker
+			return "thunderclap"
 		default
 			Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
 			return null
@@ -99,7 +107,7 @@ public function string.getOrderNameAbility() returns int
 		case "target destructable"
 			return AbilityIdsCustom.targetDestructable
 		default
-			Log.error("ERROR: Unmapped order (" + this + ")")
+			Log.error("ERROR: Unmapped order name (" + this + ")")
 			return 0
 
 /** Returns the order name of this order or ability id. */
@@ -174,7 +182,7 @@ public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) ret
 				return null
 			else
 				return this.getOrderName()
-	Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
+	Log.error("ERROR: Unmapped order id (" + this.toString() + ")")
 	return null
 /** Returns the order name of this order id of the given unit. */
 public function int.getOrderName(unit orderedUnit) returns string

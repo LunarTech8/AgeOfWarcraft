@@ -17,6 +17,7 @@ import UnitIndexer
 import RegisterEvents
 import Orders
 import UtilityFunctions
+import ConstantDataSystem
 
 
 // --------------------
@@ -34,6 +35,12 @@ function getBuildingRange(int level) returns real
 		case 3
 			return 1024.
 	return 0.
+
+function isCentreBuilding(int buildingId) returns bool
+	switch buildingId
+		case UnitIdsCustom.AoW.townHall
+			return true
+	return false
 
 
 // --------------------

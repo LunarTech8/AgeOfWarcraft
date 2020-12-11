@@ -94,9 +94,9 @@ function unit.addHome()
 		HOME_MAP.put(this, new Home(this))
 
 function unit.removeHome()
-	let workshop = HOME_MAP.tryRemove(this)
-	if workshop != null
-		destroy workshop
+	let home = HOME_MAP.tryRemove(this)
+	if home != null
+		destroy home
 
 /** Returns the home of given unit. */
 public function unit.getHome() returns Home

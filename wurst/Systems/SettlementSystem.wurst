@@ -120,8 +120,9 @@ init
 	onUnitDeindex() ->
 		getIndexingUnit().removeFromSettlement()
 	// Register upgrade starts:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_START) ->
-		let building = GetTriggerUnit()
-		if building.addToSettlementInRange() == false
-			printTimedToPlayer("Building cannot be constructed outside the range of a settlement", INFO_MSG_TIME, building.getOwner())
-			building.issueImmediateOrderById(SpecialOrders.cancel)
+	// FIXME: when adding this also adjust building unit tests
+	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_START) ->
+	// 	let building = GetTriggerUnit()
+	// 	if building.addToSettlementInRange() == false
+	// 		printTimedToPlayer("Building cannot be constructed outside the range of a settlement", INFO_MSG_TIME, building.getOwner())
+	// 		building.issueImmediateOrderById(SpecialOrders.cancel)

@@ -190,12 +190,10 @@ public function bool.assertEquals(string testName, bool expected)
 
 /** Asserts that this booleans is true. If it is not, an error is thrown with a message. */
 public function bool.assertTrue(string testName)
-	useTestName(testName)
 	this.assertEquals(testName, true)
 
 /** Asserts that this booleans is false. If it is not, an error is thrown with a message. */
 public function bool.assertFalse(string testName)
-	useTestName(testName)
 	this.assertEquals(testName, false)
 
 /** Asserts that this booleans is true. If it is not, an error is thrown. */

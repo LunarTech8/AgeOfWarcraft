@@ -3,7 +3,9 @@
 1.0.0
 
 // Description:
-TODO
+Contains all data of persons like name, home, workplace, etc.
+Monitors basic values like sleep and food.
+Handles the automatizations based on the data and basic values.
 
 // Changelog:
 - 1.0.0:
@@ -315,28 +317,25 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
 	a.reduceStats()
 	a.sleep.assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION), 0.001)
-	a.sleepRate.assertEquals(testName, 0.)
 	// Check max sleep limit:
-	// FIXME: assert 12 says that unit is still in peasantHouse but has 0. sleep rate instead, figure out which test it is
-	//a.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
+	a.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
 	assertEquals(testName, a.enteredBuilding, unitC)
-	//a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()), 0.001)
+	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()), 0.001)
 	a.reduceStats()
-	//a.sleep.assertEquals(testName, MAX_SLEEP)
+	a.sleep.assertEquals(testName, MAX_SLEEP)
 	assertEquals(testName, a.enteredBuilding, null)
-	//a.sleepRate.assertEquals(testName, 0.)
-	// Remove test units:
+	a.sleepRate.assertEquals(testName, 0.)
 	if isInGameTest
+		// Remove test units:
 		unitA.kill()
 		unitA.remove()
 		unitB.kill()
 		unitB.remove()
 		unitC.kill()
 		unitC.remove()
-	// Destroy class objects:
-	// FIXME: check why there seems to be a difference between Person and Home destroy
-	destroy a
-	if not isInGameTest
+	else
+		// Destroy class objects:
+		destroy a
 		destroy homeA
 		destroy homeB
 
@@ -350,7 +349,7 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 	a.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is exhausted:
-		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
+		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)  // FIXME: fails
 		a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
 		a.sleepRate.assertEquals(testName, 0.)
@@ -377,5 +376,3 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 		// Remove test units:
 		unitA.kill()
 		unitA.remove()
-		// Destroy class objects:
-		destroy a

@@ -22,5 +22,7 @@ import AbilityPresetFunctions
     ..presetManaCost(0)
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air)
+    // Techtree:
+    ..presetNoRequirements()
     // Text:
     ..presetNameAndTooltips("Add exhausted buff", "Adds the exhausted buff to the target.")

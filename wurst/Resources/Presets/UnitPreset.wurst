@@ -37,3 +37,8 @@ public class UnitPreset extends UnitDefinition
 		setShadowImageCenterY(centerXAndY)
 		setShadowImageWidth(widthAndHeight)
 		setShadowImageHeight(widthAndHeight)
+
+	function presetSpeed(int speedBase)
+		setSpeedMinimum(1)
+		setSpeedMaximum(522)
+		setSpeedBase(speedBase)

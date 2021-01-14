@@ -185,11 +185,11 @@ public class Person
 			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addSleepingBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
 			sleep(0)
 		else if sleep <= MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted) == false
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addExhaustedBuff.getAbilityOrder(), user)
 		else if sleep > MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted)
 			user.removeAbility(BuffIdsCustom.exhausted)
 		if sleep >= MAX_SLEEP
-			if enteredBuilding == home.getUnit()
+			if home != null and enteredBuilding == home.getUnit()
 				leaveBuilding()
 			else
 				user.removeAbility(BuffIdsCustom.sleeping)
@@ -325,6 +325,7 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 	a.sleep.assertEquals(testName, MAX_SLEEP)
 	assertEquals(testName, a.enteredBuilding, null)
 	a.sleepRate.assertEquals(testName, 0.)
+	testSuccess(testName)
 	if isInGameTest
 		// Remove test units:
 		unitA.kill()
@@ -349,7 +350,7 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 	a.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is exhausted:
-		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)  // FIXME: fails
+		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
 		a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
 		a.sleepRate.assertEquals(testName, 0.)
@@ -372,6 +373,7 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 		// Check that person woke up:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
 		a.sleepRate.assertEquals(testName, 0.)
+		testSuccess(testName)
 	doAfter(5 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
 		unitA.kill()

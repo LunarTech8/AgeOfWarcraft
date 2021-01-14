@@ -17,7 +17,7 @@
 //     // Combat:
 //     ..presetAttackRange(true, 150, 125.)
 //     // Movement:
-//     ..setSpeedBase(270)
+//     ..presetSpeed(270)
 //     // Pathing:
 //     ..setCollisionSize(32.)
 //     // Stats:

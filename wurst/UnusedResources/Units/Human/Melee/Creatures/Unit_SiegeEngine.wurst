@@ -18,7 +18,7 @@
 //     ..presetAttackRange(true, 300, 125.)
 //     ..presetAttack1TargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.debris, TargetsAllowed.item_t, TargetsAllowed.ward)
 //     // Movement:
-//     ..setSpeedBase(80)
+//     ..presetSpeed(80)
 //     // Pathing:
 //     ..setCollisionSize(24.)
 //     // Stats:

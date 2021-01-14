@@ -9,6 +9,8 @@ import ObjEditingCommons
 
 @compiletime function genObj()
     new BuffDefinition(BuffIdsCustom.exhausted, 'Bcri')  // Buff based on cripple
+    // Art:
+    ..setIcon(Icons.bTNSleep)
     // Stats:
     ..setRace(Race.Other.toObjectString())
     // Text:

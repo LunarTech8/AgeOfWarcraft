@@ -21,7 +21,7 @@ Work status:
 // -------------
 
 !!>>- Create a PersonSystem that stores and manages all stats of a person like food, sleep, house, workplace, etc.
-	>>>- Implement unit tests for PersonSystem
+	>- Awake sleeping person when attacked
 !!>>- Create a SettlementSystem
 	>>- Buildings can only be build in range of a settlement centre building
 	>>- Create a settlement at start of construction for a settlement centre building

@@ -15,7 +15,7 @@ import UnitPreset
     ..setSelectionScale(.5)
     ..presetShadowImage(20., 50.)
     // Movement:
-    ..setSpeedBase(80)
+    ..presetSpeed(80)
     // Pathing:
     ..setCollisionSize(12.)
     // Stats:

@@ -24,6 +24,7 @@ import HomeSystem
 import WorkshopSystem
 import InstantDummyCaster
 import UnitTest
+import DamageEvent
 
 
 // --------------------
@@ -41,6 +42,7 @@ let MAX_DAYS_NO_FOOD = 4. // Max days of no food before person dies of starvatio
 let MAX_DAYS_NO_SLEEP = 3.  // Max days of no sleep before person falls asleep on the ground
 let DAYS_TILL_EXHAUSTED = 1.  // Days of no sleep before person gets exhausted by sleep deprivation
 let STATS_ADJUSTMENT_RATE = INGAME_DAY_DURATION / 24.
+let SLEEP_BOOST_BY_DAMAGE = 2 * (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)  // Adrenalin boost by taking damage
 
 int surnameCounter = 0
 
@@ -161,40 +163,8 @@ public class Person
 		home = null
 		workplace = null
 
-	private function sleep(int buildingUnitId)
-		if sleepRate > 0.
-			Log.error("ERROR: Person is already sleeping")
-		sleepRate = getSleepRate(buildingUnitId)
-
-	private function awake()
-		if sleepRate <= 0.
-			Log.error("ERROR: Person is already awake")
-		sleepRate = 0.
-
-	protected function reduceStats() returns bool
-		// Adjust food:
-		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-		food = min(food, MAX_FOOD)
-		// Adjust sleep:
-		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-		sleep = min(sleep, MAX_SLEEP)
-		if sleep <= 0.
-			if enteredBuilding != null
-				leaveBuilding()
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addSleepingBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
-			sleep(0)
-		else if sleep <= MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted) == false
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addExhaustedBuff.getAbilityOrder(), user)
-		else if sleep > MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted)
-			user.removeAbility(BuffIdsCustom.exhausted)
-		if sleep >= MAX_SLEEP
-			if home != null and enteredBuilding == home.getUnit()
-				leaveBuilding()
-			else
-				user.removeAbility(BuffIdsCustom.sleeping)
-				sleepRate = 0.
-		return food <= 0.
+	function isSleeping() returns bool
+		return sleepRate > 0.
 
 	function getName() returns string
 		return name
@@ -239,6 +209,41 @@ public class Person
 		else
 			Log.error("ERROR: Person is not in a building")
 
+	protected function reduceStats() returns bool
+		// Adjust food:
+		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		food = min(food, MAX_FOOD)
+		// Adjust sleep:
+		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		sleep = min(sleep, MAX_SLEEP)
+		if sleep <= 0. and isSleeping() == false
+			if enteredBuilding != null
+				leaveBuilding()
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addSleepingBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
+			sleep(0)
+		else if sleep >= MAX_SLEEP
+			if home != null and enteredBuilding == home.getUnit()
+				leaveBuilding()
+			else
+				user.removeAbility(BuffIdsCustom.sleeping)
+				sleepRate = 0.
+		if sleep <= MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted) == false
+			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addExhaustedBuff.getAbilityOrder(), user)
+		else if sleep > MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted)
+			user.removeAbility(BuffIdsCustom.exhausted)
+		return food <= 0.
+
+	protected function awake()
+		if isSleeping() == false
+			Log.error("ERROR: Person is already awake")
+		sleepRate = 0.
+
+	private function sleep(int buildingUnitId)
+		if isSleeping() == true
+			Log.error("ERROR: Person is already sleeping")
+		sleepRate = getSleepRate(buildingUnitId)
+
 
 function getRandomName() returns string
 	return getRandomForename() + " " + getRandomSurname()
@@ -280,7 +285,13 @@ init
 	doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
 		for person in PERSON_MAP
 			if person != null and PERSON_MAP.get(person).reduceStats()
-				// person.kill()  // DEBUG:
+				// person.kill()  // DEBUG: for testing deactivated
+	// Register attacks on sleeping persons:
+	DamageEvent.addListener() ->
+		let targetPerson = DamageEvent.getTarget().getPerson()
+		if targetPerson != null and targetPerson.isSleeping()
+			targetPerson.sleep += SLEEP_BOOST_BY_DAMAGE
+			targetPerson.awake()
 
 
 // --------------------
@@ -311,20 +322,21 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 	homeA.isInhabitant(unitA).assertFalse(testName)
 	homeB.isInhabitant(unitA).assertTrue(testName)
 	a.enterBuilding(unitB)
-	a.sleepRate.assertEquals(testName, 0.)
+	a.isSleeping().assertFalse(testName)
 	a.leaveBuilding()
 	a.enterBuilding(unitC)
+	a.isSleeping().assertTrue(testName)
 	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
 	a.reduceStats()
 	a.sleep.assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION), 0.001)
 	// Check max sleep limit:
 	a.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
 	assertEquals(testName, a.enteredBuilding, unitC)
-	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()), 0.001)
+	a.isSleeping().assertTrue(testName)
 	a.reduceStats()
 	a.sleep.assertEquals(testName, MAX_SLEEP)
 	assertEquals(testName, a.enteredBuilding, null)
-	a.sleepRate.assertEquals(testName, 0.)
+	a.isSleeping().assertFalse(testName)
 	testSuccess(testName)
 	if isInGameTest
 		// Remove test units:
@@ -353,12 +365,13 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
 		a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
-		a.sleepRate.assertEquals(testName, 0.)
+		a.isSleeping().assertFalse(testName)
 		a.reduceStats()
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is sleeping on the ground:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertTrue(testName)
 		a.sleepRate.assertEquals(testName, getSleepRate(0))
+		a.isSleeping().assertTrue(testName)
 		a.sleep = MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP)
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
 		a.reduceStats()
@@ -367,14 +380,37 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertFalse(testName)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertTrue(testName)
 		a.sleep = MAX_SLEEP
-		a.sleepRate.assertEquals(testName, getSleepRate(0))
+		a.isSleeping().assertTrue(testName)
 		a.reduceStats()
 	doAfter(4 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person woke up:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
-		a.sleepRate.assertEquals(testName, 0.)
+		a.isSleeping().assertFalse(testName)
 		testSuccess(testName)
 	doAfter(5 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
 		unitA.kill()
 		unitA.remove()
+
+public function testPersonSystem_DamageReaction(vec2 testCentre)
+	let testName = setTestName("testPersonSystem_DamageReaction", true)
+	// Check lower stat limits:
+	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let a = unitA.getPerson()
+	a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+	a.reduceStats()
+	doAfter(MIN_ACTION_SLEEP_TIME) () ->
+		// Check that person is sleeping and attack it:
+		a.isSleeping().assertTrue(testName)
+		unitB.issueTargetOrder("attack", unitA)  // FIXME: this doesn't seem to work, maybe because if OrderSystem
+	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
+		// Check that person woke up:
+		a.isSleeping().assertFalse(testName)
+		testSuccess(testName)
+	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
+		// Remove test units:
+		// unitA.kill()
+		// unitB.kill()
+		// unitA.remove()
+		// unitB.remove()

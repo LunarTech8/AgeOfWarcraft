@@ -22,7 +22,7 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	print("-------- Unit tests (10):")
+	print("-------- Unit tests (11):")
 	// UnitMap:
 	testEntity_CreateAndIndex(true)
 	testUnitHashMap_AddAndRemove(true)
@@ -35,6 +35,7 @@ function executeCommand()
 	// PersonSystem:
 	testPersonSystem_StatsAndBuildings(true)
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))
+	testPersonSystem_DamageReaction(vec2(0., 384.))
 	// BuildingSystem:
 	testBuildingSystem_Build(vec2(0., 0.))
 	// WorkshopSystem:

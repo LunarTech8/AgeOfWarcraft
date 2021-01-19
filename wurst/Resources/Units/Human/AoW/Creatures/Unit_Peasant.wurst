@@ -6,6 +6,9 @@ import UnitPreset
 // Data code
 // --------------------
 
+public class UnitData_Peasant
+    static constant attack1CooldownTime = 1.
+
 @compiletime function genObj()
     new UnitPreset(UnitIdsCustom.AoW.peasant, UnitIds.peasant)
     // Abilities:
@@ -15,6 +18,7 @@ import UnitPreset
     ..setSelectionScale(.5)
     ..presetShadowImage(20., 50.)
     // Combat:
+    ..setAttack1CooldownTime(UnitData_Peasant.attack1CooldownTime)
     ..presetAttackRange(true, 30, 100.)
     // Movement:
     ..presetSpeed(80)

@@ -9,7 +9,7 @@ import AbilityPresetFunctions
 @compiletime function genObj()
     new AbilityDefinitionSleepcreep(AbilityIdsCustom.addSleepingBuff)
     // Ability specific data:
-    ..presetStunDuration((int lvl) -> 1.)
+    ..presetStunDuration((int lvl) -> 0.01)
     // Art:
     ..setIconNormal("")
     // Stats:

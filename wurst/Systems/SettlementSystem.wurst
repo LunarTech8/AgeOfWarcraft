@@ -25,6 +25,7 @@ import ConstantDataSystem
 // --------------------
 
 let LEVEL_ICON_PATH = Icons.bTNSnazzyScroll
+let MAX_LEVEL = 3
 
 function getBuildingRange(int level) returns real
 	switch level
@@ -39,6 +40,10 @@ function getBuildingRange(int level) returns real
 function isCentreBuilding(int buildingId) returns bool
 	switch buildingId
 		case UnitIdsCustom.AoW.townHall
+			return true
+		case UnitIdsCustom.AoW.keep
+			return true
+		case UnitIdsCustom.AoW.castle
 			return true
 	return false
 
@@ -82,9 +87,10 @@ class Settlement
 
 
 function unit.addToSettlementInRange() returns bool
+	let pos = this.getPos()
 	for centreBuilding in SETTLEMENT_MAP
 		let settlement = SETTLEMENT_MAP.get(centreBuilding)
-		if this.getPos().distanceTo(centreBuilding.getPos()) <= getBuildingRange(settlement.level)
+		if pos.distanceTo(centreBuilding.getPos()) <= getBuildingRange(settlement.level)
 			settlement.addBuilding(this)
 			return true
 	return false
@@ -109,6 +115,18 @@ public function unit.getSettlement() returns Settlement
 		settlement = null
 	return settlement
 
+/** Returns if this unit could be added as settlement. */
+public function unit.addSettlement() returns bool
+	if SETTLEMENT_MAP.has(this) or isCentreBuilding(this.getUnitId()) == false
+		return false
+	let pos = this.getPos()
+	let range = 2 * getBuildingRange(MAX_LEVEL)
+	for centreBuilding in SETTLEMENT_MAP
+		if pos.distanceTo(centreBuilding.getPos()) <= range
+			return false
+	SETTLEMENT_MAP.put(this, new Settlement(this))
+	return true
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
 	this.addMultiboardLine("Settlement:", HEADLINE_ICON_PATH)
@@ -120,9 +138,13 @@ init
 	onUnitDeindex() ->
 		getIndexingUnit().removeFromSettlement()
 	// Register upgrade starts:
-	// FIXME: when adding this also adjust building unit tests
-	// registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_START) ->
-	// 	let building = GetTriggerUnit()
-	// 	if building.addToSettlementInRange() == false
-	// 		printTimedToPlayer("Building cannot be constructed outside the range of a settlement", INFO_MSG_TIME, building.getOwner())
-	// 		building.issueImmediateOrderById(SpecialOrders.cancel)
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_START) ->
+		let building = GetTriggerUnit()
+		if isCentreBuilding(building.getUnitId())
+			if building.addSettlement() == false
+				printTimedToPlayer("Settlement cannot be founded that close to another settlement", INFO_MSG_TIME, building.getOwner())
+				building.issueImmediateOrderById(SpecialOrders.cancel)
+		else
+			if building.addToSettlementInRange() == false
+				printTimedToPlayer("Building cannot be constructed outside the range of a settlement", INFO_MSG_TIME, building.getOwner())
+				building.issueImmediateOrderById(SpecialOrders.cancel)

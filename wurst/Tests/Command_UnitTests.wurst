@@ -37,10 +37,10 @@ function executeCommand()
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))
 	testPersonSystem_DamageReaction(vec2(0., 384.))
 	// BuildingSystem:
-	testBuildingSystem_Build(vec2(0., 0.))
+	testBuildingSystem_Build(vec2(768., -2816.))
 	// WorkshopSystem:
 	testWorkshopSystem_Workers(vec2(0., -384.))
-	testWorkshopSystem_Production(vec2(384., 0.))
+	testWorkshopSystem_Production(vec2(0., 0.))
 
 init
 	CreateTrigger()

@@ -21,11 +21,10 @@ Work status:
 // -------------
 
 !!>>- Create a SettlementSystem
-	>>- Buildings can only be build in range of a settlement centre building
-	>>- Create a settlement at start of construction for a settlement centre building
-	- Settlement centre buildings can't be build to close to each other
+	- Write unit tests
 	- A settlement can only level up if it has a specific population count
 	- More advanced buildings require higher settlement levels
+	- What should happen to buildings in a settlement if the settlement gets destroyed?
 
 
 // -------------

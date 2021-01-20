@@ -21,6 +21,7 @@ import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
 import StorageSystem
+import SettlementSystem
 import OrderSystem
 import UnitMap
 import UnitIndexer
@@ -468,6 +469,8 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.townHall, testCentre.add(384., 0.), angle(0))
+	unitB.addSettlement().assertTrue(testName)
 	let storageA = unitA.getStorage()
 	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))
@@ -497,5 +500,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 		testBuildingSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
+		unitB.kill()
 		unitA.kill()
+		unitB.remove()
 		unitA.remove()

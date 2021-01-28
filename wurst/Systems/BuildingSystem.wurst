@@ -470,7 +470,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	// Order to build:
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.townHall, testCentre.add(384., 0.), angle(0))
-	unitB.addSettlement().assertTrue(testName)
+	unitB.tryAddSettlement().assertTrue(testName)
 	let storageA = unitA.getStorage()
 	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))

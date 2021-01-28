@@ -37,15 +37,39 @@ function getBuildingRange(int level) returns real
 			return 1024.
 	return 0.
 
-function isCentreBuilding(int buildingId) returns bool
+function getRequiredLevel(int buildingId) returns int
 	switch buildingId
 		case UnitIdsCustom.AoW.townHall
-			return true
+			return 0
 		case UnitIdsCustom.AoW.keep
-			return true
+			return 0
 		case UnitIdsCustom.AoW.castle
-			return true
-	return false
+			return 0
+		case UnitIdsCustom.AoW.peasantHouse
+			return 1
+		case UnitIdsCustom.AoW.lumberMill
+			return 1
+		case UnitIdsCustom.AoW.barracks
+			return 1
+		case UnitIdsCustom.AoW.blacksmith
+			return 2
+	return 1
+
+function getInvalidMessageText(Validity val) returns string
+	switch val
+		case OUTSIDE_RANGE
+			return "Can't be constructed outside the range of a settlement"
+		case INVALID_LEVEL
+			return "Settlement level to low for this building type"
+		case TOO_CLOSE
+			return "Can't be founded that close to another settlement"
+		case ALREADY_ADDED
+			return "Is already a settlement"
+		case INVALID_TYPE
+			return "Invalid building type to found a settlement"
+		default
+			Log.error("ERROR: Unregistered invalidity message text for " + (val castTo int).toString())
+			return null
 
 
 // --------------------
@@ -53,6 +77,14 @@ function isCentreBuilding(int buildingId) returns bool
 // --------------------
 
 let SETTLEMENT_MAP = new IterableUnitHashMap<Settlement>(null)
+
+enum Validity
+	VALID
+	OUTSIDE_RANGE
+	INVALID_LEVEL
+	TOO_CLOSE
+	ALREADY_ADDED
+	INVALID_TYPE
 
 class Settlement
 	private unit centreBuilding
@@ -67,6 +99,8 @@ class Settlement
 		level = 1
 
 	ondestroy
+		for building in buildings
+			building.setOwner(Player(PLAYER_NEUTRAL_PASSIVE), true)
 		buildings.destr()
 		persons.destr()
 
@@ -86,14 +120,32 @@ class Settlement
 			persons.removeUnit(member)
 
 
-function unit.addToSettlementInRange() returns bool
+function isCentreBuilding(int buildingId) returns bool
+	return getRequiredLevel(buildingId) == 0
+
+function unit.addSettlement() returns Validity
+	if SETTLEMENT_MAP.has(this)
+		return Validity.ALREADY_ADDED
+	if isCentreBuilding(this.getUnitId()) == false
+		return Validity.INVALID_TYPE
+	let pos = this.getPos()
+	let range = 2 * getBuildingRange(MAX_LEVEL)
+	for centreBuilding in SETTLEMENT_MAP
+		if pos.distanceTo(centreBuilding.getPos()) <= range
+			return Validity.TOO_CLOSE
+	SETTLEMENT_MAP.put(this, new Settlement(this))
+	return Validity.VALID
+
+function unit.addToSettlementInRange() returns Validity
 	let pos = this.getPos()
 	for centreBuilding in SETTLEMENT_MAP
 		let settlement = SETTLEMENT_MAP.get(centreBuilding)
 		if pos.distanceTo(centreBuilding.getPos()) <= getBuildingRange(settlement.level)
+			if getRequiredLevel(this.getUnitId()) > settlement.level
+				return Validity.INVALID_LEVEL
 			settlement.addBuilding(this)
-			return true
-	return false
+			return Validity.VALID
+	return Validity.OUTSIDE_RANGE
 
 function unit.removeFromSettlement()
 	var settlement = SETTLEMENT_MAP.tryRemove(this)
@@ -115,17 +167,9 @@ public function unit.getSettlement() returns Settlement
 		settlement = null
 	return settlement
 
-/** Returns if this unit could be added as settlement. */
-public function unit.addSettlement() returns bool
-	if SETTLEMENT_MAP.has(this) or isCentreBuilding(this.getUnitId()) == false
-		return false
-	let pos = this.getPos()
-	let range = 2 * getBuildingRange(MAX_LEVEL)
-	for centreBuilding in SETTLEMENT_MAP
-		if pos.distanceTo(centreBuilding.getPos()) <= range
-			return false
-	SETTLEMENT_MAP.put(this, new Settlement(this))
-	return true
+/** Trys to add this unit as settlement. Returns if it could be added. */
+public function unit.tryAddSettlement() returns bool
+	return this.addSettlement() == Validity.VALID
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
@@ -140,11 +184,11 @@ init
 	// Register upgrade starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_START) ->
 		let building = GetTriggerUnit()
+		Validity val
 		if isCentreBuilding(building.getUnitId())
-			if building.addSettlement() == false
-				printTimedToPlayer("Settlement cannot be founded that close to another settlement", INFO_MSG_TIME, building.getOwner())
-				building.issueImmediateOrderById(SpecialOrders.cancel)
+			val = building.addSettlement()
 		else
-			if building.addToSettlementInRange() == false
-				printTimedToPlayer("Building cannot be constructed outside the range of a settlement", INFO_MSG_TIME, building.getOwner())
-				building.issueImmediateOrderById(SpecialOrders.cancel)
+			val = building.addToSettlementInRange()
+		if val != Validity.VALID
+			printTimedToPlayer("Invalid: " + getInvalidMessageText(val), INFO_MSG_TIME, building.getOwner())
+			building.issueImmediateOrderById(SpecialOrders.cancel)

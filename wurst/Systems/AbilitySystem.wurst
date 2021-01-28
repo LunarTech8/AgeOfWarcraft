@@ -32,20 +32,6 @@ import PersonSystem
 // Data code
 // --------------------
 
-enum Validity
-	VALID
-	UNREGISTERED
-	ERROR
-	INVALID_SOURCE
-	INVALID_TARGET
-	WARES_NOT_AVAILABLE
-	WORKERS_NOT_AVAILABLE
-	NO_FREE_UNIT_SLOT
-	NO_FREE_STORAGE
-	NO_REQUIRED_WARES
-	WORKER_ALREADY_BUILDING
-	RESOURCE_IS_DEPLETED
-
 function getInvalidMessageText(int abilityId, Validity val) returns string
 	switch abilityId
 		case AbilityIdsCustom.transferWares
@@ -116,6 +102,20 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 // --------------------
 // Functional code
 // --------------------
+
+enum Validity
+	VALID
+	UNREGISTERED
+	ERROR
+	INVALID_SOURCE
+	INVALID_TARGET
+	WARES_NOT_AVAILABLE
+	WORKERS_NOT_AVAILABLE
+	NO_FREE_UNIT_SLOT
+	NO_FREE_STORAGE
+	NO_REQUIRED_WARES
+	WORKER_ALREADY_BUILDING
+	RESOURCE_IS_DEPLETED
 
 /** Perform harvest and returns if another harvest with the given target is still valid. */
 function unit.harvest(entity target) returns bool

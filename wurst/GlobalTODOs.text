@@ -23,8 +23,7 @@ Work status:
 !!>>- Create a SettlementSystem
 	- Write unit tests
 	- A settlement can only level up if it has a specific population count
-	- More advanced buildings require higher settlement levels
-	- What should happen to buildings in a settlement if the settlement gets destroyed?
+	- What should happen to buildings in a settlement if the settlement gets destroyed? How to handle the population?
 
 
 // -------------

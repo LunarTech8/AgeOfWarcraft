@@ -3,7 +3,7 @@
 1.0.0
 
 // Description:
-TODO
+Stores settlements and its buildings, persons and progress level.
 
 // Changelog:
 - 1.0.0:
@@ -110,8 +110,11 @@ class Settlement
 		else
 			return persons.contains(member)
 
-	function addBuilding(unit building)
-		buildings.addUnit(building)
+	function addMemeber(unit member)
+		if member.isType(UNIT_TYPE_STRUCTURE)
+			buildings.addUnit(member)
+		else
+			persons.addUnit(member)
 
 	function removeMember(unit member)
 		if member.isType(UNIT_TYPE_STRUCTURE)
@@ -124,6 +127,7 @@ function isCentreBuilding(int buildingId) returns bool
 	return getRequiredLevel(buildingId) == 0
 
 function unit.addSettlement() returns Validity
+	// Check validity:
 	if SETTLEMENT_MAP.has(this)
 		return Validity.ALREADY_ADDED
 	if isCentreBuilding(this.getUnitId()) == false
@@ -133,7 +137,14 @@ function unit.addSettlement() returns Validity
 	for centreBuilding in SETTLEMENT_MAP
 		if pos.distanceTo(centreBuilding.getPos()) <= range
 			return Validity.TOO_CLOSE
-	SETTLEMENT_MAP.put(this, new Settlement(this))
+	// Add settlement and nearby units:
+	let settlement = new Settlement(this)
+	SETTLEMENT_MAP.put(this, settlement)
+	ENUM_GROUP.enumUnitsInRange(this.getPos(), getBuildingRange(settlement.level), null)
+	let owner = this.getOwner()
+	for targetUnit from ENUM_GROUP
+		if targetUnit.getOwner() == owner and targetUnit.getSettlement() == null
+			settlement.addMemeber(targetUnit)
 	return Validity.VALID
 
 function unit.addToSettlementInRange() returns Validity
@@ -143,7 +154,7 @@ function unit.addToSettlementInRange() returns Validity
 		if pos.distanceTo(centreBuilding.getPos()) <= getBuildingRange(settlement.level)
 			if getRequiredLevel(this.getUnitId()) > settlement.level
 				return Validity.INVALID_LEVEL
-			settlement.addBuilding(this)
+			settlement.addMemeber(this)
 			return Validity.VALID
 	return Validity.OUTSIDE_RANGE
 

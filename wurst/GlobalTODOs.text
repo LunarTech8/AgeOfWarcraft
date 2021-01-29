@@ -23,7 +23,9 @@ Work status:
 !!>>- Create a SettlementSystem
 	- Write unit tests
 	- A settlement can only level up if it has a specific population count
-	- What should happen to buildings in a settlement if the settlement gets destroyed? How to handle the population?
+	- Add a way to handle person belonging to/from settlements
+	- What should happen to buildings in a settlement if the settlement gets destroyed? How to handle the persons?
+!!- Building buff graphics isn't visible (buff is added correctly)
 
 
 // -------------
@@ -31,7 +33,6 @@ Work status:
 // -------------
 
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
-!!- Building buff graphics isn't visible (buff is added correctly)
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
 !!- Reorder ability positions (e.g. for peasant)
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities

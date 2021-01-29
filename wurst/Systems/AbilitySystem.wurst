@@ -26,6 +26,7 @@ import ClosureTimers
 import WorkshopSystem
 import HomeSystem
 import PersonSystem
+import SettlementSystem
 
 
 // --------------------
@@ -54,6 +55,8 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "Worker can't build at target building site type"
 				case INVALID_TARGET
 					return "Build target is no building site"
+				case WRONG_SETTLEMENT
+					return "Building site belongs to another settlement"
 				case WARES_NOT_AVAILABLE
 					return "Not all required wares are available for building"
 				case WORKER_ALREADY_BUILDING
@@ -80,6 +83,8 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "Unit can't enter target building type"
 				case INVALID_TARGET
 					return "Can't enter this kind of building"
+				case WRONG_SETTLEMENT
+					return "Can't enter building of another settlement"
 				case NO_FREE_UNIT_SLOT
 					return "Target already reached its maximum of concurrent units"
 				default
@@ -109,6 +114,7 @@ enum Validity
 	ERROR
 	INVALID_SOURCE
 	INVALID_TARGET
+	WRONG_SETTLEMENT
 	WARES_NOT_AVAILABLE
 	WORKERS_NOT_AVAILABLE
 	NO_FREE_UNIT_SLOT
@@ -228,6 +234,9 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		let buildingSite = targetUnit.getBuildingSite()
 		if buildingSite == null
 			return Validity.INVALID_TARGET
+		// Check if source belongs to settlement of target:
+		if this.getSettlement() != targetUnit.getSettlement()
+			return Validity.WRONG_SETTLEMENT
 		// Check if required wares are available:
 		if buildingSite.isEmpty() == false
 			return Validity.WARES_NOT_AVAILABLE
@@ -258,6 +267,9 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		let targetHome = targetUnit.getHome()
 		if targetWorkshop == null and targetHome == null
 			return Validity.INVALID_TARGET
+		// Check if source belongs to settlement of target:
+		if this.getSettlement() != targetUnit.getSettlement()
+			return Validity.WRONG_SETTLEMENT
 		// Check target type specific validities:
 		if targetWorkshop != null
 			// Check if source is allowed to work at target:

@@ -18,6 +18,10 @@ import RegisterEvents
 import Orders
 import UtilityFunctions
 import ConstantDataSystem
+import UnitTest
+import ClosureTimers
+import StorageSystem
+import Stock
 
 
 // --------------------
@@ -30,12 +34,21 @@ let MAX_LEVEL = 3
 function getBuildingRange(int level) returns real
 	switch level
 		case 1
-			return 512.
-		case 2
 			return 768.
-		case 3
+		case 2
 			return 1024.
+		case 3
+			return 1280.
 	return 0.
+
+function getLevel(int popCount) returns int
+	if popCount >= 30
+		return 3
+	else if popCount >= 10
+		return 2
+	else if popCount >= 1
+		return 1
+	return 0
 
 function getRequiredLevel(int buildingId) returns int
 	switch buildingId
@@ -96,13 +109,16 @@ class Settlement
 		this.centreBuilding = centreBuilding
 		buildings = CreateGroup()
 		persons = CreateGroup()
-		level = 1
+		updateLevel()
 
 	ondestroy
 		for building in buildings
 			building.setOwner(Player(PLAYER_NEUTRAL_PASSIVE), true)
 		buildings.destr()
 		persons.destr()
+
+	private function updateLevel()
+		level = getLevel(persons.size())
 
 	function isMember(unit member) returns bool
 		if member.isType(UNIT_TYPE_STRUCTURE)
@@ -115,12 +131,14 @@ class Settlement
 			buildings.addUnit(member)
 		else
 			persons.addUnit(member)
+			updateLevel()
 
 	function removeMember(unit member)
 		if member.isType(UNIT_TYPE_STRUCTURE)
 			buildings.removeUnit(member)
 		else
 			persons.removeUnit(member)
+			updateLevel()
 
 
 function isCentreBuilding(int buildingId) returns bool
@@ -203,3 +221,40 @@ init
 		if val != Validity.VALID
 			printTimedToPlayer("Invalid: " + getInvalidMessageText(val), INFO_MSG_TIME, building.getOwner())
 			building.issueImmediateOrderById(SpecialOrders.cancel)
+
+
+// --------------------
+// Test code
+// --------------------
+
+unit testSettlementSystem_Build_building = null
+public function testSettlementSystem_Build(vec2 testCentre)
+	let testName = setTestName("testSettlementSystem_Build", true)
+	// Remove units blocking the building:
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	// Order to build:
+	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let storageA = unitA.getStorage()
+	assertNotNull(testName, storageA)
+	storageA.addWare(ware(WareType.WOOD, 4))
+	storageA.addWare(ware(WareType.STONE, 3))
+	storageA.addWare(ware(WareType.METAL, 2))
+	unitA.issuePointOrderById(UnitIdsCustom.AoW.townHall, testCentre)
+	testSettlementSystem_Build_building = null
+	doAfter(MIN_ACTION_SLEEP_TIME) () ->
+		// Check unit mappings:
+		let a = unitA.getBuildingSiteOfWorker()  // FIXME: can't import BuildingSystem because of cyclic dependancy
+		assertNotNull(testName, a)
+		testSettlementSystem_Build_building = a.getUnit()
+		assertNotNull(testName, testSettlementSystem_Build_building)
+		assertEquals(testName, testSettlementSystem_Build_building.getBuildingSite(), a)
+		let settlementA = testSettlementSystem_Build_building.getSettlement()
+		assertNotNull(testName, settlementA)
+		// TODO: implement
+	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
+		// Abort construction:
+		testSettlementSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)
+	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
+		// Remove test units:
+		unitA.kill()
+		unitA.remove()

@@ -500,7 +500,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 		testBuildingSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
-		unitB.kill()
 		unitA.kill()
-		unitB.remove()
+		unitB.kill()
 		unitA.remove()
+		unitB.remove()

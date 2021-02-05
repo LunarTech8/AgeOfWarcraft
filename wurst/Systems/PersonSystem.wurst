@@ -305,39 +305,39 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 	let testCentre = vec2(0., 0.)
 	// Create person and reduce stats:
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let a = unitA.getPerson()
-	a.reduceStats()
-	a.reduceStats()
-	a.reduceStats()
-	a.reduceStats()
-	a.food.assertEquals(testName, MAX_FOOD * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_FOOD * INGAME_DAY_DURATION)), 0.001)
-	a.sleep.assertEquals(testName, MAX_SLEEP * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)), 0.001)
+	let personA = unitA.getPerson()
+	personA.reduceStats()
+	personA.reduceStats()
+	personA.reduceStats()
+	personA.reduceStats()
+	personA.food.assertEquals(testName, MAX_FOOD * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_FOOD * INGAME_DAY_DURATION)), 0.001)
+	personA.sleep.assertEquals(testName, MAX_SLEEP * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)), 0.001)
 	// Check home building and sleep:
 	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
 	let unitC = createUnit(Player(0), UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
 	let homeA = unitB.getHome()
 	let homeB = unitC.getHome()
-	a.setHomeBuilding(homeA)
+	personA.setHomeBuilding(homeA)
 	homeA.isInhabitant(unitA).assertTrue(testName)
-	a.setHomeBuilding(homeB)
+	personA.setHomeBuilding(homeB)
 	homeA.isInhabitant(unitA).assertFalse(testName)
 	homeB.isInhabitant(unitA).assertTrue(testName)
-	a.enterBuilding(unitB)
-	a.isSleeping().assertFalse(testName)
-	a.leaveBuilding()
-	a.enterBuilding(unitC)
-	a.isSleeping().assertTrue(testName)
-	a.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
-	a.reduceStats()
-	a.sleep.assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION), 0.001)
+	personA.enterBuilding(unitB)
+	personA.isSleeping().assertFalse(testName)
+	personA.leaveBuilding()
+	personA.enterBuilding(unitC)
+	personA.isSleeping().assertTrue(testName)
+	personA.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
+	personA.reduceStats()
+	personA.sleep.assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION), 0.001)
 	// Check max sleep limit:
-	a.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
-	assertEquals(testName, a.enteredBuilding, unitC)
-	a.isSleeping().assertTrue(testName)
-	a.reduceStats()
-	a.sleep.assertEquals(testName, MAX_SLEEP)
-	assertEquals(testName, a.enteredBuilding, null)
-	a.isSleeping().assertFalse(testName)
+	personA.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
+	assertEquals(testName, personA.enteredBuilding, unitC)
+	personA.isSleeping().assertTrue(testName)
+	personA.reduceStats()
+	personA.sleep.assertEquals(testName, MAX_SLEEP)
+	assertEquals(testName, personA.enteredBuilding, null)
+	personA.isSleeping().assertFalse(testName)
 	testSuccess(testName)
 	if isInGameTest
 		// Remove test units:
@@ -349,7 +349,7 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 		unitC.remove()
 	else
 		// Destroy class objects:
-		destroy a
+		destroy personA
 		destroy homeA
 		destroy homeB
 
@@ -357,36 +357,36 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 	let testName = setTestName("testPersonSystem_LowerStatLimits", true)
 	// Check lower stat limits:
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let a = unitA.getPerson()
-	a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP - DAYS_TILL_EXHAUSTED + (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
+	let personA = unitA.getPerson()
+	personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP - DAYS_TILL_EXHAUSTED + (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
 	unitA.hasAbility(BuffIdsCustom.exhausted).assertFalse(testName)
-	a.reduceStats()
+	personA.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is exhausted:
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
-		a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
-		a.isSleeping().assertFalse(testName)
-		a.reduceStats()
+		personA.isSleeping().assertFalse(testName)
+		personA.reduceStats()
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is sleeping on the ground:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertTrue(testName)
-		a.sleepRate.assertEquals(testName, getSleepRate(0))
-		a.isSleeping().assertTrue(testName)
-		a.sleep = MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP)
+		personA.sleepRate.assertEquals(testName, getSleepRate(0))
+		personA.isSleeping().assertTrue(testName)
+		personA.sleep = MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP)
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
-		a.reduceStats()
+		personA.reduceStats()
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person isn't exhausted anymore but still sleeping:
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertFalse(testName)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertTrue(testName)
-		a.sleep = MAX_SLEEP
-		a.isSleeping().assertTrue(testName)
-		a.reduceStats()
+		personA.sleep = MAX_SLEEP
+		personA.isSleeping().assertTrue(testName)
+		personA.reduceStats()
 	doAfter(4 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person woke up:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
-		a.isSleeping().assertFalse(testName)
+		personA.isSleeping().assertFalse(testName)
 		testSuccess(testName)
 	doAfter(5 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
@@ -399,16 +399,16 @@ public function testPersonSystem_DamageReaction(vec2 testCentre)
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.setFacing(unitB.getPos().angleTo(unitA.getPos()))
-	let a = unitA.getPerson()
-	a.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-	a.reduceStats()
+	let personA = unitA.getPerson()
+	personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+	personA.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is sleeping and attack it:
-		a.isSleeping().assertTrue(testName)
+		personA.isSleeping().assertTrue(testName)
 		unitB.issueTargetOrder("attack", unitA)
 	doAfter(MIN_ACTION_SLEEP_TIME + UnitData_Peasant.attack1CooldownTime) () ->
 		// Check that person woke up:
-		a.isSleeping().assertFalse(testName)
+		personA.isSleeping().assertFalse(testName)
 		testSuccess(testName)
 	doAfter(2 * MIN_ACTION_SLEEP_TIME + UnitData_Peasant.attack1CooldownTime) () ->
 		// Remove test units:

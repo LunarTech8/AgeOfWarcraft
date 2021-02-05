@@ -6,6 +6,7 @@ import StorageSystem
 import BuildingSystem
 import WorkshopSystem
 import PersonSystem
+import SettlementSystem
 
 
 // --------------------
@@ -22,11 +23,11 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	print("-------- Unit tests (11):")
+	print("-------- Unit tests (12):")
 	// UnitMap:
-	testEntity_CreateAndIndex(true)
 	testUnitHashMap_AddAndRemove(true)
 	// EntityMap:
+	testEntity_CreateAndIndex(true)
 	testEntity_HashMapAddAndRemove(true)
 	// StockSystem:
 	testStockSystem_AddAndRemove(true)
@@ -37,7 +38,9 @@ function executeCommand()
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))
 	testPersonSystem_DamageReaction(vec2(0., 384.))
 	// BuildingSystem:
-	testBuildingSystem_Build(vec2(768., -2816.))
+	testBuildingSystem_Build(vec2(896., -2816.))
+	// SettlementSystem:
+	testSettlementSystem_Build(vec2(-1536., -2560.))
 	// WorkshopSystem:
 	testWorkshopSystem_Workers(vec2(0., -384.))
 	testWorkshopSystem_Production(vec2(0., 0.))

@@ -46,9 +46,7 @@ function getLevel(int popCount) returns int
 		return 3
 	else if popCount >= 10
 		return 2
-	else if popCount >= 1
-		return 1
-	return 0
+	return 1
 
 function getRequiredLevel(int buildingId) returns int
 	switch buildingId
@@ -243,11 +241,10 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	testSettlementSystem_Build_building = null
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
-		let a = unitA.getBuildingSiteOfWorker()  // FIXME: can't import BuildingSystem because of cyclic dependancy
-		assertNotNull(testName, a)
-		testSettlementSystem_Build_building = a.getUnit()
+		let filter = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.townHall)
+		testSettlementSystem_Build_building = testCentre.getNearestUnit(128., filter, Player(0))
+		filter.destr()
 		assertNotNull(testName, testSettlementSystem_Build_building)
-		assertEquals(testName, testSettlementSystem_Build_building.getBuildingSite(), a)
 		let settlementA = testSettlementSystem_Build_building.getSettlement()
 		assertNotNull(testName, settlementA)
 		// TODO: implement

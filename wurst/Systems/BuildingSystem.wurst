@@ -474,14 +474,10 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	let storageA = unitA.getStorage()
 	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))
-	let workerCount = getWorkerCount()
-	let buildingSiteCount = getBuildingSiteCount()
 	unitA.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre)
 	testBuildingSystem_Build_building = null
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
-		(getWorkerCount() - workerCount).assertEquals(testName, 1)
-		(getBuildingSiteCount() - buildingSiteCount).assertEquals(testName, 1)
 		WORKER_MAP.has(unitA).assertTrue(testName)
 		let a = unitA.getBuildingSiteOfWorker()
 		assertNotNull(testName, a)

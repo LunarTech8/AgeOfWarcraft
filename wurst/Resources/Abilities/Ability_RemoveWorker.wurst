@@ -14,7 +14,7 @@ import AbilityPresetFunctions
     ..presetMovementSpeedReduction((int lvl) -> 0.)
     // Art:
     ..setAnimationNames("")
-    ..presetButtonPosNormal(1, 3)
+    ..presetButtonPosNormal(1, 0)
     ..setArtCaster("")
     ..setCasterAttachmentPoint("")
     ..setIconNormal(Icons.bTNUnloadDwarf)
@@ -29,5 +29,5 @@ import AbilityPresetFunctions
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.none)
     // Text:
-    ..setHotkeyNormal("R")
+    ..setHotkeyNormal("W")
     ..presetNameAndTooltips("Remove worker", "Remove one worker from this building.")

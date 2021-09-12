@@ -203,7 +203,7 @@ public function testStorageSystem_AddAndRemove(bool isInGameTest)
 	storageB.getMaxCapacity().assertEquals(testName, 13)
 	storageB.getUsedCapacity().assertEquals(testName, 2)
 	storageB.getFreeCapacity().assertEquals(testName, 11)
-	testSuccess(testName)
+	testFinish(testName)
 	// Remove test units:
 	if isInGameTest
 		unitA.remove()

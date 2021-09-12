@@ -14,7 +14,7 @@ import AbilityPresetFunctions
     ..presetMaximumTotalDamage((int lvl) -> 0.)
     // Art:
     ..setAnimationNames("")
-    ..presetButtonPosNormal(0, 3)
+    ..presetButtonPosNormal(0, 0)
     ..setArtEffect("")
     ..setIconNormal(Icons.bTNReplay_SpeedDown)
     // Stats:
@@ -28,5 +28,5 @@ import AbilityPresetFunctions
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.none)
     // Text:
-    ..setHotkeyNormal("C")
+    ..setHotkeyNormal("Q")
     ..presetNameAndTooltips("Change product", "Change to next product type.")

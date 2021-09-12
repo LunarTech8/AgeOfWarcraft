@@ -199,7 +199,7 @@ public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	hashMapB.get(unitC).assertEquals(testName, 3)
 	hashMapB.remove(unitB)
 	let unitD = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	testSuccess(testName)
+	testFinish(testName)
 	// Remove test units:
 	if isInGameTest
 		unitA.remove()

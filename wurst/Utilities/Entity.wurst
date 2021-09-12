@@ -185,7 +185,7 @@ public function testEntity_CreateAndIndex(bool isInGameTest)
 	assertEquals(testName, entityFromIndex(indexA).assertUnit(), entityA.assertUnit())
 	assertEquals(testName, entityFromIndex(indexB).assertDestructable(), entityB.assertDestructable())
 	assertEquals(testName, entityFromIndex(indexC).assertUnit(), entityC.assertUnit())
-	testSuccess(testName)
+	testFinish(testName)
 	// Remove test entities:
 	if isInGameTest
 		entityA.remove()
@@ -228,7 +228,7 @@ public function testEntity_HashMapAddAndRemove(bool isInGameTest)
 	hashMapB.get(entityC).assertEquals(testName, 3)
 	hashMapB.remove(entityB)
 	let entityD = entity(createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0)), null)
-	testSuccess(testName)
+	testFinish(testName)
 	// Remove test entitys:
 	if isInGameTest
 		entityA.remove()

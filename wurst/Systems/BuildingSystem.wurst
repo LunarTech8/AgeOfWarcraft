@@ -490,7 +490,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 		a.getWorkerCount().assertEquals(testName, 1)
 		a.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
 		a.isEmpty().assertTrue(testName)
-		testSuccess(testName)
+		testFinish(testName)
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Abort construction:
 		testBuildingSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)

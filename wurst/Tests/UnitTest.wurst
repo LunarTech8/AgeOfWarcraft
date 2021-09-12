@@ -7,6 +7,7 @@ Ingame test alternative to the Wurstunit package with additional functionality.
 
 // Examples:
 testDebug("test<SystemName>_<FunctionName>", "Debug message")  // DEBUG: only for testing
+testFail(testName, "Test implementation not finished yet")  // TODO: finish implementation
 
 // Changelog:
 - 1.0.0:
@@ -51,7 +52,7 @@ public function setTestName(string testName, bool isInGameTest) returns string
 	else
 		return testName
 
-public function testSuccess(string testName)
+public function testFinish(string testName)
 	if testName == TEST_NAME_WURSTUNIT
 		testSuccess()
 	else

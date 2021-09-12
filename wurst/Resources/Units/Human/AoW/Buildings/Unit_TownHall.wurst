@@ -20,5 +20,6 @@ public class UnitData_Townhall
     // Techtree:
     ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
     ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.keep))
+    ..setResearchesAvailable("")
     // Text:
     ..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")

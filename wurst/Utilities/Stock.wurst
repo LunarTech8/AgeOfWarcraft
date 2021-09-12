@@ -284,7 +284,7 @@ public function testStockSystem_AddAndRemove(bool isInGameTest)
 	stockB.getWareCount(WareType.WOOD).assertEquals(testName, 5)
 	stockB.hasWares(waresB).assertFalse(testName)
 	stockB.hasWaresAny(waresB).assertTrue(testName)
-	testSuccess(testName)
+	testFinish(testName)
 	// Destroy class objects:
 	destroy stockA
 	destroy stockB

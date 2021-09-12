@@ -12,7 +12,7 @@ public class UnitData_Peasant
 @compiletime function genObj()
     new UnitPreset(UnitIdsCustom.AoW.peasant, UnitIds.peasant)
     // Abilities:
-    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.build, AbilityIdsCustom.transferWares, AbilityIdsCustom.enterBuilding, AbilityIdsMissing.repairHuman, AbilityIdsCustom.targetDestructable)
+    ..presetNormalAbilities(AbilityIdsCustom.transferWares, AbilityIdsCustom.harvest, AbilityIdsCustom.enterBuilding, AbilityIdsCustom.build, AbilityIdsCustom.targetDestructable)
     // Art:
     ..setScalingValue(.5)
     ..setSelectionScale(.5)

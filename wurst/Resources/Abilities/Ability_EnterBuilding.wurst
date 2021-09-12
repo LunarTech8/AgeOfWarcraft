@@ -13,7 +13,7 @@ import AbilityPresetFunctions
     ..presetDamageIncrease((int lvl) -> 0.)
     ..presetDefenseIncrease((int lvl) -> 0)
     // Art:
-    ..presetButtonPosNormal(1, 1)
+    ..presetButtonPosNormal(3, 0)
     ..setIconNormal(Icons.bTNLoad)
     ..setIconTurnOff("")
     // Stats:
@@ -27,6 +27,6 @@ import AbilityPresetFunctions
     // Techtree:
     ..presetNoRequirements()
     // Text:
-    ..setHotkeyNormal("E")
+    ..setHotkeyNormal("R")
     ..presetNameAndTooltips("Enter building", "Enter target building.")
     ..presetTurnOffTooltips("")

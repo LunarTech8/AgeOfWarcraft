@@ -20,5 +20,6 @@ public class UnitData_Castle
     // Techtree:
     ..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.blacksmith))
     ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
+    ..setResearchesAvailable("")
     // Text:
     ..presetNameAndTooltips(true, "Castle", "Primary settlement structure.")

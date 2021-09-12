@@ -9,6 +9,7 @@ import AbilityPresetFunctions
 @compiletime function genObj()
     new AbilityDefinitionHarvest(AbilityIdsCustom.targetDestructable)
     // Art:
+    ..presetButtonPosNormal(0, 2)
     ..setIconNormal(Icons.bTNReturnGoods)
     ..setIconTurnOff("")
     // Stats:

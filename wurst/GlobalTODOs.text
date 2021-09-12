@@ -22,8 +22,14 @@ Work status:
 
 !!>>- Create a SettlementSystem
 	>>- Write unit tests
+	- Create a multiboard for centre building
+		- Display level and amount of persons and buildings
+	- Add trained units to settlement
 	- Add a way to handle person belonging to/from settlements
+	- When selecting a centre building all persons and buildings should be marked with overhead arrows
 	- What should happen to buildings in a settlement if the settlement gets destroyed? How to handle the persons?
+		- Persons should become a group of refugees
+		- Buildings should become neutral (can be readded to new settlement in range)
 !!- Building buff graphics isn't visible (buff is added correctly)
 
 
@@ -33,8 +39,8 @@ Work status:
 
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
-!!- Reorder ability positions (e.g. for peasant)
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
+	- Check if this is really needed anymore (else remove ShowTargetInfo)
 !- Create an ExperienceSystem that manages how good persons are in different tasks/jobs
 	- Have a level system (apprentice, journeyman, adept, master, expert, ...) that unlocks new abilities or improves them
 	- Each work step adds exp for that job
@@ -48,6 +54,7 @@ Work status:
 !- Maybe take account of building size diameter when calculating max ranges (MAX_AUTO_ORDER_RANGE, MAX_NEAR_BY_RANGE)
 !- Maybe have repeating order actions to have less object destruction
 !- Add unit tests to all bigger / more complexe systems (Missing systems: AbilitySystem, OrderSystem, PersonSystem, ResourceSystem, Array2D)
+!- Maybe have a counter for how many unit tests from total are finished already and display that after each finish
 
 INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for compatibility
 

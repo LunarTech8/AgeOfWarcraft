@@ -12,7 +12,7 @@ import AbilityPresetFunctions
     ..presetDamage((int lvl) -> 0.)
     // Art:
     ..setAnimationNames("")
-    ..presetButtonPosNormal(0, 2)
+    ..presetButtonPosNormal(0, 0)
     ..setIconNormal(Icons.bTNSnazzyScroll)
     ..setMissileArt("")
     ..setMissileSpeed(0)
@@ -27,5 +27,5 @@ import AbilityPresetFunctions
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.air, TargetsAllowed.tree)
     // Text:
-    ..setHotkeyNormal("S")
+    ..setHotkeyNormal("Q")
     ..presetNameAndTooltips("Show Target Info", "Get informations about the target.")

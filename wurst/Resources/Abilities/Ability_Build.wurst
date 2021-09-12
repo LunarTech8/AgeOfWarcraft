@@ -14,7 +14,7 @@ import AbilityPresetFunctions
     ..presetInitialDamage((int lvl) -> 0.)
     ..presetMovementSpeedFactor((int lvl) -> 0.)
     // Art:
-    ..presetButtonPosNormal(1, 2)
+    ..presetButtonPosNormal(3, 1)
     ..setIconNormal(Icons.bTNBash)
     ..setMissileArt("")
     ..setMissileSpeed(0)
@@ -30,5 +30,5 @@ import AbilityPresetFunctions
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.structure, TargetsAllowed.playerunits)
     // Text:
-    ..setHotkeyNormal("B")
+    ..setHotkeyNormal("F")
     ..presetNameAndTooltips("Build", "Work on target building site.")

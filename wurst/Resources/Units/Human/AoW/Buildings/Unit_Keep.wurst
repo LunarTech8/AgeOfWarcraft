@@ -21,5 +21,6 @@ public class UnitData_Keep
     ..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.lumberMill))
     ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
     ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.castle))
+    ..setResearchesAvailable("")
     // Text:
     ..presetNameAndTooltips(true, "Keep", "Primary settlement structure.")

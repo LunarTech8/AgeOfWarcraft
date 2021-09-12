@@ -195,7 +195,7 @@ public class Workshop extends Stock
 		return workers.size()
 
 	function getWorkProgressPercentage() returns real
-		return workProgressCurrent / workProgressFinished
+		return 100. * workProgressCurrent / workProgressFinished
 
 	function getWorkProgressLeft() returns real
 		return workProgressFinished - workProgressCurrent
@@ -380,7 +380,7 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 		// Check workshop status:
 		workshopA.getWorkerCount().assertEquals(testName, 3)
 		workshopA.getWorkPower().assertEquals(testName, 3.)
-		testSuccess(testName)
+		testFinish(testName)
 	// Remove test units:
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		unitA.kill()
@@ -454,13 +454,13 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 		// Check workshop status:
 		workshopA.getStoredEducts().assertEquals(testName, 1)
 		workshopA.getStoredProducts().assertEquals(testName, 0)
-		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.4, 0.02)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 40., 2.)
 		workshopA.getWorkProgressLeft().assertEquals(testName, 9., 0.3)
 	doAfter(6.) () ->
 		// Check workshop status:
 		workshopA.getStoredEducts().assertEquals(testName, 0)
 		workshopA.getStoredProducts().assertEquals(testName, 1)
-		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.2, 0.02)
+		workshopA.getWorkProgressPercentage().assertEquals(testName, 20., 2.)
 		workshopA.getWorkProgressLeft().assertEquals(testName, 12., 0.3)
 	doAfter(11.) () ->
 		// Check workshop status:
@@ -468,7 +468,7 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 		workshopA.getStoredProducts().assertEquals(testName, 2)
 		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
 		workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
-		testSuccess(testName)
+		testFinish(testName)
 	doAfter(12.) () ->
 		// Remove test units:
 		unitA.kill()

@@ -338,7 +338,7 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 	personA.sleep.assertEquals(testName, MAX_SLEEP)
 	assertEquals(testName, personA.enteredBuilding, null)
 	personA.isSleeping().assertFalse(testName)
-	testSuccess(testName)
+	testFinish(testName)
 	if isInGameTest
 		// Remove test units:
 		unitA.kill()
@@ -387,7 +387,7 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 		// Check that person woke up:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
 		personA.isSleeping().assertFalse(testName)
-		testSuccess(testName)
+		testFinish(testName)
 	doAfter(5 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
 		unitA.kill()
@@ -409,7 +409,7 @@ public function testPersonSystem_DamageReaction(vec2 testCentre)
 	doAfter(MIN_ACTION_SLEEP_TIME + UnitData_Peasant.attack1CooldownTime) () ->
 		// Check that person woke up:
 		personA.isSleeping().assertFalse(testName)
-		testSuccess(testName)
+		testFinish(testName)
 	doAfter(2 * MIN_ACTION_SLEEP_TIME + UnitData_Peasant.attack1CooldownTime) () ->
 		// Remove test units:
 		unitA.kill()

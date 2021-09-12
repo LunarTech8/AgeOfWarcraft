@@ -14,6 +14,7 @@ import ConstantDataSystem
 import ClosureTimers
 import StorageSystem
 import Stock
+import SettlementSystem
 // import WorldGenerationSystem
 // import UtilityFunctions
 
@@ -56,13 +57,16 @@ function runStartup()
 	// generatePlants()
 	// Create player units:
 	newInitStatus("player units creation")
+	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(0.))
+	settlementCentre.tryAddSettlement()
 	for i = 1 to START_PEASANT_COUNT
 		let u = createUnit(USER_PLAYER, UnitIdsCustom.AoW.peasant, START_VEC, angle(0.))
 		nullTimer() ->
+			u.tryAddToSettlement(settlementCentre)
 			let storage = u.getStorage()
 			if storage != null
 				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
-	createUnit(USER_PLAYER, UnitIdsCustom.AoW.footman, START_VEC, angle(0.))
+	createUnit(USER_PLAYER, UnitIdsCustom.AoW.footman, START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)
 	// Initialisation finished:
 	newInitStatus(null)
 	print("Finished initialisation")

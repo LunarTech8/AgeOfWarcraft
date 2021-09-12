@@ -198,6 +198,16 @@ public function unit.getSettlement() returns Settlement
 public function unit.tryAddSettlement() returns bool
 	return this.addSettlement() == Validity.VALID
 
+/** Trys to add this unit given settlement. Returns if it could be added. */
+public function unit.tryAddToSettlement(unit centreBuilding) returns bool
+	let settlement = SETTLEMENT_MAP.tryGet(centreBuilding)
+	if settlement == null
+		return false
+	if this.getPos().distanceTo(centreBuilding.getPos()) > getBuildingRange(settlement.level) or getRequiredLevel(this.getUnitId()) > settlement.level
+		return false
+	settlement.addMemeber(this)
+	return true
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
 	this.addMultiboardLine("Settlement:", HEADLINE_ICON_PATH)
@@ -247,10 +257,11 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		assertNotNull(testName, testSettlementSystem_Build_building)
 		let settlementA = testSettlementSystem_Build_building.getSettlement()
 		assertNotNull(testName, settlementA)
-		// TODO: implement
+		testFail(testName, "Test implementation not finished yet")  // TODO: finish implementation
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Abort construction:
 		testSettlementSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)
+		testFinish(testName)
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
 		unitA.kill()

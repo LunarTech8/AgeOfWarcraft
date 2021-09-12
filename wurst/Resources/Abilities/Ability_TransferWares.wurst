@@ -13,7 +13,7 @@ import AbilityPresetFunctions
     ..presetSpecificTargetDamage((int lvl) -> 0.)
     // Art:
     ..setAnimationNames("")
-    ..presetButtonPosNormal(0, 1)
+    ..presetButtonPosNormal(1, 0)
     ..setArtEffect("")
     ..setIconNormal(Icons.bTNPickUpItem)
     // Stats:
@@ -26,5 +26,5 @@ import AbilityPresetFunctions
     ..setRace(Race.Other)
     ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air, TargetsAllowed.structure)
     // Text:
-    ..setHotkeyNormal("T")
+    ..setHotkeyNormal("W")
     ..presetNameAndTooltips("Transfer wares", "Transfers all possible wares to the target.")

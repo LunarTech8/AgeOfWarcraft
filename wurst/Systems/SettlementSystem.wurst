@@ -29,6 +29,8 @@ import Stock
 // --------------------
 
 let LEVEL_ICON_PATH = Icons.bTNSnazzyScroll
+let POPULATION_ICON_PATH = Icons.bTNPeasant
+let BUILDINGS_ICON_PATH = Icons.bTNFarm
 let MAX_LEVEL = 3
 
 function getBuildingRange(int level) returns real
@@ -99,8 +101,8 @@ enum Validity
 
 class Settlement
 	private unit centreBuilding
-	private group buildings
-	private group persons
+	protected group buildings
+	protected group persons
 	protected int level
 
 	construct(unit centreBuilding)
@@ -138,9 +140,6 @@ class Settlement
 			persons.removeUnit(member)
 			updateLevel()
 
-
-function isCentreBuilding(int buildingId) returns bool
-	return getRequiredLevel(buildingId) == 0
 
 function unit.addSettlement() returns Validity
 	// Check validity:
@@ -183,6 +182,10 @@ function unit.removeFromSettlement()
 		if settlement != null
 			settlement.removeMember(this)
 
+/** Returns if given unit is a centre buidlding of a settlement. */
+public function isCentreBuilding(int buildingId) returns bool
+	return getRequiredLevel(buildingId) == 0
+
 /** Returns the settlement of given unit. */
 public function unit.getSettlement() returns Settlement
 	var settlement = SETTLEMENT_MAP.tryGet(this)  // Check if it is the centre building
@@ -212,6 +215,8 @@ public function unit.tryAddToSettlement(unit centreBuilding) returns bool
 public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
 	this.addMultiboardLine("Settlement:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Level: " + s.level.toString(), LEVEL_ICON_PATH)
+	this.addMultiboardLine("Population: " + s.persons.size().toString(), POPULATION_ICON_PATH)
+	this.addMultiboardLine("Buildings: " + s.buildings.size().toString(), BUILDINGS_ICON_PATH)
 	return true
 
 init
@@ -235,7 +240,8 @@ init
 // Test code
 // --------------------
 
-unit testSettlementSystem_Build_building = null
+unit testSettlementSystem_Build_buildingA = null
+unit testSettlementSystem_Build_buildingB = null
 public function testSettlementSystem_Build(vec2 testCentre)
 	let testName = setTestName("testSettlementSystem_Build", true)
 	// Remove units blocking the building:
@@ -243,26 +249,51 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	// Order to build:
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let storageA = unitA.getStorage()
-	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 4))
 	storageA.addWare(ware(WareType.STONE, 3))
 	storageA.addWare(ware(WareType.METAL, 2))
 	unitA.issuePointOrderById(UnitIdsCustom.AoW.townHall, testCentre)
-	testSettlementSystem_Build_building = null
+	unit unitB = null
+	Settlement settlementA = null
+	testSettlementSystem_Build_buildingA = null
+	testSettlementSystem_Build_buildingB = null
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
-		// Check unit mappings:
-		let filter = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.townHall)
-		testSettlementSystem_Build_building = testCentre.getNearestUnit(128., filter, Player(0))
-		filter.destr()
-		assertNotNull(testName, testSettlementSystem_Build_building)
-		let settlementA = testSettlementSystem_Build_building.getSettlement()
+		// Check settlement mappings:
+		let filterA = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.townHall)
+		testSettlementSystem_Build_buildingA = testCentre.getNearestUnit(128., filterA, Player(0))
+		filterA.destr()
+		assertNotNull(testName, testSettlementSystem_Build_buildingA)
+		settlementA = testSettlementSystem_Build_buildingA.getSettlement()
 		assertNotNull(testName, settlementA)
-		testFail(testName, "Test implementation not finished yet")  // TODO: finish implementation
+		settlementA.level.assertEquals(testName, 1)
+		settlementA.persons.size().assertEquals(testName, 1)
+		settlementA.buildings.size().assertEquals(testName, 0)
+		assertTrue(testName, settlementA.isMember(unitA))
+		// Order to build new structure for settlement:
+		unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
+		let storageB = unitB.getStorage()
+		storageB.addWare(ware(WareType.WOOD, 4))
+		unitB.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre.add(384., 0.))
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
-		// Abort construction:
-		testSettlementSystem_Build_building.issueImmediateOrderById(SpecialOrders.cancel)
-		testFinish(testName)
+		// Recheck settlement mappings:
+		let filterB = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.peasantHouse)
+		testSettlementSystem_Build_buildingB = testCentre.add(384., 0.).getNearestUnit(128., filterB, Player(0))
+		filterB.destr()
+		assertNotNull(testName, testSettlementSystem_Build_buildingB)
+		assertNotNull(testName, settlementA)  // DEBUG: settlementA is null in this callback, maybe because it was set in another callback
+		settlementA.level.assertEquals(testName, 1)  // FIXME: find solution or split up tests
+		settlementA.persons.size().assertEquals(testName, 1)
+		settlementA.buildings.size().assertEquals(testName, 1)
+		assertTrue(testName, settlementA.isMember(testSettlementSystem_Build_buildingB))
+		testFail(testName, "Test implementation not finished yet")  // TODO: finish implementation
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
+		// Abort constructions:
+		testSettlementSystem_Build_buildingB.issueImmediateOrderById(SpecialOrders.cancel)
+		testSettlementSystem_Build_buildingA.issueImmediateOrderById(SpecialOrders.cancel)
+		testFinish(testName)
+	doAfter(4 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
 		unitA.kill()
 		unitA.remove()
+		unitB.kill()
+		unitB.remove()

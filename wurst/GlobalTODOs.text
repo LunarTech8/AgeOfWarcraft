@@ -22,8 +22,6 @@ Work status:
 
 !!>>- Create a SettlementSystem
 	>>- Write unit tests
-	- Create a multiboard for centre building
-		- Display level and amount of persons and buildings
 	- Add trained units to settlement
 	- Add a way to handle person belonging to/from settlements
 	- When selecting a centre building all persons and buildings should be marked with overhead arrows

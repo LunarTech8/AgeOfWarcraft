@@ -57,7 +57,7 @@ function runStartup()
 	// generatePlants()
 	// Create player units:
 	newInitStatus("player units creation")
-	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(0.))
+	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(225.))
 	settlementCentre.tryAddSettlement()
 	for i = 1 to START_PEASANT_COUNT
 		let u = createUnit(USER_PLAYER, UnitIdsCustom.AoW.peasant, START_VEC, angle(0.))

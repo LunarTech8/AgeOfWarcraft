@@ -479,17 +479,17 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
 		WORKER_MAP.has(unitA).assertTrue(testName)
-		let a = unitA.getBuildingSiteOfWorker()
-		assertNotNull(testName, a)
-		testBuildingSystem_Build_building = a.getUnit()
+		let buildingSiteA = unitA.getBuildingSiteOfWorker()
+		assertNotNull(testName, buildingSiteA)
+		testBuildingSystem_Build_building = buildingSiteA.getUnit()
 		assertNotNull(testName, testBuildingSystem_Build_building)
-		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), a)
+		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), buildingSiteA)
 		assertEquals(testName, unitA.findNextBuildingSite(), testBuildingSystem_Build_building)
 		// Check building site status:
-		a.getWorkPower().assertEquals(testName, 1.)
-		a.getWorkerCount().assertEquals(testName, 1)
-		a.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
-		a.isEmpty().assertTrue(testName)
+		buildingSiteA.getWorkPower().assertEquals(testName, 1.)
+		buildingSiteA.getWorkerCount().assertEquals(testName, 1)
+		buildingSiteA.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
+		buildingSiteA.isEmpty().assertTrue(testName)
 		testFinish(testName)
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Abort construction:

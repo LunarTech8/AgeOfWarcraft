@@ -31,6 +31,9 @@ import Entity
 import OrderSystem
 import PersonSystem
 import WorkshopSystem
+import HomeSystem
+import SettlementSystem
+import UtilityFunctions
 
 
 // --------------------
@@ -121,6 +124,11 @@ function createMultiboardLines(int playerID) returns bool
 			let workshop = targetUnit.getWorkshop()
 			if workshop != null
 				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(workshop) or hasInfo
+			let home = targetUnit.getHome()
+			if home != null
+				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(home) or hasInfo
+			if isCentreBuilding(targetUnit.getUnitId())
+				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(targetUnit.getSettlement()) or hasInfo
 			let storage = targetUnit.getStorage()
 			if storage != null
 				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo

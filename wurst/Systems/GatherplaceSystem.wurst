@@ -1,0 +1,185 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Handles gather buildings that act as drop off places and gather centres for their workers.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package GatherplaceSystem
+import ConstantDataSystem
+import UnitMap
+import LinkedList
+import UnitTest
+import Stock
+import UtilityFunctions
+import MultiboardPrioritySystem
+import UnitIndexer
+import OnUnitEnterLeave
+import Icons
+import RegisterEvents
+import StorageSystem
+import Orders
+import Entity
+import ResourceSystem
+
+
+// --------------------
+// Data code
+// --------------------
+
+let WORKERS_ICON_PATH = Icons.bTNBash
+
+/** Returns the worker type of the given building type. */
+public function getWorkerUnitId(int buildingUnitId) returns int
+	switch buildingUnitId
+		case UnitIdsCustom.AoW.lumberCamp
+			return UnitIdsCustom.AoW.peasant
+	return 0
+
+/** Returns the allowed target types for the gatherers. */
+function getGatherplaceTargetTypeIds(int gatherplaceUnitId, int gatherVariant) returns LinkedList<int>
+	let entityIds = new LinkedList<int>()
+	switch gatherplaceUnitId
+		case UnitIdsCustom.AoW.lumberCamp
+			switch gatherVariant
+				case 1
+					entityIds.add(DestructableIds.summerTreeWall)
+	return entityIds
+
+/** Returns the maximum allowed amount of workers of the given building type. */
+public function getMaxWorkers(int buildingUnitId) returns int
+	switch buildingUnitId
+		case UnitIdsCustom.AoW.lumberCamp
+			return 3
+	return 0
+
+
+// --------------------
+// Functional code
+// --------------------
+
+let GATHERPLACE_MAP = new IterableUnitHashMap<Gatherplace>(null)
+
+public class Gatherplace extends Stock
+	private unit user
+	private int gatherVariant
+	private group workers
+
+	construct(unit gatherplace)
+		super(new LinkedList<ware>())
+		user = gatherplace
+		gatherVariant = 1
+		workers = CreateGroup()
+
+	ondestroy
+		for worker in workers
+			worker.show()
+		workers.destr()
+
+	function isValidWorkerType(int unitId) returns bool
+		return getWorkerUnitId(user.getUnitId()) == unitId
+
+	function getUnit() returns unit
+		return user
+
+	function getStoredProducts() returns int
+		// TODO: adjust to return total amount of ware counts
+		var amount = MAX_WARE_COUNT
+		let products = getProducts()
+		for iWare in products
+			amount = min(amount, getWareCount(iWare.wareType) div iWare.count)
+		destroy products
+		return amount
+
+	function getProducts() returns LinkedList<ware>
+		let wares = new LinkedList<ware>()
+		for targetId in getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant)
+			wares.addAll(getDefaultInitWares(targetId))
+		// TODO: remove duplicate types and set count for all to 1
+		return wares
+
+	function getWorkerCount() returns int
+		return workers.size()
+
+	function getFirstWorker() returns unit
+		if workers.size() > 0
+			return workers.getUnitAt(0)
+		else
+			Log.error("ERROR: Gatherplace doesn't have any worker")
+			return null
+
+	function isWorker(unit worker) returns bool
+		return workers.contains(worker)
+
+	function addWorker(unit worker)
+		if workers.contains(worker) == false and workers.size() < getMaxWorkers(user.getUnitId())
+			workers.addUnit(worker)
+		else
+			Log.error("ERROR: Can't add worker to this gatherplace")
+
+	function removeWorker(unit worker)
+		if workers.contains(worker)
+			workers.removeUnit(worker)
+		else
+			Log.error("ERROR: Can't remove worker from this gatherplace")
+
+	function changeProduct()
+		if getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant + 1).isEmpty() == false
+			gatherVariant = gatherVariant + 1
+		else if gatherVariant != 1
+			gatherVariant = 1
+		// TODO: find new targets for working workers
+
+	/** Transfers as many products as possible from this gatherplace to source storage. */
+	function transferWares(Storage source, bool takeProducts)
+		// Look for products in gatherplace:
+		if takeProducts
+			let products = getProducts()
+			for iWare in products
+				let wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
+				if wareCount > 0
+					// Transfer ware:
+					removeWare(ware(iWare.wareType, wareCount))
+					source.addWare(ware(iWare.wareType, wareCount))
+			destroy products
+
+
+function unit.addGatherplace()
+	if GATHERPLACE_MAP.has(this) == false and getMaxWorkers(this.getUnitId()) > 0
+		GATHERPLACE_MAP.put(this, new Gatherplace(this))
+
+function unit.removeGatherplace()
+	let gatherplace = GATHERPLACE_MAP.tryRemove(this)
+	if gatherplace != null
+		destroy gatherplace
+
+/** Returns the gatherplace of given unit. */
+public function unit.getGatherplace() returns Gatherplace
+	return GATHERPLACE_MAP.tryGet(this)
+
+/** Sets system relevant infos for given object in target multiboard. */
+public function multiboard.setObjectInfoMultiboard(Gatherplace ws) returns bool
+	this.addMultiboardLine("Gatherplace:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString(), WORKERS_ICON_PATH)
+	// TODO: display amount of targets in range (current gatherVariant)
+	this.addMultiboardLine("Products (" + ws.getStoredProducts().toString() + ")", SUB_HEADLINE_ICON_PATH)  // TODO: implement max count for stored wares specific for each gatherplace type
+	let products = ws.getProducts()
+	for ware in products
+		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())  // TODO: show stored count of wares instead
+	destroy products
+	return true
+
+init
+	// Add gatherplace to every appropriate new unit:
+	onEnter() ->
+		getEnterLeaveUnit().addGatherplace()
+	// Remove gatherplace from every appropriate removed unit:
+	onUnitDeindex() ->
+		getIndexingUnit().removeGatherplace()
+	// Register construction finishes:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH) ->
+		GetTriggerUnit().addGatherplace()

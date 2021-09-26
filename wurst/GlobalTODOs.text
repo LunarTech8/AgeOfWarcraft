@@ -29,6 +29,10 @@ Work status:
 		- Persons should become a group of refugees
 		- Buildings should become neutral (can be readded to new settlement in range)
 !!- Building buff graphics isn't visible (buff is added correctly)
+!!>>- Create a GatherplaceSystem
+	- All gather jobs have a building from where they start gathering and store their resources
+	- Each type of gatherplace has a specific gather range (around the centre of the building)
+	- The player may switch between different types of targets for the gatherers
 
 
 // -------------
@@ -39,10 +43,13 @@ Work status:
 !!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
 	- Check if this is really needed anymore (else remove ShowTargetInfo)
-!- Create an ExperienceSystem that manages how good persons are in different tasks/jobs
+!!- Make general population not directly controllable, only military and planning units
+	- Control general population via buildings (workplaces, houses, etc.)
+	- General population acts based on daily routines and needs
+!- Create an ExperienceSystem that manages how good persons are in different tasks/professions
 	- Have a level system (apprentice, journeyman, adept, master, expert, ...) that unlocks new abilities or improves them
-	- Each work step adds exp for that job
-	- To reach the highest job level persons have to work in that for most of their life
+	- Each work step adds exp for that profession
+	- To reach the highest profession level persons have to work in it for most of their life
 !- Add a small storage to homes where food and commodities can be stored by wifes and used by the whole family
 !- Maybe for UnitDynamicIndexMap instances with few entires make a version where not the unit index is used directly but a linked custom index related to system to save memory
 !- Add a description comment (/** */) to every public class and function

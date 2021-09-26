@@ -19,7 +19,7 @@ import HashMap
 // Data code
 // --------------------
 
-public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 73
+public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 74
 public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 14
 public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
 
@@ -37,6 +37,7 @@ public class UnitIdsCustom
 		static constant barracks = compiletime(OFFSET_UNIT_ID_GEN.getId(68))
 		static constant lumberMill = compiletime(OFFSET_UNIT_ID_GEN.getId(69))
 		static constant blacksmith = compiletime(OFFSET_UNIT_ID_GEN.getId(70))
+		static constant lumberCamp = compiletime(OFFSET_UNIT_ID_GEN.getId(74))
 		// Creatures:
 		static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(64))
 		static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(65))

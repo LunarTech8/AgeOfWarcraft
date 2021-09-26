@@ -27,6 +27,6 @@ public class UnitData_Peasant
     // Stats:
     ..presetNoGoldAndLumber()
     // Techtree:
-    ..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill))
+    ..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill, UnitIdsCustom.AoW.lumberCamp))
     // Text:
     ..presetNameAndTooltips(false, "Peasant", "Basic worker unit.")

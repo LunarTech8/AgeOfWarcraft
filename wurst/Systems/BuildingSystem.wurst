@@ -62,6 +62,8 @@ function getUnitWorkPower(int workerUnitId, int buildingUnitId) returns real
 					return 1.
 				case UnitIdsCustom.AoW.barracks
 					return 1.
+				case UnitIdsCustom.AoW.lumberCamp
+					return 1.
 		// case UnitIdsCustom.Melee.peasant
 		// 	switch buildingUnitId
 		// 		case UnitIdsCustom.Melee.townHall
@@ -101,6 +103,8 @@ function getRequiredWorkPower(int buildingUnitId) returns real
 			return 70.
 		case UnitIdsCustom.AoW.lumberMill
 			return 60.
+		case UnitIdsCustom.AoW.lumberCamp
+			return 30.
 		// case UnitIdsCustom.Melee.townHall
 		// 	return 180.
 		// case UnitIdsCustom.Melee.farm
@@ -142,6 +146,8 @@ function getRequiredWares(int buildingUnitId) returns LinkedList<ware>
 		case UnitIdsCustom.AoW.barracks
 			wares.add(ware(WareType.WOOD, 4))
 			wares.add(ware(WareType.STONE, 3))
+		case UnitIdsCustom.AoW.lumberCamp
+			wares.add(ware(WareType.WOOD, 4))
 		// case UnitIdsCustom.Melee.farm
 		// 	wares.add(ware(WareType.WOOD, 4))
 		// case UnitIdsCustom.Melee.townHall

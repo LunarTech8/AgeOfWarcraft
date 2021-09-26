@@ -1,0 +1,18 @@
+package Unit_LumberCamp
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+    new BuildingPreset(UnitIdsCustom.AoW.lumberCamp, UnitIds.farm)
+    // Abilities:
+    ..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.removeWorker)
+    // Art:
+    ..setGroundTexture("OMED")  // Altar of Storms, Barracks, ...
+    // Stats:
+    ..presetNoGoldAndLumber()
+    // Text:
+    ..presetNameAndTooltips(true, "Lumber Camp", "Wood gathering building.")

@@ -19,21 +19,25 @@ let COMMAND_SHORT = "t"
 // --------------------
 
 function executeCommand()
-	var testCounter = 1
+	var testCounter = 0
+	// testCounter += 1
 	// print("-------- Test " + testCounter.toString() + ":")
 	// print(UnitIdsCustom.Melee.altarOfKings)
 	// print(UnitIdsCustom.Trees.beech)
 	// print(UnitIdsCustom.Trees.beech_Var1)
+	// testCounter += 1
 	// print("-------- Test " + testCounter.toString() + ":")
 	// print(Acos(0.5))
 	// print(Acos(-0.5))
 	// print(Acos(1.5))
 	// print(Acos(-1.5))
+	// testCounter += 1
 	// print("-------- Test " + testCounter.toString() + ":")
 	// print('ANab' + 0)
 	// print('anab' + 0)
 	// print(852662 + 0)
 	// print(AbilityIdsCustom.harvest + 0)
+	testCounter += 1
 	print("-------- Test " + testCounter.toString() + ":")
 	print("Current resources: " + getResourceCount().toString())
 	print("Current order sources: " + getOrderSourceCount().toString())

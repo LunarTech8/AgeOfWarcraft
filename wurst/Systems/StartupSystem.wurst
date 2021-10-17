@@ -15,8 +15,8 @@ import ClosureTimers
 import StorageSystem
 import Stock
 import SettlementSystem
-// import WorldGenerationSystem
-// import UtilityFunctions
+import WorldGenerationSystem
+import UtilityFunctions
 
 
 // --------------------
@@ -27,7 +27,7 @@ import SettlementSystem
 let USER_PLAYER = Player(0)
 
 // Player units:
-let START_VEC = vec2(0., 0.)
+let START_VEC = vec2(-6144., -7680.)
 let START_PEASANT_COUNT = 5
 let START_WOOD_COUNT_PER_PEASANT = 5
 
@@ -47,14 +47,13 @@ function newInitStatus(string statusName)
 
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
-	// DEBUG: not used for now
-	// // Create terrain:
-	// newInitStatus("terrain creation")
-	// generateTerrain()
-	// TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
-	// // Create plants:
-	// newInitStatus("plants creation")
-	// generatePlants()
+	// Create terrain:
+	newInitStatus("terrain creation")
+	generateTerrain()
+	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+	// Create plants:
+	newInitStatus("plants creation")
+	generatePlants()
 	// Create player units:
 	newInitStatus("player units creation")
 	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(225.))

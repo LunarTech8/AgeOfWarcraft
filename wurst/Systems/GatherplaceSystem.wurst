@@ -33,13 +33,6 @@ import ResourceSystem
 
 let WORKERS_ICON_PATH = Icons.bTNBash
 
-/** Returns the worker type of the given building type. */
-public function getWorkerUnitId(int buildingUnitId) returns int
-	switch buildingUnitId
-		case UnitIdsCustom.AoW.lumberCamp
-			return UnitIdsCustom.AoW.peasant
-	return 0
-
 /** Returns the allowed target types for the gatherers. */
 function getGatherplaceTargetTypeIds(int gatherplaceUnitId, int gatherVariant) returns LinkedList<int>
 	let entityIds = new LinkedList<int>()
@@ -49,6 +42,13 @@ function getGatherplaceTargetTypeIds(int gatherplaceUnitId, int gatherVariant) r
 				case 1
 					entityIds.add(DestructableIds.summerTreeWall)
 	return entityIds
+
+/** Returns the worker type of the given building type. */
+public function getWorkerUnitId(int buildingUnitId) returns int
+	switch buildingUnitId
+		case UnitIdsCustom.AoW.lumberCamp
+			return UnitIdsCustom.AoW.peasant
+	return 0
 
 /** Returns the maximum allowed amount of workers of the given building type. */
 public function getMaxWorkers(int buildingUnitId) returns int

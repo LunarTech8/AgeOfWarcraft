@@ -189,14 +189,19 @@ class Resource extends Stock
 		return false
 
 
-function entity.addResource()
+function entity.addResource() returns Resource
 	if RESOURCE_MAP.has(this) == false
-		let unitId = this.getTypeId()
-		let wares = getDefaultInitWares(unitId)
+		let resourceTypeId = this.getTypeId()
+		let wares = getDefaultInitWares(resourceTypeId)
 		if wares.isEmpty()
 			destroy wares
 		else
-			RESOURCE_MAP.put(this, new Resource(this, isKilledWhenDepleted(unitId), wares))
+			let resource = new Resource(this, isKilledWhenDepleted(resourceTypeId), wares)
+			RESOURCE_MAP.put(this, resource)
+			if this.userDest != null
+				DESTRUCTABLE_DEATH_TRIGGER.registerDeathEvent(this.userDest)
+			return resource
+	return null
 
 function entity.removeResource()
 	let resource = RESOURCE_MAP.tryRemove(this)
@@ -262,6 +267,10 @@ public function entity.getResource(bool assertNotNull) returns Resource
 public function getResourceCount() returns int
 	return RESOURCE_MAP.getValueCount()
 
+/** Trys to add this entity as resource. Returns if it could be added. */
+public function entity.tryAddResouce() returns bool
+	return this.addResource() != null
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
 	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
@@ -282,7 +291,6 @@ init
 	EnumDestructablesInRectAll(playableMapRect) ->
 		let enumDestructable = GetEnumDestructable()
 		entity(null, enumDestructable).addResource()
-		DESTRUCTABLE_DEATH_TRIGGER.registerDeathEvent(enumDestructable)
 	// Remove resource and target order from every killed destructable:
 	DESTRUCTABLE_DEATH_TRIGGER.addAction() ->
 		let dyingEntity = entity(null, GetDyingDestructable())

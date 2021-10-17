@@ -28,11 +28,14 @@ Work status:
 	- What should happen to buildings in a settlement if the settlement gets destroyed? How to handle the persons?
 		- Persons should become a group of refugees
 		- Buildings should become neutral (can be readded to new settlement in range)
+	- The influence range of settlements should be marked by border stones
 !!- Building buff graphics isn't visible (buff is added correctly)
 !!>>- Create a GatherplaceSystem
 	- All gather jobs have a building from where they start gathering and store their resources
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
 	- The player may switch between different types of targets for the gatherers
+!>- Find a way to generate usable maps with the WorldGenerationSystem
+!!- Find solution for Array2D to avoid generating that much code for the array -> Classes only allow sized arrays as members
 
 
 // -------------
@@ -40,7 +43,6 @@ Work status:
 // -------------
 
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
-!!- Find solution for Array2D to avoid generating that many code for the array -> Classes only allow sized arrays as members
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
 	- Check if this is really needed anymore (else remove ShowTargetInfo)
 !!- Make general population not directly controllable, only military and planning units

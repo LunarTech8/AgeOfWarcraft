@@ -15,6 +15,8 @@ import Interpolation
 import Array2D
 import ConstantDataSystem
 import UtilityFunctions
+import Entity
+import ResourceSystem
 
 
 // --------------------
@@ -22,16 +24,18 @@ import UtilityFunctions
 // --------------------
 
 // Terrain:
-let TILES_X = 12
-let TILES_Y = 12
+let TILES_X = 24
+let TILES_Y = 24
 let TILE_DISTANCE = 128.
-// INFO: Min height is -64.; Min above water height is 181.5
-let MIN_TERRAIN_HEIGHT = 128.  // Min addition to start height
-let MAX_TERRAIN_HEIGHT = 384.  // Max addition to start height
-let ORIGIN_VEC = vec2(-2048., -2048.)  // Left, bottom point from which the terrain generation starts towards right, top point
+// INFO: Min height is -64.; Min above water height is 168.
+let MIN_TERRAIN_HEIGHT = -232.  // Min addition to start height
+let MAX_TERRAIN_HEIGHT = 232.  // Max addition to start height
+let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
 // Nature:
 let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
+let TREE_COVERAGE_PERCENTAGE_MIN = 0.25  // Noise values below that value will never spawn trees
+let TREE_COVERAGE_PERCENTAGE_MAX = 1.25  // A higher value means a lower probablity to spawn trees
 
 
 // --------------------
@@ -39,16 +43,21 @@ let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
 // --------------------
 
 public function generateTerrain()
+    // Change the height for each tile:
+    // FIXME: when using bigger part of map Array2D gets to big and throws error
     let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
             ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it to show up
-    // FIXME: pathing has to be updatet manually to allow building on above water ground
+    // FIXME: when starting with map below waterline -> above water ground still unwalkable -> pathing has to be updatet manually
+    // FIXME: when starting with map above waterline -> no water displayed and below water ground still buildable -> pathing has to be updatet manually and custom water graphics required
 
 public function generatePlants()
+    // Have 1 or 0 tree per tile:
     let treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
-            if treeMap.get(x, y) >= GetRandomReal(0., 1.)
+            if treeMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
                 let v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())
+                entity(null, createDestructable(DestructableIds.summerTreeWall, v, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // TODO: create/use custom destructable with defined values

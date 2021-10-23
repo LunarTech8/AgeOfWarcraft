@@ -24,12 +24,11 @@ import ResourceSystem
 // --------------------
 
 // Terrain:
-let TILES_X = 24
-let TILES_Y = 24
-let TILE_DISTANCE = 128.
-// INFO: Min height is -64.; Min above water height is 168.
-let MIN_TERRAIN_HEIGHT = -232.  // Min addition to start height
-let MAX_TERRAIN_HEIGHT = 232.  // Max addition to start height
+let TILES_X = 12
+let TILES_Y = 18
+let TERRAIN_HEIGHT_INIT = 0.
+let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
+let TERRAIN_HEIGHT_MAX = 1024.  // Max HEIGHT_LAND_MAX
 let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
 // Nature:
@@ -44,11 +43,24 @@ let TREE_COVERAGE_PERCENTAGE_MAX = 1.25  // A higher value means a lower probabl
 
 public function generateTerrain()
     // Change the height for each tile:
-    // FIXME: when using bigger part of map Array2D gets to big and throws error
     let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    // FIXME: noise generation takes to long for one calculation cycle for bigger maps, add TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
-            ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE).addTerrainHeight(linear(MIN_TERRAIN_HEIGHT, MAX_TERRAIN_HEIGHT, heightMap.get(x, y)))  // Terrain has to have water on it before hand for it to show up
+            Log.debug("generateTerrain: " + x.toString() + "/" + y.toString())  // DEBUG:
+            let z = linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, heightMap.get(x, y))
+            let pos = ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE)
+            pos.addTerrainHeight(z - TERRAIN_HEIGHT_INIT)  // Terrain has to have water on it before hand for it to show up
+            // Assert that pathing is set to deep water beforehand
+            if z >= HEIGHT_LAND_MIN
+                let tile = pos.getTile()
+                tile.setPathing(PATHING_TYPE_FLOATABILITY, false)
+                tile.setPathing(PATHING_TYPE_WALKABILITY, true)
+                tile.setPathing(PATHING_TYPE_BUILDABILITY, true)
+            else if z >= HEIGHT_SHALLOW_WATER_MIN
+                let tile = pos.getTile()
+                tile.setPathing(PATHING_TYPE_WALKABILITY, true)
+                tile.setPathing(PATHING_TYPE_BUILDABILITY, false)
     // FIXME: when starting with map below waterline -> above water ground still unwalkable -> pathing has to be updatet manually
     // FIXME: when starting with map above waterline -> no water displayed and below water ground still buildable -> pathing has to be updatet manually and custom water graphics required
 
@@ -58,6 +70,6 @@ public function generatePlants()
     for	x = 0 to TILES_X - 1
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
-                let v = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
-                // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), v, getRandomAngle())
-                entity(null, createDestructable(DestructableIds.summerTreeWall, v, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // TODO: create/use custom destructable with defined values
+                let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
+                // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())
+                entity(null, createDestructable(DestructableIds.summerTreeWall, pos, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // TODO: create/use custom destructable with defined values

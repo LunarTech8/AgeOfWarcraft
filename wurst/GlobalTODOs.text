@@ -34,8 +34,10 @@ Work status:
 	- All gather jobs have a building from where they start gathering and store their resources
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
 	- The player may switch between different types of targets for the gatherers
-!>- Find a way to generate usable maps with the WorldGenerationSystem
-!!- Find solution for Array2D to avoid generating that much code for the array -> Classes only allow sized arrays as members
+!!>- Find a way to generate usable maps with the WorldGenerationSystem
+!!!>>- Find solution for Array2D to avoid generating that much code for the array
+	- Classes only allow sized arrays as members that generate an extra variable for each size
+	- HashMap could be an alternative
 
 
 // -------------

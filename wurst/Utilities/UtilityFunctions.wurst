@@ -24,11 +24,17 @@ import ObjectIds
 // --------------------
 
 let MAX_COMPUTATION_COST_PER_CYCLE = 256.
-
+// Time:
 public let INFO_MSG_TIME = 2.
 public let MIN_TRIGGER_SLEEP_TIME = 0.01
 public let MIN_ACTION_SLEEP_TIME = 0.25
 public let INGAME_DAY_DURATION = 480.  // In realtime seconds
+// Terrain:
+public let HEIGHT_DEEP_WATER_MIN = -64.
+public let HEIGHT_SHALLOW_WATER_MIN = 112.
+public let HEIGHT_LAND_MIN = 168.
+public let HEIGHT_LAND_MAX = 2048.
+public let TILE_DISTANCE = 128.
 
 function initBaseUnitTypeIdMap() returns HashMap<int, int>
 	let map = new HashMap<int, int>

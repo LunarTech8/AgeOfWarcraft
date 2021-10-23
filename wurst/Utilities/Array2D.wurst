@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------
 // Version number:
 1.0.0
-// -> PROBLEM: Wurst generates gigantic if-else statements with one array variable for each slot (8192 arrays for the 8192 sized arrays) -> That may crash Wc3
+// FIXME: Wurst generates gigantic if-else statements with one array variable for each slot (eg. 8192 arrays for the 8192 sized arrays) -> Don't use big arrays as class members
 
 // Description:
 Provides a two dimensional array.
@@ -11,32 +11,43 @@ Provides a two dimensional array.
 Initial version.
 -------------------------------------------------------------*/
 package Array2D
+import HashMap
 
 
 // --------------------
 // Functional code
 // --------------------
 
-tuple slot2(int x, int y)
+tuple slot2D(int x, int y)
 
-function slot2.checkBoundaries(int sizeX, int sizeY)
+function slot2D.checkBoundaries(int sizeX, int sizeY)
 	if this.x >= sizeX or this.x < 0 or this.y >= sizeY or this.y < 0
 		Log.error("ERROR: Slot is outside boundaries")
 
-function slot2.toArraySlot(int sizeX) returns int
+function slot2D.toSlot1D(int sizeX) returns int
 	return this.x + sizeX * this.y
 
+function int.toSlot2DByX(int x, int sizeX) returns slot2D
+	return slot2D(x, (this - x) div sizeX)
+
+function int.toSlot2DByY(int y, int sizeX) returns slot2D
+	return slot2D(this - sizeX * y, y)
+
 public class Array2D<T>
-	private let size = 8192
-	private T array[size] data
+	// private let size = 8192
+	// private T array[size] data
+	private constant let data = new HashMap<int, T>  // TODO: check if there is a better alternative to store the data or a proper way to use arrays
 	private constant int sizeX
 	private constant int sizeY
 
 	construct(int sizeX, int sizeY)
-		if sizeX * sizeY > size
-			Log.error("ERROR: Sizes of Array2D are too big")
+		// if sizeX * sizeY > size
+		// 	Log.error("ERROR: Sizes of Array2D are too big")
 		this.sizeX = sizeX
 		this.sizeY = sizeY
+
+	ondestroy
+		destroy data
 
 	function sizeX() returns int
 		return sizeX
@@ -45,11 +56,13 @@ public class Array2D<T>
 		return sizeY
 
 	function get(int x, int y) returns T
-		let s = slot2(x, y)
+		let s = slot2D(x, y)
 		s.checkBoundaries(sizeX, sizeY)
-		return data[s.toArraySlot(sizeX)]
+		// return data[s.toSlot1D(sizeX)]
+		return data.get(s.toSlot1D(sizeX))
 
 	function set(int x, int y, T elem)
-		let s = slot2(x, y)
+		let s = slot2D(x, y)
 		s.checkBoundaries(sizeX, sizeY)
-		data[s.toArraySlot(sizeX)] = elem
+		// data[s.toSlot1D(sizeX)] = elem
+		data.put(s.toSlot1D(sizeX), elem)

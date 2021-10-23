@@ -1,7 +1,7 @@
 // /*-------------------------------------------------------------
 // // Version number:
 // 1.0.0
-// -> PROBLEM: Wurst generates gigantic if-else statements with one array variable for each slot (eg. 512 arrays for the 512 sized arrays, 1024 arrays for the 1024 sized arrays, ...) -> That may crash Wc3
+// // FIXME: Wurst generates gigantic if-else statements with one array variable for each slot (eg. 512 arrays for the 512 sized arrays) -> Don't use big arrays as class members
 
 // // Description:
 // Provides generic lists based on dynamic arrays.

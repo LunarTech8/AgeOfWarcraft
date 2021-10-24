@@ -1,0 +1,103 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Provides wrapper classes for static primitive arrays and shared memory areas.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package Array
+import LinkedList
+
+
+// --------------------
+// Functional code
+// --------------------
+
+let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
+let ARRAY_REAL_SIZE = 8192 * 4
+
+real array[8192] arrayReal01
+real array[8192] arrayReal02
+real array[8192] arrayReal03
+real array[8192] arrayReal04
+
+function getArrayRealValue(int index) returns real
+	if index < 0
+		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+	else if index < 8192 * 2
+		if index < 8192 * 1
+			return arrayReal01[index]
+		else
+			return arrayReal02[index]
+	else if index < 8192 * 4
+		if index < 8192 * 3
+			return arrayReal03[index]
+		else
+			return arrayReal04[index]
+	else
+		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+	return 0.
+
+function setArrayRealValue(int index, real value)
+	if index < 0
+		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+	else if index < 8192 * 2
+		if index < 8192 * 1
+			arrayReal01[index] = value
+		else
+			arrayReal02[index] = value
+	else if index < 8192 * 4
+		if index < 8192 * 3
+			arrayReal03[index] = value
+		else
+			arrayReal04[index] = value
+	else
+		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+
+public class ArrayReal
+	private constant int size
+	private int indexOffset
+
+	construct(int size)
+		this.size = size
+		if ARRAY_REAL_LIST.isEmpty()
+			indexOffset = 0
+		else
+			indexOffset = ARRAY_REAL_LIST.peek().getFollowerIndexOffset()
+		if size + indexOffset > ARRAY_REAL_SIZE
+			Log.error("ERROR: Used sizes of ArrayReal are too big for reserved memory area")
+			this.size = 0
+		ARRAY_REAL_LIST.push(this)
+
+	ondestroy
+		// Remove this array from list:
+		let listIndex = ARRAY_REAL_LIST.indexOf(this)
+		ARRAY_REAL_LIST.removeAt(listIndex)
+		var newIndexOffset = indexOffset
+		// Move elements from following arrays forwards into free memory area:
+		for i = listIndex to ARRAY_REAL_LIST.size() - 1
+			let a = ARRAY_REAL_LIST.get(i)
+			for j = 0 to a.size - 1
+				setArrayRealValue(j + newIndexOffset, getArrayRealValue(j + a.indexOffset))
+			a.indexOffset = newIndexOffset
+			newIndexOffset = a.getFollowerIndexOffset()
+
+	private function getFollowerIndexOffset() returns int
+		return indexOffset + size
+
+	function size() returns int
+		return size
+
+	function get(int index) returns real
+		if index < 0 or index >= size
+			Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		return getArrayRealValue(index + indexOffset)
+
+	function set(int index, real elem)
+		if index < 0 or index >= size
+			Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		setArrayRealValue(index + indexOffset, elem)

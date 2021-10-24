@@ -12,7 +12,7 @@ Initial version.
 package SmartOrderSystem
 import RegisterEvents
 import Orders
-import ConstantDataSystem
+import ConstantData
 import UtilityFunctions
 import Entity
 import AbilitySystem

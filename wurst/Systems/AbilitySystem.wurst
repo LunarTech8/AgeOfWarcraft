@@ -11,7 +11,7 @@ Initial version.
 -------------------------------------------------------------*/
 package AbilitySystem
 import RegisterEvents
-import ConstantDataSystem
+import ConstantData
 import UtilityFunctions
 import Entity
 import Stock

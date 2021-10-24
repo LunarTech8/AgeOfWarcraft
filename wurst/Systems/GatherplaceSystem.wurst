@@ -10,7 +10,7 @@ Handles gather buildings that act as drop off places and gather centres for thei
 Initial version.
 -------------------------------------------------------------*/
 package GatherplaceSystem
-import ConstantDataSystem
+import ConstantData
 import UnitMap
 import LinkedList
 import UnitTest

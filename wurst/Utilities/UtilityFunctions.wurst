@@ -12,11 +12,12 @@ Initial version.
 package UtilityFunctions
 import LinkedList
 import HashMap
-import ConstantDataSystem
+import ConstantData
 import Interpolation
 import Array2D
 import Orders
 import ObjectIds
+import StatusSystem
 
 
 // --------------------
@@ -334,7 +335,7 @@ public function checkComputationCost(real currentCompCost) returns real
 		return 0.
 	return currentCompCost
 
-function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) returns Array2D<real>
+function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) returns Array2DReal
 	var compCost = 0.
 	// Check interpolation method:
 	var interpolationMethod = 0
@@ -347,7 +348,7 @@ function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) 
 	// Create smooth noise map:
 	let width = baseNoise.sizeX()
 	let height = baseNoise.sizeY()
-	let smoothNoise = new Array2D<real>(width, height)
+	let smoothNoise = new Array2DReal(width, height)
 	let samplePeriod = (2).pow(octave)
 	let sampleFrequency = 1. / samplePeriod
 	for i = 0 to width - 1
@@ -375,9 +376,9 @@ function smoothNoise(Array2D<real> baseNoise, string interpolation, int octave) 
 	return smoothNoise
 
 /** Generates random noise map of given size (width, height) with values between 0 and 1. */
-public function generateRandomNoise(int width, int height) returns Array2D<real>
+public function generateRandomNoise(int width, int height) returns Array2DReal
 	var compCost = 0.
-	let baseNoise = new Array2D<real>(width, height)
+	let baseNoise = new Array2DReal(width, height)
 	// Create base noise map:
 	for i = 0 to width - 1
 		for j = 0 to height - 1
@@ -391,17 +392,19 @@ public function generateRandomNoise(int width, int height) returns Array2D<real>
 	Persistance defines the smoothness of the map. Low values towards 0 give very smooth maps.
 	Available interpolations: Linear, Cosine
 	Available distributions: Default = "Bell shaped", Slope = "Half bell shaped, peak at 0", Uniform = "Evenly distributed, no peak" */
-public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2D<real>
+public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2DReal
 	var compCost = 0.
-	Array2D<real> perlinNoise
+	Array2DReal perlinNoise
 	if octaveCount > 1
 		let baseNoise = generateRandomNoise(width, height)
 		compCost += (width * height * 0.1) % MAX_COMPUTATION_COST_PER_CYCLE  // Factor in residual computation cost
 		var amplitude = 1.
 		var totalAmplitude = 0.
 		// Blend noise together:
-		perlinNoise = new Array2D<real>(width, height)
+		newInitSubStatus("Noise blending")
+		perlinNoise = new Array2DReal(width, height)
 		for octave = octaveCount - 1 downto 0
+			updateInitStatus(octaveCount - octave, octaveCount)
 			let smoothNoise = smoothNoise(baseNoise, interpolation, octave)
 			compCost += (width * height * 0.3) % MAX_COMPUTATION_COST_PER_CYCLE  // Factor in residual computation cost
 			amplitude *= persistance
@@ -417,7 +420,9 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 			destroy smoothNoise
 		destroy baseNoise
 		// Normalisation:
+		newInitSubStatus("Noise normalisation")
 		for i = 0 to width - 1
+			updateInitStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
 				compCost += 0.1
@@ -426,6 +431,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		perlinNoise = generateRandomNoise(width, height)
 		compCost += (width * height * 0.1) % MAX_COMPUTATION_COST_PER_CYCLE  // Factor in residual computation cost
 	// Postprocessing:
+	newInitSubStatus("Noise postprocessing")
 	if distribution == "Default"  // Standard bell shaped curve
 		return perlinNoise
 	else if distribution == "Slope"  // Half bell shaped curve with peak at 0
@@ -452,7 +458,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 	else
 		Log.error("Invalid distribution method")
 	return perlinNoise
-public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation) returns Array2D<real>
+public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation) returns Array2DReal
 	return generatePerlinNoise(width, height, octaveCount, persistance, interpolation, "Default")
-public function generatePerlinNoise(int width, int height, int octaveCount) returns Array2D<real>
+public function generatePerlinNoise(int width, int height, int octaveCount) returns Array2DReal
 	return generatePerlinNoise(width, height, octaveCount, .5, "Linear")

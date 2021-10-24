@@ -13,7 +13,7 @@ Initial version.
 -------------------------------------------------------------*/
 package PersonSystem
 import OnUnitEnterLeave
-import ConstantDataSystem
+import ConstantData
 import MultiboardPrioritySystem
 import Icons
 import UnitMap

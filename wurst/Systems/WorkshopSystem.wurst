@@ -10,7 +10,7 @@ Handles workplace buildings that produce educts out of products with the help of
 Initial version.
 -------------------------------------------------------------*/
 package WorkshopSystem
-import ConstantDataSystem
+import ConstantData
 import UnitMap
 import LinkedList
 import UnitTest

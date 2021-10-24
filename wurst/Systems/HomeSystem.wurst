@@ -10,7 +10,7 @@ Stores home buildings and its inhabitants.
 Initial version.
 -------------------------------------------------------------*/
 package HomeSystem
-import ConstantDataSystem
+import ConstantData
 import UnitMap
 import UtilityFunctions
 import MultiboardPrioritySystem

@@ -13,10 +13,11 @@ package WorldGenerationSystem
 import TerrainUtils
 import Interpolation
 import Array2D
-import ConstantDataSystem
+import ConstantData
 import UtilityFunctions
 import Entity
 import ResourceSystem
+import StatusSystem
 
 
 // --------------------
@@ -24,11 +25,12 @@ import ResourceSystem
 // --------------------
 
 // Terrain:
-let TILES_X = 12
-let TILES_Y = 18
+let TILES_X = 24
+let TILES_Y = 24
+// FIXME: noise blending for terrain takes too long for bigger maps (eg. 48x48) -> try adjust compCosts
 let TERRAIN_HEIGHT_INIT = 0.
 let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
-let TERRAIN_HEIGHT_MAX = 1024.  // Max HEIGHT_LAND_MAX
+let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 64.//1024.  // Max HEIGHT_LAND_MAX
 let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
 // Nature:
@@ -41,13 +43,18 @@ let TREE_COVERAGE_PERCENTAGE_MAX = 1.25  // A higher value means a lower probabl
 // Functional code
 // --------------------
 
+// FIXME: noise generation takes to long for init calculation for bigger maps
+// constant heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+// constant treeMap = compiletime(generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine"))
+
 public function generateTerrain()
-    // Change the height for each tile:
+    var compCost = 0.
+    // Adjust the height for each tile:
     let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
-    // FIXME: noise generation takes to long for one calculation cycle for bigger maps, add TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+    newInitSubStatus("Adjust terrain")
     for	x = 0 to TILES_X - 1
+        updateInitStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
-            Log.debug("generateTerrain: " + x.toString() + "/" + y.toString())  // DEBUG:
             let z = linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, heightMap.get(x, y))
             let pos = ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE)
             pos.addTerrainHeight(z - TERRAIN_HEIGHT_INIT)  // Terrain has to have water on it before hand for it to show up
@@ -61,15 +68,20 @@ public function generateTerrain()
                 let tile = pos.getTile()
                 tile.setPathing(PATHING_TYPE_WALKABILITY, true)
                 tile.setPathing(PATHING_TYPE_BUILDABILITY, false)
-    // FIXME: when starting with map below waterline -> above water ground still unwalkable -> pathing has to be updatet manually
-    // FIXME: when starting with map above waterline -> no water displayed and below water ground still buildable -> pathing has to be updatet manually and custom water graphics required
+            compCost += 1.2
+        compCost = checkComputationCost(compCost)
 
 public function generatePlants()
+    var compCost = 0.
     // Have 1 or 0 tree per tile:
     let treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    newInitSubStatus("Add plants")
     for	x = 0 to TILES_X - 1
+        updateInitStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())
                 entity(null, createDestructable(DestructableIds.summerTreeWall, pos, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // TODO: create/use custom destructable with defined values
+            compCost += 0.1
+        compCost = checkComputationCost(compCost)

@@ -11,7 +11,7 @@ Initial version.
 -------------------------------------------------------------*/
 package BuffPresetFunctions
 import public Assets
-import public ConstantDataSystem
+import public ConstantData
 import public BuffObjEditing
 
 

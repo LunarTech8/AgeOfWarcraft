@@ -9,14 +9,15 @@ Initializes startup processes.
 - 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
-package StartupSystem
-import ConstantDataSystem
+package Startup
+import ConstantData
 import ClosureTimers
 import StorageSystem
 import Stock
 import SettlementSystem
 import WorldGenerationSystem
 import UtilityFunctions
+import StatusSystem
 
 
 // --------------------
@@ -36,26 +37,18 @@ let START_WOOD_COUNT_PER_PEASANT = 5
 // Functional code
 // --------------------
 
-string currentInitStatus = null
-
-function newInitStatus(string statusName)
-	if currentInitStatus != null
-		print("Initialisation: Finished " + currentInitStatus)
-	currentInitStatus = statusName
-	if currentInitStatus != null
-		print("Initialisation: Starting " + currentInitStatus)
-
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
 	// Create terrain:
-	newInitStatus("terrain creation")
+	newInitStatus("Terrain creation")
 	generateTerrain()
 	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
 	// Create plants:
-	newInitStatus("plants creation")
+	newInitStatus("Plants creation")
 	generatePlants()
+	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
 	// Create player units:
-	newInitStatus("player units creation")
+	newInitStatus("Player units creation")
 	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(225.))
 	settlementCentre.tryAddSettlement()
 	for i = 1 to START_PEASANT_COUNT

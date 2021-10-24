@@ -12,7 +12,7 @@ Initial version.
 package BuildingPreset
 import UnitObjEditing
 import public Assets
-import public ConstantDataSystem
+import public ConstantData
 import public UnitsPresetFunctions
 import public ObjEditingCommons
 import public UtilityFunctions

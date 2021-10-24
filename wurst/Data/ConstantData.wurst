@@ -9,7 +9,7 @@ This system contains all custom global constant data like ids, paths etc. stored
 - 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
-package ConstantDataSystem
+package ConstantData
 import ErrorHandling
 import Preloader
 import HashMap

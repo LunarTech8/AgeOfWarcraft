@@ -12,7 +12,7 @@ Initial version.
 package StorageSystem
 import OnUnitEnterLeave
 import Icons
-import ConstantDataSystem
+import ConstantData
 import MultiboardPrioritySystem
 import Stock
 import UnitMap

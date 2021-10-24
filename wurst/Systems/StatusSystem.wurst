@@ -1,0 +1,41 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Initializes startup processes.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package StatusSystem
+
+
+// --------------------
+// Functional code
+// --------------------
+
+string currentInitStatus = null
+string currentInitSubStatus = null
+
+public function newInitStatus(string statusName)
+	if currentInitStatus != null
+		print("Initialisation: Finished " + currentInitStatus)
+	currentInitStatus = statusName
+	currentInitSubStatus = null
+	if currentInitStatus != null
+		print("Initialisation: Starting " + currentInitStatus)
+
+public function newInitSubStatus(string subStatusName)
+	if currentInitSubStatus != null
+		print("Initialisation: Finished " + currentInitStatus + " - " + currentInitSubStatus)
+	currentInitSubStatus = subStatusName
+	if currentInitSubStatus != null
+		print("Initialisation: Starting " + currentInitStatus + " - " + currentInitSubStatus)
+
+public function updateInitStatus(int currentTask, int maxTasks)
+	if currentInitSubStatus != null
+		print("Initialisation: " + currentInitStatus + " - " + currentInitSubStatus + " (" + currentTask.toString() + " / " + maxTasks.toString() + ")")
+	else
+		print("Initialisation: " + currentInitStatus + " (" + currentTask.toString() + " / " + maxTasks.toString() + ")")

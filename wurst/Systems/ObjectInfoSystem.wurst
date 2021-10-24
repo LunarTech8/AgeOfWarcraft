@@ -26,7 +26,7 @@ import MultiboardPrioritySystem
 import StorageSystem
 import ResourceSystem
 import BuildingSystem
-import ConstantDataSystem
+import ConstantData
 import Entity
 import UtilityFunctions
 import OrderSystem

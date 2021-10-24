@@ -9,7 +9,7 @@ Initializes startup processes.
 - 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
-package StatusSystem
+package LoadStatusSystem
 
 
 // --------------------
@@ -19,6 +19,8 @@ package StatusSystem
 string currentInitStatus = null
 string currentInitSubStatus = null
 
+int testIntValue = compiletime(5*GetRandomInt(2, 99))
+
 public function newInitStatus(string statusName)
 	if currentInitStatus != null
 		print("Initialisation: Finished " + currentInitStatus)
@@ -26,6 +28,7 @@ public function newInitStatus(string statusName)
 	currentInitSubStatus = null
 	if currentInitStatus != null
 		print("Initialisation: Starting " + currentInitStatus)
+	print(testIntValue.toString())  //DEBUG:
 
 public function newInitSubStatus(string subStatusName)
 	if currentInitSubStatus != null

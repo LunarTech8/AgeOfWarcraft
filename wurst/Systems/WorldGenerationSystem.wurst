@@ -17,7 +17,7 @@ import ConstantData
 import UtilityFunctions
 import Entity
 import ResourceSystem
-import StatusSystem
+import LoadStatusSystem
 
 
 // --------------------
@@ -27,7 +27,7 @@ import StatusSystem
 // Terrain:
 let TILES_X = 24
 let TILES_Y = 24
-// FIXME: noise blending for terrain takes too long for bigger maps (eg. 48x48) -> try adjust compCosts
+// FIXME: noise blending for terrain takes too long for bigger maps (eg. 48x48) -> try adjust compCosts and add more places where it's increased
 let TERRAIN_HEIGHT_INIT = 0.
 let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
 let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 64.//1024.  // Max HEIGHT_LAND_MAX
@@ -42,10 +42,6 @@ let TREE_COVERAGE_PERCENTAGE_MAX = 1.25  // A higher value means a lower probabl
 // --------------------
 // Functional code
 // --------------------
-
-// FIXME: noise generation takes to long for init calculation for bigger maps
-// constant heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
-// constant treeMap = compiletime(generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine"))
 
 public function generateTerrain()
     var compCost = 0.

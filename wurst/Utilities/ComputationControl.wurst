@@ -1,0 +1,38 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Keeps track of cumulated computation cost and breaks long tigger actions with short trigger sleeps to avoid unfinished function calls.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package ComputationControl
+
+
+// --------------------
+// Data code
+// --------------------
+
+let MAX_COMPUTATION_COST_PER_CYCLE = 256.
+let MIN_TRIGGER_SLEEP_TIME = 0.01
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public var computationCost = 0.
+
+public function checkForComputationBreak()
+	if computationCost >= MAX_COMPUTATION_COST_PER_CYCLE
+		if computationCost >= 2 * MAX_COMPUTATION_COST_PER_CYCLE
+			Log.warn("Bad placement of checkComputationCost (Residual cost of " + (computationCost - MAX_COMPUTATION_COST_PER_CYCLE).toString() + ")")
+		TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+		computationCost = 0.
+
+public function forceComputationBreak()
+	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+	computationCost = 0.

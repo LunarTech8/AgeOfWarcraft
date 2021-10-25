@@ -16,8 +16,8 @@ import StorageSystem
 import Stock
 import SettlementSystem
 import WorldGenerationSystem
-import UtilityFunctions
 import LoadStatusSystem
+import ComputationControl
 
 
 // --------------------
@@ -42,11 +42,11 @@ function runStartup()
 	// Create terrain:
 	newInitStatus("Terrain creation")
 	generateTerrain()
-	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+	forceComputationBreak()
 	// Create plants:
 	newInitStatus("Plants creation")
 	generatePlants()
-	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+	forceComputationBreak()
 	// Create player units:
 	newInitStatus("Player units creation")
 	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(225.))
@@ -64,7 +64,7 @@ function runStartup()
 	print("Finished initialisation")
 
 init
-	// Use a trigger to allow the use of TriggerSleepAction:
+	// Use a trigger to allow the use of computation breaks:
 	CreateTrigger()
 	..addAction(function runStartup)
 	..execute()

@@ -18,6 +18,7 @@ import UtilityFunctions
 import Entity
 import ResourceSystem
 import LoadStatusSystem
+import ComputationControl
 
 
 // --------------------
@@ -27,7 +28,7 @@ import LoadStatusSystem
 // Terrain:
 let TILES_X = 24
 let TILES_Y = 24
-// FIXME: noise blending for terrain takes too long for bigger maps (eg. 48x48) -> try adjust compCosts and add more places where it's increased
+// FIXME: noise blending for terrain takes too long for bigger maps (eg. 48x48) -> try adjust computationCost and maybe add more places where it's increased
 let TERRAIN_HEIGHT_INIT = 0.
 let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
 let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 64.//1024.  // Max HEIGHT_LAND_MAX
@@ -44,7 +45,6 @@ let TREE_COVERAGE_PERCENTAGE_MAX = 1.25  // A higher value means a lower probabl
 // --------------------
 
 public function generateTerrain()
-    var compCost = 0.
     // Adjust the height for each tile:
     let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     newInitSubStatus("Adjust terrain")
@@ -64,11 +64,10 @@ public function generateTerrain()
                 let tile = pos.getTile()
                 tile.setPathing(PATHING_TYPE_WALKABILITY, true)
                 tile.setPathing(PATHING_TYPE_BUILDABILITY, false)
-            compCost += 1.2
-        compCost = checkComputationCost(compCost)
+            computationCost += 1.2
+        checkForComputationBreak()
 
 public function generatePlants()
-    var compCost = 0.
     // Have 1 or 0 tree per tile:
     let treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     newInitSubStatus("Add plants")
@@ -79,5 +78,5 @@ public function generatePlants()
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())
                 entity(null, createDestructable(DestructableIds.summerTreeWall, pos, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // TODO: create/use custom destructable with defined values
-            compCost += 0.1
-        compCost = checkComputationCost(compCost)
+            computationCost += 0.1
+        checkForComputationBreak()

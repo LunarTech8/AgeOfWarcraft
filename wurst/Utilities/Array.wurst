@@ -18,26 +18,42 @@ import LinkedList
 // --------------------
 
 let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
-let ARRAY_REAL_SIZE = 8192 * 4
+let ARRAY_REAL_SIZE = 8192 * 8
 
 real array[8192] arrayReal01
 real array[8192] arrayReal02
 real array[8192] arrayReal03
 real array[8192] arrayReal04
+real array[8192] arrayReal05
+real array[8192] arrayReal06
+real array[8192] arrayReal07
+real array[8192] arrayReal08
 
 function getArrayRealValue(int index) returns real
 	if index < 0
 		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
-	else if index < 8192 * 2
-		if index < 8192 * 1
-			return arrayReal01[index]
-		else
-			return arrayReal02[index]
 	else if index < 8192 * 4
-		if index < 8192 * 3
-			return arrayReal03[index]
+		if index < 8192 * 2
+			if index < 8192 * 1
+				return arrayReal01[index]
+			else
+				return arrayReal02[index]
 		else
-			return arrayReal04[index]
+			if index < 8192 * 3
+				return arrayReal03[index]
+			else
+				return arrayReal04[index]
+	else if index < 8192 * 8
+		if index < 8192 * 6
+			if index < 8192 * 5
+				return arrayReal05[index]
+			else
+				return arrayReal06[index]
+		else
+			if index < 8192 * 7
+				return arrayReal07[index]
+			else
+				return arrayReal08[index]
 	else
 		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 	return 0.
@@ -45,16 +61,28 @@ function getArrayRealValue(int index) returns real
 function setArrayRealValue(int index, real value)
 	if index < 0
 		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
-	else if index < 8192 * 2
-		if index < 8192 * 1
-			arrayReal01[index] = value
-		else
-			arrayReal02[index] = value
 	else if index < 8192 * 4
-		if index < 8192 * 3
-			arrayReal03[index] = value
+		if index < 8192 * 2
+			if index < 8192 * 1
+				arrayReal01[index] = value
+			else
+				arrayReal02[index] = value
 		else
-			arrayReal04[index] = value
+			if index < 8192 * 3
+				arrayReal03[index] = value
+			else
+				arrayReal04[index] = value
+	else if index < 8192 * 8
+		if index < 8192 * 2
+			if index < 8192 * 5
+				arrayReal05[index] = value
+			else
+				arrayReal06[index] = value
+		else
+			if index < 8192 * 7
+				arrayReal07[index] = value
+			else
+				arrayReal08[index] = value
 	else
 		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 

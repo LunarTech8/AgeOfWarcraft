@@ -36,11 +36,7 @@ Work status:
 	- The player may switch between different types of targets for the gatherers
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
-	- Noise generation takes too long for init calculation for bigger maps -> Has to be split up during loading
-!!>- Implement a ComputationCostSystem
-	- Move checkComputationCost and MAX_COMPUTATION_COST_PER_CYCLE there from UtilityFunctions
-	- Have a global public variable for compCost
-	- Set compCost to 0. after each TriggerSleepAction call
+	- Noise generation takes too long for init calculation for bigger maps -> ComputationCosts have to be adjusted
 
 
 // -------------

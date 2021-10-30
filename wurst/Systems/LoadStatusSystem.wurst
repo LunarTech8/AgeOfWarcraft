@@ -3,42 +3,80 @@
 1.0.0
 
 // Description:
-Initializes startup processes.
+Handles the load status process and its readout to the players.
 
 // Changelog:
 - 1.0.0:
 Initial version.
 -------------------------------------------------------------*/
 package LoadStatusSystem
+import ClosureTimers
+import LinkedList
+
+
+// --------------------
+// Data code
+// --------------------
+
+let LOAD_STATUS_ADJUSTMENT_RATE = 0.2
+let UPDATE_SYMBOLS = ["-", "\\", "|", "/"]
 
 
 // --------------------
 // Functional code
 // --------------------
 
+let loadStatusText = new LinkedList<string>()
+int loadStatusSymbolIndex = 0
+CallbackPeriodic loadStatusCb = null
+
 string currentInitStatus = null
 string currentInitSubStatus = null
 
-int testIntValue = compiletime(5*GetRandomInt(2, 99))
+function updateLoadStatus()
+	loadStatusSymbolIndex++
+	if loadStatusSymbolIndex >= UPDATE_SYMBOLS.length
+		loadStatusSymbolIndex = 0
+	while loadStatusText.size() > 1
+		print(loadStatusText.dequeue(), LOAD_STATUS_ADJUSTMENT_RATE)
+	ClearTextMessages()
+	print("[" + UPDATE_SYMBOLS[loadStatusSymbolIndex] + "] " + loadStatusText.getFirst(), LOAD_STATUS_ADJUSTMENT_RATE)
 
+function startLoadStatus()
+	if loadStatusCb != null
+		Log.error("Cannot start another load status until the current one is finished")
+	loadStatusCb = doPeriodically(LOAD_STATUS_ADJUSTMENT_RATE, cb -> updateLoadStatus())
+
+function finishLoadStatus()
+	destroy(loadStatusCb)
+	loadStatusCb = null
+	updateLoadStatus()
+	loadStatusText.clear()
+
+/** Start init status with given name and finish current one if existent. Use null to finish initialisation. */
 public function newInitStatus(string statusName)
-	if currentInitStatus != null
-		print("Initialisation: Finished " + currentInitStatus)
+	if currentInitStatus == null
+		startLoadStatus()
+	else
+		loadStatusText.add("Init: Finished " + currentInitStatus)
 	currentInitStatus = statusName
 	currentInitSubStatus = null
-	if currentInitStatus != null
-		print("Initialisation: Starting " + currentInitStatus)
-	print(testIntValue.toString())  //DEBUG:
+	if currentInitStatus == null
+		finishLoadStatus()
+	else
+		loadStatusText.add("Init: Starting " + currentInitStatus)
 
+/** Start init sub status with given name and finish current one if existent. Use null to finish current sub status. */
 public function newInitSubStatus(string subStatusName)
 	if currentInitSubStatus != null
-		print("Initialisation: Finished " + currentInitStatus + " - " + currentInitSubStatus)
+		loadStatusText.add("Init: Finished " + currentInitStatus + " - " + currentInitSubStatus)
 	currentInitSubStatus = subStatusName
 	if currentInitSubStatus != null
-		print("Initialisation: Starting " + currentInitStatus + " - " + currentInitSubStatus)
+		loadStatusText.add("Init: Starting " + currentInitStatus + " - " + currentInitSubStatus)
 
-public function updateInitStatus(int currentTask, int maxTasks)
+/** Set init task status to given current count of given max count. */
+public function setInitTaskStatus(int currentTask, int maxTasks)
 	if currentInitSubStatus != null
-		print("Initialisation: " + currentInitStatus + " - " + currentInitSubStatus + " (" + currentTask.toString() + " / " + maxTasks.toString() + ")")
+		loadStatusText.add("Init: " + currentInitStatus + " - " + currentInitSubStatus + " (" + currentTask.toString() + " / " + maxTasks.toString() + ")")
 	else
-		print("Initialisation: " + currentInitStatus + " (" + currentTask.toString() + " / " + maxTasks.toString() + ")")
+		loadStatusText.add("Init: " + currentInitStatus + " (" + currentTask.toString() + " / " + maxTasks.toString() + ")")

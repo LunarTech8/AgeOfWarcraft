@@ -29,7 +29,6 @@ Work status:
 		- Persons should become a group of refugees
 		- Buildings should become neutral (can be readded to new settlement in range)
 	- The influence range of settlements should be marked by border stones
-!!- Building buff graphics isn't visible (buff is added correctly)
 !!>>- Create a GatherplaceSystem
 	- All gather jobs have a building from where they start gathering and store their resources
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
@@ -37,23 +36,22 @@ Work status:
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
 	- Noise generation takes too long for init calculation for bigger maps -> ComputationCosts have to be adjusted
+!!>>- Improve LoadStatusSystem
+	- Add a main progress bar (eg. [+++++----])
+	- Add support for cycling background loading screens
 
 
 // -------------
 // Backlog:
 // -------------
 
+!!!- Building buff graphics isn't visible (buff is added correctly)
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
 	- Check if this is really needed anymore (else remove ShowTargetInfo)
 !!- Make general population not directly controllable, only military and planning units
 	- Control general population via buildings (workplaces, houses, etc.)
 	- General population acts based on daily routines and needs
-!!- Improve LoadStatusSystem
-	- Have a periodic status update every 0.5s and clear the last print
-	- Have a rotation symbol (eg. -\|/-\|/) to display that the loading isn't stuck
-	- Add a main progress bar (eg. [+++++----])
-	- Add support for cycling background loading screens
 !- Create an ExperienceSystem that manages how good persons are in different tasks/professions
 	- Have a level system (apprentice, journeyman, adept, master, expert, ...) that unlocks new abilities or improves them
 	- Each work step adds exp for that profession

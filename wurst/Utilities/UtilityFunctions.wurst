@@ -392,7 +392,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		newInitSubStatus("Noise blending")
 		perlinNoise = new Array2DReal(width, height)
 		for octave = octaveCount - 1 downto 0
-			updateInitStatus(octaveCount - octave, octaveCount)
+			setInitTaskStatus(octaveCount - octave, octaveCount)
 			let smoothNoise = smoothNoise(baseNoise, interpolation, octave)
 			amplitude *= persistance
 			totalAmplitude += amplitude
@@ -409,7 +409,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		// Normalisation:
 		newInitSubStatus("Noise normalisation")
 		for i = 0 to width - 1
-			updateInitStatus(i + 1, width)
+			setInitTaskStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
 				computationCost += 0.1

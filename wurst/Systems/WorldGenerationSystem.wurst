@@ -26,12 +26,13 @@ import ComputationControl
 // --------------------
 
 // Terrain:
-let TILES_X = 24
-let TILES_Y = 24
-// FIXME: noise blending for terrain takes too long for bigger maps (eg. 48x48) -> try adjust computationCost and maybe add more places where it's increased
+let TILES_X = 96
+let TILES_Y = 96
+// FIXME: noise blending for terrain takes too long for bigger maps (48x48 does still work) -> try adjust computationCost and maybe add more places where it's increased
+// FIXME: -> stuck on noise normalisation 7/96
 let TERRAIN_HEIGHT_INIT = 0.
 let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
-let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 64.//1024.  // Max HEIGHT_LAND_MAX
+let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 1024.  // Max HEIGHT_LAND_MAX
 let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
 // Nature:
@@ -49,7 +50,7 @@ public function generateTerrain()
     let heightMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     newInitSubStatus("Adjust terrain")
     for	x = 0 to TILES_X - 1
-        updateInitStatus(x + 1, TILES_X)
+        setInitTaskStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
             let z = linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, heightMap.get(x, y))
             let pos = ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE)
@@ -72,7 +73,7 @@ public function generatePlants()
     let treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     newInitSubStatus("Add plants")
     for	x = 0 to TILES_X - 1
-        updateInitStatus(x + 1, TILES_X)
+        setInitTaskStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
             if treeMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE

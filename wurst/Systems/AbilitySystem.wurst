@@ -27,6 +27,7 @@ import WorkshopSystem
 import HomeSystem
 import PersonSystem
 import SettlementSystem
+import ErrorHandling
 
 
 // --------------------
@@ -177,13 +178,13 @@ function unit.transferWares(unit target)
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
 	if val == Validity.VALID or val == Validity.UNREGISTERED
-		Log.error("ERROR: Given validity is not invalid (" + (val castTo int).toString() + ")")
+		error("Given validity is not invalid (" + (val castTo int).toString() + ")")
 	// React on invalid command:
 	let owner = this.getOwner()
 	if IsUnitSelected(this, owner)
 		let messageText = getInvalidMessageText(abilityId, val)
 		if messageText == null
-			Log.error("ERROR: Unregistered invalidity message text for " + abilityId.toString() + " / " + (val castTo int).toString())
+			error("Unregistered invalidity message text for " + abilityId.toString() + " / " + (val castTo int).toString())
 		printTimedToPlayer("Invalid: " + messageText, INFO_MSG_TIME, owner)
 	this.abortOrder()
 
@@ -289,7 +290,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		// Check if source is valid:
 		let sourceWorkshop = this.getWorkshop()
 		if sourceWorkshop == null
-			Log.error("ERROR: Casting building is no workshop (" + this.getName() + ")")
+			error("Casting building is no workshop (" + this.getName() + ")")
 			return Validity.ERROR
 		// Check if source has workers:
 		if sourceWorkshop.getWorkerCount() <= 0
@@ -298,7 +299,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		// Check if source is valid:
 		let sourceWorkshop = this.getWorkshop()
 		if sourceWorkshop == null
-			Log.error("ERROR: Casting building is no workshop (" + this.getName() + ")")
+			error("Casting building is no workshop (" + this.getName() + ")")
 			return Validity.ERROR
 	else if abilityId == AbilityIdsCustom.targetDestructable
 		// Check if target is valid:
@@ -402,7 +403,7 @@ init
 						// Cancel current production and change it to the next variant:
 						source.getWorkshop().changeProduct()
 					default
-						Log.error("ERROR: Unmapped ability (" + abilityId.getOrderName() + ")")
+						error("Unmapped ability (" + abilityId.getOrderName() + ")")
 			else if val != Validity.UNREGISTERED
 				source.reactOnInvalidAbility(abilityId, val)
 	// Register issued ability orders:

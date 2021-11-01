@@ -12,6 +12,7 @@ Initial version.
 package Array2D
 import HashMap
 import Array
+import ErrorHandling
 
 
 // --------------------
@@ -22,7 +23,7 @@ tuple slot2D(int x, int y)
 
 function slot2D.checkBoundaries(int sizeX, int sizeY)
 	if this.x >= sizeX or this.x < 0 or this.y >= sizeY or this.y < 0
-		Log.error("ERROR: Slot (" + this.x.toString() + ", " + this.y.toString() + ") is outside boundaries (" + sizeX.toString() + ", " + sizeY.toString() + ")")
+		error("ERROR: Slot (" + this.x.toString() + ", " + this.y.toString() + ") is outside boundaries (" + sizeX.toString() + ", " + sizeY.toString() + ")")
 
 function slot2D.toSlot1D(int sizeX) returns int
 	return this.x + sizeX * this.y
@@ -58,7 +59,7 @@ public class Array2D<T>
 		if data.has(key)
 			return data.get(key)
 		else
-			Log.error("ERROR: Slot (" + x.toString() + ", " + y.toString() + ") has no value")
+			error("ERROR: Slot (" + x.toString() + ", " + y.toString() + ") has no value")
 			return null
 
 	function set(int x, int y, T elem)
@@ -84,6 +85,9 @@ public class Array2DReal
 
 	function sizeY() returns int
 		return sizeY
+
+	function getIndexOffset() returns int  // DEBUG:
+		return data.getIndexOffset()
 
 	function get(int x, int y) returns real
 		let s = slot2D(x, y)

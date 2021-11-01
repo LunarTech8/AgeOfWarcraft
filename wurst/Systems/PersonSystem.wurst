@@ -195,7 +195,7 @@ public class Person
 			else if targetWorkshop != null and targetWorkshop == workplace
 				targetWorkshop.enterBuilding(user)
 		else
-			Log.error("ERROR: Person is already in a building")
+			error("Person is already in a building")
 
 	function leaveBuilding()
 		if enteredBuilding != null
@@ -208,7 +208,7 @@ public class Person
 			enteredBuilding = null
 			user.show()
 		else
-			Log.error("ERROR: Person is not in a building")
+			error("Person is not in a building")
 
 	protected function reduceStats() returns bool
 		// Adjust food:
@@ -237,12 +237,12 @@ public class Person
 
 	protected function awake()
 		if isSleeping() == false
-			Log.error("ERROR: Person is already awake")
+			error("Person is already awake")
 		sleepRate = 0.
 
 	private function sleep(int buildingUnitId)
 		if isSleeping() == true
-			Log.error("ERROR: Person is already sleeping")
+			error("Person is already sleeping")
 		sleepRate = getSleepRate(buildingUnitId)
 
 

@@ -11,6 +11,7 @@ Initial version.
 -------------------------------------------------------------*/
 package Array
 import LinkedList
+import ErrorHandling
 
 
 // --------------------
@@ -18,7 +19,7 @@ import LinkedList
 // --------------------
 
 let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
-let ARRAY_REAL_SIZE = 8192 * 8
+let ARRAY_REAL_SIZE = 8192 * 16
 
 real array[8192] arrayReal01
 real array[8192] arrayReal02
@@ -28,66 +29,124 @@ real array[8192] arrayReal05
 real array[8192] arrayReal06
 real array[8192] arrayReal07
 real array[8192] arrayReal08
+real array[8192] arrayReal09
+real array[8192] arrayReal10
+real array[8192] arrayReal11
+real array[8192] arrayReal12
+real array[8192] arrayReal13
+real array[8192] arrayReal14
+real array[8192] arrayReal15
+real array[8192] arrayReal16
 
 function getArrayRealValue(int index) returns real
 	if index < 0
-		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
-	else if index < 8192 * 4
-		if index < 8192 * 2
-			if index < 8192 * 1
-				return arrayReal01[index]
-			else
-				return arrayReal02[index]
-		else
-			if index < 8192 * 3
-				return arrayReal03[index]
-			else
-				return arrayReal04[index]
+		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 	else if index < 8192 * 8
-		if index < 8192 * 6
-			if index < 8192 * 5
-				return arrayReal05[index]
+		if index < 8192 * 4
+			if index < 8192 * 2
+				if index < 8192 * 1
+					return arrayReal01[index]
+				else
+					return arrayReal02[index]
 			else
-				return arrayReal06[index]
+				if index < 8192 * 3
+					return arrayReal03[index]
+				else
+					return arrayReal04[index]
 		else
-			if index < 8192 * 7
-				return arrayReal07[index]
+			if index < 8192 * 6
+				if index < 8192 * 5
+					return arrayReal05[index]
+				else
+					return arrayReal06[index]
 			else
-				return arrayReal08[index]
+				if index < 8192 * 7
+					return arrayReal07[index]
+				else
+					return arrayReal08[index]
+	else if index < 8192 * 16
+		if index < 8192 * 12
+			if index < 8192 * 10
+				if index < 8192 * 9
+					return arrayReal09[index]
+				else
+					return arrayReal10[index]
+			else
+				if index < 8192 * 11
+					return arrayReal11[index]
+				else
+					return arrayReal12[index]
+		else
+			if index < 8192 * 14
+				if index < 8192 * 13
+					return arrayReal13[index]
+				else
+					return arrayReal14[index]
+			else
+				if index < 8192 * 15
+					return arrayReal15[index]
+				else
+					return arrayReal16[index]
 	else
-		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 	return 0.
 
 function setArrayRealValue(int index, real value)
 	if index < 0
-		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
-	else if index < 8192 * 4
-		if index < 8192 * 2
-			if index < 8192 * 1
-				arrayReal01[index] = value
-			else
-				arrayReal02[index] = value
-		else
-			if index < 8192 * 3
-				arrayReal03[index] = value
-			else
-				arrayReal04[index] = value
+		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 	else if index < 8192 * 8
-		if index < 8192 * 2
-			if index < 8192 * 5
-				arrayReal05[index] = value
+		if index < 8192 * 4
+			if index < 8192 * 2
+				if index < 8192 * 1
+					arrayReal01[index] = value
+				else
+					print(index)  // DEBUG:
+					arrayReal02[index] = value
 			else
-				arrayReal06[index] = value
+				if index < 8192 * 3
+					print(index)  // DEBUG:
+					arrayReal03[index] = value
+				else
+					arrayReal04[index] = value
 		else
-			if index < 8192 * 7
-				arrayReal07[index] = value
+			if index < 8192 * 2
+				if index < 8192 * 5
+					arrayReal05[index] = value
+				else
+					arrayReal06[index] = value
 			else
-				arrayReal08[index] = value
+				if index < 8192 * 7
+					arrayReal07[index] = value
+				else
+					arrayReal08[index] = value
+	else if index < 8192 * 16
+		if index < 8192 * 12
+			if index < 8192 * 10
+				if index < 8192 * 9
+					arrayReal09[index] = value
+				else
+					arrayReal10[index] = value
+			else
+				if index < 8192 * 11
+					arrayReal11[index] = value
+				else
+					arrayReal12[index] = value
+		else
+			if index < 8192 * 14
+				if index < 8192 * 13
+					arrayReal13[index] = value
+				else
+					arrayReal14[index] = value
+			else
+				if index < 8192 * 15
+					arrayReal15[index] = value
+				else
+					arrayReal16[index] = value
 	else
-		Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 
 public class ArrayReal
-	private constant int size
+	private int size
 	private int indexOffset
 
 	construct(int size)
@@ -97,7 +156,7 @@ public class ArrayReal
 		else
 			indexOffset = ARRAY_REAL_LIST.peek().getFollowerIndexOffset()
 		if size + indexOffset > ARRAY_REAL_SIZE
-			Log.error("ERROR: Used sizes of ArrayReal are too big for reserved memory area")
+			error("ERROR: Used sizes of ArrayReal are too big for reserved memory area")
 			this.size = 0
 		ARRAY_REAL_LIST.push(this)
 
@@ -109,9 +168,12 @@ public class ArrayReal
 		// Move elements from following arrays forwards into free memory area:
 		for i = listIndex to ARRAY_REAL_LIST.size() - 1
 			let a = ARRAY_REAL_LIST.get(i)
-			for j = 0 to a.size - 1
+			let aSize = a.size
+			a.size = 0  // Set temporarily to 0 to avoid concurrent wrong accesses
+			for j = 0 to aSize - 1
 				setArrayRealValue(j + newIndexOffset, getArrayRealValue(j + a.indexOffset))
 			a.indexOffset = newIndexOffset
+			a.size = aSize
 			newIndexOffset = a.getFollowerIndexOffset()
 
 	private function getFollowerIndexOffset() returns int
@@ -120,12 +182,15 @@ public class ArrayReal
 	function size() returns int
 		return size
 
+	function getIndexOffset() returns int  // DEBUG:
+		return indexOffset
+
 	function get(int index) returns real
 		if index < 0 or index >= size
-			Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+			error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 		return getArrayRealValue(index + indexOffset)
 
 	function set(int index, real elem)
 		if index < 0 or index >= size
-			Log.error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+			error("ERROR: Index (" + index.toString() + ") is outside boundaries")
 		setArrayRealValue(index + indexOffset, elem)

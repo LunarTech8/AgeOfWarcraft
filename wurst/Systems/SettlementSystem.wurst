@@ -22,6 +22,7 @@ import UnitTest
 import ClosureTimers
 import StorageSystem
 import Stock
+import ErrorHandling
 
 
 // --------------------
@@ -81,7 +82,7 @@ function getInvalidMessageText(Validity val) returns string
 		case INVALID_TYPE
 			return "Invalid building type to found a settlement"
 		default
-			Log.error("ERROR: Unregistered invalidity message text for " + (val castTo int).toString())
+			error("Unregistered invalidity message text for " + (val castTo int).toString())
 			return null
 
 

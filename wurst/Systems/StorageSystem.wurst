@@ -18,6 +18,7 @@ import Stock
 import UnitMap
 import LinkedList
 import UnitTest
+import ErrorHandling
 
 
 // --------------------
@@ -67,7 +68,7 @@ public class Storage extends Stock
 
 	override function addWare(ware w)
 		if w.count > getFreeCapacity()
-			Log.error("ERROR: Not enough free capacity to add given ware to storage of " + user.getName())
+			error("Not enough free capacity to add given ware to storage of " + user.getName())
 		usedCapacity += w.count
 		super.addWare(w)
 
@@ -80,7 +81,7 @@ public class Storage extends Stock
 			if iWare.hasSameType(w)
 				// Check and adjust ware:
 				if iWare.count < w.count
-					Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware count is to low")
+					error("Can not remove given ware from storage of " + user.getName() + " because ware count is to low")
 				else if iWare.count == w.count
 					wares.remove(iWare)
 				else
@@ -88,7 +89,7 @@ public class Storage extends Stock
 				// Adjust capacity:
 				usedCapacity -= w.count
 				return
-		Log.error("ERROR: Can not remove given ware from storage of " + user.getName() + " because ware type is not available")
+		error("Can not remove given ware from storage of " + user.getName() + " because ware type is not available")
 
 	override function removeWares(LinkedList<ware> wares)
 		for iWare in wares

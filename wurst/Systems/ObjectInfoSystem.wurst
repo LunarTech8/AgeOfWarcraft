@@ -35,6 +35,7 @@ import WorkshopSystem
 import HomeSystem
 import SettlementSystem
 import GatherplaceSystem
+import ErrorHandling
 
 
 // --------------------
@@ -89,7 +90,7 @@ class Dataset
 				// Use only local code (no net traffic) within this block to avoid desyncs.
 				MultiboardDisplay(usedMultiboard, show)
 		else if show
-			Log.error("ERROR: Empty multiboard can't be displayed")
+			error("Empty multiboard can't be displayed")
 
 	function setTimer(real adjustingTime)
 		if adjustingTime > 0.
@@ -163,7 +164,7 @@ init
 	for i = 0 to COUNT_PLAYERS - 1
 		datasets[i] = new Dataset(i)
 		if datasets[i] == null
-			Log.error("ERROR: InfoBoard struct cap exceeded")
+			error("InfoBoard struct cap exceeded")
 	// Register unit selections:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED) ->
 		let playerID = GetPlayerId(GetTriggerPlayer())

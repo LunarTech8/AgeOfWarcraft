@@ -12,6 +12,7 @@ Also provides standardized multiboard utility functions.
 Initial version.
 -------------------------------------------------------------*/
 package MultiboardPrioritySystem
+import ErrorHandling
 
 
 // --------------------
@@ -96,4 +97,4 @@ init
 	for i = 0 to COUNT_PLAYERS - 1
 		currentBoards[i] = new Board()
 		if currentBoards[i] == null
-			Log.error("ERROR: MultiboardInfo struct cap exceeded")
+			error("MultiboardInfo struct cap exceeded")

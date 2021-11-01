@@ -14,6 +14,7 @@ import HashMap
 import UtilityFunctions
 import UnitTest
 import ConstantData
+import ErrorHandling
 
 
 // --------------------
@@ -36,7 +37,7 @@ public function entityToIndex(entity e) returns int
 	else if e.userDest != null
 		return -destructableToIndex(e.userDest)
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 		return 0
 
 public function entityFromIndex(int index) returns entity
@@ -51,7 +52,7 @@ public function entity.getTypeId() returns int
 	else if this.userDest != null
 		return this.userDest.getTypeId()
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 		return 0
 
 public function entity.getName() returns string
@@ -60,7 +61,7 @@ public function entity.getName() returns string
 	else if this.userDest != null
 		return this.userDest.getName()
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 		return null
 
 public function entity.getWidget() returns widget
@@ -69,7 +70,7 @@ public function entity.getWidget() returns widget
 	else if this.userDest != null
 		return this.userDest
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 		return null
 
 public function entity.getPos() returns vec2
@@ -78,17 +79,17 @@ public function entity.getPos() returns vec2
 	else if this.userDest != null
 		return this.userDest.getPos()
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 		return vec2(0, 0)
 
 public function entity.assertUnit() returns unit
 	if this.userUnit == null
-		Log.error("ERROR: Asserted unit of entity is null")
+		error("ERROR: Asserted unit of entity is null")
 	return this.userUnit
 
 public function entity.assertDestructable() returns destructable
 	if this.userDest == null
-		Log.error("ERROR: Asserted destructable of entity is null")
+		error("ERROR: Asserted destructable of entity is null")
 	return this.userDest
 
 public function entity.isEmpty() returns bool
@@ -100,7 +101,7 @@ public function entity.remove()
 	else if this.userDest != null
 		this.userDest.remove()
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 
 public function entity.kill()
 	if this.userUnit != null
@@ -108,7 +109,7 @@ public function entity.kill()
 	else if this.userDest != null
 		this.userDest.kill()
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("ERROR: Unit and destructable of entity are null")
 
 /** Uses hash table entries (via HashMap) to map entitys to the given values. */
 public class EntityHashMap<T> implements EntityMap<T>

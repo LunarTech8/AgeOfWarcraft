@@ -18,6 +18,7 @@ import UnitIndexer
 import OnUnitEnterLeave
 import Icons
 import RegisterEvents
+import ErrorHandling
 
 
 // --------------------
@@ -80,13 +81,13 @@ public class Home
 		if inhabitants.contains(inhabitant) == false and inhabitants.size() < getMaxInhabitants(user.getUnitId())
 			inhabitants.addUnit(inhabitant)
 		else
-			Log.error("ERROR: Can't add inhabitant to this home")
+			error("Can't add inhabitant to this home")
 
 	function removeInhabitant(unit inhabitant)
 		if inhabitants.contains(inhabitant)
 			inhabitants.removeUnit(inhabitant)
 		else
-			Log.error("ERROR: Can't remove inhabitant from this home")
+			error("Can't remove inhabitant from this home")
 
 
 function unit.addHome()

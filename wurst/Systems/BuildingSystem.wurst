@@ -32,6 +32,7 @@ import Unit_TownHall
 import Unit_LumberMill
 import Unit_Barracks
 import Unit_Blacksmith
+import ErrorHandling
 
 
 // --------------------
@@ -270,11 +271,11 @@ class BuildingSite extends Stock
 			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
 			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
 		else
-			Log.error("ERROR: Can't add worker to this building site")
+			error("Can't add worker to this building site")
 
 	function removeWorker(unit worker)
 		if workerCount <= 0
-			Log.error("ERROR: Can not remove more workers from building site (" + user.getName() + ")")
+			error("Can not remove more workers from building site (" + user.getName() + ")")
 		else if WORKER_MAP.get(worker) == this
 			WORKER_MAP.remove(worker)
 			workPower -= getUnitWorkPower(worker.getUnitId(), user.getUnitId())
@@ -282,7 +283,7 @@ class BuildingSite extends Stock
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
 		else
-			Log.error("ERROR: Can't remove worker from this building site")
+			error("Can't remove worker from this building site")
 
 	function adjustProgress() returns bool
 		if workPower > 0.

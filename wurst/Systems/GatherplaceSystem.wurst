@@ -25,6 +25,7 @@ import StorageSystem
 import Orders
 import Entity
 import ResourceSystem
+import ErrorHandling
 
 
 // --------------------
@@ -109,7 +110,7 @@ public class Gatherplace extends Stock
 		if workers.size() > 0
 			return workers.getUnitAt(0)
 		else
-			Log.error("ERROR: Gatherplace doesn't have any worker")
+			error("Gatherplace doesn't have any worker")
 			return null
 
 	function isWorker(unit worker) returns bool
@@ -119,13 +120,13 @@ public class Gatherplace extends Stock
 		if workers.contains(worker) == false and workers.size() < getMaxWorkers(user.getUnitId())
 			workers.addUnit(worker)
 		else
-			Log.error("ERROR: Can't add worker to this gatherplace")
+			error("Can't add worker to this gatherplace")
 
 	function removeWorker(unit worker)
 		if workers.contains(worker)
 			workers.removeUnit(worker)
 		else
-			Log.error("ERROR: Can't remove worker from this gatherplace")
+			error("Can't remove worker from this gatherplace")
 
 	function changeProduct()
 		if getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant + 1).isEmpty() == false

@@ -39,9 +39,8 @@ let START_WOOD_COUNT_PER_PEASANT = 5
 
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
-	newInitStatus("Begin initialisation")
 	// Create terrain:
-	newInitStatus("Terrain creation")
+	startInitStatus("Initialisation", 3, "Terrain creation")
 	generateTerrain()
 	forceComputationBreak()
 	// Create plants:
@@ -61,7 +60,6 @@ function runStartup()
 				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
 	createUnit(USER_PLAYER, UnitIdsCustom.AoW.footman, START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)
 	// Initialisation finished:
-	newInitStatus("End initialisation")
 	newInitStatus(null)
 
 init

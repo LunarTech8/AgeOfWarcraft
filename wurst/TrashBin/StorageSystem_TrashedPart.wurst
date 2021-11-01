@@ -4,7 +4,7 @@
 
 // 	construct(WareType wareType, int count)
 // 		if count <= 0
-// 			Log.error("ERROR: Ware count has to be bigger than 0")
+// 			error("Ware count has to be bigger than 0")
 // 		this.wareType = wareType
 // 		this.count = count
 // 	construct(WareType wareType)
@@ -35,10 +35,10 @@
 
 // 	function increaseCount(int addition)
 // 		count += addition
-	
+
 // 	function decreaseCount(int reduction) returns bool
 // 		if count - reduction < 0
-// 			Log.error("ERROR: Ware count can't be negative")
+// 			error("Ware count can't be negative")
 // 		count -= reduction
 // 		return count == 0
 // 	function decreaseCount(int reduction, bool allowPartialReduction) returns int
@@ -52,7 +52,7 @@
 // 		else
 // 			count -= reduction
 // 			return -count
-	
+
 // 	function toString(bool upperCase) returns string
 // 		if upperCase
 // 			return wareType.toString().firstUpper()
@@ -73,16 +73,16 @@
 
 // 	function getWare(int index) returns Ware
 // 			return wares.get(index)
-		
+
 // 	function getWareCount() returns int
 // 		return wares.size()
 
 // 	function getMaxCapacity() returns int
 // 		return maxCapacity
-	
+
 // 	function getUsedCapacity() returns int
 // 		return usedCapacity
-	
+
 // 	private function addWare(Ware ware) returns int
 // 		// Check and adjust storage capacity:
 // 		int excessWareCount = 0
@@ -99,7 +99,7 @@
 // 		return excessWareCount
 // 	function addWare(WareType wareType, int count) returns int
 // 		return addWare(new Ware(wareType, count))
-	
+
 // 	private function removeWare(Ware ware) returns int
 // 		// Adjust storage wares:
 // 		var wareCount = ware.getCount()

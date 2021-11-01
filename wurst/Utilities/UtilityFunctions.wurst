@@ -19,6 +19,7 @@ import Orders
 import ObjectIds
 import LoadStatusSystem
 import ComputationControl
+import ErrorHandling
 
 
 // --------------------
@@ -93,7 +94,7 @@ public function int.getAbilityOrder() returns string
 		case AbilityIdsCustom.removeWorker
 			return "thunderclap"
 		default
-			Log.error("ERROR: Unmapped ability id (" + this.toString() + ")")
+			error("Unmapped ability id (" + this.toString() + ")")
 			return null
 
 /** Returns the ability id used for this order name. */
@@ -114,7 +115,7 @@ public function string.getOrderNameAbility() returns int
 		case "target destructable"
 			return AbilityIdsCustom.targetDestructable
 		default
-			Log.error("ERROR: Unmapped order name (" + this + ")")
+			error("Unmapped order name (" + this + ")")
 			return 0
 
 /** Returns the order name of this order or ability id. */
@@ -160,7 +161,7 @@ public function int.getOrderName() returns string
 			return "target destructable"
 		default
 			if this < 2013265920  // Ignore unit ids
-				Log.error("ERROR: Unmapped order/ability id (" + this.toString() + ")")
+				error("Unmapped order/ability id (" + this.toString() + ")")
 			return null
 /** Returns the order name of this order id of the given unit. Returns null if onlyCustomAbilities is given and order doesn't fit to a custom ability of the given unit. */
 public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) returns string
@@ -189,7 +190,7 @@ public function int.getOrderName(unit orderedUnit, bool onlyCustomAbilities) ret
 				return null
 			else
 				return this.getOrderName()
-	Log.error("ERROR: Unmapped order id (" + this.toString() + ")")
+	error("Unmapped order id (" + this.toString() + ")")
 	return null
 /** Returns the order name of this order id of the given unit. */
 public function int.getOrderName(unit orderedUnit) returns string
@@ -303,7 +304,7 @@ public function getRandomAngle() returns angle
 /** Returns random angle bewteen min and max. */
 public function getRandomAngle(real min, real max) returns angle
 	if min < 0. or max > PI2 or min > max
-		Log.error("ERROR: Invalid min and/or max value")
+		error("Invalid min and/or max value")
 	return angle(GetRandomReal(min, max))
 
 /** Returns random sign (-1 or 1). */
@@ -342,7 +343,9 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 	let smoothNoise = new Array2DReal(width, height)
 	let samplePeriod = (2).pow(octave)
 	let sampleFrequency = 1. / samplePeriod
+	// newInitSubStatus("Test1 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
 	for i = 0 to width - 1
+		// setInitStepStatus(i + 1, width)  // DEBUG:
 		// Calculate the horizontal sampling indices:
 		let horizontalSampleA = (i div samplePeriod) * samplePeriod
 		let horizontalSampleB = (horizontalSampleA + samplePeriod) mod width  // Wrap around
@@ -362,7 +365,7 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 			let bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
 			// Final blend:
 			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
-			computationCost += 0.3
+			computationCost += 0.176
 		checkForComputationBreak()
 	return smoothNoise
 
@@ -370,10 +373,12 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 public function generateRandomNoise(int width, int height) returns Array2DReal
 	let baseNoise = new Array2DReal(width, height)
 	// Create base noise map:
+	// newInitSubStatus("Test0 " + computationCost.toString())  // DEBUG:
 	for i = 0 to width - 1
+		// setInitStepStatus(i + 1, width)  // DEBUG:
 		for j = 0 to height - 1
 			baseNoise.set(i, j, GetRandomReal(0., 1.))
-			computationCost += 0.1
+			computationCost += 0.034
 		checkForComputationBreak()
 	return baseNoise
 
@@ -391,28 +396,33 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		// Blend noise together:
 		newInitSubStatus("Noise blending")
 		perlinNoise = new Array2DReal(width, height)
+		forceComputationBreak()
 		for octave = octaveCount - 1 downto 0
-			setInitTaskStatus(octaveCount - octave, octaveCount)
+			setInitStepStatus(octaveCount - octave, octaveCount)
 			let smoothNoise = smoothNoise(baseNoise, interpolation, octave)
 			amplitude *= persistance
 			totalAmplitude += amplitude
+			// newInitSubStatus("Test2 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
 			for i = 0 to width - 1
+				// setInitStepStatus(i + 1, width)  // DEBUG:
 				for j = 0 to height - 1
 					if octave == octaveCount - 1
 						perlinNoise.set(i, j, smoothNoise.get(i, j) * amplitude)
 					else
 						perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
-					computationCost += 0.1
+					computationCost += 0.095
 				checkForComputationBreak()
 			destroy smoothNoise
+			forceComputationBreak()
 		destroy baseNoise
 		// Normalisation:
 		newInitSubStatus("Noise normalisation")
+		// newInitSubStatus("Test3 " + computationCost.toString())  // DEBUG:
 		for i = 0 to width - 1
-			setInitTaskStatus(i + 1, width)
+			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
-				computationCost += 0.1
+				computationCost += 0.190
 			checkForComputationBreak()
 	else
 		perlinNoise = generateRandomNoise(width, height)
@@ -421,15 +431,20 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 	if distribution == "Default"  // Standard bell shaped curve
 		return perlinNoise
 	else if distribution == "Slope"  // Half bell shaped curve with peak at 0
+		forceComputationBreak()
+		// newInitSubStatus("Test4 " + computationCost.toString())  // DEBUG:
 		for i = 0 to width - 1
+			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, (perlinNoise.get(i, j) * 2 - 1).abs())
-				computationCost += 0.1
+				computationCost += 0.067
 			checkForComputationBreak()
 	else if distribution == "Uniform"  // Horizontal curve with no peak
+		forceComputationBreak()
 		if width % 2 != 0
 			Log.error("width (=" + width.toString() + ") has to be even for Uniform distribution")
 		for i = 0 to (width div 2) - 1
+			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
 				// Reverse Box–Muller transformation:
 				let z1 = perlinNoise.get(i, j)
@@ -437,14 +452,14 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
 				let acosInput = z1 / (z1 * z1 + z2 * z2).divByZeroProt()
 				if acosInput.abs() > 1
-					Log.error("Acos only allows numbers between -1 and 1")
+					Log.error("Acos only allows numbers between -1 and 1 (" + acosInput.toString() + ")")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
-				computationCost += 0.2
+				computationCost += 0.124
 			checkForComputationBreak()
 	else
 		Log.error("Invalid distribution method")
 	return perlinNoise
 public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation) returns Array2DReal
-	return generatePerlinNoise(width, height, octaveCount, persistance, interpolation, "Default")
+	return generatePerlinNoise(width, height, octaveCount, persistance, interpolation, "Slope")
 public function generatePerlinNoise(int width, int height, int octaveCount) returns Array2DReal
 	return generatePerlinNoise(width, height, octaveCount, .5, "Linear")

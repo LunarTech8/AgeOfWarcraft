@@ -35,15 +35,15 @@
 
 // 	protected function checkSlot(int index)
 // 		if index > usedSlots - 1
-// 			Log.error("ERROR: Given index (" + index.toString() + ") is out of bounds (bigger than " + (usedSlots - 1).toString() + ")")
+// 			error("Given index (" + index.toString() + ") is out of bounds (bigger than " + (usedSlots - 1).toString() + ")")
 // 		else if index < 0
-// 			Log.error("ERROR: Given index (" + index.toString() + ") has to be bigger or equal to 0")
+// 			error("Given index (" + index.toString() + ") has to be bigger or equal to 0")
 
 // 	protected function checkSize(int size)
 // 		if usedSlots > size
-// 			Log.error("ERROR: ArrayList size (" + usedSlots.toString() + ") is out of bounds (bigger than array size " + size.toString() + ")")
+// 			error("ArrayList size (" + usedSlots.toString() + ") is out of bounds (bigger than array size " + size.toString() + ")")
 // 		else if usedSlots < 0
-// 			Log.error("ERROR: Size of ArrayList can't be negative")
+// 			error("Size of ArrayList can't be negative")
 
 // /* Generic ArrayList data class with fixed specific array size */
 // class ArrayListSize2<T> extends ArrayListBase implements IArrayList<T>
@@ -797,9 +797,9 @@
 // 	private function validizeSize(int newSize) returns int
 // 		// Check if newSize is between the general valid boundaries:
 // 		if newSize < 0
-// 			Log.error("ERROR: Size of ArrayList has to be bigger or equal to 0")
+// 			error("Size of ArrayList has to be bigger or equal to 0")
 // 		else if newSize > maxPossibleSize
-// 			Log.error("ERROR: Size of ArrayList can't be bigger than " + maxPossibleSize.toString())
+// 			error("Size of ArrayList can't be bigger than " + maxPossibleSize.toString())
 // 		// Evaluate min valid size:
 // 		var validatedSize = minPossibleSize
 // 		while newSize > validatedSize
@@ -820,7 +820,7 @@
 // 		// Check if resizing is valid:
 // 		let usedSlots = data.getUsedSlots()
 // 		if validatedSize < usedSlots
-// 			Log.error("ERROR: Can't resize ArrayList to " + validatedSize.toString() + " because it is smaller than the used slots " + usedSlots.toString())
+// 			error("Can't resize ArrayList to " + validatedSize.toString() + " because it is smaller than the used slots " + usedSlots.toString())
 // 		// Create new data with copied elements:
 // 		let newData = createData(validatedSize)
 // 		newData.initUsedSlots(usedSlots)

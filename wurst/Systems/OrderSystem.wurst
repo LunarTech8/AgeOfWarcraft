@@ -24,6 +24,7 @@ import UtilityFunctions
 import Entity
 import MultiboardPrioritySystem
 import UnitMap
+import ErrorHandling
 
 
 // --------------------
@@ -69,13 +70,13 @@ class OrderTarget
 		if sources.has(source) == false
 			sources.add(source)
 		else
-			Log.error("ERROR: Source already has that target")
+			error("Source already has that target")
 
 	function removeSource(OrderSource source)
 		if sources.has(source)
 			sources.remove(source)
 		else
-			Log.error("ERROR: Source does not have that target")
+			error("Source does not have that target")
 
 public class OrderAction
 	private timer t
@@ -267,7 +268,7 @@ public function unit.setOrder(int orderId, entity target)
 	else if target.userDest != null
 		this.setOrder(new OrderSourceD(this, orderId, target.userDest, null))
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("Unit and destructable of entity are null")
 /** Sets the units order to the given order Id with given entity target and given order action. */
 public function unit.setOrder(int orderId, entity target, OrderAction orderAction)
 	if target.userUnit != null
@@ -275,7 +276,7 @@ public function unit.setOrder(int orderId, entity target, OrderAction orderActio
 	else if target.userDest != null
 		this.setOrder(new OrderSourceD(this, orderId, target.userDest, orderAction))
 	else
-		Log.error("ERROR: Unit and destructable of entity are null")
+		error("Unit and destructable of entity are null")
 
 /** Returns if the unit has order with given parameters. */
 public function unit.isOrder(int orderId, unit target) returns bool

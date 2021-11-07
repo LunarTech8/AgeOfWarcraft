@@ -36,8 +36,8 @@ Work status:
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
 	- Noise generation takes too long for init calculation for bigger maps -> ComputationCosts have to be adjusted
+	- Problem with noise generation for tree map
 !!>>- Improve LoadStatusSystem
-	- Add a main progress bar (eg. [+++++----])
 	- Add support for cycling background loading screens
 
 
@@ -68,7 +68,11 @@ Work status:
 !- Add unit tests to all bigger / more complexe systems (Missing systems: AbilitySystem, OrderSystem, PersonSystem, ResourceSystem, Array2D)
 !- Maybe have a counter for how many unit tests from total are finished already and display that after each finish
 
-INFO: After new Wc3 patch delete blizzard.j and common.j in _build folder for compatibility
+// -------------
+// Info:
+// -------------
+- After new Wc3 patch delete blizzard.j and common.j in _build folder for compatibility
+- Out of game unit test results have to be looked up under teh console OUTPUT tab
 
 
 // -------------

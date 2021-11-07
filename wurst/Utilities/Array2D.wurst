@@ -86,9 +86,6 @@ public class Array2DReal
 	function sizeY() returns int
 		return sizeY
 
-	function getIndexOffset() returns int  // DEBUG:
-		return data.getIndexOffset()
-
 	function get(int x, int y) returns real
 		let s = slot2D(x, y)
 		s.checkBoundaries(sizeX, sizeY)

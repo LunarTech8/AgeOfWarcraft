@@ -183,9 +183,10 @@ public function testEntity_CreateAndIndex(bool isInGameTest)
 	indexA.assertGreaterThan(testName, 0)
 	indexB.assertLessThan(testName, 0)
 	indexC.assertGreaterThan(testName, 0)
-	assertEquals(testName, entityFromIndex(indexA).assertUnit(), entityA.assertUnit())
-	assertEquals(testName, entityFromIndex(indexB).assertDestructable(), entityB.assertDestructable())
-	assertEquals(testName, entityFromIndex(indexC).assertUnit(), entityC.assertUnit())
+	if isInGameTest
+		assertEquals(testName, entityFromIndex(indexA).assertUnit(), entityA.assertUnit())
+		assertEquals(testName, entityFromIndex(indexB).assertDestructable(), entityB.assertDestructable())
+		assertEquals(testName, entityFromIndex(indexC).assertUnit(), entityC.assertUnit())
 	testFinish(testName)
 	// Remove test entities:
 	if isInGameTest

@@ -76,9 +76,9 @@ public function generatePlants()
     forceComputationBreak()
     newInitSubStatus("Add plants")
     for	x = 0 to TILES_X - 1
-        setInitStepStatus(x + 1, TILES_X)  // DEBUG:
+        setInitStepStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
-            // setInitStepStatus((treeMap.get(x, y) * 100).toInt(), x)  // FIXME: a lot is just 1 -> maybe a problem with Array -> only if heightMap isn't destroyed (offset only by 10816)
+            // FIXME: a lot is just 1 -> maybe a problem with Array -> only if heightMap isn't destroyed (offset only by 10816) -> should be fixed with Array index fix
             if treeMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())

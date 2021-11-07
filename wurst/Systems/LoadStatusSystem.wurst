@@ -22,6 +22,7 @@ let LOAD_STATUS_ADJUSTMENT_RATE = 0.25
 let UPDATE_SYMBOLS = ["+", "x"]
 let TASK_SYMBOL_FINISHED = "="
 let TASK_SYMBOL_UNFINISHED = "-"
+let LOAD_STATUS_DISPLAY_TYPE = 2  // 0=Deactivated, 1=Normal, 2=WithoutClear
 
 
 // --------------------
@@ -54,6 +55,21 @@ function updateLoadStatus()
 	print(loadStatusCategory + " [" + loadingSymbols + "]", LOAD_STATUS_ADJUSTMENT_RATE)
 	print(loadStatusText.getFirst(), LOAD_STATUS_ADJUSTMENT_RATE)
 
+function updateLoadStatusWithoutClear()
+	if loadStatusText.isEmpty() == false
+		loadStatusSymbolIndex++
+		if loadStatusSymbolIndex >= UPDATE_SYMBOLS.length
+			loadStatusSymbolIndex = 0
+		var loadingSymbols = ""
+		for i = 1 to loadStatusTasksCurrent - 1
+			loadingSymbols += TASK_SYMBOL_FINISHED
+		loadingSymbols += UPDATE_SYMBOLS[loadStatusSymbolIndex]
+		for i = loadStatusTasksCurrent + 1 to loadStatusTasksAmount
+			loadingSymbols += TASK_SYMBOL_UNFINISHED
+		print(loadStatusCategory + " [" + loadingSymbols + "]")
+		while loadStatusText.isEmpty() == false
+			print(loadStatusText.dequeue())
+
 function startLoadStatus(string category, int tasksAmount)
 	if loadStatusCb != null
 		Log.error("Cannot start another load status until the current one is finished")
@@ -61,7 +77,10 @@ function startLoadStatus(string category, int tasksAmount)
 	loadStatusTasksCurrent = 0
 	loadStatusTasksAmount = tasksAmount
 	loadStatusSymbolIndex = 0
-	loadStatusCb = doPeriodically(LOAD_STATUS_ADJUSTMENT_RATE, cb -> updateLoadStatus())
+	if LOAD_STATUS_DISPLAY_TYPE == 1
+		loadStatusCb = doPeriodically(LOAD_STATUS_ADJUSTMENT_RATE, cb -> updateLoadStatus())
+	else if LOAD_STATUS_DISPLAY_TYPE == 2
+		loadStatusCb = doPeriodically(LOAD_STATUS_ADJUSTMENT_RATE, cb -> updateLoadStatusWithoutClear())
 
 function finishLoadStatus()
 	destroy(loadStatusCb)

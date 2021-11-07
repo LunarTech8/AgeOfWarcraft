@@ -298,10 +298,9 @@ init
 // --------------------
 // Test code
 // --------------------
-@Test public function testPersonSystem_StatsAndBuildings()
-	testPersonSystem_StatsAndBuildings(false)
-public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
-	let testName = setTestName("testPersonSystem_StatsAndBuildings", isInGameTest)
+
+public function testPersonSystem_StatsAndBuildings()
+	let testName = setTestName("testPersonSystem_StatsAndBuildings", true)
 	let testCentre = vec2(0., 0.)
 	// Create person and reduce stats:
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
@@ -339,19 +338,13 @@ public function testPersonSystem_StatsAndBuildings(bool isInGameTest)
 	assertEquals(testName, personA.enteredBuilding, null)
 	personA.isSleeping().assertFalse(testName)
 	testFinish(testName)
-	if isInGameTest
-		// Remove test units:
-		unitA.kill()
-		unitA.remove()
-		unitB.kill()
-		unitB.remove()
-		unitC.kill()
-		unitC.remove()
-	else
-		// Destroy class objects:
-		destroy personA
-		destroy homeA
-		destroy homeB
+	// Remove test units:
+	unitA.kill()
+	unitA.remove()
+	unitB.kill()
+	unitB.remove()
+	unitC.kill()
+	unitC.remove()
 
 public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 	let testName = setTestName("testPersonSystem_LowerStatLimits", true)

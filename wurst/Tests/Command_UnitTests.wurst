@@ -7,6 +7,7 @@ import BuildingSystem
 import WorkshopSystem
 import PersonSystem
 import SettlementSystem
+import Array
 
 
 // --------------------
@@ -23,9 +24,12 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	print("-------- Unit tests (12):")
+	print("-------- Unit tests (14):")
+	// Array:
+	testArray_SetAndGet(true)
 	// UnitMap:
 	testUnitHashMap_AddAndRemove(true)
+	testArray_CreateAndDestroy(true)
 	// EntityMap:
 	testEntity_CreateAndIndex(true)
 	testEntity_HashMapAddAndRemove(true)
@@ -34,7 +38,7 @@ function executeCommand()
 	// StorageSystem:
 	testStorageSystem_AddAndRemove(true)
 	// PersonSystem:
-	testPersonSystem_StatsAndBuildings(true)
+	testPersonSystem_StatsAndBuildings()
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))
 	testPersonSystem_DamageReaction(vec2(0., 384.))
 	// BuildingSystem:

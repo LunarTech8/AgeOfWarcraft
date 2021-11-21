@@ -42,7 +42,7 @@ function isKilledWhenDepleted(int resourceTypeId) returns bool
 		// 	return true
 		// case UnitIdsCustom.Trees.chestnut
 		// 	return true
-		case DestructableIds.summerTreeWall
+		case DestructableIdsCustom.Trees.spruce
 			return true
 		default
 			return false
@@ -60,7 +60,7 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceTypeId) returns
 		// 	return 0.5
 		// case UnitIdsCustom.Trees.chestnut
 		// 	return 0.5
-		case DestructableIds.summerTreeWall
+		case DestructableIdsCustom.Trees.spruce
 			return 0.5
 		default
 			return 0.
@@ -76,7 +76,7 @@ function getWaresPerFinishedWork(int resourceTypeId) returns LinkedList<ware>
 		// 	wares.add(ware(WareType.WOOD, 1))
 		// case UnitIdsCustom.Trees.chestnut
 		// 	wares.add(ware(WareType.WOOD, 1))
-		case DestructableIds.summerTreeWall
+		case DestructableIdsCustom.Trees.spruce
 			wares.add(ware(WareType.WOOD, 1))
 	return wares
 
@@ -91,7 +91,7 @@ function getHarvestPriority(int resourceTypeId) returns int
 		// 	return 3
 		// case UnitIdsCustom.Trees.chestnut
 		// 	return 2
-		case DestructableIds.summerTreeWall
+		case DestructableIdsCustom.Trees.spruce
 			return 2
 	return 0
 
@@ -106,7 +106,7 @@ function getMaxWorkerCount(int resourceTypeId) returns int
 		// 	return 2
 		// case UnitIdsCustom.Trees.chestnut
 		// 	return 2
-		case DestructableIds.summerTreeWall
+		case DestructableIdsCustom.Trees.spruce
 			return 2
 	return 99
 
@@ -122,7 +122,7 @@ public function getDefaultInitWares(int resourceTypeId) returns LinkedList<ware>
 		// 	wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
 		// case UnitIdsCustom.Trees.chestnut
 		// 	wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
-		case DestructableIds.summerTreeWall
+		case DestructableIdsCustom.Trees.spruce
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
 	return wares
 

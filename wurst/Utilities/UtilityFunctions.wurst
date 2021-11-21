@@ -309,10 +309,11 @@ public function getRandomAngle(real min, real max) returns angle
 
 /** Returns random sign (-1 or 1). */
 public function getRandomSign() returns int
-	if GetRandomInt(0, 1) == 0
-		return -1
-	else
-		return 1
+	return (GetRandomInt(0, 1) == 0) ? -1 : 1
+
+/** Returns random value between 0 and given maxVariations. */
+public function getRandomVariation(int maxVariations) returns int
+	return GetRandomInt(0, maxVariations - 1)
 
 /** Throws an exception if the absolute of this value is smaller than epsilon, else returns the value. */
 public function real.divByZeroProt(real epsilon) returns real

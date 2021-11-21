@@ -1,0 +1,61 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Preset class based on DestructableDefinition that adds additional preset functions for destructable definition packages.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package DestructablePreset
+import ObjEditingNatives
+import public ConstantData
+import public DestructableObjEditing
+
+
+// --------------------
+// Data code
+// --------------------
+
+class DestructableIds
+	static constant summerTreeWall = 'LTlt'
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public class DestructablePreset extends DestructableDefinition
+
+	construct(int newId, int originId)
+		super(newId, originId)
+
+	function setFixedRotation(real rotation)
+		def.setReal("bfxr", rotation)
+
+	function setSelectableInGame(bool isSelectable)
+		def.setInt("bgse", isSelectable ? 1 : 0)
+
+	function setSelectionSizeEditor(real size)
+		def.setReal("bsel", size)
+
+	function setSelectionSizeGame(real size)
+		def.setReal("bgsc", size)
+
+	function setMaxScale(real maxScale)
+		def.setReal("bmas", maxScale)
+
+	function setMinScale(real minScale)
+		def.setReal("bmis", minScale)
+
+	function setPlaceableOnCliffs(bool isPlaceable)
+		def.setInt("bonc", isPlaceable ? 1 : 0)
+
+	function presetUnfixedRotation()
+		setFixedRotation(-1.)
+
+	function presetSelectionSizes(real size)
+		setSelectionSizeEditor(size)
+		setSelectionSizeGame(size)

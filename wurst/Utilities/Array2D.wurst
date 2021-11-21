@@ -13,6 +13,7 @@ package Array2D
 import HashMap
 import Array
 import ErrorHandling
+import UnitTest
 
 
 // --------------------
@@ -23,7 +24,7 @@ tuple slot2D(int x, int y)
 
 function slot2D.checkBoundaries(int sizeX, int sizeY)
 	if this.x >= sizeX or this.x < 0 or this.y >= sizeY or this.y < 0
-		error("ERROR: Slot (" + this.x.toString() + ", " + this.y.toString() + ") is outside boundaries (" + sizeX.toString() + ", " + sizeY.toString() + ")")
+		error("Slot (" + this.x.toString() + ", " + this.y.toString() + ") is outside boundaries (" + (sizeX - 1).toString() + ", " + (sizeY - 1).toString() + ")")
 
 function slot2D.toSlot1D(int sizeX) returns int
 	return this.x + sizeX * this.y
@@ -59,7 +60,7 @@ public class Array2D<T>
 		if data.has(key)
 			return data.get(key)
 		else
-			error("ERROR: Slot (" + x.toString() + ", " + y.toString() + ") has no value")
+			error("Slot (" + x.toString() + ", " + y.toString() + ") has no value")
 			return null
 
 	function set(int x, int y, T elem)
@@ -95,3 +96,77 @@ public class Array2DReal
 		let s = slot2D(x, y)
 		s.checkBoundaries(sizeX, sizeY)
 		data.set(s.toSlot1D(sizeX), elem)
+
+
+// --------------------
+// Test code
+// --------------------
+
+@Test public function testArray2D_SetAndGet()
+	testArray2D_SetAndGet(false)
+public function testArray2D_SetAndGet(bool isInGameTest)
+	let REAL_COMPARE_DELTA = 0.000001
+	let testName = setTestName("testArray2D_SetAndGet", isInGameTest)
+	// Create new array and check content:
+	let arrayA = new Array2DReal(100, 120)
+	arrayA.sizeX().assertEquals(testName, 100)
+	arrayA.sizeY().assertEquals(testName, 120)
+	arrayA.get(0, 0).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayA.get(99, 119).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	// Set entries and check content:
+	arrayA.get(12, 1).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayA.set(12, 1, 42.15)
+	arrayA.get(12, 1).assertEquals(testName, 42.15, REAL_COMPARE_DELTA)
+	arrayA.set(12, 1, 0.254)
+	arrayA.get(12, 1).assertEquals(testName, 0.254, REAL_COMPARE_DELTA)
+	// Create another array and check content:
+	let arrayB = new Array2DReal(80, 30)
+	arrayB.sizeX().assertEquals(testName, 80)
+	arrayB.sizeY().assertEquals(testName, 30)
+	arrayB.get(0, 0).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayB.get(79, 29).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	// Set entries and check content:
+	arrayB.get(12, 1).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayB.set(12, 1, 42.15)
+	arrayB.get(12, 1).assertEquals(testName, 42.15, REAL_COMPARE_DELTA)
+	arrayB.get(51, 21).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayB.set(51, 21, 0.254)
+	arrayB.get(51, 21).assertEquals(testName, 0.254, REAL_COMPARE_DELTA)
+	testFinish(testName)
+	// Destroy class objects:
+	destroy arrayA
+	destroy arrayB
+
+@Test public function testArray2D_CreateAndDestroy()
+	testArray2D_CreateAndDestroy(false)
+public function testArray2D_CreateAndDestroy(bool isInGameTest)
+	let REAL_COMPARE_DELTA = 0.000001
+	let testName = setTestName("testArray2D_CreateAndDestroy", isInGameTest)
+	// Create new arrays:
+	let arrayA = new Array2DReal(50, 100)
+	let arrayB = new Array2DReal(80, 100)
+	let arrayC = new Array2DReal(90, 100)
+	// Set entries and check content:
+	arrayA.set(12, 1, 42.15)
+	arrayA.get(12, 1).assertEquals(testName, 42.15, REAL_COMPARE_DELTA)
+	arrayA.set(45, 4, 12.55)
+	arrayA.get(45, 4).assertEquals(testName, 12.55, REAL_COMPARE_DELTA)
+	arrayB.set(12, 1, 0.254)
+	arrayB.get(12, 1).assertEquals(testName, 0.254, REAL_COMPARE_DELTA)
+	arrayB.get(45, 4).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayC.set(12, 1, 1.78)
+	arrayC.get(12, 1).assertEquals(testName, 1.78, REAL_COMPARE_DELTA)
+	// Destroy array and check content:
+	destroy arrayA
+	arrayB.sizeX().assertEquals(testName, 80)
+	arrayB.sizeY().assertEquals(testName, 100)
+	arrayB.get(12, 1).assertEquals(testName, 0.254, REAL_COMPARE_DELTA)
+	arrayB.get(45, 4).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	arrayC.sizeX().assertEquals(testName, 90)
+	arrayC.sizeY().assertEquals(testName, 100)
+	arrayC.get(12, 1).assertEquals(testName, 1.78, REAL_COMPARE_DELTA)
+	arrayC.get(45, 4).assertEquals(testName, 0., REAL_COMPARE_DELTA)
+	testFinish(testName)
+	// Destroy class objects:
+	destroy arrayB
+	destroy arrayC

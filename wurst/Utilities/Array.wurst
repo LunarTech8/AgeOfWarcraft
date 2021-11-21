@@ -42,7 +42,7 @@ real array[SINGLE_ARRAY_SIZE] arrayReal16
 
 function getArrayRealValue(int index) returns real
 	if index < 0
-		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		error("Index (" + index.toString() + ") is outside boundaries")
 	else if index < SINGLE_ARRAY_SIZE * 8
 		if index < SINGLE_ARRAY_SIZE * 4
 			if index < SINGLE_ARRAY_SIZE * 2
@@ -90,12 +90,12 @@ function getArrayRealValue(int index) returns real
 				else
 					return arrayReal16[index - SINGLE_ARRAY_SIZE * 15]
 	else
-		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		error("Index (" + index.toString() + ") is outside boundaries")
 	return 0.
 
 function setArrayRealValue(int index, real value)
 	if index < 0
-		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		error("Index (" + index.toString() + ") is outside boundaries")
 	else if index < SINGLE_ARRAY_SIZE * 8
 		if index < SINGLE_ARRAY_SIZE * 4
 			if index < SINGLE_ARRAY_SIZE * 2
@@ -143,7 +143,7 @@ function setArrayRealValue(int index, real value)
 				else
 					arrayReal16[index - SINGLE_ARRAY_SIZE * 15] = value
 	else
-		error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+		error("Index (" + index.toString() + ") is outside boundaries")
 
 public class ArrayReal
 	private int size
@@ -156,7 +156,7 @@ public class ArrayReal
 		else
 			indexOffset = ARRAY_REAL_LIST.peek().getFollowerIndexOffset()
 		if size + indexOffset > ARRAY_REAL_SIZE
-			error("ERROR: Used sizes of ArrayReal are too big for reserved memory area")
+			error("Used sizes of ArrayReal (" + (size + indexOffset).toString() + ") are too big for currently reserved memory area (" + ARRAY_REAL_SIZE.toString() + ") ")
 			this.size = 0
 		ARRAY_REAL_LIST.push(this)
 
@@ -184,12 +184,12 @@ public class ArrayReal
 
 	function get(int index) returns real
 		if index < 0 or index >= size
-			error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+			error("Index (" + index.toString() + ") is outside boundaries")
 		return getArrayRealValue(index + indexOffset)
 
 	function set(int index, real elem)
 		if index < 0 or index >= size
-			error("ERROR: Index (" + index.toString() + ") is outside boundaries")
+			error("Index (" + index.toString() + ") is outside boundaries")
 		setArrayRealValue(index + indexOffset, elem)
 
 

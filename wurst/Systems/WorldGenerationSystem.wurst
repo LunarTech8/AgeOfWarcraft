@@ -19,6 +19,7 @@ import Entity
 import ResourceSystem
 import LoadStatusSystem
 import ComputationControl
+import Destructable_Spruce
 
 
 // --------------------
@@ -30,12 +31,12 @@ let TILES_X = 104
 let TILES_Y = 104
 let TERRAIN_HEIGHT_INIT = 0.
 let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
-let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 512.  // Max HEIGHT_LAND_MAX
+let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 786.  // Max HEIGHT_LAND_MAX
 let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
 // Nature:
 let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
-let TREE_COVERAGE_PERCENTAGE_MIN = 0.2  // Noise values below that value will never spawn trees
+let TREE_COVERAGE_PERCENTAGE_MIN = 1.//DEBUG:0.2  // Noise values below that value will never spawn trees
 let TREE_COVERAGE_PERCENTAGE_MAX = 1.2  // A higher value means a lower probablity to spawn trees
 
 
@@ -72,17 +73,20 @@ public function generateTerrain()
 
 public function generatePlants()
     // Have 1 or 0 tree per tile:
-    let treeMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    let plantMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     forceComputationBreak()
     newInitSubStatus("Add plants")
     for	x = 0 to TILES_X - 1
         setInitStepStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
-            // FIXME: a lot is just 1 -> maybe a problem with Array -> only if heightMap isn't destroyed (offset only by 10816) -> should be fixed with Array index fix
-            if treeMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
+            // FIXME: a lot is just 1 -> maybe a problem with Array -> only if heightMap isn't destroyed (offset only by 10816) -> should be fixed with Array index fix -> still trees everywhere
+            if plantMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
-                // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())
-                entity(null, createDestructable(DestructableIds.summerTreeWall, pos, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // TODO: create/use custom destructable with defined values
+                // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())  // DEBUG:
+                // entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // DEBUG:
+                entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(DestructableData_Spruce.minScale, DestructableData_Spruce.maxScale), getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
+            else  // DEBUG:
+                Log.debug(plantMap.get(x, y).toString())  // DEBUG:
             computationCost += 0.224
         checkForComputationBreak()
-    destroy treeMap
+    destroy plantMap

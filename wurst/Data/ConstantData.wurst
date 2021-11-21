@@ -20,6 +20,7 @@ import HashMap
 // --------------------
 
 public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 74
+public constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 0
 public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 14
 public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
 
@@ -123,8 +124,13 @@ public class UnitIdsCustom
 	// 	static constant chestnut_Var1 = compiletime(OFFSET_UNIT_ID_GEN.getId(61))
 	// 	static constant chestnut_Var2 = compiletime(OFFSET_UNIT_ID_GEN.getId(62))
 
-public class DestructableIds
-	static constant summerTreeWall = 'LTlt'
+public class DestructableIdsCustom
+	//--------------
+	// Nature
+	//--------------
+
+	public static class Trees
+		static constant spruce = compiletime(OFFSET_DEST_ID_GEN.getId(0))
 
 public abstract class AbilityIdsCustom
 	static constant showTargetInfo = compiletime(OFFSET_ABIL_ID_GEN.getId(0))

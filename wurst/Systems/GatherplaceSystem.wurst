@@ -38,7 +38,7 @@ function getGatherplaceTargetTypeIds(int gatherplaceUnitId, int gatherVariant) r
 		case UnitIdsCustom.AoW.lumberCamp
 			switch gatherVariant
 				case 1
-					entityIds.add(DestructableIds.summerTreeWall)
+					entityIds.add(DestructableIdsCustom.Trees.spruce)
 	return entityIds
 
 /** Returns the worker type of the given building type. */

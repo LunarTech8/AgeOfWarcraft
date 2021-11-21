@@ -3,7 +3,7 @@
 1.0.0
 
 // Description:
-Adds additional preset functions to AbilityDefinition for ability definition packages.
+Adds additional preset functions to BuffDefinition for buff definition packages.
 
 // Changelog:
 - 1.0.0:
@@ -13,6 +13,7 @@ package BuffPresetFunctions
 import public Assets
 import public ConstantData
 import public BuffObjEditing
+import public ObjEditingCommons
 
 
 // --------------------

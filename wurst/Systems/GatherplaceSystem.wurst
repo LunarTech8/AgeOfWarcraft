@@ -55,6 +55,13 @@ public function getMaxWorkers(int buildingUnitId) returns int
 			return 3
 	return 0
 
+function getStorageMaxCapacity(int buildingUnitId) returns int
+	switch buildingUnitId
+		case UnitIdsCustom.AoW.lumberCamp
+			return 50
+		default
+			return 0
+
 
 // --------------------
 // Functional code
@@ -62,13 +69,13 @@ public function getMaxWorkers(int buildingUnitId) returns int
 
 let GATHERPLACE_MAP = new IterableUnitHashMap<Gatherplace>(null)
 
-public class Gatherplace extends Stock
+public class Gatherplace extends Storage
 	private unit user
 	private int gatherVariant
 	private group workers
 
 	construct(unit gatherplace)
-		super(new LinkedList<ware>())
+		super(gatherplace, getStorageMaxCapacity(GetUnitTypeId(gatherplace)))
 		user = gatherplace
 		gatherVariant = 1
 		workers = CreateGroup()
@@ -84,20 +91,25 @@ public class Gatherplace extends Stock
 	function getUnit() returns unit
 		return user
 
-	function getStoredProducts() returns int
-		// TODO: adjust to return total amount of ware counts
-		var amount = MAX_WARE_COUNT
+	function getStoredProductsCount() returns int
+		var amount = 0
 		let products = getProducts()
 		for iWare in products
-			amount = min(amount, getWareCount(iWare.wareType) div iWare.count)
+			amount += getWareCount(iWare.wareType)
 		destroy products
 		return amount
 
 	function getProducts() returns LinkedList<ware>
 		let wares = new LinkedList<ware>()
 		for targetId in getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant)
-			wares.addAll(getDefaultInitWares(targetId))
-		// TODO: remove duplicate types and set count for all to 1
+			for iWare in getDefaultInitWares(targetId)
+				var wareType = iWare.wareType
+				for jWare in wares
+					if iWare.hasSameType(jWare)
+						wareType = null
+						break
+				if wareType != null
+					wares.add(ware(wareType, 1))
 		return wares
 
 	function getWorkerCount() returns int
@@ -132,10 +144,10 @@ public class Gatherplace extends Stock
 			gatherVariant = 1
 		// TODO: find new targets for working workers
 
-	/** Transfers as many products as possible from this gatherplace to source storage. */
+	/** Transfers as many products as possible from this gatherplace to source storage or with reverse targets. */
 	function transferWares(Storage source, bool takeProducts)
-		// Look for products in gatherplace:
 		if takeProducts
+			// Look for products in gatherplace:
 			let products = getProducts()
 			for iWare in products
 				let wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
@@ -143,6 +155,16 @@ public class Gatherplace extends Stock
 					// Transfer ware:
 					removeWare(ware(iWare.wareType, wareCount))
 					source.addWare(ware(iWare.wareType, wareCount))
+			destroy products
+		else
+			// Look for products in source storage:
+			let products = getProducts()
+			for iWare in products
+				let wareCount = min(source.getWareCount(iWare.wareType), getFreeCapacity())
+				if wareCount > 0
+					// Transfer ware:
+					source.removeWare(ware(iWare.wareType, wareCount))
+					addWare(ware(iWare.wareType, wareCount))
 			destroy products
 
 
@@ -164,10 +186,10 @@ public function multiboard.setObjectInfoMultiboard(Gatherplace ws) returns bool
 	this.addMultiboardLine("Gatherplace:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString(), WORKERS_ICON_PATH)
 	// TODO: display amount of targets in range (current gatherVariant)
-	this.addMultiboardLine("Products (" + ws.getStoredProducts().toString() + ")", SUB_HEADLINE_ICON_PATH)  // TODO: implement max count for stored wares specific for each gatherplace type
+	this.addMultiboardLine("Capacity: " + ws.getStoredProductsCount().toString() + "/" + ws.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
 	let products = ws.getProducts()
 	for ware in products
-		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())  // TODO: show stored count of wares instead
+		this.addMultiboardLine(ws.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy products
 	return true
 

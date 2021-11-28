@@ -32,10 +32,6 @@ function getStorageMaxCapacity(int unitId) returns int
 		case UnitIdsCustom.AoW.peasant
 			// return 10
 			return 100  // DEBUG
-		case UnitIdsCustom.AoW.lumberMill
-			return 50
-		case UnitIdsCustom.AoW.blacksmith
-			return 50
 		default
 			return 0
 
@@ -127,12 +123,13 @@ public function unit.getStorage() returns Storage
 	return STORAGE_MAP.tryGet(this)
 
 /** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Storage s) returns bool
+public function multiboard.setObjectInfoMultiboard(Storage s, bool showWares) returns bool
 	this.addMultiboardLine("Storage:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + s.getUsedCapacity().toString() + "/" + s.getMaxCapacity().toString(), CAPACITY_ICON_PATH)
-	for i = 0 to (s.getAmountOfWareTypes() - 1)
-		let ware = s.getWare(i)
-		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+	if showWares
+		for i = 0 	to (s.getAmountOfWareTypes() - 1)
+			let ware = s.getWare(i)
+			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init

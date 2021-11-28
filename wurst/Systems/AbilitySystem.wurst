@@ -223,7 +223,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			let educts = targetWorkshop.getEducts()
 			let hasAnyEducts = sourceStorage.hasWaresAny(educts)
 			destroy educts
-			if hasAnyEducts == false and targetWorkshop.getStoredProducts() <= 0
+			if hasAnyEducts == false and targetWorkshop.getStoredProductsCount() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.build
 		if target.userUnit == null

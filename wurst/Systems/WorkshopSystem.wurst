@@ -170,7 +170,7 @@ public class Workshop extends Stock
 	function getUnit() returns unit
 		return user
 
-	function getStoredEducts() returns int
+	function getStoredEductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let educts = getEducts()
 		for iWare in educts
@@ -178,7 +178,7 @@ public class Workshop extends Stock
 		destroy educts
 		return amount
 
-	function getStoredProducts() returns int
+	function getStoredProductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let products = getProducts()
 		for iWare in products
@@ -312,12 +312,12 @@ public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
 	if workPower > 0.
 		this.addMultiboardLine("Production time left: " + (ws.getWorkProgressLeft() / workPower).toInt().toString() + "s", PRODUCTION_TIME_LEFT_ICON_PATH)
 		this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString(), WORKERS_ICON_PATH)
-	this.addMultiboardLine("Educts (" + ws.getStoredEducts().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Educts (" + ws.getStoredEductsCount().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
 	let educts = ws.getEducts()
 	for ware in educts
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy educts
-	this.addMultiboardLine("Products (" + ws.getStoredProducts().toString() + "/" + MAX_STORABLE_PRODUCTS.toString() + ")", SUB_HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Products (" + ws.getStoredProductsCount().toString() + "/" + MAX_STORABLE_PRODUCTS.toString() + ")", SUB_HEADLINE_ICON_PATH)
 	let products = ws.getProducts()
 	for ware in products
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
@@ -353,8 +353,8 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
 	workshopA.addWare(ware(WareType.WOODEN_BOARDS, 4))
-	workshopA.getStoredProducts().assertEquals(testName, 2)
-	workshopA.getStoredEducts().assertEquals(testName, 0)
+	workshopA.getStoredProductsCount().assertEquals(testName, 2)
+	workshopA.getStoredEductsCount().assertEquals(testName, 0)
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkerCount().assertEquals(testName, 0)
 	workshopA.getWorkPower().assertEquals(testName, 0.)
@@ -372,8 +372,8 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 		// Check workshop status:
 		workshopA.getWorkerCount().assertEquals(testName, 2)
 		workshopA.getWorkPower().assertEquals(testName, 2.)
-		workshopA.getStoredProducts().assertEquals(testName, 2)
-		workshopA.getStoredEducts().assertEquals(testName, 1)
+		workshopA.getStoredProductsCount().assertEquals(testName, 2)
+		workshopA.getStoredEductsCount().assertEquals(testName, 1)
 		// Add more workers:
 		unitD.issueTargetOrderById(OrderIds.smart, unitA)
 		unitE.issueTargetOrderById(OrderIds.smart, unitA)
@@ -405,8 +405,8 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
 	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
-	workshopA.getStoredEducts().assertEquals(testName, 0)
-	workshopA.getStoredProducts().assertEquals(testName, 0)
+	workshopA.getStoredEductsCount().assertEquals(testName, 0)
+	workshopA.getStoredProductsCount().assertEquals(testName, 0)
 	let waresA = new LinkedList<ware>()
 	waresA.add(ware(WareType.WOOD, 3))
 	var waresB = workshopA.getEducts()
@@ -449,24 +449,24 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	waresA.clear()
 	waresA.add(ware(WareType.WOOD, 7))
 	workshopA.addWares(waresA)
-	workshopA.getStoredEducts().assertEquals(testName, 2)
-	workshopA.getStoredProducts().assertEquals(testName, 0)
+	workshopA.getStoredEductsCount().assertEquals(testName, 2)
+	workshopA.getStoredProductsCount().assertEquals(testName, 0)
 	doAfter(2.) () ->
 		// Check workshop status:
-		workshopA.getStoredEducts().assertEquals(testName, 1)
-		workshopA.getStoredProducts().assertEquals(testName, 0)
+		workshopA.getStoredEductsCount().assertEquals(testName, 1)
+		workshopA.getStoredProductsCount().assertEquals(testName, 0)
 		workshopA.getWorkProgressPercentage().assertEquals(testName, 40., 2.)
 		workshopA.getWorkProgressLeft().assertEquals(testName, 9., 0.3)
 	doAfter(6.) () ->
 		// Check workshop status:
-		workshopA.getStoredEducts().assertEquals(testName, 0)
-		workshopA.getStoredProducts().assertEquals(testName, 1)
+		workshopA.getStoredEductsCount().assertEquals(testName, 0)
+		workshopA.getStoredProductsCount().assertEquals(testName, 1)
 		workshopA.getWorkProgressPercentage().assertEquals(testName, 20., 2.)
 		workshopA.getWorkProgressLeft().assertEquals(testName, 12., 0.3)
 	doAfter(11.) () ->
 		// Check workshop status:
-		workshopA.getStoredEducts().assertEquals(testName, 0)
-		workshopA.getStoredProducts().assertEquals(testName, 2)
+		workshopA.getStoredEductsCount().assertEquals(testName, 0)
+		workshopA.getStoredProductsCount().assertEquals(testName, 2)
 		workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
 		workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
 		testFinish(testName)

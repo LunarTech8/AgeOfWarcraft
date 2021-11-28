@@ -136,7 +136,7 @@ function createMultiboardLines(int playerID) returns bool
 				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(targetUnit.getSettlement()) or hasInfo
 			let storage = targetUnit.getStorage()
 			if storage != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage) or hasInfo
+				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage, true) or hasInfo
 			let orderSource = targetUnit.getOrderSource()
 			if orderSource != null
 				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource) or hasInfo

@@ -30,10 +30,10 @@ Work status:
 		- Buildings should become neutral (can be readded to new settlement in range)
 	- The influence range of settlements should be marked by border stones
 !!>>- Create a GatherplaceSystem
-	- All gather jobs have a building from where they start gathering and store their resources
+	>>>- All gather jobs have a building from where they start gathering and store their resources
+	>>- The player may switch between different types of targets for the gatherers
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
 		- Maybe the gather centre can be changed by the player (inside a max range from the gatherplace building)
-	- The player may switch between different types of targets for the gatherers
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
 	- Noise generation takes too long for init calculation for bigger maps -> ComputationCosts have to be adjusted

@@ -21,7 +21,7 @@ import UnitTest
 
 let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
 let SINGLE_ARRAY_SIZE = 8192
-let ARRAY_REAL_SIZE = SINGLE_ARRAY_SIZE * 16
+let ARRAY_REAL_SIZE = SINGLE_ARRAY_SIZE * 24
 
 real array[SINGLE_ARRAY_SIZE] arrayReal01
 real array[SINGLE_ARRAY_SIZE] arrayReal02
@@ -39,6 +39,14 @@ real array[SINGLE_ARRAY_SIZE] arrayReal13
 real array[SINGLE_ARRAY_SIZE] arrayReal14
 real array[SINGLE_ARRAY_SIZE] arrayReal15
 real array[SINGLE_ARRAY_SIZE] arrayReal16
+real array[SINGLE_ARRAY_SIZE] arrayReal17
+real array[SINGLE_ARRAY_SIZE] arrayReal18
+real array[SINGLE_ARRAY_SIZE] arrayReal19
+real array[SINGLE_ARRAY_SIZE] arrayReal20
+real array[SINGLE_ARRAY_SIZE] arrayReal21
+real array[SINGLE_ARRAY_SIZE] arrayReal22
+real array[SINGLE_ARRAY_SIZE] arrayReal23
+real array[SINGLE_ARRAY_SIZE] arrayReal24
 
 function getArrayRealValue(int index) returns real
 	if index < 0
@@ -89,6 +97,29 @@ function getArrayRealValue(int index) returns real
 					return arrayReal15[index - SINGLE_ARRAY_SIZE * 14]
 				else
 					return arrayReal16[index - SINGLE_ARRAY_SIZE * 15]
+	else if index < SINGLE_ARRAY_SIZE * 24
+		if index < SINGLE_ARRAY_SIZE * 20
+			if index < SINGLE_ARRAY_SIZE * 18
+				if index < SINGLE_ARRAY_SIZE * 17
+					return arrayReal17[index - SINGLE_ARRAY_SIZE * 16]
+				else
+					return arrayReal18[index - SINGLE_ARRAY_SIZE * 17]
+			else
+				if index < SINGLE_ARRAY_SIZE * 19
+					return arrayReal19[index - SINGLE_ARRAY_SIZE * 18]
+				else
+					return arrayReal20[index - SINGLE_ARRAY_SIZE * 19]
+		else
+			if index < SINGLE_ARRAY_SIZE * 22
+				if index < SINGLE_ARRAY_SIZE * 21
+					return arrayReal21[index - SINGLE_ARRAY_SIZE * 20]
+				else
+					return arrayReal22[index - SINGLE_ARRAY_SIZE * 21]
+			else
+				if index < SINGLE_ARRAY_SIZE * 23
+					return arrayReal23[index - SINGLE_ARRAY_SIZE * 22]
+				else
+					return arrayReal24[index - SINGLE_ARRAY_SIZE * 23]
 	else
 		error("Index (" + index.toString() + ") is outside boundaries")
 	return 0.
@@ -142,6 +173,29 @@ function setArrayRealValue(int index, real value)
 					arrayReal15[index - SINGLE_ARRAY_SIZE * 14] = value
 				else
 					arrayReal16[index - SINGLE_ARRAY_SIZE * 15] = value
+	else if index < SINGLE_ARRAY_SIZE * 24
+		if index < SINGLE_ARRAY_SIZE * 20
+			if index < SINGLE_ARRAY_SIZE * 18
+				if index < SINGLE_ARRAY_SIZE * 17
+					arrayReal17[index - SINGLE_ARRAY_SIZE * 16] = value
+				else
+					arrayReal18[index - SINGLE_ARRAY_SIZE * 17] = value
+			else
+				if index < SINGLE_ARRAY_SIZE * 19
+					arrayReal19[index - SINGLE_ARRAY_SIZE * 18] = value
+				else
+					arrayReal20[index - SINGLE_ARRAY_SIZE * 19] = value
+		else
+			if index < SINGLE_ARRAY_SIZE * 22
+				if index < SINGLE_ARRAY_SIZE * 21
+					arrayReal21[index - SINGLE_ARRAY_SIZE * 20] = value
+				else
+					arrayReal22[index - SINGLE_ARRAY_SIZE * 21] = value
+			else
+				if index < SINGLE_ARRAY_SIZE * 23
+					arrayReal23[index - SINGLE_ARRAY_SIZE * 22] = value
+				else
+					arrayReal24[index - SINGLE_ARRAY_SIZE * 23] = value
 	else
 		error("Index (" + index.toString() + ") is outside boundaries")
 
@@ -191,6 +245,9 @@ public class ArrayReal
 		if index < 0 or index >= size
 			error("Index (" + index.toString() + ") is outside boundaries")
 		setArrayRealValue(index + indexOffset, elem)
+
+	function DEBUG_getArrayIndex(int index) returns int  // DEBUG:
+		return index + indexOffset
 
 
 // --------------------

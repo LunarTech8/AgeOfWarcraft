@@ -23,6 +23,11 @@ let UPDATE_SYMBOLS = ["+", "x"]
 let TASK_SYMBOL_FINISHED = "="
 let TASK_SYMBOL_UNFINISHED = "-"
 let LOAD_STATUS_DISPLAY_TYPE = 2  // 0=Deactivated, 1=Normal, 2=WithoutClear
+let LOAD_SCREEN_IMAGE_PATHS = [
+	"ReplaceableTextures\\Splats\\D_NightElfUberSplat.blp",
+	"ReplaceableTextures\\Splats\\D_HumanCastleUberSplat.blp",
+	"ReplaceableTextures\\Splats\\D_OrcUberSplat.blp"
+	]  // DEBUG: use real backgrounds
 
 
 // --------------------
@@ -38,6 +43,26 @@ CallbackPeriodic loadStatusCb = null
 
 string currentInitStatus = null
 string currentInitSubStatus = null
+
+/** Shows given image covering the full screen. Activates cinematic mode if use is given. */
+function showFullscreenImage(string imagePath, bool useCinematicMode)
+	if useCinematicMode
+		CinematicModeBJ(true, GetPlayersAll())
+	SetCineFilterTexture(imagePath)
+	SetCineFilterBlendMode(BLEND_MODE_NONE)
+	SetCineFilterTexMapFlags(TEXMAP_FLAG_NONE)
+	SetCineFilterStartUV(0, 0, 1, 1)
+	SetCineFilterEndUV(0, 0, 1, 1)
+	SetCineFilterStartColor(255, 255, 255, 255)
+	SetCineFilterEndColor(255, 255, 255, 255)
+	SetCineFilterDuration(0.)
+	DisplayCineFilter(true)
+
+/** Hides image covering the full screen. Deactivates cinematic mode if use is given. */
+function hideFullscreenImage(bool useCinematicMode)
+	DisplayCineFilter(false)
+	if useCinematicMode
+		CinematicModeBJ(false, GetPlayersAll())
 
 function updateLoadStatus()
 	loadStatusSymbolIndex++
@@ -87,6 +112,7 @@ function finishLoadStatus()
 	loadStatusCb = null
 	updateLoadStatus()
 	loadStatusText.clear()
+	hideFullscreenImage(true)
 
 /** Start init status with given category and given amount of tasks. */
 public function startInitStatus(string category, int tasksAmount, string statusName)
@@ -102,6 +128,7 @@ public function newInitStatus(string statusName)
 	if currentInitStatus != null
 		loadStatusTasksCurrent++
 		loadStatusText.add("Starting " + currentInitStatus)
+		showFullscreenImage(LOAD_SCREEN_IMAGE_PATHS[(loadStatusTasksCurrent - 1) mod LOAD_SCREEN_IMAGE_PATHS.length], true)
 	else
 		finishLoadStatus()
 

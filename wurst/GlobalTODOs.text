@@ -38,8 +38,6 @@ Work status:
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
 	- Noise generation takes too long for init calculation for bigger maps -> ComputationCosts have to be adjusted
 	- Problem with noise generation for tree map
-!!>>- Improve LoadStatusSystem
-	- Add support for cycling background loading screens
 
 
 // -------------

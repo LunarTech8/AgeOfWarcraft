@@ -97,6 +97,11 @@ public class Array2DReal
 		s.checkBoundaries(sizeX, sizeY)
 		data.set(s.toSlot1D(sizeX), elem)
 
+	function DEBUG_getArrayIndex(int x, int y) returns int  // DEBUG:
+		let s = slot2D(x, y)
+		s.checkBoundaries(sizeX, sizeY)
+		return data.DEBUG_getArrayIndex(s.toSlot1D(sizeX))
+
 
 // --------------------
 // Test code

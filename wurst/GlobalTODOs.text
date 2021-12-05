@@ -36,8 +36,7 @@ Work status:
 		- Maybe the gather centre can be changed by the player (inside a max range from the gatherplace building)
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
-	- Noise generation takes too long for init calculation for bigger maps -> ComputationCosts have to be adjusted
-	- Problem with noise generation for tree map
+	>- Fix problem with noise generation for plant map
 
 
 // -------------

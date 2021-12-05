@@ -13,12 +13,8 @@ package UtilityFunctions
 import LinkedList
 import HashMap
 import ConstantData
-import Interpolation
-import Array2D
 import Orders
 import ObjectIds
-import LoadStatusSystem
-import ComputationControl
 import ErrorHandling
 
 
@@ -329,140 +325,22 @@ public function int.divByZeroProt() returns int
 		Log.error("Invalid divisor value (" + this.toString() + ")")
 	return this
 
-function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) returns Array2DReal
-	// Check interpolation method:
-	var interpolationMethod = 0
-	if interpolation == "Linear"
-		interpolationMethod = 0
-	else if interpolation == "Cosine"
-		interpolationMethod = 1
-	else
-		Log.error("Invalid interpolation method")
-	// Create smooth noise map:
-	let width = baseNoise.sizeX()
-	let height = baseNoise.sizeY()
-	let smoothNoise = new Array2DReal(width, height)
-	let samplePeriod = (2).pow(octave)
-	let sampleFrequency = 1. / samplePeriod
-	newInitSubStatus("Test1 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
-	for i = 0 to width - 1
-		setInitStepStatus(i + 1, width)  // DEBUG:
-		// Calculate the horizontal sampling indices:
-		let horizontalSampleA = (i div samplePeriod) * samplePeriod
-		let horizontalSampleB = (horizontalSampleA + samplePeriod) mod width  // Wrap around
-		var horizontalBlend = (i - horizontalSampleA) * sampleFrequency
-		if interpolationMethod == 1
-			horizontalBlend = (1 - Cos(horizontalBlend * PI)) * 0.5
-		for j = 0 to height - 1
-			// Calculate the vertical sampling indices:
-			let verticalSampleA = (j div samplePeriod) * samplePeriod
-			let verticalSampleB = (verticalSampleA + samplePeriod) mod height  // Wrap around
-			var verticalBlend = (j - verticalSampleA) * sampleFrequency
-			if interpolationMethod == 1
-				verticalBlend = (1 - Cos(verticalBlend * PI)) * 0.5
-			// Blend the top two corners:
-			let top = linear(baseNoise.get(horizontalSampleA, verticalSampleA), baseNoise.get(horizontalSampleB, verticalSampleA), horizontalBlend)
-			// Blend the bottom two corners:
-			let bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
-			// Final blend:
-			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
-			computationCost += 0.176
-		checkForComputationBreak()
-	return smoothNoise
+/** Shows given image covering the full screen. Activates cinematic mode if use is given. */
+public function showFullscreenImage(string imagePath, bool useCinematicMode)
+	if useCinematicMode
+		// CinematicModeBJ(true, GetPlayersAll())  // DEBUG: only for developement
+	SetCineFilterTexture(imagePath)
+	SetCineFilterBlendMode(BLEND_MODE_NONE)
+	SetCineFilterTexMapFlags(TEXMAP_FLAG_NONE)
+	SetCineFilterStartUV(0, 0, 1, 1)
+	SetCineFilterEndUV(0, 0, 1, 1)
+	SetCineFilterStartColor(255, 255, 255, 255)
+	SetCineFilterEndColor(255, 255, 255, 255)
+	SetCineFilterDuration(0.)
+	DisplayCineFilter(true)
 
-/** Generates random noise map of given size (width, height) with values between 0 and 1. */
-public function generateRandomNoise(int width, int height) returns Array2DReal
-	let baseNoise = new Array2DReal(width, height)
-	// Create base noise map:
-	newInitSubStatus("Test0 " + computationCost.toString())  // DEBUG:
-	for i = 0 to width - 1
-		setInitStepStatus(i + 1, width)  // DEBUG:
-		for j = 0 to height - 1
-			baseNoise.set(i, j, GetRandomReal(0., 1.))
-			computationCost += 0.035
-		checkForComputationBreak()
-	return baseNoise
-
-/** Generates perlin noise map of given size (width, height) with values between 0 and 1.
-	High octave counts gernerate maps with bigger plateaus. Values below 2 will return an unsmoothed random noise map.
-	Persistance defines the smoothness of the map. Low values towards 0 give very smooth maps.
-	Available interpolations: Linear, Cosine
-	Available distributions: Default = "Bell shaped", Slope = "Half bell shaped, peak at 0", Uniform = "Evenly distributed, no peak" */
-public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation, string distribution) returns Array2DReal
-	Array2DReal perlinNoise
-	if octaveCount > 1
-		let baseNoise = generateRandomNoise(width, height)
-		var amplitude = 1.
-		var totalAmplitude = 0.
-		// Blend noise together:
-		newInitSubStatus("Noise blending")
-		perlinNoise = new Array2DReal(width, height)
-		forceComputationBreak()
-		for octave = octaveCount - 1 downto 0
-			setInitStepStatus(octaveCount - octave, octaveCount)
-			let smoothNoise = smoothNoise(baseNoise, interpolation, octave)
-			forceComputationBreak()
-			amplitude *= persistance
-			totalAmplitude += amplitude
-			newInitSubStatus("Test2 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
-			for i = 0 to width - 1
-				setInitStepStatus(i + 1, width)  // DEBUG:
-				for j = 0 to height - 1
-					if octave == octaveCount - 1
-						perlinNoise.set(i, j, smoothNoise.get(i, j) * amplitude)
-					else
-						perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
-					computationCost += 0.099
-				checkForComputationBreak()
-			forceComputationBreak()
-			destroy smoothNoise
-		destroy baseNoise
-		forceComputationBreak()
-		// Normalisation:
-		newInitSubStatus("Noise normalisation")
-		newInitSubStatus("Test3 " + computationCost.toString())  // DEBUG:
-		for i = 0 to width - 1
-			setInitStepStatus(i + 1, width)
-			for j = 0 to height - 1
-				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
-				computationCost += 0.190
-			checkForComputationBreak()
-	else
-		perlinNoise = generateRandomNoise(width, height)
-	// Postprocessing:
-	newInitSubStatus("Noise postprocessing")
-	if distribution == "Default"  // Standard bell shaped curve
-		return perlinNoise
-	else if distribution == "Slope"  // Half bell shaped curve with peak at 0
-		forceComputationBreak()
-		newInitSubStatus("Test4 " + computationCost.toString())  // DEBUG:
-		for i = 0 to width - 1
-			setInitStepStatus(i + 1, width)
-			for j = 0 to height - 1
-				perlinNoise.set(i, j, (perlinNoise.get(i, j) * 2 - 1).abs())
-				computationCost += 0.067
-			checkForComputationBreak()
-	else if distribution == "Uniform"  // Horizontal curve with no peak
-		forceComputationBreak()
-		if width % 2 != 0
-			Log.error("width (=" + width.toString() + ") has to be even for Uniform distribution")
-		for i = 0 to (width div 2) - 1
-			setInitStepStatus(i + 1, width)
-			for j = 0 to height - 1
-				// Reverse Box–Muller transformation:
-				let z1 = perlinNoise.get(i, j)
-				let z2 = perlinNoise.get(width - 1 - i, j)
-				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
-				let acosInput = z1 / (z1 * z1 + z2 * z2).divByZeroProt()
-				if acosInput.abs() > 1
-					Log.error("Acos only allows numbers between -1 and 1 (" + acosInput.toString() + ")")
-				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
-				computationCost += 0.124
-			checkForComputationBreak()
-	else
-		Log.error("Invalid distribution method")
-	return perlinNoise
-public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation) returns Array2DReal
-	return generatePerlinNoise(width, height, octaveCount, persistance, interpolation, "Slope")
-public function generatePerlinNoise(int width, int height, int octaveCount) returns Array2DReal
-	return generatePerlinNoise(width, height, octaveCount, .5, "Linear")
+/** Hides image covering the full screen. Deactivates cinematic mode if use is given. */
+public function hideFullscreenImage(bool useCinematicMode)
+	DisplayCineFilter(false)
+	if useCinematicMode
+		CinematicModeBJ(false, GetPlayersAll())

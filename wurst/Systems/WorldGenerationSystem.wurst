@@ -20,6 +20,7 @@ import ResourceSystem
 import LoadStatusSystem
 import ComputationControl
 import Destructable_Spruce
+import NoiseFunctions
 
 
 // --------------------
@@ -76,17 +77,17 @@ public function generatePlants()
     let plantMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
     forceComputationBreak()
     newInitSubStatus("Add plants")
-    for	x = 0 to TILES_X - 1  // DEBUG:
-        plantMap.set(x, TILES_Y - 4, 0.42)  // DEBUG:
-        plantMap.set(x, TILES_Y - 2, 0.12)  // DEBUG:
-    forceComputationBreak()  // DEBUG:
+    // for	x = 0 to TILES_X - 1  // DEBUG:
+    //     plantMap.set(x, TILES_Y - 4, 0.42)  // DEBUG:
+    //     plantMap.set(x, TILES_Y - 2, 0.12)  // DEBUG:
+    // forceComputationBreak()  // DEBUG:
     for	x = 0 to TILES_X - 1
         // setInitStepStatus(x + 1, TILES_X)  // DEBUG:
         for	y = 0 to TILES_Y - 1
             // FIXME: a lot is just 1 -> maybe a problem with Array -> only if heightMap isn't destroyed (offset only by 10816) -> should be fixed with Array index fix -> still trees everywhere
             // FIXME: only entries with 0, 1, 2 for y have values != 1 -> Problem doesn't seem to be the array index -> Try to create a unit test to find the cause for the problem
-            if plantMap.get(x, y) <= 0.99  // DEBUG:
-                Log.debug(plantMap.get(x, y).toString() + " " + x.toString() + "/" + y.toString() + " " + plantMap.DEBUG_getArrayIndex(x, y).toString())  // DEBUG:
+            // if plantMap.get(x, y) <= 0.99  // DEBUG:
+            //     Log.debug(plantMap.get(x, y).toString() + " " + x.toString() + "/" + y.toString() + " " + plantMap.DEBUG_getArrayIndex(x, y).toString())  // DEBUG:
             if plantMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())  // DEBUG:

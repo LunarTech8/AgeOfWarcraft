@@ -10,6 +10,7 @@ Keeps track of cumulated computation cost and breaks long tigger actions with sh
 Initial version.
 -------------------------------------------------------------*/
 package ComputationControl
+import UtilityFunctions
 
 
 // --------------------
@@ -17,7 +18,6 @@ package ComputationControl
 // --------------------
 
 let MAX_COMPUTATION_COST_PER_CYCLE = 256.
-let MIN_TRIGGER_SLEEP_TIME = 0.01
 
 
 // --------------------

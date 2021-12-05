@@ -12,6 +12,7 @@ Initial version.
 package LoadStatusSystem
 import ClosureTimers
 import LinkedList
+import UtilityFunctions
 
 
 // --------------------
@@ -22,7 +23,7 @@ let LOAD_STATUS_ADJUSTMENT_RATE = 0.25
 let UPDATE_SYMBOLS = ["+", "x"]
 let TASK_SYMBOL_FINISHED = "="
 let TASK_SYMBOL_UNFINISHED = "-"
-let LOAD_STATUS_DISPLAY_TYPE = 2  // 0=Deactivated, 1=Normal, 2=WithoutClear
+let LOAD_STATUS_DISPLAY_TYPE = 0  // 0=Deactivated, 1=Normal, 2=WithoutClear
 let LOAD_SCREEN_IMAGE_PATHS = [
 	"ReplaceableTextures\\Splats\\D_NightElfUberSplat.blp",
 	"ReplaceableTextures\\Splats\\D_HumanCastleUberSplat.blp",
@@ -43,26 +44,6 @@ CallbackPeriodic loadStatusCb = null
 
 string currentInitStatus = null
 string currentInitSubStatus = null
-
-/** Shows given image covering the full screen. Activates cinematic mode if use is given. */
-function showFullscreenImage(string imagePath, bool useCinematicMode)
-	if useCinematicMode
-		CinematicModeBJ(true, GetPlayersAll())
-	SetCineFilterTexture(imagePath)
-	SetCineFilterBlendMode(BLEND_MODE_NONE)
-	SetCineFilterTexMapFlags(TEXMAP_FLAG_NONE)
-	SetCineFilterStartUV(0, 0, 1, 1)
-	SetCineFilterEndUV(0, 0, 1, 1)
-	SetCineFilterStartColor(255, 255, 255, 255)
-	SetCineFilterEndColor(255, 255, 255, 255)
-	SetCineFilterDuration(0.)
-	DisplayCineFilter(true)
-
-/** Hides image covering the full screen. Deactivates cinematic mode if use is given. */
-function hideFullscreenImage(bool useCinematicMode)
-	DisplayCineFilter(false)
-	if useCinematicMode
-		CinematicModeBJ(false, GetPlayersAll())
 
 function updateLoadStatus()
 	loadStatusSymbolIndex++
@@ -108,9 +89,10 @@ function startLoadStatus(string category, int tasksAmount)
 		loadStatusCb = doPeriodically(LOAD_STATUS_ADJUSTMENT_RATE, cb -> updateLoadStatusWithoutClear())
 
 function finishLoadStatus()
-	destroy(loadStatusCb)
-	loadStatusCb = null
-	updateLoadStatus()
+	if loadStatusCb != null
+		destroy(loadStatusCb)
+		loadStatusCb = null
+		updateLoadStatus()
 	loadStatusText.clear()
 	hideFullscreenImage(true)
 

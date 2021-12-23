@@ -22,6 +22,7 @@ import Icons
 import RegisterEvents
 import StorageSystem
 import ResourceSystem
+import Entity
 import ErrorHandling
 
 
@@ -138,11 +139,16 @@ public class Gatherplace extends Storage
 			error("Can't remove worker from this gatherplace")
 
 	function changeProduct()
-		if getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant + 1).isEmpty() == false
+		var allowedTypeIds = getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant + 1)
+		if allowedTypeIds.isEmpty() == false
 			gatherVariant = gatherVariant + 1
 		else if gatherVariant != 1
 			gatherVariant = 1
-		// TODO: find new targets for working workers
+			allowedTypeIds = getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant)
+		for worker in workers
+			// worker.abortOrder()  // TEST: maybe not needed here
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(allowedTypeIds).getWidget(), true)
+		// TEST: check if this work and maybe write unit test for it
 
 	/** Transfers as many products as possible from this gatherplace to source storage or with reverse targets. */
 	function transferWares(Storage source, bool takeProducts)

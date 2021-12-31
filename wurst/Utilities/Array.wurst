@@ -325,3 +325,22 @@ public function testArray_CreateAndDestroy(bool isInGameTest)
 	// Destroy class objects:
 	destroy arrayB
 	destroy arrayC
+
+@Test public function testArray_FullMemoryAreaCheck()
+	testArray_FullMemoryAreaCheck(false)
+public function testArray_FullMemoryAreaCheck(bool isInGameTest)
+	let REAL_COMPARE_DELTA = 0.000001
+	let testName = setTestName("testArray_FullMemoryAreaCheck", isInGameTest)
+	var indexOffset = 0
+	for a in ARRAY_REAL_LIST
+		indexOffset += a.size()
+	// Create new array:
+	let arrayA = new ArrayReal(ARRAY_REAL_SIZE - indexOffset)
+	// Set entries and check content:
+	for i = 0 to ARRAY_REAL_SIZE - indexOffset - 1
+		arrayA.set(i, i.toReal())
+	for i = 0 to ARRAY_REAL_SIZE - indexOffset - 1
+		arrayA.get(i).assertEquals(testName, i.toReal(), REAL_COMPARE_DELTA)
+	testFinish(testName)
+	// Destroy class objects:
+	destroy arrayA

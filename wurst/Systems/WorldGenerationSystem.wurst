@@ -46,11 +46,16 @@ let TREE_COVERAGE_PERCENTAGE_MAX = 1.2  // A higher value means a lower probabli
 // --------------------
 
 Array2DReal heightMap
+Array2DReal plantMap
+
+public function generateNoiseMaps()
+    newInitSubStatus("Generate noise")
+    heightMap = generatePerlinNoise(TILES_X, TILES_Y, 7, 0.6, "Cosine")
+    forceComputationBreak()
+    plantMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
 
 public function generateTerrain()
     // Adjust the height for each tile:
-    heightMap = generatePerlinNoise(TILES_X, TILES_Y, 7, 0.6, "Cosine")
-    forceComputationBreak()
     newInitSubStatus("Adjust terrain")
     for	x = 0 to TILES_X - 1
         setInitStepStatus(x + 1, TILES_X)  // DEBUG:
@@ -74,8 +79,6 @@ public function generateTerrain()
 
 public function generatePlants()
     // Have 1 or 0 tree per tile:
-    let plantMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
-    forceComputationBreak()
     newInitSubStatus("Add plants")
     for	x = 0 to TILES_X - 1
         setInitStepStatus(x + 1, TILES_X)  // DEBUG:
@@ -87,4 +90,3 @@ public function generatePlants()
                 entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(DestructableData_Spruce.minScale, DestructableData_Spruce.maxScale), getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
             computationCost += 0.224
         checkForComputationBreak()
-    destroy plantMap

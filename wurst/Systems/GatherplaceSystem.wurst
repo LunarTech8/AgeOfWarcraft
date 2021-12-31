@@ -148,7 +148,10 @@ public class Gatherplace extends Storage
 		for worker in workers
 			// worker.abortOrder()  // TEST: maybe not needed here
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(allowedTypeIds).getWidget(), true)
-		// TEST: check if this work and maybe write unit test for it
+		// TEST: check if this works and maybe write unit test for it
+
+	function orderWorking(unit worker)
+		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(user.getPos() ,getGatherplaceTargetTypeIds(user.getUnitId(), gatherVariant)).getWidget(), true)
 
 	/** Transfers as many products as possible from this gatherplace to source storage or with reverse targets. */
 	function transferWares(Storage source, bool takeProducts)

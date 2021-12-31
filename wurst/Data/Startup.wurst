@@ -39,8 +39,11 @@ let START_WOOD_COUNT_PER_PEASANT = 5
 
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
+	startInitStatus("Initialisation", 4, "Noise creation")
+	generateNoiseMaps()
+	forceComputationBreak()
 	// Create terrain:
-	startInitStatus("Initialisation", 3, "Terrain creation")
+	newInitStatus("Terrain creation")
 	generateTerrain()
 	forceComputationBreak()
 	// Create plants:

@@ -34,9 +34,10 @@ Work status:
 	>>- The player may switch between different types of targets for the gatherers
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
 		- Maybe the gather centre can be changed by the player (inside a max range from the gatherplace building)
+	- Implement usage in PersonSystem as workplace
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
-	>- Separate perlin noise maps generation from map creation and add option to load/save noise maps from/to file if possible
+	>>- Separate perlin noise maps generation from map creation and add option to load/save noise maps from/to file (SaveLoadData)
 
 
 // -------------
@@ -70,7 +71,7 @@ Work status:
 // Info:
 // -------------
 - After new Wc3 patch delete blizzard.j and common.j in _build folder for compatibility
-- Out of game unit test results have to be looked up under the console OUTPUT tab
+- Out of game unit test results have to be looked up under the console OUTPUT tab with wurstLanguageServer instead of Tasks
 
 
 // -------------

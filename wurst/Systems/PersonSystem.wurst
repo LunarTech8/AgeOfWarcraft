@@ -151,7 +151,7 @@ public class Person
 	protected real sleep
 	protected real sleepRate
 	protected Home home
-	protected Workshop workplace
+	protected Workshop workplace  // TODO: also allow gahterplace buildings here, mabye create a Workplace class for it
 	unit enteredBuilding
 
 	construct(unit person, string name)

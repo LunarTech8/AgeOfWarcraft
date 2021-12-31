@@ -140,7 +140,7 @@ function setArrayRealValue(int index, real value)
 				else
 					arrayReal04[index - SINGLE_ARRAY_SIZE * 3] = value
 		else
-			if index < SINGLE_ARRAY_SIZE * 2
+			if index < SINGLE_ARRAY_SIZE * 6
 				if index < SINGLE_ARRAY_SIZE * 5
 					arrayReal05[index - SINGLE_ARRAY_SIZE * 4] = value
 				else

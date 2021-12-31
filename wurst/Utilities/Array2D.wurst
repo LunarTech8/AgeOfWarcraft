@@ -43,6 +43,11 @@ public class Array2D<T>
 	construct(int sizeX, int sizeY)
 		this.sizeX = sizeX
 		this.sizeY = sizeY
+	construct(int sizeX, int sizeY, T initValue)
+		this.sizeX = sizeX
+		this.sizeY = sizeY
+		for i = 0 to sizeX - 1 + sizeX * (sizeY - 1)
+			data.put(i, initValue)
 
 	ondestroy
 		destroy data
@@ -77,6 +82,12 @@ public class Array2DReal
 		data = new ArrayReal(sizeX * sizeY)
 		this.sizeX = sizeX
 		this.sizeY = sizeY
+	construct(int sizeX, int sizeY, real initValue)
+		data = new ArrayReal(sizeX * sizeY)
+		this.sizeX = sizeX
+		this.sizeY = sizeY
+		for i = 0 to sizeX - 1 + sizeX * (sizeY - 1)
+			data.set(i, initValue)
 
 	ondestroy
 		destroy data

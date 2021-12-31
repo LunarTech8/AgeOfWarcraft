@@ -89,12 +89,6 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		// Blend noise together:
 		newInitSubStatus("Noise blending")
 		perlinNoise = new Array2DReal(width, height)
-		// FIXME: baseNoise seems to be ok for plantMap, check where it goes wrong
-		let x = 42  // DEBUG:
-		for y = 0 to height - 1  // DEBUG:
-			Log.debug(perlinNoise.get(x, y).toString() + " " + x.toString() + "/" + y.toString() + " " + perlinNoise.DEBUG_getArrayIndex(x, y).toString())  // DEBUG:
-			perlinNoise.set(x, y, 0.)  // FIXME: maybe zeroing perlinNoise might help
-		Log.debug("perlinNoise init --------")  // DEBUG:
 		forceComputationBreak()
 		for octave = octaveCount - 1 downto 0
 			setInitStepStatus(octaveCount - octave, octaveCount)
@@ -117,11 +111,6 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		destroy baseNoise
 		forceComputationBreak()
 		// Normalisation:
-		for y = 0 to height - 1  // DEBUG:
-			Log.debug(perlinNoise.get(x, y).toString() + " " + x.toString() + "/" + y.toString() + " " + perlinNoise.DEBUG_getArrayIndex(x, y).toString())  // DEBUG:
-		Log.debug("perlinNoise before Normalisation --------")  // DEBUG:
-		Log.debug("totalAmplitude = " + totalAmplitude.toString())  // DEBUG:
-		// FIXME: perlinNoise seems to be 0 before normalisation for plantMap (except for y slot 0, 1, 2)
 		newInitSubStatus("Noise normalisation")
 		newInitSubStatus("Test3 " + computationCost.toString())  // DEBUG:
 		for i = 0 to width - 1

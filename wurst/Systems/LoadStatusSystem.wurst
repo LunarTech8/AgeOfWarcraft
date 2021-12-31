@@ -23,7 +23,7 @@ let LOAD_STATUS_ADJUSTMENT_RATE = 0.25
 let UPDATE_SYMBOLS = ["+", "x"]
 let TASK_SYMBOL_FINISHED = "="
 let TASK_SYMBOL_UNFINISHED = "-"
-let LOAD_STATUS_DISPLAY_TYPE = 0  // 0=Deactivated, 1=Normal, 2=WithoutClear
+let LOAD_STATUS_DISPLAY_TYPE = 1  // 0=Deactivated, 1=Normal, 2=WithoutClear
 let LOAD_SCREEN_IMAGE_PATHS = [
 	"ReplaceableTextures\\Splats\\D_NightElfUberSplat.blp",
 	"ReplaceableTextures\\Splats\\D_HumanCastleUberSplat.blp",

@@ -132,7 +132,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, (perlinNoise.get(i, j) * 2 - 1).abs())
-				computationCost += 0.067
+				computationCost += 0.069
 			checkForComputationBreak()
 	else if distribution == "Uniform"  // Horizontal curve with no peak
 		forceComputationBreak()

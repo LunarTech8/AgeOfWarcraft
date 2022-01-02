@@ -19,9 +19,11 @@ import UnitTest
 // Functional code
 // --------------------
 
-let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
 let SINGLE_ARRAY_SIZE = 8192
-let ARRAY_REAL_SIZE = SINGLE_ARRAY_SIZE * 24
+let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
+let ARRAY_REAL_SIZE = SINGLE_ARRAY_SIZE * 16
+let ARRAY_INT_LIST = new LinkedList<ArrayInt>
+let ARRAY_INT_SIZE = SINGLE_ARRAY_SIZE * 4
 
 real array[SINGLE_ARRAY_SIZE] arrayReal01
 real array[SINGLE_ARRAY_SIZE] arrayReal02
@@ -39,18 +41,15 @@ real array[SINGLE_ARRAY_SIZE] arrayReal13
 real array[SINGLE_ARRAY_SIZE] arrayReal14
 real array[SINGLE_ARRAY_SIZE] arrayReal15
 real array[SINGLE_ARRAY_SIZE] arrayReal16
-real array[SINGLE_ARRAY_SIZE] arrayReal17
-real array[SINGLE_ARRAY_SIZE] arrayReal18
-real array[SINGLE_ARRAY_SIZE] arrayReal19
-real array[SINGLE_ARRAY_SIZE] arrayReal20
-real array[SINGLE_ARRAY_SIZE] arrayReal21
-real array[SINGLE_ARRAY_SIZE] arrayReal22
-real array[SINGLE_ARRAY_SIZE] arrayReal23
-real array[SINGLE_ARRAY_SIZE] arrayReal24
+int array[SINGLE_ARRAY_SIZE] arrayInt01
+int array[SINGLE_ARRAY_SIZE] arrayInt02
+int array[SINGLE_ARRAY_SIZE] arrayInt03
+int array[SINGLE_ARRAY_SIZE] arrayInt04
 
 function getArrayRealValue(int index) returns real
-	if index < 0
+	if index < 0 or index >= ARRAY_REAL_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
+		return 0.
 	else if index < SINGLE_ARRAY_SIZE * 8
 		if index < SINGLE_ARRAY_SIZE * 4
 			if index < SINGLE_ARRAY_SIZE * 2
@@ -74,7 +73,7 @@ function getArrayRealValue(int index) returns real
 					return arrayReal07[index - SINGLE_ARRAY_SIZE * 6]
 				else
 					return arrayReal08[index - SINGLE_ARRAY_SIZE * 7]
-	else if index < SINGLE_ARRAY_SIZE * 16
+	else
 		if index < SINGLE_ARRAY_SIZE * 12
 			if index < SINGLE_ARRAY_SIZE * 10
 				if index < SINGLE_ARRAY_SIZE * 9
@@ -97,35 +96,9 @@ function getArrayRealValue(int index) returns real
 					return arrayReal15[index - SINGLE_ARRAY_SIZE * 14]
 				else
 					return arrayReal16[index - SINGLE_ARRAY_SIZE * 15]
-	else if index < SINGLE_ARRAY_SIZE * 24
-		if index < SINGLE_ARRAY_SIZE * 20
-			if index < SINGLE_ARRAY_SIZE * 18
-				if index < SINGLE_ARRAY_SIZE * 17
-					return arrayReal17[index - SINGLE_ARRAY_SIZE * 16]
-				else
-					return arrayReal18[index - SINGLE_ARRAY_SIZE * 17]
-			else
-				if index < SINGLE_ARRAY_SIZE * 19
-					return arrayReal19[index - SINGLE_ARRAY_SIZE * 18]
-				else
-					return arrayReal20[index - SINGLE_ARRAY_SIZE * 19]
-		else
-			if index < SINGLE_ARRAY_SIZE * 22
-				if index < SINGLE_ARRAY_SIZE * 21
-					return arrayReal21[index - SINGLE_ARRAY_SIZE * 20]
-				else
-					return arrayReal22[index - SINGLE_ARRAY_SIZE * 21]
-			else
-				if index < SINGLE_ARRAY_SIZE * 23
-					return arrayReal23[index - SINGLE_ARRAY_SIZE * 22]
-				else
-					return arrayReal24[index - SINGLE_ARRAY_SIZE * 23]
-	else
-		error("Index (" + index.toString() + ") is outside boundaries")
-	return 0.
 
 function setArrayRealValue(int index, real value)
-	if index < 0
+	if index < 0 or index >= ARRAY_REAL_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
 	else if index < SINGLE_ARRAY_SIZE * 8
 		if index < SINGLE_ARRAY_SIZE * 4
@@ -150,7 +123,7 @@ function setArrayRealValue(int index, real value)
 					arrayReal07[index - SINGLE_ARRAY_SIZE * 6] = value
 				else
 					arrayReal08[index - SINGLE_ARRAY_SIZE * 7] = value
-	else if index < SINGLE_ARRAY_SIZE * 16
+	else
 		if index < SINGLE_ARRAY_SIZE * 12
 			if index < SINGLE_ARRAY_SIZE * 10
 				if index < SINGLE_ARRAY_SIZE * 9
@@ -173,31 +146,35 @@ function setArrayRealValue(int index, real value)
 					arrayReal15[index - SINGLE_ARRAY_SIZE * 14] = value
 				else
 					arrayReal16[index - SINGLE_ARRAY_SIZE * 15] = value
-	else if index < SINGLE_ARRAY_SIZE * 24
-		if index < SINGLE_ARRAY_SIZE * 20
-			if index < SINGLE_ARRAY_SIZE * 18
-				if index < SINGLE_ARRAY_SIZE * 17
-					arrayReal17[index - SINGLE_ARRAY_SIZE * 16] = value
-				else
-					arrayReal18[index - SINGLE_ARRAY_SIZE * 17] = value
-			else
-				if index < SINGLE_ARRAY_SIZE * 19
-					arrayReal19[index - SINGLE_ARRAY_SIZE * 18] = value
-				else
-					arrayReal20[index - SINGLE_ARRAY_SIZE * 19] = value
-		else
-			if index < SINGLE_ARRAY_SIZE * 22
-				if index < SINGLE_ARRAY_SIZE * 21
-					arrayReal21[index - SINGLE_ARRAY_SIZE * 20] = value
-				else
-					arrayReal22[index - SINGLE_ARRAY_SIZE * 21] = value
-			else
-				if index < SINGLE_ARRAY_SIZE * 23
-					arrayReal23[index - SINGLE_ARRAY_SIZE * 22] = value
-				else
-					arrayReal24[index - SINGLE_ARRAY_SIZE * 23] = value
-	else
+
+function getArrayIntValue(int index) returns int
+	if index < 0 or index >= ARRAY_INT_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
+		return 0
+	else if index < SINGLE_ARRAY_SIZE * 2
+		if index < SINGLE_ARRAY_SIZE * 1
+			return arrayInt01[index - SINGLE_ARRAY_SIZE * 0]
+		else
+			return arrayInt02[index - SINGLE_ARRAY_SIZE * 1]
+	else
+		if index < SINGLE_ARRAY_SIZE * 3
+			return arrayInt03[index - SINGLE_ARRAY_SIZE * 2]
+		else
+			return arrayInt04[index - SINGLE_ARRAY_SIZE * 3]
+
+function setArrayIntValue(int index, int value)
+	if index < 0 or index >= ARRAY_INT_SIZE
+		error("Index (" + index.toString() + ") is outside boundaries")
+	else if index < SINGLE_ARRAY_SIZE * 2
+		if index < SINGLE_ARRAY_SIZE * 1
+			arrayInt01[index - SINGLE_ARRAY_SIZE * 0] = value
+		else
+			arrayInt02[index - SINGLE_ARRAY_SIZE * 1] = value
+	else
+		if index < SINGLE_ARRAY_SIZE * 3
+			arrayInt03[index - SINGLE_ARRAY_SIZE * 2] = value
+		else
+			arrayInt04[index - SINGLE_ARRAY_SIZE * 3] = value
 
 public class ArrayReal
 	private int size
@@ -246,8 +223,52 @@ public class ArrayReal
 			error("Index (" + index.toString() + ") is outside boundaries")
 		setArrayRealValue(index + indexOffset, elem)
 
-	function DEBUG_getArrayIndex(int index) returns int  // DEBUG:
-		return index + indexOffset
+public class ArrayInt
+	private int size
+	private int indexOffset
+
+	construct(int size)
+		this.size = size
+		if ARRAY_INT_LIST.isEmpty()
+			indexOffset = 0
+		else
+			indexOffset = ARRAY_INT_LIST.peek().getFollowerIndexOffset()
+		if size + indexOffset > ARRAY_INT_SIZE
+			error("Used sizes of ArrayInt (" + (size + indexOffset).toString() + ") are too big for currently reserved memory area (" + ARRAY_INT_SIZE.toString() + ") ")
+			this.size = 0
+		ARRAY_INT_LIST.push(this)
+
+	ondestroy
+		// Remove this array from list:
+		let listIndex = ARRAY_INT_LIST.indexOf(this)
+		ARRAY_INT_LIST.removeAt(listIndex)
+		var newIndexOffset = indexOffset
+		// Move elements from following arrays forwards into free memory area:
+		for i = listIndex to ARRAY_INT_LIST.size() - 1
+			let a = ARRAY_INT_LIST.get(i)
+			let aSize = a.size
+			a.size = 0  // Set temporarily to 0 to avoid concurrent wrong accesses
+			for j = 0 to aSize - 1
+				setArrayIntValue(j + newIndexOffset, getArrayIntValue(j + a.indexOffset))
+			a.indexOffset = newIndexOffset
+			a.size = aSize
+			newIndexOffset = a.getFollowerIndexOffset()
+
+	private function getFollowerIndexOffset() returns int
+		return indexOffset + size
+
+	function size() returns int
+		return size
+
+	function get(int index) returns int
+		if index < 0 or index >= size
+			error("Index (" + index.toString() + ") is outside boundaries")
+		return getArrayIntValue(index + indexOffset)
+
+	function set(int index, int elem)
+		if index < 0 or index >= size
+			error("Index (" + index.toString() + ") is outside boundaries")
+		setArrayIntValue(index + indexOffset, elem)
 
 
 // --------------------
@@ -331,16 +352,26 @@ public function testArray_CreateAndDestroy(bool isInGameTest)
 public function testArray_FullMemoryAreaCheck(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.000001
 	let testName = setTestName("testArray_FullMemoryAreaCheck", isInGameTest)
-	var indexOffset = 0
+	var indexOffsetReal = 0
+	var indexOffsetInt = 0
 	for a in ARRAY_REAL_LIST
-		indexOffset += a.size()
+		indexOffsetReal += a.size()
+	for a in ARRAY_INT_LIST
+		indexOffsetInt += a.size()
 	// Create new array:
-	let arrayA = new ArrayReal(ARRAY_REAL_SIZE - indexOffset)
-	// Set entries and check content:
-	for i = 0 to ARRAY_REAL_SIZE - indexOffset - 1
+	let arrayA = new ArrayReal(ARRAY_REAL_SIZE - indexOffsetReal)
+	let arrayB = new ArrayInt(ARRAY_INT_SIZE - indexOffsetInt)
+	// Set entries:
+	for i = 0 to ARRAY_REAL_SIZE - indexOffsetReal - 1
 		arrayA.set(i, i.toReal())
-	for i = 0 to ARRAY_REAL_SIZE - indexOffset - 1
+	for i = 0 to ARRAY_INT_SIZE - indexOffsetInt - 1
+		arrayB.set(i, i)
+	// Check entries:
+	for i = 0 to ARRAY_REAL_SIZE - indexOffsetReal - 1
 		arrayA.get(i).assertEquals(testName, i.toReal(), REAL_COMPARE_DELTA)
+	for i = 0 to ARRAY_INT_SIZE - indexOffsetInt - 1
+		arrayB.get(i).assertEquals(testName, i)
 	testFinish(testName)
 	// Destroy class objects:
 	destroy arrayA
+	destroy arrayB

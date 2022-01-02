@@ -173,6 +173,12 @@ public abstract class ImportPaths
 	static constant multiHut = "Buildings\\MultiHut.mdl"
 	// Effects:
 	static constant builderSymbol = "Effects\\BuilderSymbol.mdl"
+	// Loading screens:
+	static constant background01 = "LoadingScreens\\Background01.tga"
+	static constant background02 = "LoadingScreens\\Background02.tga"
+	static constant background03 = "LoadingScreens\\Background03.tga"
+	static constant background04 = "LoadingScreens\\Background04.tga"
+	static constant background05 = "LoadingScreens\\Background05.tga"
 
 
 // --------------------

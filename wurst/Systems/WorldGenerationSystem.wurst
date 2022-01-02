@@ -27,66 +27,114 @@ import NoiseFunctions
 // Data code
 // --------------------
 
-// Terrain:
+// General:
 let TILES_X = 104
 let TILES_Y = 104
+let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
+
+// Terrain:
 let TERRAIN_HEIGHT_INIT = 0.
 let TERRAIN_HEIGHT_MIN = -64.  // Min HEIGHT_DEEP_WATER_MIN
 let TERRAIN_HEIGHT_MAX = HEIGHT_LAND_MIN + 786.  // Max HEIGHT_LAND_MAX
-let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 
-// Nature:
+// Plants:
 let NATURE_PLAYER = Player(PLAYER_NEUTRAL_PASSIVE)
-let TREE_COVERAGE_PERCENTAGE_MIN = 0.2  // Noise values below that value will never spawn trees
-let TREE_COVERAGE_PERCENTAGE_MAX = 1.2  // A higher value means a lower probablity to spawn trees
+
+enum PlantBiomeType
+    BARRENS
+    MEADOW
+    SHRUBLAND
+    WOODS
+    FOREST
+
+function getPlantBiomeType(real plantNoiseValue) returns PlantBiomeType
+    if plantNoiseValue >= 0.8
+        return PlantBiomeType.FOREST
+    else if plantNoiseValue >= 0.6
+        return PlantBiomeType.WOODS
+    else if plantNoiseValue >= 0.4
+        return PlantBiomeType.SHRUBLAND
+    else if plantNoiseValue >= 0.2
+        return PlantBiomeType.MEADOW
+    else
+        return PlantBiomeType.BARRENS
 
 
 // --------------------
 // Functional code
 // --------------------
 
-Array2DReal heightMap
-Array2DReal plantMap
+Array2DReal heightMap = new Array2DReal(TILES_X, TILES_Y)
+Array2DInt plantMap = new Array2DInt(TILES_X, TILES_Y)
 
 public function generateNoiseMaps()
-    newInitSubStatus("Generate noise")
-    heightMap = generatePerlinNoise(TILES_X, TILES_Y, 7, 0.6, "Cosine")
-    forceComputationBreak()
-    plantMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
-
-public function generateTerrain()
-    // Adjust the height for each tile:
-    newInitSubStatus("Adjust terrain")
+    // Create height map:
+    newInitStatus("Height map creation")
+    var noiseMap = generatePerlinNoise(TILES_X, TILES_Y, 7, 0.6, "Cosine")
+    newInitSubStatus("Calculate height map")
+    newInitSubStatus("Test5 " + computationCost.toString())  // DEBUG:
     for	x = 0 to TILES_X - 1
-        setInitStepStatus(x + 1, TILES_X)  // DEBUG:
+        setInitStepStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
-            let z = linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, heightMap.get(x, y))
-            heightMap.set(x, y, z)
+            heightMap.set(x, y, linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, noiseMap.get(x, y)))
+            computationCost += 0.069
+        checkForComputationBreak()
+    forceComputationBreak()
+    destroy noiseMap
+    forceComputationBreak()
+    // Create plant map:
+    newInitStatus("Plant map creation")
+    noiseMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+    newInitSubStatus("Calculate plant map")
+    newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
+    for	x = 0 to TILES_X - 1
+        setInitStepStatus(x + 1, TILES_X)
+        for	y = 0 to TILES_Y - 1
+            plantMap.set(x, y, getPlantBiomeType(noiseMap.get(x, y)) castTo int)
+            computationCost += 0.067
+        checkForComputationBreak()
+    forceComputationBreak()
+    destroy noiseMap
+
+public function createTerrain()
+    newInitStatus("Terrain creation")
+    // Adjust the height for each tile:
+    newInitSubStatus("Adjust terrain heights")
+    newInitSubStatus("Test7 " + computationCost.toString())  // DEBUG:
+    for	x = 0 to TILES_X - 1
+        setInitStepStatus(x + 1, TILES_X)
+        for	y = 0 to TILES_Y - 1
+            let z = heightMap.get(x, y)
             let pos = ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE)
             pos.addTerrainHeight(z - TERRAIN_HEIGHT_INIT)  // Terrain has to have water on it before hand for it to show up
+            let tile = pos.getTile()
             // Assert that pathing is set to deep water beforehand
             if z >= HEIGHT_LAND_MIN
-                let tile = pos.getTile()
                 tile.setPathing(PATHING_TYPE_FLOATABILITY, false)
                 tile.setPathing(PATHING_TYPE_WALKABILITY, true)
                 tile.setPathing(PATHING_TYPE_BUILDABILITY, true)
             else if z >= HEIGHT_SHALLOW_WATER_MIN
-                let tile = pos.getTile()
                 tile.setPathing(PATHING_TYPE_WALKABILITY, true)
                 tile.setPathing(PATHING_TYPE_BUILDABILITY, false)
             computationCost += 0.821
         checkForComputationBreak()
 
-public function generatePlants()
+public function createPlants()
+    newInitStatus("Plants creation")
     // Have 1 or 0 tree per tile:
-    newInitSubStatus("Add plants")
+    newInitSubStatus("Add trees")
+    newInitSubStatus("Test8 " + computationCost.toString())  // DEBUG:
     for	x = 0 to TILES_X - 1
-        setInitStepStatus(x + 1, TILES_X)  // DEBUG:
+        setInitStepStatus(x + 1, TILES_X)
         for	y = 0 to TILES_Y - 1
-            if plantMap.get(x, y) >= GetRandomReal(TREE_COVERAGE_PERCENTAGE_MIN, TREE_COVERAGE_PERCENTAGE_MAX)  // Noise value is the probability, thus compare to random value
+            let plantBiome = plantMap.get(x, y) castTo PlantBiomeType
+            if plantBiome == FOREST
                 let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
                 // createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())  // DEBUG:
-                // entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(0.8, 1.2), GetRandomInt(0, 9))).tryAddResouce()  // DEBUG:
-                entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(DestructableData_Spruce.minScale, DestructableData_Spruce.maxScale), getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
-            computationCost += 0.224
+                // entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(DestructableData_Spruce.minScale, DestructableData_Spruce.maxScale), getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
+                entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), DestructableData_Spruce.maxScale, getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
+            else if plantBiome == WOODS
+                let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
+                entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), DestructableData_Spruce.minScale, getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
+            computationCost += 0.206
         checkForComputationBreak()

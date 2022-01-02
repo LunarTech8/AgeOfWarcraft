@@ -108,10 +108,40 @@ public class Array2DReal
 		s.checkBoundaries(sizeX, sizeY)
 		data.set(s.toSlot1D(sizeX), elem)
 
-	function DEBUG_getArrayIndex(int x, int y) returns int  // DEBUG:
+public class Array2DInt
+	private constant ArrayInt data
+	private constant int sizeX
+	private constant int sizeY
+
+	construct(int sizeX, int sizeY)
+		data = new ArrayInt(sizeX * sizeY)
+		this.sizeX = sizeX
+		this.sizeY = sizeY
+	construct(int sizeX, int sizeY, int initValue)
+		data = new ArrayInt(sizeX * sizeY)
+		this.sizeX = sizeX
+		this.sizeY = sizeY
+		for i = 0 to sizeX - 1 + sizeX * (sizeY - 1)
+			data.set(i, initValue)
+
+	ondestroy
+		destroy data
+
+	function sizeX() returns int
+		return sizeX
+
+	function sizeY() returns int
+		return sizeY
+
+	function get(int x, int y) returns int
 		let s = slot2D(x, y)
 		s.checkBoundaries(sizeX, sizeY)
-		return data.DEBUG_getArrayIndex(s.toSlot1D(sizeX))
+		return data.get(s.toSlot1D(sizeX))
+
+	function set(int x, int y, int elem)
+		let s = slot2D(x, y)
+		s.checkBoundaries(sizeX, sizeY)
+		data.set(s.toSlot1D(sizeX), elem)
 
 
 // --------------------

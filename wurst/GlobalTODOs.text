@@ -37,7 +37,7 @@ Work status:
 	- Implement usage in PersonSystem as workplace
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
-	>>- Separate perlin noise maps generation from map creation and add option to load/save noise maps from/to file (SaveLoadData)
+	>- Add option to load/save noise maps from/to file (SaveLoadData)
 
 
 // -------------

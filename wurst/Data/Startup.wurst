@@ -37,20 +37,7 @@ let START_WOOD_COUNT_PER_PEASANT = 5
 // Functional code
 // --------------------
 
-function runStartup()
-	SetMusicVolume(0)  // DEBUG: only for development
-	startInitStatus("Initialisation", 4, "Noise creation")
-	generateNoiseMaps()
-	forceComputationBreak()
-	// Create terrain:
-	newInitStatus("Terrain creation")
-	generateTerrain()
-	forceComputationBreak()
-	// Create plants:
-	newInitStatus("Plants creation")
-	generatePlants()
-	forceComputationBreak()
-	// Create player units:
+function createPlayerUnits()
 	newInitStatus("Player units creation")
 	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(225.))
 	settlementCentre.tryAddSettlement()
@@ -62,7 +49,17 @@ function runStartup()
 			if storage != null
 				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
 	createUnit(USER_PLAYER, UnitIdsCustom.AoW.footman, START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)
-	// Initialisation finished:
+
+function runStartup()
+	SetMusicVolume(0)  // DEBUG: only for development
+	startInitStatus("Initialisation", 5)
+	generateNoiseMaps()
+	forceComputationBreak()
+	createTerrain()
+	forceComputationBreak()
+	createPlants()
+	forceComputationBreak()
+	createPlayerUnits()
 	newInitStatus(null)
 
 init

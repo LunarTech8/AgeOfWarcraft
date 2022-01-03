@@ -7,19 +7,19 @@ import BuildingPreset
 // --------------------
 
 public class UnitData_Townhall
-    static constant scalingValue = 1.1
+	static constant scalingValue = 1.1
 
 @compiletime function genObj()
-    new BuildingPreset(UnitIdsCustom.AoW.townHall, UnitIds.townhall)
-    // Abilities:
-    ..presetNormalAbilities()
-    // Art:
-    ..setScalingValue(UnitData_Townhall.scalingValue)
-    // Stats:
-    ..presetNoGoldAndLumber()
-    // Techtree:
-    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
-    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.keep))
-    ..setResearchesAvailable("")
-    // Text:
-    ..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")
+	new BuildingPreset(UnitIdsCustom.AoW.townHall, UnitIds.townhall)
+	// Abilities:
+	..presetNormalAbilities()
+	// Art:
+	..setScalingValue(UnitData_Townhall.scalingValue)
+	// Stats:
+	..presetNoGoldAndLumber()
+	// Techtree:
+	..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
+	..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.keep))
+	..setResearchesAvailable("")
+	// Text:
+	..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")

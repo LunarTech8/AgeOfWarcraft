@@ -7,25 +7,25 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.showTargetInfo)
-    // Ability specific data:
-    ..presetDamage((int lvl) -> 0.)
-    // Art:
-    ..setAnimationNames("")
-    ..presetButtonPosNormal(0, 0)
-    ..setIconNormal(Icons.bTNSnazzyScroll)
-    ..setMissileArt("")
-    ..setMissileSpeed(0)
-    // Stats:
-    ..presetBuffs(BuffIdsCustom.emptyBuff)
-    ..presetCastRange(99999.)
-    ..presetCooldown(1.)
-    ..presetDuration(.01)
-    ..setHeroAbility(false)
-    ..setLevels(1)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.air, TargetsAllowed.tree)
-    // Text:
-    ..setHotkeyNormal("Q")
-    ..presetNameAndTooltips("Show Target Info", "Get informations about the target.")
+	new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.showTargetInfo)
+	// Ability specific data:
+	..presetDamage((int lvl) -> 0.)
+	// Art:
+	..setAnimationNames("")
+	..presetButtonPosNormal(0, 0)
+	..setIconNormal(Icons.bTNSnazzyScroll)
+	..setMissileArt("")
+	..setMissileSpeed(0)
+	// Stats:
+	..presetBuffs(BuffIdsCustom.emptyBuff)
+	..presetCastRange(99999.)
+	..presetCooldown(1.)
+	..presetDuration(.01)
+	..setHeroAbility(false)
+	..setLevels(1)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.air, TargetsAllowed.tree)
+	// Text:
+	..setHotkeyNormal("Q")
+	..presetNameAndTooltips("Show Target Info", "Get informations about the target.")

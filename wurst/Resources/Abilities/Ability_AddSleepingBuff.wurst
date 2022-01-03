@@ -7,18 +7,18 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionSleepcreep(AbilityIdsCustom.addSleepingBuff)
-    // Ability specific data:
-    ..presetStunDuration((int lvl) -> 0.01)
-    // Art:
-    ..setIconNormal("")
-    // Stats:
-    ..presetBuffs(BuffIdsCustom.sleeping)
-    ..presetCastRange(92083.)
-    ..presetCooldown(0.)
-    ..presetDuration(65536.)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air)
-    // Text:
-    ..presetNameAndTooltips("Add sleeping buff", "Adds the sleeping buff to the target.")
+	new AbilityDefinitionSleepcreep(AbilityIdsCustom.addSleepingBuff)
+	// Ability specific data:
+	..presetStunDuration((int lvl) -> 0.01)
+	// Art:
+	..setIconNormal("")
+	// Stats:
+	..presetBuffs(BuffIdsCustom.sleeping)
+	..presetCastRange(92083.)
+	..presetCooldown(0.)
+	..presetDuration(65536.)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air)
+	// Text:
+	..presetNameAndTooltips("Add sleeping buff", "Adds the sleeping buff to the target.")

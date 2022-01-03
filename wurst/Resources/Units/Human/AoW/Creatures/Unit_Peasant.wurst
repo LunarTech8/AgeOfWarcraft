@@ -7,26 +7,26 @@ import UnitPreset
 // --------------------
 
 public class UnitData_Peasant
-    static constant attack1CooldownTime = 1.
+	static constant attack1CooldownTime = 1.
 
 @compiletime function genObj()
-    new UnitPreset(UnitIdsCustom.AoW.peasant, UnitIds.peasant)
-    // Abilities:
-    ..presetNormalAbilities(AbilityIdsCustom.transferWares, AbilityIdsCustom.harvest, AbilityIdsCustom.enterBuilding, AbilityIdsCustom.build, AbilityIdsCustom.targetDestructable)
-    // Art:
-    ..setScalingValue(.5)
-    ..setSelectionScale(.5)
-    ..presetShadowImage(20., 50.)
-    // Combat:
-    ..setAttack1CooldownTime(UnitData_Peasant.attack1CooldownTime)
-    ..presetAttackRange(true, 30, 100.)
-    // Movement:
-    ..presetSpeed(80)
-    // Pathing:
-    ..setCollisionSize(12.)
-    // Stats:
-    ..presetNoGoldAndLumber()
-    // Techtree:
-    ..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill, UnitIdsCustom.AoW.lumberCamp))
-    // Text:
-    ..presetNameAndTooltips(false, "Peasant", "Basic worker unit.")
+	new UnitPreset(UnitIdsCustom.AoW.peasant, UnitIds.peasant)
+	// Abilities:
+	..presetNormalAbilities(AbilityIdsCustom.transferWares, AbilityIdsCustom.harvest, AbilityIdsCustom.enterBuilding, AbilityIdsCustom.build, AbilityIdsCustom.targetDestructable)
+	// Art:
+	..setScalingValue(.5)
+	..setSelectionScale(.5)
+	..presetShadowImage(20., 50.)
+	// Combat:
+	..setAttack1CooldownTime(UnitData_Peasant.attack1CooldownTime)
+	..presetAttackRange(true, 30, 100.)
+	// Movement:
+	..presetSpeed(80)
+	// Pathing:
+	..setCollisionSize(12.)
+	// Stats:
+	..presetNoGoldAndLumber()
+	// Techtree:
+	..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill, UnitIdsCustom.AoW.lumberCamp))
+	// Text:
+	..presetNameAndTooltips(false, "Peasant", "Basic worker unit.")

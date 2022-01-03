@@ -7,15 +7,15 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionHarvest(AbilityIdsCustom.targetDestructable)
-    // Art:
-    ..presetButtonPosNormal(0, 2)
-    ..setIconNormal(Icons.bTNReturnGoods)
-    ..setIconTurnOff("")
-    // Stats:
-    ..presetCastRange(1.)
-    ..setRace(Race.Other)
-    // Text:
-    ..setHotkeyNormal("")
-    ..setHotkeyTurnOff("")
-    ..presetNameAndTooltips("Target destructable", "")
+	new AbilityDefinitionHarvest(AbilityIdsCustom.targetDestructable)
+	// Art:
+	..presetButtonPosNormal(0, 2)
+	..setIconNormal(Icons.bTNReturnGoods)
+	..setIconTurnOff("")
+	// Stats:
+	..presetCastRange(1.)
+	..setRace(Race.Other)
+	// Text:
+	..setHotkeyNormal("")
+	..setHotkeyTurnOff("")
+	..presetNameAndTooltips("Target destructable", "")

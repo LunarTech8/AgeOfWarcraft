@@ -7,28 +7,28 @@ import AbilityPresetFunctions
 // --------------------
 
 public class AbilityData_Harvest
-    static constant cooldown = 1.
+	static constant cooldown = 1.
 
 @compiletime function genObj()
-    new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.harvest)
-    // Ability specific data:
-    ..presetDamage((int lvl) -> 0.)
-    // Art:
-    ..setAnimationNames("attack")
-    ..presetButtonPosNormal(2, 0)
-    ..setIconNormal(Icons.bTNGatherGold)
-    ..setMissileArt("")
-    ..setMissileSpeed(0)
-    // Stats:
-    ..presetBuffs(BuffIdsCustom.emptyBuff)
-    ..presetCastRange(32.)
-    ..presetCooldown(AbilityData_Harvest.cooldown)
-    ..presetDuration(.01)
-    ..setHeroAbility(false)
-    ..setLevels(1)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.tree)
-    // Text:
-    ..setHotkeyNormal("E")
-    ..presetNameAndTooltips("Harvest", "Harvest a ware of the target resource.")
+	new AbilityDefinitionMountainKingThunderBolt(AbilityIdsCustom.harvest)
+	// Ability specific data:
+	..presetDamage((int lvl) -> 0.)
+	// Art:
+	..setAnimationNames("attack")
+	..presetButtonPosNormal(2, 0)
+	..setIconNormal(Icons.bTNGatherGold)
+	..setMissileArt("")
+	..setMissileSpeed(0)
+	// Stats:
+	..presetBuffs(BuffIdsCustom.emptyBuff)
+	..presetCastRange(32.)
+	..presetCooldown(AbilityData_Harvest.cooldown)
+	..presetDuration(.01)
+	..setHeroAbility(false)
+	..setLevels(1)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.structure, TargetsAllowed.tree)
+	// Text:
+	..setHotkeyNormal("E")
+	..presetNameAndTooltips("Harvest", "Harvest a ware of the target resource.")

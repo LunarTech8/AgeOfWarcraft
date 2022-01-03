@@ -7,22 +7,22 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionCripple(AbilityIdsCustom.addExhaustedBuff)
-    // Ability specific data:
-    ..presetAttackSpeedReduction((int lvl) -> .5)
-    ..presetDamageReduction((int lvl) -> 0.)
-    ..presetMovementSpeedReduction((int lvl) -> .5)
-    // Art:
-    ..setIconNormal("")
-    // Stats:
-    ..presetBuffs(BuffIdsCustom.exhausted)
-    ..presetCastRange(92083.)
-    ..presetCooldown(0.)
-    ..presetDuration(65536.)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air)
-    // Techtree:
-    ..presetNoRequirements()
-    // Text:
-    ..presetNameAndTooltips("Add exhausted buff", "Adds the exhausted buff to the target.")
+	new AbilityDefinitionCripple(AbilityIdsCustom.addExhaustedBuff)
+	// Ability specific data:
+	..presetAttackSpeedReduction((int lvl) -> .5)
+	..presetDamageReduction((int lvl) -> 0.)
+	..presetMovementSpeedReduction((int lvl) -> .5)
+	// Art:
+	..setIconNormal("")
+	// Stats:
+	..presetBuffs(BuffIdsCustom.exhausted)
+	..presetCastRange(92083.)
+	..presetCooldown(0.)
+	..presetDuration(65536.)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air)
+	// Techtree:
+	..presetNoRequirements()
+	// Text:
+	..presetNameAndTooltips("Add exhausted buff", "Adds the exhausted buff to the target.")

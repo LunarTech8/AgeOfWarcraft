@@ -7,10 +7,10 @@ import BuildingPreset
 // --------------------
 
 @compiletime function genObj()
-    new BuildingPreset(UnitIdsCustom.AoW.peasantHouse, UnitIds.farm)
-    // Abilities:
-    ..presetNormalAbilities()
-    // Stats:
-    ..presetNoGoldAndLumber()
-    // Text:
-    ..presetNameAndTooltips(true, "Peasant House", "Home for peasants.")
+	new BuildingPreset(UnitIdsCustom.AoW.peasantHouse, UnitIds.farm)
+	// Abilities:
+	..presetNormalAbilities()
+	// Stats:
+	..presetNoGoldAndLumber()
+	// Text:
+	..presetNameAndTooltips(true, "Peasant House", "Home for peasants.")

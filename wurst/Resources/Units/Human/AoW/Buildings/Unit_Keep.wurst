@@ -7,20 +7,20 @@ import BuildingPreset
 // --------------------
 
 public class UnitData_Keep
-    static constant scalingValue = 1.1
+	static constant scalingValue = 1.1
 
 @compiletime function genObj()
-    new BuildingPreset(UnitIdsCustom.AoW.keep, UnitIds.keep)
-    // Abilities:
-    ..presetNormalAbilities()
-    // Art:
-    ..setScalingValue(UnitData_Keep.scalingValue)
-    // Stats:
-    ..presetNoGoldAndLumber()
-    // Techtree:
-    ..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.lumberMill))
-    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
-    ..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.castle))
-    ..setResearchesAvailable("")
-    // Text:
-    ..presetNameAndTooltips(true, "Keep", "Primary settlement structure.")
+	new BuildingPreset(UnitIdsCustom.AoW.keep, UnitIds.keep)
+	// Abilities:
+	..presetNormalAbilities()
+	// Art:
+	..setScalingValue(UnitData_Keep.scalingValue)
+	// Stats:
+	..presetNoGoldAndLumber()
+	// Techtree:
+	..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.lumberMill))
+	..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
+	..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.castle))
+	..setResearchesAvailable("")
+	// Text:
+	..presetNameAndTooltips(true, "Keep", "Primary settlement structure.")

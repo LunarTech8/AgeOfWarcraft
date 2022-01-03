@@ -7,8 +7,8 @@ import BuffPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new BuffDefinition(BuffIdsCustom.emptyBuff, 'Basl')  // Buff based on tornado aura
-    // Art:
-    ..setIcon("")
-    // Text:
-    ..presetNameAndTooltips("Empty Buff", "")
+	new BuffDefinition(BuffIdsCustom.emptyBuff, 'Basl')  // Buff based on tornado aura
+	// Art:
+	..setIcon("")
+	// Text:
+	..presetNameAndTooltips("Empty Buff", "")

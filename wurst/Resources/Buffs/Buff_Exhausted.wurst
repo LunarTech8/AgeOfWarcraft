@@ -7,10 +7,10 @@ import BuffPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new BuffDefinition(BuffIdsCustom.exhausted, 'Bcri')  // Buff based on cripple
-    // Art:
-    ..setIcon(Icons.bTNSleep)
-    // Stats:
-    ..setRace(Race.Other.toObjectString())
-    // Text:
-    ..presetNameAndTooltips("Exhausted", "This person is exhausted. It has reduced movement and attack speed.")
+	new BuffDefinition(BuffIdsCustom.exhausted, 'Bcri')  // Buff based on cripple
+	// Art:
+	..setIcon(Icons.bTNSleep)
+	// Stats:
+	..setRace(Race.Other.toObjectString())
+	// Text:
+	..presetNameAndTooltips("Exhausted", "This person is exhausted. It has reduced movement and attack speed.")

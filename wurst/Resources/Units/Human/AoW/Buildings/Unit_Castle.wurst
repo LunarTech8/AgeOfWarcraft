@@ -7,19 +7,19 @@ import BuildingPreset
 // --------------------
 
 public class UnitData_Castle
-    static constant scalingValue = 1.1
+	static constant scalingValue = 1.1
 
 @compiletime function genObj()
-    new BuildingPreset(UnitIdsCustom.AoW.castle, UnitIds.castle)
-    // Abilities:
-    ..presetNormalAbilities()
-    // Art:
-    ..setScalingValue(UnitData_Castle.scalingValue)
-    // Stats:
-    ..presetNoGoldAndLumber()
-    // Techtree:
-    ..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.blacksmith))
-    ..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
-    ..setResearchesAvailable("")
-    // Text:
-    ..presetNameAndTooltips(true, "Castle", "Primary settlement structure.")
+	new BuildingPreset(UnitIdsCustom.AoW.castle, UnitIds.castle)
+	// Abilities:
+	..presetNormalAbilities()
+	// Art:
+	..setScalingValue(UnitData_Castle.scalingValue)
+	// Stats:
+	..presetNoGoldAndLumber()
+	// Techtree:
+	..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.blacksmith))
+	..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
+	..setResearchesAvailable("")
+	// Text:
+	..presetNameAndTooltips(true, "Castle", "Primary settlement structure.")

@@ -7,24 +7,24 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionFrostNovacreep(AbilityIdsCustom.transferWares)
-    // Ability specific data:
-    ..presetAreaofEffectDamage((int lvl) -> 0.)
-    ..presetSpecificTargetDamage((int lvl) -> 0.)
-    // Art:
-    ..setAnimationNames("")
-    ..presetButtonPosNormal(1, 0)
-    ..setArtEffect("")
-    ..setIconNormal(Icons.bTNPickUpItem)
-    // Stats:
-    ..presetAreaofEffect(0.)
-    ..presetBuffs(BuffIdsCustom.emptyBuff)
-    ..presetCastRange(32.)
-    ..presetCooldown(1.)
-    ..presetDuration(.01)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air, TargetsAllowed.structure)
-    // Text:
-    ..setHotkeyNormal("W")
-    ..presetNameAndTooltips("Transfer wares", "Transfers all possible wares to the target.")
+	new AbilityDefinitionFrostNovacreep(AbilityIdsCustom.transferWares)
+	// Ability specific data:
+	..presetAreaofEffectDamage((int lvl) -> 0.)
+	..presetSpecificTargetDamage((int lvl) -> 0.)
+	// Art:
+	..setAnimationNames("")
+	..presetButtonPosNormal(1, 0)
+	..setArtEffect("")
+	..setIconNormal(Icons.bTNPickUpItem)
+	// Stats:
+	..presetAreaofEffect(0.)
+	..presetBuffs(BuffIdsCustom.emptyBuff)
+	..presetCastRange(32.)
+	..presetCooldown(1.)
+	..presetDuration(.01)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air, TargetsAllowed.structure)
+	// Text:
+	..setHotkeyNormal("W")
+	..presetNameAndTooltips("Transfer wares", "Transfers all possible wares to the target.")

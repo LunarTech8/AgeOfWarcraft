@@ -7,21 +7,21 @@ import DestructablePreset
 // --------------------
 
 public class DestructableData_Spruce
-    static constant variations = 10
-    static constant minScale = 0.6
-    static constant maxScale = 1.0
+	static constant variations = 10
+	static constant minScale = 0.6
+	static constant maxScale = 1.0
 
 @compiletime function genObj()
-    new DestructablePreset(DestructableIdsCustom.Trees.spruce, DestructableIds.summerTreeWall)
-    // Art:
-    ..presetUnfixedRotation()
-    ..setSelectableInGame(true)
-    ..presetSelectionSizes(80.)
-    // Editor:
-    ..setMaxScale(DestructableData_Spruce.maxScale)
-    ..setMinScale(DestructableData_Spruce.minScale)
-    ..setPlaceableOnCliffs(true)
-    // Pathing:
-    ..setPath("PathTextures\\2x2Default.tga")
-    // Text:
-    ..setName("Spruce")
+	new DestructablePreset(DestructableIdsCustom.Trees.spruce, DestructableIds.summerTreeWall)
+	// Art:
+	..presetUnfixedRotation()
+	..setSelectableInGame(true)
+	..presetSelectionSizes(80.)
+	// Editor:
+	..setMaxScale(DestructableData_Spruce.maxScale)
+	..setMinScale(DestructableData_Spruce.minScale)
+	..setPlaceableOnCliffs(true)
+	// Pathing:
+	..setPath("PathTextures\\2x2Default.tga")
+	// Text:
+	..setName("Spruce")

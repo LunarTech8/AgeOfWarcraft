@@ -7,22 +7,22 @@ import BuildingPreset
 // --------------------
 
 public class UnitData_Blacksmith
-    static constant scalingValue = 0.65
+	static constant scalingValue = 0.65
 
 @compiletime function genObj()
-    new BuildingPreset(UnitIdsCustom.AoW.blacksmith, UnitIds.blacksmith)
-    // Abilities:
-    ..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.removeWorker)
-    // Art:
-    ..setGroundTexture("HSMA")  // Arcane Tower, Cannon Tower, ...
-    ..setScalingValue(UnitData_Blacksmith.scalingValue)
-    ..setSelectionScale(2.5)
-    ..setShadowTextureBuilding(Textures.shadowHouse)
-    // Pathing:
-    ..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
-    // Stats:
-    ..presetNoGoldAndLumber()
-    // Techtree:
-    ..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.townHall))
-    // Text:
-    ..presetNameAndTooltips(true, "Blacksmith", "Iron processing building.")
+	new BuildingPreset(UnitIdsCustom.AoW.blacksmith, UnitIds.blacksmith)
+	// Abilities:
+	..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.removeWorker)
+	// Art:
+	..setGroundTexture("HSMA")  // Arcane Tower, Cannon Tower, ...
+	..setScalingValue(UnitData_Blacksmith.scalingValue)
+	..setSelectionScale(2.5)
+	..setShadowTextureBuilding(Textures.shadowHouse)
+	// Pathing:
+	..setPathingMap("PathTextures\\4x4SimpleSolid.tga")
+	// Stats:
+	..presetNoGoldAndLumber()
+	// Techtree:
+	..setRequirements(getUnitIdsString(UnitIdsCustom.AoW.townHall))
+	// Text:
+	..presetNameAndTooltips(true, "Blacksmith", "Iron processing building.")

@@ -7,19 +7,19 @@ import UnitPreset
 // --------------------
 
 @compiletime function genObj()
-    new UnitPreset(UnitIdsCustom.AoW.peasantGirl, UnitIds.villagerwoman)
-    // Abilities:
-    ..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.transferWares, AbilityIdsCustom.enterBuilding)
-    // Art:
-    ..setScalingValue(.43)
-    ..setSelectionScale(.5)
-    ..presetShadowImage(20., 50.)
-    // Movement:
-    ..presetSpeed(80)
-    // Pathing:
-    ..setCollisionSize(12.)
-    // Stats:
-    ..presetNoGoldAndLumber()
-    ..setRace(Race.Human)
-    // Text:
-    ..presetNameAndTooltips(false, "Peasant Girl", "")
+	new UnitPreset(UnitIdsCustom.AoW.peasantGirl, UnitIds.villagerwoman)
+	// Abilities:
+	..presetNormalAbilities(AbilityIdsCustom.harvest, AbilityIdsCustom.transferWares, AbilityIdsCustom.enterBuilding)
+	// Art:
+	..setScalingValue(.43)
+	..setSelectionScale(.5)
+	..presetShadowImage(20., 50.)
+	// Movement:
+	..presetSpeed(80)
+	// Pathing:
+	..setCollisionSize(12.)
+	// Stats:
+	..presetNoGoldAndLumber()
+	..setRace(Race.Human)
+	// Text:
+	..presetNameAndTooltips(false, "Peasant Girl", "")

@@ -7,8 +7,8 @@ import BuffPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new BuffDefinition(BuffIdsCustom.sleeping, 'BUsl')  // Buff based on sleep
-    // Stats:
-    ..setRace(Race.Other.toObjectString())
-    // Text:
-    ..presetNameAndTooltips("Sleeping", "This person is sleeping.")
+	new BuffDefinition(BuffIdsCustom.sleeping, 'BUsl')  // Buff based on sleep
+	// Stats:
+	..setRace(Race.Other.toObjectString())
+	// Text:
+	..presetNameAndTooltips("Sleeping", "This person is sleeping.")

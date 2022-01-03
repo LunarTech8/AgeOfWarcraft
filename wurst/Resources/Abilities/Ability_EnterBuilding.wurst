@@ -7,26 +7,26 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionInnerFire(AbilityIdsCustom.enterBuilding)
-    // Ability specific data:
-    ..presetAutocastRange((int lvl) -> 0.)
-    ..presetDamageIncrease((int lvl) -> 0.)
-    ..presetDefenseIncrease((int lvl) -> 0)
-    // Art:
-    ..presetButtonPosNormal(3, 0)
-    ..setIconNormal(Icons.bTNLoad)
-    ..setIconTurnOff("")
-    // Stats:
-    ..presetBuffs(BuffIdsCustom.emptyBuff)
-    ..presetCastRange(32.)
-    ..presetCooldown(1.)
-    ..presetDuration(.01)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air, TargetsAllowed.structure)
-    // Techtree:
-    ..presetNoRequirements()
-    // Text:
-    ..setHotkeyNormal("R")
-    ..presetNameAndTooltips("Enter building", "Enter target building.")
-    ..presetTurnOffTooltips("")
+	new AbilityDefinitionInnerFire(AbilityIdsCustom.enterBuilding)
+	// Ability specific data:
+	..presetAutocastRange((int lvl) -> 0.)
+	..presetDamageIncrease((int lvl) -> 0.)
+	..presetDefenseIncrease((int lvl) -> 0)
+	// Art:
+	..presetButtonPosNormal(3, 0)
+	..setIconNormal(Icons.bTNLoad)
+	..setIconTurnOff("")
+	// Stats:
+	..presetBuffs(BuffIdsCustom.emptyBuff)
+	..presetCastRange(32.)
+	..presetCooldown(1.)
+	..presetDuration(.01)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.ground, TargetsAllowed.air, TargetsAllowed.structure)
+	// Techtree:
+	..presetNoRequirements()
+	// Text:
+	..setHotkeyNormal("R")
+	..presetNameAndTooltips("Enter building", "Enter target building.")
+	..presetTurnOffTooltips("")

@@ -7,27 +7,27 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new AbilityDefinitionMountainKingThunderClap(AbilityIdsCustom.removeWorker)
-    // Ability specific data:
-    ..presetAOEDamage((int lvl) -> 0.)
-    ..presetAttackSpeedReduction((int lvl) -> 0.)
-    ..presetMovementSpeedReduction((int lvl) -> 0.)
-    // Art:
-    ..setAnimationNames("")
-    ..presetButtonPosNormal(1, 0)
-    ..setArtCaster("")
-    ..setCasterAttachmentPoint("")
-    ..setIconNormal(Icons.bTNUnloadDwarf)
-    // Stats:
-    ..presetAreaofEffect(0.)
-    ..presetBuffs(BuffIdsCustom.emptyBuff)
-    ..presetCooldown(1.)
-    ..presetDuration(.01)
-    ..setHeroAbility(false)
-    ..setLevels(1)
-    ..presetManaCost(0)
-    ..setRace(Race.Other)
-    ..presetTargetsAllowed(TargetsAllowed.none)
-    // Text:
-    ..setHotkeyNormal("W")
-    ..presetNameAndTooltips("Remove worker", "Remove one worker from this building.")
+	new AbilityDefinitionMountainKingThunderClap(AbilityIdsCustom.removeWorker)
+	// Ability specific data:
+	..presetAOEDamage((int lvl) -> 0.)
+	..presetAttackSpeedReduction((int lvl) -> 0.)
+	..presetMovementSpeedReduction((int lvl) -> 0.)
+	// Art:
+	..setAnimationNames("")
+	..presetButtonPosNormal(1, 0)
+	..setArtCaster("")
+	..setCasterAttachmentPoint("")
+	..setIconNormal(Icons.bTNUnloadDwarf)
+	// Stats:
+	..presetAreaofEffect(0.)
+	..presetBuffs(BuffIdsCustom.emptyBuff)
+	..presetCooldown(1.)
+	..presetDuration(.01)
+	..setHeroAbility(false)
+	..setLevels(1)
+	..presetManaCost(0)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.none)
+	// Text:
+	..setHotkeyNormal("W")
+	..presetNameAndTooltips("Remove worker", "Remove one worker from this building.")

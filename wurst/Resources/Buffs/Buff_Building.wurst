@@ -7,9 +7,9 @@ import BuffPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-    new BuffDefinition(BuffIdsCustom.building, 'Binf')  // Buff based on inner fire
-    // Art:
-    ..setIcon(Icons.bTNBash)
-    ..presetArtTarget(ImportPaths.builderSymbol)
-    // Text:
-    ..presetNameAndTooltips("Building", "This worker is occupied with building orders.")
+	new BuffDefinition(BuffIdsCustom.building, 'Binf')  // Buff based on inner fire
+	// Art:
+	..setIcon(Icons.bTNBash)
+	..presetArtTarget(ImportPaths.builderSymbol)
+	// Text:
+	..presetNameAndTooltips("Building", "This worker is occupied with building orders.")

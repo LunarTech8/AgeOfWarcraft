@@ -23,6 +23,7 @@ import Destructable_Spruce
 import NoiseFunctions
 import SaveLoadData
 import UnitTest
+import ConversionFunctions
 
 
 // --------------------
@@ -38,10 +39,6 @@ let WORLD_DATA_LOAD = false
 let WORLD_DATA_SAVE = true
 let WORLD_DATA_FILE_NAME = "WorldData.pld"  // In folder ..\Documents\Warcraft III\CustomMapData
 let WORLD_DATA_PART_LENGTHS = [0, 4, 5]  // Indices where one data value ends and the next one starts
-let NUMBER_BASE_CHUNK_SIZE = 7
-let CHAR_BASE_CHUNK_SIZE = 4
-let CHAR_BASE_SIZE = 62
-let CHAR_BASE_POLYNOM_FACTORS = [1, 62, 62 * 62, 62 * 62 * 62]
 
 // Terrain:
 let TERRAIN_HEIGHT_INIT = 0.
@@ -78,46 +75,6 @@ function getPlantBiomeType(real plantNoiseValue) returns PlantBiomeType
 Array2DReal heightMap = new Array2DReal(TILES_X, TILES_Y)
 Array2DInt plantMap = new Array2DInt(TILES_X, TILES_Y)
 
-function convertNumbersToChars(ChunkedString numberChunks) returns ChunkedString
-	// Transform source chunks into required size if needed:
-	var numberChunksSized = numberChunks
-	if numberChunks.getChunkSize() != NUMBER_BASE_CHUNK_SIZE
-		numberChunksSized = new ChunkedString(numberChunks, NUMBER_BASE_CHUNK_SIZE)
-	// Create target chunks by converting source chunks:
-	let charChunks = new ChunkedString()
-	while numberChunksSized.hasChunk()
-		var value = numberChunksSized.readChunk().toInt()
-		var chars = ""
-		while value > 0
-			chars += (value mod CHAR_BASE_SIZE).toCharsetString()
-			value = value div CHAR_BASE_SIZE
-		while chars.length() < CHAR_BASE_CHUNK_SIZE
-			chars += "0"
-		charChunks.append(chars)
-	if numberChunksSized != numberChunks
-		destroy numberChunksSized
-	return charChunks
-
-function convertCharsToNumbers(ChunkedString charChunks) returns ChunkedString
-	// Transform chunks into required size if needed:
-	var charChunksSized = charChunks
-	if charChunks.getChunkSize() != CHAR_BASE_CHUNK_SIZE
-		charChunksSized = new ChunkedString(charChunks, CHAR_BASE_CHUNK_SIZE)
-	// Create target chunks by converting source chunks:
-	let numberChunks = new ChunkedString()
-	while charChunksSized.hasChunk()
-		let charChunk = charChunksSized.readChunk()
-		var value = 0
-		for i = 0 to (charChunk.length() - 1)
-			value += charChunk.substring(i, i + 1).toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[i]
-		var numbers = value.toString()
-		while numbers.length() < NUMBER_BASE_CHUNK_SIZE
-			numbers = "0" + numbers
-		numberChunks.append(numbers)
-	if charChunksSized != charChunks
-		destroy charChunksSized
-	return numberChunks
-
 function encodeWorldData() returns ChunkedString
 	let maxHeightValueEncoded = (10).pow(WORLD_DATA_PART_LENGTHS[1] - WORLD_DATA_PART_LENGTHS[0])
 	let data = new ChunkedString()
@@ -128,14 +85,19 @@ function encodeWorldData() returns ChunkedString
 			let heightValueEncoded = (((heightMap.get(x, y) - TERRAIN_HEIGHT_MIN) * 10.).round() + maxHeightValueEncoded).toString().substring(1)
 			let plantValueEncoded = plantMap.get(x, y).toString()
 			data.append(heightValueEncoded + plantValueEncoded)
+			computationCost += 0.092
+		checkForComputationBreak()
+	forceComputationBreak()
 	let convertedData = convertNumbersToChars(data)
+	newInitSubStatus("Test11 " + computationCost.toString())  // DEBUG:
 	destroy data
+	forceComputationBreak()
 	return convertedData
 
 function decodeWorldData(ChunkedString data)
 	let dataPartLength = WORLD_DATA_PART_LENGTHS[WORLD_DATA_PART_LENGTHS.length - 1]
 	let convertedData = convertCharsToNumbers(data)
-	newInitSubStatus("Test10 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test13 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
 		setInitStepStatus(x + 1, TILES_X)  // DEBUG:
 		for	y = 0 to TILES_Y - 1
@@ -146,7 +108,10 @@ function decodeWorldData(ChunkedString data)
 			let plantValueDecoded = dataPart.substring(WORLD_DATA_PART_LENGTHS[i], WORLD_DATA_PART_LENGTHS[i] + WORLD_DATA_PART_LENGTHS[i + 1]).toInt()
 			heightMap.set(x, y, heightValueDecoded)
 			plantMap.set(x, y, plantValueDecoded)
+			computationCost += 0.000  // TODO: find usable value
+		checkForComputationBreak()
 	destroy convertedData
+	forceComputationBreak()
 
 function generateWorldData()
 	// Create height map:
@@ -191,7 +156,7 @@ public function createWorldData()
 	else
 		generateWorldData()
 	// Save world data if requested:
-	if WORLD_DATA_SAVE  // TEST: probably to big world data (271 chunks), but only 64 allowed per file -> mabye better encoding helps or data has to be saved in multiple files
+	if WORLD_DATA_SAVE  // TEST: probably to big world data (155 chunks), but only 64 allowed per file -> mabye better encoding helps or data has to be saved in multiple files
 		let encodedData = encodeWorldData()
 		USER_PLAYER.saveData(WORLD_DATA_FILE_NAME, encodedData)
 		destroy encodedData
@@ -244,8 +209,8 @@ public function createPlants()
 // Test code
 // --------------------
 
-// @Test public function testWorldGenerationSystem_EncodeAndDecode()
-// 	testWorldGenerationSystem_EncodeAndDecode(false)
+@Test public function testWorldGenerationSystem_EncodeAndDecode()
+	testWorldGenerationSystem_EncodeAndDecode(false)
 public function testWorldGenerationSystem_EncodeAndDecode(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.01
 	let MAX_HEIGHT_VALUE_ENCODED = (10).pow(WORLD_DATA_PART_LENGTHS[1] - WORLD_DATA_PART_LENGTHS[0])
@@ -297,97 +262,3 @@ public function testWorldGenerationSystem_EncodeAndDecode(bool isInGameTest)
 			heightMap.get(x, y).assertEquals(testName, ((y + TILES_Y * x) mod MAX_HEIGHT_VALUE_ENCODED) * 0.1 + TERRAIN_HEIGHT_MIN, REAL_COMPARE_DELTA)
 			plantMap.get(x, y).assertEquals(testName, (y + TILES_Y * x) mod MAX_PLANT_VALUE_ENCODED)
 	destroy encodedData
-
-@Test public function testWorldGenerationSystem_Convert()
-	testWorldGenerationSystem_Convert(false)
-public function testWorldGenerationSystem_Convert(bool isInGameTest)
-	let testName = setTestName("testWorldGenerationSystem_Convert", isInGameTest)
-	string stringA
-	int intA
-	// Set number data:
-	var numberChunks = new ChunkedString(NUMBER_BASE_CHUNK_SIZE)
-	numberChunks.append("1230597")
-	// Convert and check data:
-	var charChunks = convertNumbersToChars(numberChunks)
-	charChunks.length().assertEquals(testName, (numberChunks.length() / NUMBER_BASE_CHUNK_SIZE).ceil() * CHAR_BASE_CHUNK_SIZE)
-	stringA = (21).toCharsetString()
-	stringA += (8).toCharsetString()
-	stringA += (10).toCharsetString()
-	stringA += (5).toCharsetString()
-	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, stringA)
-	destroy numberChunks
-	// Reconvert and check data:
-	numberChunks = convertCharsToNumbers(charChunks)
-	numberChunks.length().assertEquals(testName, (charChunks.length() / CHAR_BASE_CHUNK_SIZE).ceil() * NUMBER_BASE_CHUNK_SIZE)
-	numberChunks.getUnsafeSubString(0, NUMBER_BASE_CHUNK_SIZE).assertEquals(testName, "1230597")
-	destroy charChunks
-	destroy numberChunks
-	// Set char data:
-	charChunks = new ChunkedString(CHAR_BASE_CHUNK_SIZE)
-	charChunks.append("cZ0a")
-	// Convert and check data:
-	numberChunks = convertCharsToNumbers(charChunks)
-	numberChunks.length().assertEquals(testName, (charChunks.length() / CHAR_BASE_CHUNK_SIZE).ceil() * NUMBER_BASE_CHUNK_SIZE)
-	intA = ("c").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[0]
-	intA += ("Z").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[1]
-	intA += ("0").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[2]
-	intA += ("a").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[3]
-	stringA = intA.toString()
-	numberChunks.getUnsafeSubString(0, NUMBER_BASE_CHUNK_SIZE).assertEquals(testName, stringA)
-	destroy charChunks
-	// Reconvert and check data:
-	charChunks = convertNumbersToChars(numberChunks)
-	charChunks.length().assertEquals(testName, (numberChunks.length() / NUMBER_BASE_CHUNK_SIZE).ceil() * CHAR_BASE_CHUNK_SIZE)
-	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, "cZ0a")
-	destroy numberChunks
-	destroy charChunks
-	// Set number data:
-	numberChunks = new ChunkedString()
-	numberChunks.append("1230597" + "144")
-	// Convert and check data:
-	charChunks = convertNumbersToChars(numberChunks)
-	charChunks.length().assertEquals(testName, (numberChunks.length() / NUMBER_BASE_CHUNK_SIZE).ceil() * CHAR_BASE_CHUNK_SIZE)
-	stringA = (21).toCharsetString()
-	stringA += (8).toCharsetString()
-	stringA += (10).toCharsetString()
-	stringA += (5).toCharsetString()
-	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, stringA)
-	stringA = (20).toCharsetString()
-	stringA += (2).toCharsetString()
-	while stringA.length() < CHAR_BASE_CHUNK_SIZE
-		stringA += "0"
-	charChunks.getUnsafeSubString(CHAR_BASE_CHUNK_SIZE, CHAR_BASE_CHUNK_SIZE * 2).assertEquals(testName, stringA)
-	destroy numberChunks
-	// Reconvert and check data:
-	numberChunks = convertCharsToNumbers(charChunks)
-	numberChunks.length().assertEquals(testName, (charChunks.length() / CHAR_BASE_CHUNK_SIZE).ceil() * NUMBER_BASE_CHUNK_SIZE)
-	numberChunks.getUnsafeSubString(0, NUMBER_BASE_CHUNK_SIZE).assertEquals(testName, "1230597")
-	numberChunks.getUnsafeSubString(NUMBER_BASE_CHUNK_SIZE, NUMBER_BASE_CHUNK_SIZE * 2).assertEquals(testName, "0000144")
-	destroy charChunks
-	destroy numberChunks
-	// Set char data:
-	charChunks = new ChunkedString()
-	charChunks.append("cZ0a" + "8J")
-	// Convert and check data:
-	numberChunks = convertCharsToNumbers(charChunks)
-	numberChunks.length().assertEquals(testName, (charChunks.length() / CHAR_BASE_CHUNK_SIZE).ceil() * NUMBER_BASE_CHUNK_SIZE)
-	intA = ("c").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[0]
-	intA += ("Z").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[1]
-	intA += ("0").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[2]
-	intA += ("a").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[3]
-	stringA = intA.toString()
-	numberChunks.getUnsafeSubString(0, NUMBER_BASE_CHUNK_SIZE).assertEquals(testName, stringA)
-	intA = ("8").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[0]
-	intA += ("J").toCharsetInt() * CHAR_BASE_POLYNOM_FACTORS[1]
-	stringA = intA.toString()
-	while stringA.length() < NUMBER_BASE_CHUNK_SIZE
-		stringA = "0" + stringA
-	numberChunks.getUnsafeSubString(NUMBER_BASE_CHUNK_SIZE, NUMBER_BASE_CHUNK_SIZE * 2).assertEquals(testName, stringA)
-	destroy charChunks
-	// Reconvert and check data:
-	charChunks = convertNumbersToChars(numberChunks)
-	charChunks.length().assertEquals(testName, (numberChunks.length() / NUMBER_BASE_CHUNK_SIZE).ceil() * CHAR_BASE_CHUNK_SIZE)
-	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, "cZ0a")
-	charChunks.getUnsafeSubString(CHAR_BASE_CHUNK_SIZE, CHAR_BASE_CHUNK_SIZE * 2).assertEquals(testName, "8J00")
-	destroy numberChunks
-	destroy charChunks

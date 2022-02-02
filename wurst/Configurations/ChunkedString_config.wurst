@@ -1,0 +1,4 @@
+package ChunkedString_config
+
+
+@config var DEFAULT_CHUNK_SIZE = 200  // TEST: Try setting this to 1000 (apparently 1023 is max string size)

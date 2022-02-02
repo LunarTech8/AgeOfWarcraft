@@ -48,7 +48,7 @@ public function convertNumbersToChars(ChunkedString numberChunks) returns Chunke
 		while chars.length() < CHAR_BASE_CHUNK_SIZE
 			chars += "0"
 		charChunks.append(chars)
-		computationCost += 0.322  // TEST: check if this is usable value
+		computationCost += 0.322
 		checkForComputationBreak()
 	if numberChunksSized != numberChunks
 		destroy numberChunksSized
@@ -72,7 +72,7 @@ public function convertCharsToNumbers(ChunkedString charChunks) returns ChunkedS
 		while numbers.length() < NUMBER_BASE_CHUNK_SIZE
 			numbers = "0" + numbers
 		numberChunks.append(numbers)
-		computationCost += 0.000  // TODO: find usable value
+		computationCost += 1.407
 		checkForComputationBreak()
 	if charChunksSized != charChunks
 		destroy charChunksSized

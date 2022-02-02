@@ -26,6 +26,7 @@ import ErrorHandling
 public let INFO_MSG_TIME = 2.
 public let MIN_TRIGGER_SLEEP_TIME = 0.01
 public let MIN_ACTION_SLEEP_TIME = 0.25
+public let WAIT_SLEEP_TIME = 0.25
 public let INGAME_DAY_DURATION = 480.  // In realtime seconds
 // Terrain:
 public let HEIGHT_DEEP_WATER_MIN = -64.

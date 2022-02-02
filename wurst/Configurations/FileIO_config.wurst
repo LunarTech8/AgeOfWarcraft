@@ -1,0 +1,4 @@
+package FileIO_config
+
+
+@config var CHUNKS_PER_FILE = 256

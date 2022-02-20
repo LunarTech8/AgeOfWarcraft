@@ -99,7 +99,7 @@ public function testWorldGenerationSystem_Convert(bool isInGameTest)
 	stringA += (8).toCharsetString()
 	stringA += (10).toCharsetString()
 	stringA += (5).toCharsetString()
-	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, stringA)
+	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, stringA)  // FIXME: "Expected <l8a5>, Actual <0000>"
 	destroy numberChunks
 	// Reconvert and check data:
 	numberChunks = convertCharsToNumbers(charChunks)

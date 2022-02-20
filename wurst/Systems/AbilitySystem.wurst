@@ -25,6 +25,8 @@ import DummyRecycler
 import ClosureTimers
 import WorkshopSystem
 import HomeSystem
+import GatherplaceSystem
+import DepositorySystem
 import PersonSystem
 import SettlementSystem
 import ErrorHandling
@@ -153,27 +155,39 @@ function unit.harvest(entity target) returns bool
 			return false
 	return this.isAbilityValid(AbilityIdsCustom.harvest, target)
 
-/** Transfer wares from the unit to the given target. */
+/** Transfer wares between this unit and the given target. */
 function unit.transferWares(unit target)
 	// Check if wares can be transfered:
 	let sourceStorage = this.getStorage()
 	if sourceStorage != null
 		// Check for possible transfer methods based on target:
 		let targetStorage = target.getStorage()
+		let targetWorkshop = target.getWorkshop()
+		let targetBuildingSite = target.getBuildingSite()
+		let targetGatherplace = target.getGatherplace()
+		let targetDepository = target.getDepository()
 		if targetStorage != null
 			// Give wares to target storage:
 			sourceStorage.transferWares(targetStorage)
-		let targetWorkshop = target.getWorkshop()
-		if targetWorkshop != null
+		else if targetWorkshop != null
 			// Exchange wares with source storage:
 			targetWorkshop.transferWares(sourceStorage, true)
-		let targetBuildingSite = target.getBuildingSite()
-		if targetBuildingSite != null
+		else if targetBuildingSite != null
 			// Take wares from source storage:
 			targetBuildingSite.transferWares(sourceStorage)
 			// Call over idel workers if no required wares are missing:
 			if targetBuildingSite.isEmpty()
 				targetBuildingSite.callOverIdleWorkers()
+		else if targetGatherplace != null
+			if targetGatherplace.isWorker(this)
+				// Give wares to target storage:
+				targetGatherplace.transferWares(sourceStorage, false)
+			else
+				// Take wares from target storage:
+				targetGatherplace.transferWares(sourceStorage, true)
+		else if targetDepository != null
+			// Give wares to target storage:
+			targetDepository.transferWares(sourceStorage)
 
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
@@ -194,23 +208,23 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		if target.userUnit == null
 			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
-		// Check if source and target are valid:
+		// Check if source is valid:
 		let sourceStorage = this.getStorage()
 		if sourceStorage == null
 			return Validity.INVALID_SOURCE
+		// Check target type specific validities:
 		let targetStorage = targetUnit.getStorage()
 		let targetWorkshop = targetUnit.getWorkshop()
 		let targetBuildingSite = targetUnit.getBuildingSite()
-		if targetStorage == null and targetWorkshop == null and targetBuildingSite == null
-			return Validity.INVALID_TARGET
-		// Check target type specific validities:
+		let targetGatherplace = targetUnit.getGatherplace()
+		let targetDepository = targetUnit.getDepository()
 		if targetStorage != null
-			// Check if target has free storage:
-			if targetStorage.getFreeCapacity() <= 0
-				return Validity.NO_FREE_STORAGE
 			// Check if source has wares that can be transfered:
 			if sourceStorage.getUsedCapacity() <= 0
 				return Validity.WARES_NOT_AVAILABLE
+			// Check if target has free storage:
+			if targetStorage.getFreeCapacity() <= 0
+				return Validity.NO_FREE_STORAGE
 		else if targetBuildingSite != null
 			// Check if target requires wares:
 			if targetBuildingSite.isEmpty()
@@ -225,6 +239,25 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			destroy educts
 			if hasAnyEducts == false and targetWorkshop.getStoredProductsCount() <= 0
 				return Validity.WARES_NOT_AVAILABLE
+		else if targetGatherplace != null
+			// Check if source has products or target has wares that can be transfered:
+			let products = targetGatherplace.getProducts()
+			let hasAnyProducts = sourceStorage.hasWaresAny(products)
+			destroy products
+			if hasAnyProducts == false and targetGatherplace.getUsedCapacity() <= 0
+				return Validity.WARES_NOT_AVAILABLE
+			// Check if target has free storage for products:
+			if hasAnyProducts and targetGatherplace.getFreeCapacity() <= 0
+				return Validity.NO_FREE_STORAGE
+		else if targetDepository != null
+			// Check if source has wares that can be transfered:
+			if sourceStorage.getUsedCapacity() <= 0
+				return Validity.WARES_NOT_AVAILABLE
+			// Check if target has free storage:
+			if targetDepository.getFreeCapacity() <= 0
+				return Validity.NO_FREE_STORAGE
+		else
+			return Validity.INVALID_TARGET
 	else if abilityId == AbilityIdsCustom.build
 		if target.userUnit == null
 			return Validity.INVALID_TARGET
@@ -263,21 +296,19 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		if target.userUnit == null
 			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
-		// Check if source and target are valid:
-		let targetWorkshop = targetUnit.getWorkshop()
-		let targetHome = targetUnit.getHome()
-		if targetWorkshop == null and targetHome == null
-			return Validity.INVALID_TARGET
 		// Check if source belongs to settlement of target:
 		if this.getSettlement() != targetUnit.getSettlement()
 			return Validity.WRONG_SETTLEMENT
 		// Check target type specific validities:
+		let targetWorkshop = targetUnit.getWorkshop()
+		let targetHome = targetUnit.getHome()
+		let targetDepository = targetUnit.getDepository()
 		if targetWorkshop != null
 			// Check if source is allowed to work at target:
 			if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
-			// Check if target has free work slot:
-			if targetWorkshop.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
+			// Check if target works at target or has free work slot:
+			if targetWorkshop.isWorker(this) == false and targetWorkshop.getWorkerCount() >= getWorkshopMaxWorkers(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetHome != null
 			// Check if source can inhabit target:
@@ -286,6 +317,15 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			// Check if source is inhabitant or target has free apartement slot:
 			if targetHome.isInhabitant(this) == false and targetHome.getInhabitantCount() >= getMaxInhabitants(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
+		else if targetDepository != null
+			// Check if source is allowed to work at target:
+			if targetDepository.isValidWorkerType(this.getUnitId()) == false
+				return Validity.INVALID_SOURCE
+			// Check if target works at target or has free work slot:
+			if targetDepository.isWorker(this) == false and targetDepository.getWorkerCount() >= getWorkshopMaxWorkers(targetUnit.getUnitId())
+				return Validity.NO_FREE_UNIT_SLOT
+		else
+			return Validity.INVALID_TARGET
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
 		let sourceWorkshop = this.getWorkshop()

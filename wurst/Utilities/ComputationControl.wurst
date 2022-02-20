@@ -24,15 +24,18 @@ let MAX_COMPUTATION_COST_PER_CYCLE = 256.
 // Functional code
 // --------------------
 
+public var isComputationControlActivated = true  // TEST: check if this influences the defined cost additions
 public var computationCost = 0.
 
 public function checkForComputationBreak()
-	if computationCost >= MAX_COMPUTATION_COST_PER_CYCLE
-		if computationCost >= 2 * MAX_COMPUTATION_COST_PER_CYCLE
-			Log.warn("Bad placement of checkComputationCost (Residual cost of " + (computationCost - MAX_COMPUTATION_COST_PER_CYCLE).toString() + ")")
-		TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
-		computationCost = 0.
+	if isComputationControlActivated
+		if computationCost >= MAX_COMPUTATION_COST_PER_CYCLE
+			if computationCost >= 2 * MAX_COMPUTATION_COST_PER_CYCLE
+				Log.warn("Bad placement of checkComputationCost (Residual cost of " + (computationCost - MAX_COMPUTATION_COST_PER_CYCLE).toString() + ")")
+			TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+			computationCost = 0.
 
 public function forceComputationBreak()
-	TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
-	computationCost = 0.
+	if isComputationControlActivated
+		TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+		computationCost = 0.

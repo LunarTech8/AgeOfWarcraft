@@ -223,6 +223,8 @@ public function testWorldGenerationSystem_EncodeAndDecode(bool isInGameTest)
 	let MAX_PLANT_VALUE_ENCODED = (PlantBiomeType.FOREST castTo int) + 1
 	let DATA_PART_LENGTH = WORLD_DATA_PART_LENGTHS[WORLD_DATA_PART_LENGTHS.length - 1]
 	let testName = setTestName("testWorldGenerationSystem_EncodeAndDecode", isInGameTest)
+	if isInGameTest == false
+		isComputationControlActivated = false
 	// Set data:
 	for	x = 0 to TILES_X - 1
 		for	y = 0 to TILES_Y - 1
@@ -232,7 +234,7 @@ public function testWorldGenerationSystem_EncodeAndDecode(bool isInGameTest)
 			plantMap.get(x, y).assertEquals(testName, 0)
 	// Encode and check data:
 	var encodedData = encodeWorldData()
-	encodedData.length().assertEquals(testName, TILES_X * TILES_Y * DATA_PART_LENGTH)
+	encodedData.length().assertEquals(testName, TILES_X * TILES_Y * DATA_PART_LENGTH)  // FIXME: "Expected <54080>, Actual <30904>"
 	encodedData.getChunkCount().assertEquals(testName, ((TILES_X * TILES_Y * DATA_PART_LENGTH) / DEFAULT_CHUNK_SIZE).ceil())
 	encodedData.getUnsafeSubString(0 * DATA_PART_LENGTH, (0 + 1) * DATA_PART_LENGTH).assertEquals(testName, "0000" + "0")
 	encodedData.getUnsafeSubString(1 * DATA_PART_LENGTH, (1 + 1) * DATA_PART_LENGTH).assertEquals(testName, "0000" + "0")

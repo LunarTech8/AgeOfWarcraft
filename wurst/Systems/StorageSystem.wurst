@@ -27,8 +27,9 @@ import ErrorHandling
 
 let CAPACITY_ICON_PATH = Icons.bTNSnazzyScroll
 
-function getStorageMaxCapacity(int unitId) returns int
-	switch unitId
+/** Returns the maximum ware capacity of the given storage type. */
+function getStorageMaxCapacity(int storageUnitId) returns int
+	switch storageUnitId
 		case UnitIdsCustom.AoW.peasant
 			// return 10
 			return 100  // DEBUG

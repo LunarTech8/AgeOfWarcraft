@@ -371,7 +371,7 @@ public function testArray_FullMemoryAreaCheck(bool isInGameTest)
 		arrayA.get(i).assertEquals(testName, i.toReal(), REAL_COMPARE_DELTA)
 	for i = 0 to ARRAY_INT_SIZE - indexOffsetInt - 1
 		arrayB.get(i).assertEquals(testName, i)
-	testFinish(testName)
-	// Destroy class objects:
+	// Destroy arrays beforehand for other tests:
 	destroy arrayA
 	destroy arrayB
+	testFinish(testName)

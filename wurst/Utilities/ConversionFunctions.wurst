@@ -20,8 +20,8 @@ import UnitTest
 // Data code
 // --------------------
 
-let NUMBER_BASE_CHUNK_SIZE = 7
-let CHAR_BASE_CHUNK_SIZE = 4
+public let NUMBER_BASE_CHUNK_SIZE = 7
+public let CHAR_BASE_CHUNK_SIZE = 4
 let CHAR_BASE_SIZE = 62  // TODO: maybe a bigger charset with special chars can be used
 let CHAR_BASE_POLYNOM_FACTORS = [1, 62, 62 * 62, 62 * 62 * 62]
 
@@ -38,8 +38,8 @@ public function convertNumbersToChars(ChunkedString numberChunks) returns Chunke
 	// Create target chunks by converting source chunks:
 	let charChunks = new ChunkedString()
 	newInitSubStatus("Test10 " + computationCost.toString())  // DEBUG:
-	for i = 1 to numberChunksSized.getChunkCount()
-		setInitStepStatus(i, numberChunksSized.getChunkCount())  // DEBUG:
+	for i = 0 to numberChunksSized.getChunkCount() - 1
+		setInitStepStatus(i + 1, numberChunksSized.getChunkCount())  // DEBUG:
 		var value = numberChunksSized.getChunk(i).toInt()
 		var chars = ""
 		while value > 0
@@ -62,8 +62,8 @@ public function convertCharsToNumbers(ChunkedString charChunks) returns ChunkedS
 	// Create target chunks by converting source chunks:
 	let numberChunks = new ChunkedString()
 	newInitSubStatus("Test12 " + computationCost.toString())  // DEBUG:
-	for i = 1 to charChunksSized.getChunkCount()
-		setInitStepStatus(i, charChunksSized.getChunkCount())  // DEBUG:
+	for i = 0 to charChunksSized.getChunkCount() - 1
+		setInitStepStatus(i + 1, charChunksSized.getChunkCount())  // DEBUG:
 		let charChunk = charChunksSized.getChunk(i)
 		var value = 0
 		for j = 0 to (charChunk.length() - 1)
@@ -89,6 +89,8 @@ public function testWorldGenerationSystem_Convert(bool isInGameTest)
 	let testName = setTestName("testWorldGenerationSystem_Convert", isInGameTest)
 	string stringA
 	int intA
+	if isInGameTest == false
+		isComputationControlActivated = false
 	// Set number data:
 	var numberChunks = new ChunkedString(NUMBER_BASE_CHUNK_SIZE)
 	numberChunks.append("1230597")
@@ -99,7 +101,7 @@ public function testWorldGenerationSystem_Convert(bool isInGameTest)
 	stringA += (8).toCharsetString()
 	stringA += (10).toCharsetString()
 	stringA += (5).toCharsetString()
-	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, stringA)  // FIXME: "Expected <l8a5>, Actual <0000>"
+	charChunks.getUnsafeSubString(0, CHAR_BASE_CHUNK_SIZE).assertEquals(testName, stringA)
 	destroy numberChunks
 	// Reconvert and check data:
 	numberChunks = convertCharsToNumbers(charChunks)

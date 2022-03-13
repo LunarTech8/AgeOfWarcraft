@@ -37,9 +37,9 @@ public function convertNumbersToChars(ChunkedString numberChunks) returns Chunke
 		numberChunksSized = new ChunkedString(numberChunks, NUMBER_BASE_CHUNK_SIZE)
 	// Create target chunks by converting source chunks:
 	let charChunks = new ChunkedString()
-	newInitSubStatus("Test10 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test10 " + computationCost.toString())  // DEBUG:
 	for i = 0 to numberChunksSized.getChunkCount() - 1
-		setInitStepStatus(i + 1, numberChunksSized.getChunkCount())  // DEBUG:
+		// setInitStepStatus(i + 1, numberChunksSized.getChunkCount())  // DEBUG:
 		var value = numberChunksSized.getChunk(i).toInt()
 		var chars = ""
 		while value > 0
@@ -61,9 +61,9 @@ public function convertCharsToNumbers(ChunkedString charChunks) returns ChunkedS
 		charChunksSized = new ChunkedString(charChunks, CHAR_BASE_CHUNK_SIZE)
 	// Create target chunks by converting source chunks:
 	let numberChunks = new ChunkedString()
-	newInitSubStatus("Test12 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test12 " + computationCost.toString())  // DEBUG:
 	for i = 0 to charChunksSized.getChunkCount() - 1
-		setInitStepStatus(i + 1, charChunksSized.getChunkCount())  // DEBUG:
+		// setInitStepStatus(i + 1, charChunksSized.getChunkCount())  // DEBUG:
 		let charChunk = charChunksSized.getChunk(i)
 		var value = 0
 		for j = 0 to (charChunk.length() - 1)

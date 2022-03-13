@@ -35,8 +35,8 @@ var TILES_X = 104  // Has to be non-constant to allow for manageable unit tests
 var TILES_Y = 104  // Has to be non-constant to allow for manageable unit tests
 let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
 let USER_PLAYER = Player(0)
-let WORLD_DATA_LOAD = true
-let WORLD_DATA_SAVE = false
+let WORLD_DATA_LOAD = false
+let WORLD_DATA_SAVE = true
 let WORLD_DATA_FILE_NAME = "WorldData.pld"  // In folder ..\Documents\Warcraft III\CustomMapData
 let WORLD_DATA_PART_LENGTHS = [0, 4, 5]  // Indices where one data value ends and the next one starts
 
@@ -56,13 +56,13 @@ enum PlantBiomeType
 	FOREST
 
 function getPlantBiomeType(real plantNoiseValue) returns PlantBiomeType
-	if plantNoiseValue >= 0.8
+	if plantNoiseValue >= 0.75
 		return PlantBiomeType.FOREST
-	else if plantNoiseValue >= 0.6
+	else if plantNoiseValue >= 0.5
 		return PlantBiomeType.WOODS
-	else if plantNoiseValue >= 0.4
+	else if plantNoiseValue >= 0.3
 		return PlantBiomeType.SHRUBLAND
-	else if plantNoiseValue >= 0.2
+	else if plantNoiseValue >= 0.1
 		return PlantBiomeType.MEADOW
 	else
 		return PlantBiomeType.BARRENS
@@ -74,14 +74,14 @@ function getPlantBiomeType(real plantNoiseValue) returns PlantBiomeType
 
 let heightMap = new Array2DReal(TILES_X, TILES_Y)
 let plantMap = new Array2DInt(TILES_X, TILES_Y)
-bool isWorldDataLoaded = false
+var isWorldDataLoaded = false
 
 function encodeWorldData() returns ChunkedString
 	let maxHeightValueEncoded = (10).pow(WORLD_DATA_PART_LENGTHS[1] - WORLD_DATA_PART_LENGTHS[0])
-	let data = new ChunkedString()
-	newInitSubStatus("Test9 " + computationCost.toString())  // DEBUG:
+	let data = new ChunkedString(DEFAULT_CHUNK_SIZE)
+	// newInitSubStatus("Test9 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
-		setInitStepStatus(x + 1, TILES_X)  // DEBUG:
+		// setInitStepStatus(x + 1, TILES_X)  // DEBUG:
 		for	y = 0 to TILES_Y - 1
 			let heightValueEncoded = (((heightMap.get(x, y) - TERRAIN_HEIGHT_MIN) * 10.).round() + maxHeightValueEncoded).toString().substring(1)
 			let plantValueEncoded = plantMap.get(x, y).toString()
@@ -90,17 +90,17 @@ function encodeWorldData() returns ChunkedString
 		checkForComputationBreak()
 	forceComputationBreak()
 	let convertedData = convertNumbersToChars(data)
-	newInitSubStatus("Test11 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test11 " + computationCost.toString())  // DEBUG:
 	destroy data
 	forceComputationBreak()
 	return convertedData
 
-function decodeWorldData(ChunkedString data)  // FIXME: read data seems not to match with written data -> check if level > 64 is a problem, maybe try without convertion first -> Check if it works now (fixed convertion)
+function decodeWorldData(ChunkedString data)
 	let dataPartLength = WORLD_DATA_PART_LENGTHS[WORLD_DATA_PART_LENGTHS.length - 1]
 	let convertedData = convertCharsToNumbers(data)
-	newInitSubStatus("Test13 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test13 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
-		setInitStepStatus(x + 1, TILES_X)  // DEBUG:
+		// setInitStepStatus(x + 1, TILES_X)  // DEBUG:
 		for	y = 0 to TILES_Y - 1
 			let dataPart = convertedData.getUnsafeSubString((y + TILES_Y * x) * dataPartLength, (y + TILES_Y * x + 1) * dataPartLength)
 			var i = 0
@@ -116,10 +116,9 @@ function decodeWorldData(ChunkedString data)  // FIXME: read data seems not to m
 
 function generateWorldData()
 	// Create height map:
-	newInitStatus("Height data creation")
 	var noiseMap = generatePerlinNoise(TILES_X, TILES_Y, 7, 0.6, "Cosine")
 	newInitSubStatus("Calculate height data")
-	newInitSubStatus("Test5 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test5 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
 		setInitStepStatus(x + 1, TILES_X)
 		for	y = 0 to TILES_Y - 1
@@ -130,48 +129,51 @@ function generateWorldData()
 	destroy noiseMap
 	forceComputationBreak()
 	// Create plant map:
-	newInitStatus("Plant data creation")
 	noiseMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
 	newInitSubStatus("Calculate plant data")
-	newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
 		setInitStepStatus(x + 1, TILES_X)
 		for	y = 0 to TILES_Y - 1
-			plantMap.set(x, y, getPlantBiomeType(noiseMap.get(x, y)) castTo int)
-			computationCost += 0.067
+			if heightMap.get(x, y) >= HEIGHT_LAND_MIN
+				plantMap.set(x, y, getPlantBiomeType(noiseMap.get(x, y)) castTo int)
+			else
+				plantMap.set(x, y, PlantBiomeType.BARRENS castTo int)
+			computationCost += 0.088
 		checkForComputationBreak()
 	forceComputationBreak()
 	destroy noiseMap
 
 public function createWorldData()
-	// Load or generate world data:
-	if WORLD_DATA_LOAD  // TEST:
-		newInitStatus("World data creation")
-		newInitStatus("World data creation")  // FIXME: two calls required to fit with generation task -> mabye split decoding for height and plant
+	newInitStatus("World data creation")
+	if WORLD_DATA_LOAD
+		// Load world data:
+		newInitSubStatus("Load and synchronize data")
 		USER_PLAYER.loadData(WORLD_DATA_FILE_NAME) (status, data) ->
 			if status == SUCCESS
 				decodeWorldData(data)
-				isWorldDataLoaded = true
 			else
 				Log.error(status.toString())
+			isWorldDataLoaded = true
 			destroy data
-		newInitSubStatus("Synchronize loaded data")
 		while isWorldDataLoaded == false
 			TriggerSleepAction(WAIT_SLEEP_TIME)
 	else
+		// Generate world data:
 		generateWorldData()
 		isWorldDataLoaded = true
-	// Save world data if requested:
-	if WORLD_DATA_SAVE
-		let encodedData = encodeWorldData()
-		USER_PLAYER.saveData(WORLD_DATA_FILE_NAME, encodedData)
-		destroy encodedData
+		// Save world data if requested:
+		if WORLD_DATA_SAVE
+			newInitSubStatus("Save data")
+			let encodedData = encodeWorldData()
+			USER_PLAYER.saveData(WORLD_DATA_FILE_NAME, encodedData)
+			destroy encodedData
 
 public function createTerrain()
 	newInitStatus("Terrain creation")
 	// Adjust the height for each tile:
 	newInitSubStatus("Adjust terrain heights")
-	newInitSubStatus("Test7 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test7 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
 		setInitStepStatus(x + 1, TILES_X)
 		for	y = 0 to TILES_Y - 1
@@ -194,7 +196,7 @@ public function createPlants()
 	newInitStatus("Plants creation")
 	// Have 1 or 0 tree per tile:
 	newInitSubStatus("Add trees")
-	newInitSubStatus("Test8 " + computationCost.toString())  // DEBUG:
+	// newInitSubStatus("Test8 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to TILES_X - 1
 		setInitStepStatus(x + 1, TILES_X)
 		for	y = 0 to TILES_Y - 1

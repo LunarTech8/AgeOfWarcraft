@@ -42,8 +42,11 @@ Work status:
 	>- Workers fetch products from workshops and gatherplaces
 	- Implement usage in PersonSystem as workplace
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
-	- Can't use compiletime because random values would be hard coded into the compiled code (only change between each compile)
-	>>>- Add option to load/save noise maps from/to file (SaveLoadData)
+	- Add terrain generation
+	- Add more plants to be generated (not just trees)
+	- Improve generation to get usable maps
+	- Check scaleability of map size for generation (computationCosts)
+	- Maybe transform debug sub statuses into real sub statuses
 
 
 // -------------

@@ -24,7 +24,7 @@ let MAX_COMPUTATION_COST_PER_CYCLE = 256.
 // Functional code
 // --------------------
 
-public var isComputationControlActivated = true  // TEST: check if this influences the defined cost additions
+public var isComputationControlActivated = true
 public var computationCost = 0.
 
 public function checkForComputationBreak()

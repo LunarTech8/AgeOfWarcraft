@@ -52,7 +52,7 @@ function createPlayerUnits()
 
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
-	startInitStatus("Initialisation", 5)
+	startInitStatus("Initialisation", 4)
 	createWorldData()
 	forceComputationBreak()
 	createTerrain()

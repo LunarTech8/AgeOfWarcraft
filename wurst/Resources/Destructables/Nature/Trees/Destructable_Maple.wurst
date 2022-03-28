@@ -1,0 +1,27 @@
+package Destructable_Maple
+import DestructablePreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+public class DestructableData_Maple
+	static constant variations = 3
+	static constant minScale = 0.6
+	static constant maxScale = 0.8
+
+@compiletime function genObj()
+	new DestructablePreset(DestructableIdsCustom.Trees.maple, DestructableIds.felwoodCanopyTree)
+	// Art:
+	..presetUnfixedRotation()
+	..setSelectableInGame(true)
+	..presetSelectionSizes(80.)
+	// Editor:
+	..setMaxScale(DestructableData_Maple.maxScale)
+	..setMinScale(DestructableData_Maple.minScale)
+	..setPlaceableOnCliffs(true)
+	// Pathing:
+	..setPath("PathTextures\\2x2Default.tga")
+	// Text:
+	..setName("Maple")

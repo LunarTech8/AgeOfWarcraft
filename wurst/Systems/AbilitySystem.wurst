@@ -302,6 +302,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		// Check target type specific validities:
 		let targetWorkshop = targetUnit.getWorkshop()
 		let targetHome = targetUnit.getHome()
+		let targetGatherplace = targetUnit.getGatherplace()
 		let targetDepository = targetUnit.getDepository()
 		if targetWorkshop != null
 			// Check if source is allowed to work at target:
@@ -317,29 +318,41 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			// Check if source is inhabitant or target has free apartement slot:
 			if targetHome.isInhabitant(this) == false and targetHome.getInhabitantCount() >= getMaxInhabitants(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
+		else if targetGatherplace != null
+			// Check if source is allowed to work at target:
+			if targetGatherplace.isValidWorkerType(this.getUnitId()) == false
+				return Validity.INVALID_SOURCE
+			// Check if target works at target or has free work slot:
+			if targetGatherplace.isWorker(this) == false and targetGatherplace.getWorkerCount() >= getGatherplaceMaxWorkers(targetUnit.getUnitId())
+				return Validity.NO_FREE_UNIT_SLOT
 		else if targetDepository != null
 			// Check if source is allowed to work at target:
 			if targetDepository.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if target works at target or has free work slot:
-			if targetDepository.isWorker(this) == false and targetDepository.getWorkerCount() >= getWorkshopMaxWorkers(targetUnit.getUnitId())
+			if targetDepository.isWorker(this) == false and targetDepository.getWorkerCount() >= getDepositoryMaxWorkers(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
 		else
 			return Validity.INVALID_TARGET
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
 		let sourceWorkshop = this.getWorkshop()
-		if sourceWorkshop == null
-			error("Casting building is no workshop (" + this.getName() + ")")
+		let sourceGatherplace = this.getGatherplace()
+		if sourceWorkshop != null
+			// Check if source has workers:
+			if sourceWorkshop.getWorkerCount() <= 0
+				return Validity.WORKERS_NOT_AVAILABLE
+		else if sourceGatherplace != null
+			// Check if source has workers:
+			if sourceGatherplace.getWorkerCount() <= 0
+				return Validity.WORKERS_NOT_AVAILABLE
+		else
+			error("Casting building is no workshop or gatherplace (" + this.getName() + ")")
 			return Validity.ERROR
-		// Check if source has workers:
-		if sourceWorkshop.getWorkerCount() <= 0
-			return Validity.WORKERS_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.changeProduct
 		// Check if source is valid:
-		let sourceWorkshop = this.getWorkshop()
-		if sourceWorkshop == null
-			error("Casting building is no workshop (" + this.getName() + ")")
+		if this.getWorkshop() == null and this.getGatherplace() == null
+			error("Casting building is no workshop or gatherplace (" + this.getName() + ")")
 			return Validity.ERROR
 	else if abilityId == AbilityIdsCustom.targetDestructable
 		// Check if target is valid:
@@ -419,6 +432,8 @@ init
 						let targetUnit = target.assertUnit()
 						let targetWorkshop = targetUnit.getWorkshop()
 						let targetHome = targetUnit.getHome()
+						let targetGatherplace = targetUnit.getGatherplace()
+						let targetDepository = targetUnit.getDepository()
 						if targetWorkshop != null
 							// Transfer educts, add source to target workshop as worker and enter it:
 							let sourcePerson = source.getPerson()
@@ -433,15 +448,38 @@ init
 								sourcePerson.enterBuilding(targetUnit)
 							else
 								sourcePerson.setHomeBuilding(targetHome)
+						else if targetGatherplace != null
+							// Transfer wares and add source to target gatherplace as worker:
+							targetGatherplace.transferWares(source.getStorage(), true)
+							if targetGatherplace.isWorker(source) == false
+								// source.getPerson().setWorkplaceBuilding(targetGatherplace)  // FIXME: workplace can't be of type Workshop for that
+						else if targetDepository != null
+							// Transfer wares and add source to target depository as worker:
+							targetDepository.transferWares(source.getStorage())
+							if targetDepository.isWorker(source) == false
+								// source.getPerson().setWorkplaceBuilding(targetDepository)  // FIXME: workplace can't be of type Workshop for that
 					case AbilityIdsCustom.removeWorker
-						// Remove a worker from source workshop:
-						let person = source.getWorkshop().getFirstWorker().getPerson()
-						if person.enteredBuilding == source
-							person.leaveBuilding()
-						person.setWorkplaceBuilding(null)
+						let sourceWorkshop = source.getWorkshop()
+						let sourceGatherplace = source.getGatherplace()
+						if sourceWorkshop != null
+							// Remove a worker from source workshop:
+							let person = sourceWorkshop.getFirstWorker().getPerson()
+							if person.enteredBuilding == source
+								person.leaveBuilding()
+							person.setWorkplaceBuilding(null)
+						else if sourceGatherplace != null
+							// Remove a worker from source gatherplace:
+							let person = sourceGatherplace.getFirstWorker().getPerson()
+							person.setWorkplaceBuilding(null)
 					case AbilityIdsCustom.changeProduct
-						// Cancel current production and change it to the next variant:
-						source.getWorkshop().changeProduct()
+						let sourceWorkshop = source.getWorkshop()
+						let sourceGatherplace = source.getGatherplace()
+						if sourceWorkshop != null
+							// Cancel current production and change it to the next variant:
+							sourceWorkshop.changeProduct()
+						else if sourceGatherplace != null
+							// Cancel current production and change it to the next variant:
+							sourceGatherplace.changeProduct()
 					default
 						error("Unmapped ability (" + abilityId.getOrderName() + ")")
 			else if val != Validity.UNREGISTERED

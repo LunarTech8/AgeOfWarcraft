@@ -20,6 +20,8 @@ Work status:
 // Worklog:
 // -------------
 
+!!>- Improve Startup
+	- Make it possible to easily switch between different maps (preplaced and generated)
 !!>>- Create a SettlementSystem
 	>>- Write unit tests
 	- Add trained units to settlement
@@ -31,16 +33,16 @@ Work status:
 	- The influence range of settlements should be marked by border stones
 !!>>- Create a GatherplaceSystem
 	>>>- All gather jobs have a building from where they start gathering and store their resources
-	>>- The player may switch between different types of targets for the gatherers
+	>>>- The player may switch between different types of targets for the gatherers
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
 		- Maybe the gather centre can be changed by the player (inside a max range from the gatherplace building)
-	- Implement usage in PersonSystem as workplace
+	>- Implement usage in PersonSystem as workplace
 !!>>- Create a DepositorySystem
 	>>- Serves as drop off for workshops and gatherplaces
 		- Implement usage in workshop and gatherplace
 	>- Workers deliver required wares to workshops
 	>- Workers fetch products from workshops and gatherplaces
-	- Implement usage in PersonSystem as workplace
+	>- Implement usage in PersonSystem as workplace
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Add terrain generation
 	- Add more plants to be generated (not just trees)

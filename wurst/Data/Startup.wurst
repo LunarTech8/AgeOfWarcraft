@@ -28,7 +28,8 @@ import ComputationControl
 let USER_PLAYER = Player(0)
 
 // Player units:
-let START_VEC = vec2(-6144., -7680.)
+// let START_VEC = vec2(-6144., -7680.)
+let START_VEC = vec2(128., 0.)
 let START_PEASANT_COUNT = 5
 let START_WOOD_COUNT_PER_PEASANT = 5
 
@@ -52,13 +53,14 @@ function createPlayerUnits()
 
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
-	startInitStatus("Initialisation", 4)
-	createWorldData()
-	forceComputationBreak()
-	createTerrain()
-	forceComputationBreak()
-	createPlants()
-	forceComputationBreak()
+	startInitStatus("Initialisation", 1)
+	// startInitStatus("Initialisation", 4)
+	// createWorldData()
+	// forceComputationBreak()
+	// createTerrain()
+	// forceComputationBreak()
+	// createPlants()  // FIXME: replace destructables on non generated maps
+	// forceComputationBreak()
 	createPlayerUnits()
 	newInitStatus(null)
 

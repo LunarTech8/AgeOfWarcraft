@@ -44,6 +44,8 @@ function isKilledWhenDepleted(int resourceTypeId) returns bool
 		// 	return true
 		case DestructableIdsCustom.Trees.spruce
 			return true
+		case DestructableIdsCustom.Trees.maple
+			return true
 		default
 			return false
 
@@ -62,6 +64,8 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceTypeId) returns
 		// 	return 0.5
 		case DestructableIdsCustom.Trees.spruce
 			return 0.5
+		case DestructableIdsCustom.Trees.maple
+			return 0.5
 		default
 			return 0.
 
@@ -78,6 +82,8 @@ function getWaresPerFinishedWork(int resourceTypeId) returns LinkedList<ware>
 		// 	wares.add(ware(WareType.WOOD, 1))
 		case DestructableIdsCustom.Trees.spruce
 			wares.add(ware(WareType.WOOD, 1))
+		case DestructableIdsCustom.Trees.maple
+			wares.add(ware(WareType.WOOD, 1))
 	return wares
 
 /** Returns the harvest priority of given resource type. Higher values mean a higher priority. */
@@ -93,6 +99,8 @@ function getHarvestPriority(int resourceTypeId) returns int
 		// 	return 2
 		case DestructableIdsCustom.Trees.spruce
 			return 2
+		case DestructableIdsCustom.Trees.maple
+			return 1
 	return 0
 
 /** Returns the maximum concurrent amount of workers allowed for of given resource type. */
@@ -108,6 +116,8 @@ function getMaxWorkerCount(int resourceTypeId) returns int
 		// 	return 2
 		case DestructableIdsCustom.Trees.spruce
 			return 2
+		case DestructableIdsCustom.Trees.maple
+			return 3
 	return 99
 
 /** Returns the default initial wares of given resource type. */
@@ -123,6 +133,8 @@ public function getDefaultInitWares(int resourceTypeId) returns LinkedList<ware>
 		// case UnitIdsCustom.Trees.chestnut
 		// 	wares.add(ware(WareType.WOOD, GetRandomInt(4, 6)))
 		case DestructableIdsCustom.Trees.spruce
+			wares.add(ware(WareType.WOOD, GetRandomInt(6, 10)))
+		case DestructableIdsCustom.Trees.maple
 			wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
 	return wares
 
@@ -208,6 +220,35 @@ function entity.removeResource()
 	let resource = RESOURCE_MAP.tryRemove(this)
 	if resource != null
 		destroy resource
+
+let findResources_AllowedTypeIds = new LinkedList<int>()
+let findResources_ValidDestructables = new LinkedList<destructable>()
+function findResources_CheckValidity(entity filterEntity) returns bool
+	let resource = filterEntity.getResource(false)
+	let resourceTypeId = filterEntity.getTypeId()
+	// Only allow resources that have wares left and free worker slots:
+	if resource != null and resource.isEmpty() == false and resource.getFreeWorkerSlots() > 0 and findResources_AllowedTypeIds.has(resourceTypeId)
+		return true
+	return false
+/** Returns valid resources from given allowed entity types at given position. */
+public function findResources(vec2 pos, LinkedList<int> allowedTypeIds) returns LinkedList<entity>
+	let resources = new LinkedList<entity>()
+	// Get valid units and destructables in range:
+	findResources_AllowedTypeIds.clear()
+	if allowedTypeIds != null
+		findResources_AllowedTypeIds.addAll(allowedTypeIds)
+	var filter = Filter(() -> findResources_CheckValidity(entity(GetFilterUnit(), null)))
+	ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
+	for target from ENUM_GROUP
+		resources.add(entity(target, null))
+	filter.destr()
+	filter = Filter(() -> findResources_CheckValidity(entity(null, GetFilterDestructable())))
+	EnumDestructablesInRect(pos.withRadiusRect(MAX_AUTO_ORDER_RANGE), filter, () -> findResources_ValidDestructables.add(GetEnumDestructable()))
+	for target in findResources_ValidDestructables
+		resources.add(entity(null, target))
+	findResources_ValidDestructables.clear()
+	filter.destr()
+	return resources
 
 int findNextResource_Priority
 let findNextResource_AllowedTypeIds = new LinkedList<int>()

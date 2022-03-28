@@ -21,6 +21,7 @@ import public DestructableObjEditing
 
 class DestructableIds
 	static constant summerTreeWall = 'LTlt'
+	static constant felwoodCanopyTree = 'CTtc'
 
 
 // --------------------

@@ -19,11 +19,12 @@ import Entity
 import ResourceSystem
 import LoadStatusSystem
 import ComputationControl
-import Destructable_Spruce
 import NoiseFunctions
 import SaveLoadData
 import UnitTest
 import ConversionFunctions
+import Destructable_Spruce
+import Destructable_Maple
 
 
 // --------------------
@@ -208,7 +209,7 @@ public function createPlants()
 				entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), DestructableData_Spruce.maxScale, getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
 			else if plantBiome == WOODS
 				let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
-				entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), DestructableData_Spruce.minScale, getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
+				entity(null, createDestructable(DestructableIdsCustom.Trees.maple, pos, getRandomAngle(), DestructableData_Maple.minScale, getRandomVariation(DestructableData_Maple.variations))).tryAddResouce()
 			computationCost += 0.206
 		checkForComputationBreak()
 

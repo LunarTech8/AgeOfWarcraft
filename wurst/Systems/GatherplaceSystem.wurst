@@ -31,6 +31,7 @@ import ErrorHandling
 // --------------------
 
 let WORKERS_ICON_PATH = Icons.bTNBash
+let RESOURCE_TARGETS_ICON_PATH = Icons.bTNReturnGoods
 
 /** Returns the worker type of the given gatherplace type. */
 function getWorkerUnitId(int gatherplaceUnitId) returns int
@@ -47,6 +48,8 @@ function getTargetTypeIds(int gatherplaceUnitId, int gatherVariant) returns Link
 			switch gatherVariant
 				case 1
 					entityIds.add(DestructableIdsCustom.Trees.spruce)
+				case 2
+					entityIds.add(DestructableIdsCustom.Trees.maple)
 	return entityIds
 
 /** Returns the maximum ware capacity of the given gatherplace type. */
@@ -58,7 +61,7 @@ function getGatherplaceMaxCapacity(int gatherplaceUnitId) returns int
 			return 0
 
 /** Returns the maximum allowed amount of workers of the given gatherplace type. */
-function getGatherplaceMaxWorkers(int gatherplaceUnitId) returns int
+public function getGatherplaceMaxWorkers(int gatherplaceUnitId) returns int
 	switch gatherplaceUnitId
 		case UnitIdsCustom.AoW.lumberCamp
 			return 3
@@ -106,6 +109,9 @@ public class Gatherplace extends Storage
 
 	function getWorkerCount() returns int
 		return workers.size()
+
+	function getTargetCount() returns int
+		return findResources(user.getPos(), getTargetTypeIds(user.getUnitId(), gatherVariant)).size()
 
 	function getFirstWorker() returns unit
 		if workers.size() > 0
@@ -183,7 +189,7 @@ public function unit.getGatherplace() returns Gatherplace
 public function multiboard.setObjectInfoMultiboard(Gatherplace gp) returns bool
 	this.addMultiboardLine("Gatherplace:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + gp.getWorkerCount().toString(), WORKERS_ICON_PATH)
-	// TODO: display amount of targets in range (current gatherVariant)
+	this.addMultiboardLine("Resource targets: " + gp.getTargetCount().toString(), RESOURCE_TARGETS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + gp.getUsedCapacity().toString() + "/" + gp.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
 	for ware in gp.wares
 		this.addMultiboardLine(gp.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())

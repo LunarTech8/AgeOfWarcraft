@@ -23,7 +23,7 @@ import RegisterEvents
 import StorageSystem
 import ResourceSystem
 import Entity
-import ErrorHandling
+import WorkplaceSystem
 
 
 // --------------------
@@ -32,13 +32,6 @@ import ErrorHandling
 
 let WORKERS_ICON_PATH = Icons.bTNBash
 let RESOURCE_TARGETS_ICON_PATH = Icons.bTNReturnGoods
-
-/** Returns the worker type of the given gatherplace type. */
-function getWorkerUnitId(int gatherplaceUnitId) returns int
-	switch gatherplaceUnitId
-		case UnitIdsCustom.AoW.lumberCamp
-			return UnitIdsCustom.AoW.peasant
-	return 0
 
 /** Returns the allowed target types for given gatherplace type and gather variant. */
 function getTargetTypeIds(int gatherplaceUnitId, int gatherVariant) returns LinkedList<int>
@@ -60,13 +53,6 @@ function getGatherplaceMaxCapacity(int gatherplaceUnitId) returns int
 		default
 			return 0
 
-/** Returns the maximum allowed amount of workers of the given gatherplace type. */
-public function getGatherplaceMaxWorkers(int gatherplaceUnitId) returns int
-	switch gatherplaceUnitId
-		case UnitIdsCustom.AoW.lumberCamp
-			return 3
-	return 0
-
 
 // --------------------
 // Functional code
@@ -74,25 +60,20 @@ public function getGatherplaceMaxWorkers(int gatherplaceUnitId) returns int
 
 let GATHERPLACE_MAP = new IterableUnitHashMap<Gatherplace>(null)
 
-public class Gatherplace extends Storage
-	private unit user
+public class Gatherplace extends Workplace
+	private Storage storage
 	private int gatherVariant
-	private group workers
 
 	construct(unit gatherplace)
-		super(gatherplace, getGatherplaceMaxCapacity(GetUnitTypeId(gatherplace)))
-		user = gatherplace
+		super(gatherplace)
+		storage = new Storage(gatherplace, getGatherplaceMaxCapacity(GetUnitTypeId(gatherplace)))
 		gatherVariant = 1
-		workers = CreateGroup()
 
 	ondestroy
-		workers.destr()
+		destroy storage
 
-	function isValidWorkerType(int unitId) returns bool
-		return getWorkerUnitId(user.getUnitId()) == unitId
-
-	function getUnit() returns unit
-		return user
+	function getStorage() returns Storage
+		return storage
 
 	function getProducts() returns LinkedList<ware>
 		let wares = new LinkedList<ware>()
@@ -107,33 +88,8 @@ public class Gatherplace extends Storage
 					wares.add(ware(wareType, 1))
 		return wares
 
-	function getWorkerCount() returns int
-		return workers.size()
-
 	function getTargetCount() returns int
 		return findResources(user.getPos(), getTargetTypeIds(user.getUnitId(), gatherVariant)).size()
-
-	function getFirstWorker() returns unit
-		if workers.size() > 0
-			return workers.getUnitAt(0)
-		else
-			error("Gatherplace doesn't have any worker")
-			return null
-
-	function isWorker(unit worker) returns bool
-		return workers.contains(worker)
-
-	function addWorker(unit worker)
-		if workers.contains(worker) == false and workers.size() < getGatherplaceMaxWorkers(user.getUnitId())
-			workers.addUnit(worker)
-		else
-			error("Can't add worker to this gatherplace")
-
-	function removeWorker(unit worker)
-		if workers.contains(worker)
-			workers.removeUnit(worker)
-		else
-			error("Can't remove worker from this gatherplace")
 
 	function changeProduct()
 		var allowedTypeIds = getTargetTypeIds(user.getUnitId(), gatherVariant + 1)
@@ -151,29 +107,31 @@ public class Gatherplace extends Storage
 		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(user.getPos(), getTargetTypeIds(user.getUnitId(), gatherVariant)).getWidget(), true)
 
 	/** Transfers as many wares as possible from this gatherplace to source storage or transfers products with reverse targets. */
-	function transferWares(Storage source, bool takeWares)
+	override function transferWares(Storage source, bool takeWares)
 		if takeWares
 			// Look for wares in gatherplace:
+			let wares = storage.getWares()
 			for iWare in wares
-				let wareCount = min(getWareCount(iWare.wareType), source.getFreeCapacity())
+				let wareCount = min(storage.getWareCount(iWare.wareType), source.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					removeWare(ware(iWare.wareType, wareCount))
+					storage.removeWare(ware(iWare.wareType, wareCount))
 					source.addWare(ware(iWare.wareType, wareCount))
+			destroy wares
 		else
 			// Look for products in source storage:
 			let products = getProducts()
 			for iWare in products
-				let wareCount = min(source.getWareCount(iWare.wareType), getFreeCapacity())
+				let wareCount = min(source.getWareCount(iWare.wareType), storage.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
 					source.removeWare(ware(iWare.wareType, wareCount))
-					addWare(ware(iWare.wareType, wareCount))
+					storage.addWare(ware(iWare.wareType, wareCount))
 			destroy products
 
 
 function unit.addGatherplace()
-	if GATHERPLACE_MAP.has(this) == false and getGatherplaceMaxWorkers(this.getUnitId()) > 0
+	if GATHERPLACE_MAP.has(this) == false and getGatherplaceMaxCapacity(this.getUnitId()) > 0
 		GATHERPLACE_MAP.put(this, new Gatherplace(this))
 
 function unit.removeGatherplace()
@@ -187,12 +145,15 @@ public function unit.getGatherplace() returns Gatherplace
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Gatherplace gp) returns bool
+	let storage = gp.getStorage()
 	this.addMultiboardLine("Gatherplace:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + gp.getWorkerCount().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Resource targets: " + gp.getTargetCount().toString(), RESOURCE_TARGETS_ICON_PATH)
-	this.addMultiboardLine("Capacity: " + gp.getUsedCapacity().toString() + "/" + gp.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
-	for ware in gp.wares
-		this.addMultiboardLine(gp.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
+	let wares = storage.getWares()
+	for ware in wares
+		this.addMultiboardLine(storage.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	destroy wares
 	return true
 
 init

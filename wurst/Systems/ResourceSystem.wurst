@@ -197,7 +197,7 @@ class Resource extends Stock
 		workerCount -= 1
 
 	function checkForDepletionKill() returns bool
-		if isKilledWhenDepleted and wares.isEmpty()
+		if isKilledWhenDepleted and isEmpty()
 			return true
 		return false
 

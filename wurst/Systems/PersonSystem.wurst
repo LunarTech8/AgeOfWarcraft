@@ -26,6 +26,7 @@ import InstantDummyCaster
 import UnitTest
 import DamageEvent
 import Unit_Peasant
+import WorkplaceSystem
 
 
 // --------------------
@@ -151,7 +152,7 @@ public class Person
 	protected real sleep
 	protected real sleepRate
 	protected Home home
-	protected Workshop workplace  // TODO: also allow gahterplace buildings here, mabye create a Workplace class for it
+	protected Workplace workplace
 	unit enteredBuilding
 
 	construct(unit person, string name)
@@ -177,7 +178,7 @@ public class Person
 			home.addInhabitant(user)
 		this.home = home
 
-	function setWorkplaceBuilding(Workshop workplace)
+	function setWorkplaceBuilding(Workplace workplace)
 		if this.workplace != null
 			this.workplace.removeWorker(user)
 		if workplace != null

@@ -149,6 +149,10 @@ public class Stock
 			error("Index has to be smaller than list size")
 		return wares.get(index)
 
+	/** Returns a copied list of the wares of the stock. */
+	function getWares() returns LinkedList<ware>
+		return wares.copy()
+
 	/** Returns the last ware of the stock. */
 	function getLastWare() returns ware
 		return wares.peek()

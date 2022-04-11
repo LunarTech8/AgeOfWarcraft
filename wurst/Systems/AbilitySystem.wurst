@@ -30,6 +30,7 @@ import DepositorySystem
 import PersonSystem
 import SettlementSystem
 import ErrorHandling
+import WorkplaceSystem
 
 
 // --------------------
@@ -187,7 +188,7 @@ function unit.transferWares(unit target)
 				targetGatherplace.transferWares(sourceStorage, true)
 		else if targetDepository != null
 			// Give wares to target storage:
-			targetDepository.transferWares(sourceStorage)
+			targetDepository.transferWares(sourceStorage, false)
 
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
@@ -244,17 +245,17 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			let products = targetGatherplace.getProducts()
 			let hasAnyProducts = sourceStorage.hasWaresAny(products)
 			destroy products
-			if hasAnyProducts == false and targetGatherplace.getUsedCapacity() <= 0
+			if hasAnyProducts == false and targetGatherplace.getStorage().getUsedCapacity() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 			// Check if target has free storage for products:
-			if hasAnyProducts and targetGatherplace.getFreeCapacity() <= 0
+			if hasAnyProducts and targetGatherplace.getStorage().getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
 		else if targetDepository != null
 			// Check if source has wares that can be transfered:
 			if sourceStorage.getUsedCapacity() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 			// Check if target has free storage:
-			if targetDepository.getFreeCapacity() <= 0
+			if targetDepository.getStorage().getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
 		else
 			return Validity.INVALID_TARGET
@@ -309,7 +310,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if target works at target or has free work slot:
-			if targetWorkshop.isWorker(this) == false and targetWorkshop.getWorkerCount() >= getWorkshopMaxWorkers(targetUnit.getUnitId())
+			if targetWorkshop.isWorker(this) == false and targetWorkshop.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetHome != null
 			// Check if source can inhabit target:
@@ -323,14 +324,14 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if targetGatherplace.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if target works at target or has free work slot:
-			if targetGatherplace.isWorker(this) == false and targetGatherplace.getWorkerCount() >= getGatherplaceMaxWorkers(targetUnit.getUnitId())
+			if targetGatherplace.isWorker(this) == false and targetGatherplace.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetDepository != null
 			// Check if source is allowed to work at target:
 			if targetDepository.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if target works at target or has free work slot:
-			if targetDepository.isWorker(this) == false and targetDepository.getWorkerCount() >= getDepositoryMaxWorkers(targetUnit.getUnitId())
+			if targetDepository.isWorker(this) == false and targetDepository.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
 				return Validity.NO_FREE_UNIT_SLOT
 		else
 			return Validity.INVALID_TARGET
@@ -455,7 +456,7 @@ init
 								// source.getPerson().setWorkplaceBuilding(targetGatherplace)  // FIXME: workplace can't be of type Workshop for that
 						else if targetDepository != null
 							// Transfer wares and add source to target depository as worker:
-							targetDepository.transferWares(source.getStorage())
+							targetDepository.transferWares(source.getStorage(), false)
 							if targetDepository.isWorker(source) == false
 								// source.getPerson().setWorkplaceBuilding(targetDepository)  // FIXME: workplace can't be of type Workshop for that
 					case AbilityIdsCustom.removeWorker

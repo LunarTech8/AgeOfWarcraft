@@ -22,7 +22,7 @@ import OnUnitEnterLeave
 import Icons
 import RegisterEvents
 import StorageSystem
-import ErrorHandling
+import WorkplaceSystem
 
 
 // --------------------
@@ -30,13 +30,6 @@ import ErrorHandling
 // --------------------
 
 let WORKERS_ICON_PATH = Icons.bTNBash
-
-/** Returns the worker type of the given depository type. */
-function getWorkerUnitId(int depositoryUnitId) returns int
-	switch depositoryUnitId
-		case UnitIdsCustom.AoW.townHall
-			return UnitIdsCustom.AoW.peasant
-	return 0
 
 /** Returns the maximum ware capacity of the given depository type. */
 function getDepositoryMaxCapacity(int depositoryUnitId) returns int
@@ -46,13 +39,6 @@ function getDepositoryMaxCapacity(int depositoryUnitId) returns int
 		default
 			return 0
 
-/** Returns the maximum allowed amount of workers of the given depository type. */
-public function getDepositoryMaxWorkers(int depositoryUnitId) returns int
-	switch depositoryUnitId
-		case UnitIdsCustom.AoW.townHall
-			return 3
-	return 0
-
 
 // --------------------
 // Functional code
@@ -60,52 +46,21 @@ public function getDepositoryMaxWorkers(int depositoryUnitId) returns int
 
 let DEPOSITORY_MAP = new IterableUnitHashMap<Depository>(null)
 
-public class Depository extends Storage
-	private unit user
-	private int gatherVariant
-	private group workers
+public class Depository extends Workplace
+	private Storage storage
 
 	construct(unit depository)
-		super(depository, getDepositoryMaxCapacity(GetUnitTypeId(depository)))
-		user = depository
-		gatherVariant = 1
-		workers = CreateGroup()
+		super(depository)
+		storage = new Storage(depository, getDepositoryMaxCapacity(GetUnitTypeId(depository)))
 
 	ondestroy
+		destroy storage
+		// TEST: check if show is called before ondestroy in Workplace
 		for worker in workers
 			worker.show()
-		workers.destr()
 
-	function isValidWorkerType(int unitId) returns bool
-		return getWorkerUnitId(user.getUnitId()) == unitId
-
-	function getUnit() returns unit
-		return user
-
-	function getWorkerCount() returns int
-		return workers.size()
-
-	function getFirstWorker() returns unit
-		if workers.size() > 0
-			return workers.getUnitAt(0)
-		else
-			error("Depository doesn't have any worker")
-			return null
-
-	function isWorker(unit worker) returns bool
-		return workers.contains(worker)
-
-	function addWorker(unit worker)
-		if workers.contains(worker) == false and workers.size() < getDepositoryMaxWorkers(user.getUnitId())
-			workers.addUnit(worker)
-		else
-			error("Can't add worker to this depository")
-
-	function removeWorker(unit worker)
-		if workers.contains(worker)
-			workers.removeUnit(worker)
-		else
-			error("Can't remove worker from this depository")
+	function getStorage() returns Storage
+		return storage
 
 	function orderWorking()
 		for worker in workers
@@ -115,18 +70,20 @@ public class Depository extends Storage
 			// worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, targetBuilding, true)
 
 	/** Transfers as many wares as possible from source to this depository. */
-	function transferWares(Storage source)
+	override function transferWares(Storage source, bool _takeWares)
 		// Look for wares in source storage:
-		for iWare in source.wares
-			let wareCount = min(iWare.count, getFreeCapacity())
+		let wares = source.getWares()
+		for iWare in wares
+			let wareCount = min(iWare.count, storage.getFreeCapacity())
 			if wareCount > 0
 				// Transfer ware:
 				source.removeWare(ware(iWare.wareType, wareCount))
-				addWare(ware(iWare.wareType, wareCount))
+				storage.addWare(ware(iWare.wareType, wareCount))
+		destroy wares
 
 
 function unit.addDepository()
-	if DEPOSITORY_MAP.has(this) == false and getDepositoryMaxWorkers(this.getUnitId()) > 0
+	if DEPOSITORY_MAP.has(this) == false and getDepositoryMaxCapacity(this.getUnitId()) > 0
 		DEPOSITORY_MAP.put(this, new Depository(this))
 
 function unit.removeDepository()
@@ -140,11 +97,14 @@ public function unit.getDepository() returns Depository
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Depository d) returns bool
+	let storage = d.getStorage()
 	this.addMultiboardLine("Depository:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + d.getWorkerCount().toString(), WORKERS_ICON_PATH)
-	this.addMultiboardLine("Capacity: " + d.getUsedCapacity().toString() + "/" + d.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
-	for ware in d.wares
-		this.addMultiboardLine(d.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
+	let wares = storage.getWares()
+	for ware in wares
+		this.addMultiboardLine(storage.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	destroy wares
 	return true
 
 init

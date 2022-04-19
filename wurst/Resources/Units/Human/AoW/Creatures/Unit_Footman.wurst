@@ -9,9 +9,9 @@ import UnitPreset
 @compiletime function genObj()
 	new UnitPreset(UnitIdsCustom.AoW.footman, UnitIds.footman)
 	// Abilities:
-	// TEST START
+	// TEST: START
 	..presetNormalAbilities(AbilityIdsCustom.showTargetInfo)
-	// TEST END
+	// TEST: END
 	// Art:
 	..setScalingValue(.5)
 	..setSelectionScale(.5)

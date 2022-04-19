@@ -1,0 +1,26 @@
+package Ability_AuraOfLightLarge
+import AbilityPresetFunctions
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+	new AbilityDefinitionTaurenChieftainEnduranceAura(AbilityIdsCustom.auraOfLightLarge)
+	// Ability specific data:
+	..presetAttackSpeedIncrease((int lvl) -> -0.5)
+	..presetMovementSpeedIncrease((int lvl) -> -0.2)
+	// Art:
+	..presetButtonPosNormal(0, 0)
+	..setIconNormal(Icons.bTNHolyBolt)
+	..setArtTarget(Abilities.devotionAura)
+	// Stats:
+	..presetAreaofEffect((int lvl) -> 2048.)
+	..presetBuffs(BuffIdsCustom.auraOfLight)
+	..setHeroAbility(false)
+	..setLevels(1)
+	..setRace(Race.Other)
+	..presetTargetsAllowed(TargetsAllowed.enemies, TargetsAllowed.ancient)
+	// Text:
+	..presetNameAndTooltips("Aura of Light", "Weakens creatures of darkness.")

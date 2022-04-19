@@ -1,0 +1,23 @@
+package Unit_LanternOfLight
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+	new BuildingPreset(UnitIdsCustom.AoW.lanternOfLight, UnitIds.farm)
+	// Abilities:
+	..presetNormalAbilities(AbilityIdsCustom.auraOfLightSmall)
+	// Art:
+	..setGroundTexture("")
+	..setIconGameInterface(Icons.bTNMagicVault)
+	..setModelFile(Doodads.crystalLamp)
+	// Pathing:
+	..setPathingMap("PathTextures\\2x2Default.tga")
+	// Stats:
+	..presetNoGoldAndLumber()
+	..setFoodProduced(0)
+	// Text:
+	..presetNameAndTooltips(true, "Lantern of Light", "Protects against the darkness.")

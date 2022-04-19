@@ -1,0 +1,21 @@
+package Unit_BeaconOfLight
+import BuildingPreset
+
+
+// --------------------
+// Data code
+// --------------------
+
+@compiletime function genObj()
+	new BuildingPreset(UnitIdsCustom.AoW.beaconOfLight, UnitIds.farm)
+	// Abilities:
+	..presetNormalAbilities(AbilityIdsCustom.auraOfLightLarge)
+	// Art:
+	..setGroundTexture("")
+	..setIconGameInterface(Icons.bTNMagicVault)
+	..setModelFile(Doodads.crystalShield)
+	// Stats:
+	..presetNoGoldAndLumber()
+	..setFoodProduced(0)
+	// Text:
+	..presetNameAndTooltips(true, "Beacon of Light", "Protects against the darkness.")

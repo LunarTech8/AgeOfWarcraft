@@ -10,7 +10,6 @@ Gives predefined unit types resources wares that can be extracted by workers via
 Initial version.
 -------------------------------------------------------------*/
 package ResourceSystem
-import OnUnitEnterLeave
 import MapBounds
 import ConstantData
 import MultiboardPrioritySystem
@@ -104,7 +103,7 @@ function getHarvestPriority(int resourceTypeId) returns int
 	return 0
 
 /** Returns the maximum concurrent amount of workers allowed for of given resource type. */
-function getMaxWorkerCount(int resourceTypeId) returns int
+function getMaxWorkers(int resourceTypeId) returns int
 	switch resourceTypeId
 		// case UnitIdsCustom.Trees.beech
 		// 	return 1
@@ -174,7 +173,7 @@ class Resource extends Stock
 		return workerCount
 
 	function getFreeWorkerSlots() returns int
-		return getMaxWorkerCount(user.getTypeId()) - workerCount
+		return getMaxWorkers(user.getTypeId()) - workerCount
 
 	/** Perform harvest and returns the harvested wares. */
 	function harvest(int workerUnitId) returns LinkedList<ware>
@@ -187,7 +186,7 @@ class Resource extends Stock
 		return null
 
 	function addWorker()
-		if workerCount >= getMaxWorkerCount(user.getTypeId())
+		if workerCount >= getMaxWorkers(user.getTypeId())
 			error("Can not add more workers to resource (" + user.getName() + ")")
 		workerCount += 1
 
@@ -327,7 +326,7 @@ public function entity.tryAddResouce() returns bool
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
 	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Workers: " + r.getWorkerCount().toString() + "/" + getMaxWorkerCount(r.getEntity().getTypeId()).toString(), WORKERS_ICON_PATH)
+	this.addMultiboardLine("Workers: " + r.getWorkerCount().toString() + "/" + getMaxWorkers(r.getEntity().getTypeId()).toString(), WORKERS_ICON_PATH)
 	for i = 0 to (r.getAmountOfWareTypes() - 1)
 		let ware = r.getWare(i)
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
@@ -335,17 +334,18 @@ public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
 
 init
 	// Add resource to every appropriate new unit:
-	onEnter() ->
-		entity(getEnterLeaveUnit(), null).addResource()
-	// Remove resource from every appropriate removed unit:
+	onUnitIndex(() -> entity(getIndexingUnit(), null).addResource())
+	// Remove resource and target order from every appropriate removed unit:
 	onUnitDeindex() ->
-		entity(getIndexingUnit(), null).removeResource()
+		let removedEntity = entity(getIndexingUnit(), null)
+		removedEntity.removeTargetOrder()
+		removedEntity.removeResource()
 	// Add initially placed destructables:
 	EnumDestructablesInRectAll(playableMapRect) ->
 		let enumDestructable = GetEnumDestructable()
 		entity(null, enumDestructable).addResource()
-	// Remove resource and target order from every killed destructable:
+	// Remove resource and target order from every appropriate killed destructable:
 	DESTRUCTABLE_DEATH_TRIGGER.addAction() ->
-		let dyingEntity = entity(null, GetDyingDestructable())
-		dyingEntity.removeTargetOrder()
-		dyingEntity.removeResource()
+		let killedEntity = entity(null, GetDyingDestructable())
+		killedEntity.removeTargetOrder()
+		killedEntity.removeResource()

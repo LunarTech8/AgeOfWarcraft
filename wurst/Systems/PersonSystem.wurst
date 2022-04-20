@@ -12,7 +12,6 @@ Handles the automatizations based on the data and basic values.
 Initial version.
 -------------------------------------------------------------*/
 package PersonSystem
-import OnUnitEnterLeave
 import ConstantData
 import MultiboardPrioritySystem
 import Icons
@@ -27,6 +26,11 @@ import UnitTest
 import DamageEvent
 import Unit_Peasant
 import WorkplaceSystem
+import UnitIndexer
+import RegisterEvents
+import BuildingSystem
+import GatherplaceSystem
+import DepositorySystem
 
 
 // --------------------
@@ -187,14 +191,16 @@ public class Person
 
 	function enterBuilding(unit building)
 		if enteredBuilding == null
-			enteredBuilding = building
-			user.hide()
 			let targetHome = building.getHome()
 			let targetWorkshop = building.getWorkshop()
 			if targetHome != null and targetHome == home
 				sleep(building.getUnitId())
 			else if targetWorkshop != null and targetWorkshop == workplace
 				targetWorkshop.enterBuilding(user)
+			else
+				error("Unrecognized building type (" + building.getName() + ")")
+			enteredBuilding = building
+			user.hide()
 		else
 			error("Person is already in a building")
 
@@ -206,6 +212,8 @@ public class Person
 				awake()
 			else if targetWorkshop != null and targetWorkshop == workplace
 				targetWorkshop.leaveBuilding(user)
+			else
+				error("Unrecognized building type (" + enteredBuilding.getName() + ")")
 			enteredBuilding = null
 			user.show()
 		else
@@ -250,6 +258,26 @@ public class Person
 function getRandomName() returns string
 	return getRandomForename() + " " + getRandomSurname()
 
+function Home.removePersons()
+	let inhabitants = this.getInhabitants()
+	for inhabitant from inhabitants
+		let person = inhabitant.getPerson()
+		if person != null
+			if person.enteredBuilding == this.getUnit()
+				person.leaveBuilding()
+			person.setHomeBuilding(null)
+	inhabitants.destr()
+function Workplace.removePersons()
+	let workers = this.getWorkers()
+	for worker from workers
+		let person = worker.getPerson()
+		if person != null
+			if person.enteredBuilding == this.getUnit()
+				person.leaveBuilding()
+			person.setWorkplaceBuilding(null)
+	workers.destr()
+
+
 function unit.addPerson(string name)
 	if PERSON_MAP.has(this) == false
 		if isPersonType(GetUnitTypeId(this))
@@ -278,11 +306,28 @@ public function multiboard.setObjectInfoMultiboard(Person p) returns bool
 
 init
 	// Add person to every appropriate new unit:
-	onEnter() ->
-		getEnterLeaveUnit().addPerson(getRandomName())
+	onUnitIndex(() -> getIndexingUnit().addPerson(getRandomName()))
 	// Remove person from every appropriate removed unit:
-	onLeave() ->
-		getEnterLeaveUnit().removePerson()
+	onUnitDeindex(() -> getIndexingUnit().removePerson())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removePerson())
+	// Register death of homes and workplaces:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
+		let killedUnit = GetTriggerUnit()
+		let targetHome = killedUnit.getHome()
+		if targetHome != null
+			targetHome.removePersons()
+		let targetWorkshop = killedUnit.getWorkshop()
+		let targetBuildingSite = killedUnit.getBuildingSite()
+		let targetGatherplace = killedUnit.getGatherplace()
+		let targetDepository = killedUnit.getDepository()
+		if targetWorkshop != null
+			targetWorkshop.removePersons()
+		else if targetBuildingSite != null
+			targetBuildingSite.removePersons()
+		else if targetGatherplace != null
+			targetGatherplace.removePersons()
+		else if targetDepository != null
+			targetDepository.removePersons()
 	// Reduce stats:
 	doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
 		for person in PERSON_MAP

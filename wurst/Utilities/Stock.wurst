@@ -230,6 +230,11 @@ public class Stock
 				return true
 		return false
 
+	/** Replaces all wares from the stock with the given wares. */
+	function replaceWares(LinkedList<ware> wares)
+		destroy this.wares
+		this.wares = wares
+
 
 // --------------------
 // Test code

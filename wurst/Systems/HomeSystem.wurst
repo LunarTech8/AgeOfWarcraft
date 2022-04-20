@@ -15,7 +15,6 @@ import UnitMap
 import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitIndexer
-import OnUnitEnterLeave
 import Icons
 import RegisterEvents
 import ErrorHandling
@@ -39,7 +38,7 @@ function isInhabitantable(int unitId, int buildingId) returns bool
 	return false
 
 /** Returns the maximum allowed amount of inhabitants for the given building type. */
-public function getMaxInhabitants(int buildingId) returns int
+function getMaxInhabitants(int buildingId) returns int
 	switch buildingId
 		case UnitIdsCustom.AoW.peasantHouse
 			return 5
@@ -65,17 +64,25 @@ public class Home
 			inhabitant.show()
 		inhabitants.destr()
 
+	function isValidInhabitantType(int unitId) returns bool
+		return isInhabitantable(unitId, user.getUnitId())
+
+	function isInhabitant(unit inhabitant) returns bool
+		return inhabitants.contains(inhabitant)
+
 	function getUnit() returns unit
 		return user
 
 	function getInhabitantCount() returns int
 		return inhabitants.size()
 
-	function isValidInhabitantType(int unitId) returns bool
-		return isInhabitantable(unitId, user.getUnitId())
+	function getInhabitants() returns group
+		let inhabitants = CreateGroup()
+		inhabitants.addGroup(this.inhabitants)
+		return inhabitants
 
-	function isInhabitant(unit inhabitant) returns bool
-		return inhabitants.contains(inhabitant)
+	function getFreeApartementSlots() returns int
+		return getMaxInhabitants(user.getUnitId()) - inhabitants.size()
 
 	function addInhabitant(unit inhabitant)
 		if inhabitants.contains(inhabitant) == false and inhabitants.size() < getMaxInhabitants(user.getUnitId())
@@ -111,11 +118,6 @@ public function multiboard.setObjectInfoMultiboard(Home h) returns bool
 
 init
 	// Add home to every appropriate new unit:
-	onEnter() ->
-		getEnterLeaveUnit().addHome()
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().addHome())
 	// Remove home from every appropriate removed unit:
-	onUnitDeindex() ->
-		getIndexingUnit().removeHome()
-	// Register construction finishes:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH) ->
-		GetTriggerUnit().addHome()
+	onUnitDeindex(() -> getIndexingUnit().removeHome())

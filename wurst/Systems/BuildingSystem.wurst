@@ -32,7 +32,7 @@ import Unit_TownHall
 import Unit_LumberMill
 import Unit_Barracks
 import Unit_Blacksmith
-import ErrorHandling
+import WorkplaceSystem
 
 
 // --------------------
@@ -229,32 +229,32 @@ function getScaling(int buildingUnitId) returns real
 // --------------------
 
 let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>(null)
-let WORKER_MAP = new UnitHashMap<BuildingSite>(null)
 
-class BuildingSite extends Stock
-	private unit user
+class BuildingSite extends Workplace
+	private Stock stock
 	private real fullHP
-	private int workerCount
 	private real workProgressCurrent
 	private real workProgressFinished
 	private real workPower
 	private int upgradeProgress
 
 	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
-		super(requiredWares)
-		user = building
+		super(building)
+		stock = new Stock(requiredWares)
 		this.fullHP = fullHP
-		workerCount = 0
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(building.getUnitId())
 		workPower = 0.
 		upgradeProgress = 1
 
-	function getUnit() returns unit
-		return user
+	ondestroy
+		destroy stock
+		for worker in workers
+			ResetUnitAnimation(worker)
+			worker.removeAbility(BuffIdsCustom.building)
 
-	function getWorkerCount() returns int
-		return workerCount
+	function getStock() returns Stock
+		return stock
 
 	function getWorkProgressPercentage() returns real
 		return 100. * workProgressCurrent / workProgressFinished
@@ -265,27 +265,17 @@ class BuildingSite extends Stock
 	function getWorkPower() returns real
 		return workPower
 
-	function addWorker(unit worker)
-		if WORKER_MAP.has(worker) == false
-			WORKER_MAP.put(worker, this)
-			workPower += getUnitWorkPower(user.getUnitId(), worker.getUnitId())
-			workerCount += 1
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
-			doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
-		else
-			error("Can't add worker to this building site")
+	override function addWorker(unit worker)
+		super.addWorker(worker)
+		workPower += getUnitWorkPower(user.getUnitId(), worker.getUnitId())
+		InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
+		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
 
-	function removeWorker(unit worker)
-		if workerCount <= 0
-			error("Can not remove more workers from building site (" + user.getName() + ")")
-		else if WORKER_MAP.get(worker) == this
-			WORKER_MAP.remove(worker)
-			workPower -= getUnitWorkPower(user.getUnitId(), worker.getUnitId())
-			workerCount -= 1
-			ResetUnitAnimation(worker)
-			worker.removeAbility(BuffIdsCustom.building)
-		else
-			error("Can't remove worker from this building site")
+	override function removeWorker(unit worker)
+		super.removeWorker(worker)
+		workPower -= getUnitWorkPower(user.getUnitId(), worker.getUnitId())
+		ResetUnitAnimation(worker)
+		worker.removeAbility(BuffIdsCustom.building)
 
 	function adjustProgress() returns bool
 		if workPower > 0.
@@ -305,9 +295,9 @@ class BuildingSite extends Stock
 		return false
 
 	function hasCarrierRequiredResources(unit carrier) returns bool
-		if this.isEmpty() == false
+		if stock.isEmpty() == false
 			let carrierStorage = carrier.getStorage()
-			if carrierStorage != null and carrierStorage.containsAny(this)
+			if carrierStorage != null and carrierStorage.containsAny(stock)
 				return true
 		return false
 
@@ -315,9 +305,14 @@ class BuildingSite extends Stock
 		// Order nearby idle workers to build on building site:
 		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
 		let owner = user.getOwner()
+		var requiredWorkers = getFreeWorkerSlots()
 		for worker from ENUM_GROUP
+			// Check if more workers are required:
+			if requiredWorkers <= 0
+				return
 			// Look for idle workers or workers that want to transfer wares to the building site:
 			if user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker.isOrder(OrderIds.frostnova, user))
+				requiredWorkers -= 1
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
 
 	function callOverIdleWareCarriers()
@@ -330,11 +325,11 @@ class BuildingSite extends Stock
 
 	/** Transfers required wares from source storage to this building sie.
 	Returns a list of all wares that are still missing. */
-	function transferWares(Storage source)
+	override function transferWares(Storage source, bool _takeWares)
 		let leftRequiredWares = new LinkedList<ware>()
 		// Look through all required wares:
-		for i = 0 to getAmountOfWareTypes() - 1
-			let ware = getWare(i)
+		for i = 0 to stock.getAmountOfWareTypes() - 1
+			let ware = stock.getWare(i)
 			var count = source.getWareCount(ware.wareType)
 			if count < ware.count
 				// Note down still missing wares:
@@ -346,8 +341,7 @@ class BuildingSite extends Stock
 				// Remove taken wares from source:
 				source.removeWare(ware(ware.wareType, count))
 		// Update still required wares:
-		destroy wares
-		wares = leftRequiredWares
+		stock.replaceWares(leftRequiredWares)
 
 
 function unit.addBuildingSite()
@@ -360,7 +354,7 @@ function unit.addBuildingSite()
 		buildingGround.setMaxHP(max(1, (fullHP * BUILDING_START_HP_PERCENTAGE).toInt()))
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
-		if buildingSite.isEmpty()
+		if buildingSite.getStock().isEmpty()
 			buildingSite.callOverIdleWorkers()
 		else
 			buildingSite.callOverIdleWareCarriers()
@@ -375,7 +369,7 @@ function findNextBuildingSite_GetFilter() returns filterfunc
 		var conditionsFulfilled = false
 		let buildingSite = GetFilterUnit().getBuildingSite()
 		// Only allow building sites that don't have any required wares left:
-		if buildingSite != null and buildingSite.isEmpty()
+		if buildingSite != null and buildingSite.getStock().isEmpty()
 			conditionsFulfilled = true
 		return conditionsFulfilled
 /** Returns next valid building site unit at the position for given player. */
@@ -411,7 +405,11 @@ public function unit.getBuildingSite() returns BuildingSite
 
 /** Returns the building site of given worker. */
 public function unit.getBuildingSiteOfWorker() returns BuildingSite
-	return WORKER_MAP.tryGet(this)
+	for building in BUILDING_SITE_MAP
+		let buildingSite = BUILDING_SITE_MAP.tryGet(building)
+		if buildingSite != null and buildingSite.isWorker(this)
+			return buildingSite
+	return null
 
 /** Returns the count of all building sites. */
 public function getBuildingSiteCount() returns int
@@ -419,7 +417,12 @@ public function getBuildingSiteCount() returns int
 
 /** Returns the count of all workers. */
 public function getWorkerCount() returns int
-	return WORKER_MAP.getValueCount()
+	var workerCount = 0
+	for building in BUILDING_SITE_MAP
+		let buildingSite = BUILDING_SITE_MAP.tryGet(building)
+		if buildingSite != null
+			workerCount += buildingSite.getWorkerCount()
+	return workerCount
 
 /** Returns if the given worker type can work on given building type */
 public function int.isValidWorkerType(int workerUnitId) returns bool
@@ -433,18 +436,18 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 	if workPower > 0.
 		this.addMultiboardLine("Build time left: " + (bs.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
 		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString(), WORKERS_ICON_PATH)
-	let amountOfWareTypes = bs.getAmountOfWareTypes()
+	let stock = bs.getStock()
+	let amountOfWareTypes = stock.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
 		for i = 0 to (amountOfWareTypes - 1)
-			let ware = bs.getWare(i)
+			let ware = stock.getWare(i)
 			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init
 	// Remove building site from every appropriate removed unit:
-	onUnitDeindex() ->
-		getIndexingUnit().removeBuildingSite()
+	onUnitDeindex(() -> getIndexingUnit().removeBuildingSite())
 	// Adjust progress of all building sites:
 	let finishedBuildings = CreateGroup()
 	doPeriodically(BUILDING_ADJUSTMENT_RATE) cb ->
@@ -487,7 +490,6 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	testBuildingSystem_Build_building = null
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check unit mappings:
-		WORKER_MAP.has(unitA).assertTrue(testName)
 		let buildingSiteA = unitA.getBuildingSiteOfWorker()
 		assertNotNull(testName, buildingSiteA)
 		testBuildingSystem_Build_building = buildingSiteA.getUnit()
@@ -498,7 +500,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 		buildingSiteA.getWorkPower().assertEquals(testName, 1.)
 		buildingSiteA.getWorkerCount().assertEquals(testName, 1)
 		buildingSiteA.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
-		buildingSiteA.isEmpty().assertTrue(testName)
+		buildingSiteA.getStock().isEmpty().assertTrue(testName)
 		testFinish(testName)
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Abort construction:

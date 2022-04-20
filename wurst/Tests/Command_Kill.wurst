@@ -1,0 +1,26 @@
+package Command_Kill
+
+
+// --------------------
+// Data code
+// --------------------
+
+let USER_PLAYER = Player(0)
+let COMMAND = "kill"
+let COMMAND_SHORT = "k"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+function executeCommand()
+	ENUM_GROUP.enumUnitsSelected(USER_PLAYER, null)
+	for u from ENUM_GROUP
+		u.kill()
+
+init
+	CreateTrigger()
+	..addAction(function executeCommand)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)

@@ -222,8 +222,7 @@ public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
 
 init
 	// Remove settlement from every removed centre building:
-	onUnitDeindex() ->
-		getIndexingUnit().removeFromSettlement()
+	onUnitDeindex(() -> getIndexingUnit().removeFromSettlement())
 	// Register upgrade starts:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_START) ->
 		let building = GetTriggerUnit()

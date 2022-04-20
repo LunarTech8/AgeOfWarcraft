@@ -22,6 +22,7 @@ Work status:
 
 !!>- Improve Startup
 	- Make it possible to easily switch between different maps (preplaced and generated)
+	>- Preplaced trees seem to be not harvestable
 !!>>- Create a SettlementSystem
 	>>- Write unit tests
 	- Add trained units to settlement
@@ -31,10 +32,6 @@ Work status:
 		- Persons should become a group of refugees
 		- Buildings should become neutral (can be readded to new settlement in range)
 	- The influence range of settlements should be marked by border stones
-!!>>- Create WorkplaceSystem
-	>- Make BuildingSite extend Workplace and Stock as a component
-		- workerCount has to be transformed into a workers group
-	>>- Use Workplace in PersonSystem
 !!>>- Create a GatherplaceSystem
 	>>>- All gather jobs have a building from where they start gathering and store their resources
 	>>>- The player may switch between different types of targets for the gatherers

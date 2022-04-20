@@ -13,7 +13,6 @@ Initial version.
 -------------------------------------------------------------*/
 package OrderSystem
 import RegisterEvents
-import OnUnitEnterLeave
 import Orders
 import LinkedList
 import TimerUtils
@@ -25,6 +24,7 @@ import Entity
 import MultiboardPrioritySystem
 import UnitMap
 import ErrorHandling
+import UnitIndexer
 
 
 // --------------------
@@ -330,7 +330,7 @@ public function multiboard.setObjectInfoMultiboard(OrderSource o) returns bool
 
 init
 	// Remove order source and target from every appropriate unit:
-	onLeave(() -> getEnterLeaveUnit().removeAllOrders())
+	onUnitDeindex(() -> getIndexingUnit().removeAllOrders())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removeAllOrders())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_CANCEL, () -> GetTriggerUnit().removeAllOrders())
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().removeAllOrders())

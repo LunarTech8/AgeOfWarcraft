@@ -65,6 +65,8 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "Not all required wares are available for building"
 				case WORKER_ALREADY_BUILDING
 					return "Worker is already building"
+				case NO_FREE_UNIT_SLOT
+					return "Building site already reached its maximum of concurrent workers"
 				default
 					return null
 		case AbilityIdsCustom.harvest
@@ -175,9 +177,9 @@ function unit.transferWares(unit target)
 			targetWorkshop.transferWares(sourceStorage, true)
 		else if targetBuildingSite != null
 			// Take wares from source storage:
-			targetBuildingSite.transferWares(sourceStorage)
+			targetBuildingSite.transferWares(sourceStorage, true)
 			// Call over idel workers if no required wares are missing:
-			if targetBuildingSite.isEmpty()
+			if targetBuildingSite.getStock().isEmpty()
 				targetBuildingSite.callOverIdleWorkers()
 		else if targetGatherplace != null
 			if targetGatherplace.isWorker(this)
@@ -228,10 +230,10 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 				return Validity.NO_FREE_STORAGE
 		else if targetBuildingSite != null
 			// Check if target requires wares:
-			if targetBuildingSite.isEmpty()
+			if targetBuildingSite.getStock().isEmpty()
 				return Validity.NO_REQUIRED_WARES
 			// Check if source has resources that can be transfered:
-			if sourceStorage.containsAny(targetBuildingSite) == false
+			if sourceStorage.containsAny(targetBuildingSite.getStock()) == false
 				return Validity.WARES_NOT_AVAILABLE
 		else if targetWorkshop != null
 			// Check if source has educts or target has products that can be transfered:
@@ -273,11 +275,14 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		if this.getSettlement() != targetUnit.getSettlement()
 			return Validity.WRONG_SETTLEMENT
 		// Check if required wares are available:
-		if buildingSite.isEmpty() == false
+		if buildingSite.getStock().isEmpty() == false
 			return Validity.WARES_NOT_AVAILABLE
 		// Check if worker is already building:
 		if this.getBuildingSiteOfWorker() != null
 			return Validity.WORKER_ALREADY_BUILDING
+		// Check if target has free worker slot:
+		if buildingSite.getFreeWorkerSlots() <= 0
+			return Validity.NO_FREE_UNIT_SLOT
 	else if abilityId == AbilityIdsCustom.harvest
 		// Check if source and target are valid:
 		let storage = this.getStorage()
@@ -309,29 +314,29 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			// Check if source is allowed to work at target:
 			if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
-			// Check if target works at target or has free work slot:
-			if targetWorkshop.isWorker(this) == false and targetWorkshop.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
+			// Check if target works at target or has free worker slot:
+			if targetWorkshop.isWorker(this) == false and targetWorkshop.getFreeWorkerSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetHome != null
 			// Check if source can inhabit target:
 			if targetHome.isValidInhabitantType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if source is inhabitant or target has free apartement slot:
-			if targetHome.isInhabitant(this) == false and targetHome.getInhabitantCount() >= getMaxInhabitants(targetUnit.getUnitId())
+			if targetHome.isInhabitant(this) == false and targetHome.getFreeApartementSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetGatherplace != null
 			// Check if source is allowed to work at target:
 			if targetGatherplace.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
-			// Check if target works at target or has free work slot:
-			if targetGatherplace.isWorker(this) == false and targetGatherplace.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
+			// Check if target works at target or has free worker slot:
+			if targetGatherplace.isWorker(this) == false and targetGatherplace.getFreeWorkerSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetDepository != null
 			// Check if source is allowed to work at target:
 			if targetDepository.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
-			// Check if target works at target or has free work slot:
-			if targetDepository.isWorker(this) == false and targetDepository.getWorkerCount() >= getMaxWorkers(targetUnit.getUnitId())
+			// Check if target works at target or has free worker slot:
+			if targetDepository.isWorker(this) == false and targetDepository.getFreeWorkerSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
 		else
 			return Validity.INVALID_TARGET
@@ -453,12 +458,12 @@ init
 							// Transfer wares and add source to target gatherplace as worker:
 							targetGatherplace.transferWares(source.getStorage(), true)
 							if targetGatherplace.isWorker(source) == false
-								// source.getPerson().setWorkplaceBuilding(targetGatherplace)  // FIXME: workplace can't be of type Workshop for that
+								source.getPerson().setWorkplaceBuilding(targetGatherplace)
 						else if targetDepository != null
 							// Transfer wares and add source to target depository as worker:
 							targetDepository.transferWares(source.getStorage(), false)
 							if targetDepository.isWorker(source) == false
-								// source.getPerson().setWorkplaceBuilding(targetDepository)  // FIXME: workplace can't be of type Workshop for that
+								source.getPerson().setWorkplaceBuilding(targetDepository)
 					case AbilityIdsCustom.removeWorker
 						let sourceWorkshop = source.getWorkshop()
 						let sourceGatherplace = source.getGatherplace()

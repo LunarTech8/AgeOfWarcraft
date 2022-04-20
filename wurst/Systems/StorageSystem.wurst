@@ -10,7 +10,6 @@ Extension of the Stock class that adds a capacity to every ware of size one and 
 Initial version.
 -------------------------------------------------------------*/
 package StorageSystem
-import OnUnitEnterLeave
 import Icons
 import ConstantData
 import MultiboardPrioritySystem
@@ -19,6 +18,7 @@ import UnitMap
 import LinkedList
 import UnitTest
 import ErrorHandling
+import UnitIndexer
 
 
 // --------------------
@@ -135,11 +135,9 @@ public function multiboard.setObjectInfoMultiboard(Storage s, bool showWares) re
 
 init
 	// Add storage to every appropriate new unit:
-	onEnter() ->
-		getEnterLeaveUnit().addStorage()
+	onUnitIndex(() -> getIndexingUnit().addStorage())
 	// Remove storage from every appropriate removed unit:
-	onLeave() ->
-		getEnterLeaveUnit().removeStorage()
+	onUnitDeindex(() -> getIndexingUnit().removeStorage())
 
 
 // --------------------

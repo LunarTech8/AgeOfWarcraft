@@ -19,7 +19,6 @@ import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitIndexer
 import ClosureTimers
-import OnUnitEnterLeave
 import Icons
 import RegisterEvents
 import StorageSystem
@@ -119,13 +118,9 @@ public class Workshop extends Workplace
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(workshop.getUnitId(), productionVariant)
 		workPower = 0.
-		workers = CreateGroup()
 
 	ondestroy
 		destroy stock
-		// TEST: check if show is called before ondestroy in Workplace
-		for worker in workers
-			worker.show()
 
 	private function startProduction() returns bool
 		// Check if there are enough educts:
@@ -292,14 +287,9 @@ public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
 
 init
 	// Add workshop to every appropriate new unit:
-	onEnter() ->
-		getEnterLeaveUnit().addWorkshop()
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().addWorkshop())
 	// Remove workshop from every appropriate removed unit:
-	onUnitDeindex() ->
-		getIndexingUnit().removeWorkshop()
-	// Register construction finishes:
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH) ->
-		GetTriggerUnit().addWorkshop()
+	onUnitDeindex(() -> getIndexingUnit().removeWorkshop())
 	// Adjust progress of all workshops:
 	doPeriodically(PRODUCTION_ADJUSTMENT_RATE) cb ->
 		for building in WORKSHOP_MAP

@@ -96,7 +96,7 @@ public function unit.getDepository() returns Depository
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Depository d) returns bool
 	let storage = d.getStorage()
-	this.addMultiboardLine("Depository:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Depository: " + d.user.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + d.getWorkerCount().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
 	for i = 0 to (storage.getAmountOfWareTypes() - 1)

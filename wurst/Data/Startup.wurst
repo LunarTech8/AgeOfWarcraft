@@ -24,12 +24,7 @@ import ComputationControl
 // Data code
 // --------------------
 
-// General:
-let USER_PLAYER = Player(0)
-
 // Player units:
-// let START_VEC = vec2(-6144., -7680.)
-let START_VEC = vec2(128., 0.)
 let START_PEASANT_COUNT = 5
 let START_WOOD_COUNT_PER_PEASANT = 5
 
@@ -40,27 +35,31 @@ let START_WOOD_COUNT_PER_PEASANT = 5
 
 function createPlayerUnits()
 	newInitStatus("Player units creation")
-	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, START_VEC, angle(225.))
+	let settlementCentre = createUnit(USER_PLAYER, UnitIdsCustom.AoW.townHall, MapData.START_VEC, angle(225.))
 	settlementCentre.tryAddSettlement()
 	for i = 1 to START_PEASANT_COUNT
-		let u = createUnit(USER_PLAYER, UnitIdsCustom.AoW.peasant, START_VEC, angle(0.))
+		let u = createUnit(USER_PLAYER, UnitIdsCustom.AoW.peasant, MapData.START_VEC, angle(0.))
 		nullTimer() ->
 			u.tryAddToSettlement(settlementCentre)
 			let storage = u.getStorage()
 			if storage != null
 				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
-	createUnit(USER_PLAYER, UnitIdsCustom.AoW.footman, START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)
+	createUnit(USER_PLAYER, UnitIdsCustom.AoW.footman, MapData.START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)
 
 function runStartup()
 	SetMusicVolume(0)  // DEBUG: only for development
-	startInitStatus("Initialisation", 1)
-	// startInitStatus("Initialisation", 4)
-	// createWorldData()
-	// forceComputationBreak()
-	// createTerrain()
-	// forceComputationBreak()
-	// createPlants()  // FIXME: replace destructables on non generated maps
-	// forceComputationBreak()
+	if MapData.GENERATE_MAP
+		startInitStatus("Initialisation", 4)
+		createWorldData()
+		forceComputationBreak()
+		createTerrain()
+		forceComputationBreak()
+		createPlants()
+		forceComputationBreak()
+	else
+		startInitStatus("Initialisation", 2)
+		replaceDestructables()
+		forceComputationBreak()
 	createPlayerUnits()
 	newInitStatus(null)
 

@@ -3,7 +3,7 @@
 1.0.0
 
 // Description:
-This system contains all custom global constant data like ids, paths etc. stored as better readable static constants in sorted classes for other systems to use.
+This system contains all custom global constant data like ids, paths, map data etc. stored as better readable static constants in sorted classes for other systems to use.
 
 // Changelog:
 - 1.0.0:
@@ -19,6 +19,7 @@ import HashMap
 // Data code
 // --------------------
 
+public constant USER_PLAYER = Player(0)
 public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
 public constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
 public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 17
@@ -185,6 +186,57 @@ public abstract class ImportPaths
 	static constant background03 = "LoadingScreens\\Background03.tga"
 	static constant background04 = "LoadingScreens\\Background04.tga"
 	static constant background05 = "LoadingScreens\\Background05.tga"
+
+public class MapData
+	static constant SELECTED_MAP = "AgeOfWarcraft_Islands_Small"
+	static constant START_VEC = compiletime(initStartVec(SELECTED_MAP))
+	static var TILES_X = compiletime(initTilesX(SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
+	static var TILES_Y = compiletime(initTilesY(SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
+	static constant ORIGIN_VEC = compiletime(initOriginVec(SELECTED_MAP))  // Left, bottom point from which the terrain generation starts towards right, top point
+	static constant GENERATE_MAP = compiletime(initGenerateMap(SELECTED_MAP))
+
+	private static function initStartVec(string selectedMap) returns vec2
+		switch selectedMap
+			case "AgeOfWarcraft_Islands_Small"
+				return vec2(128., 0.)
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return vec2(-6144., -7680.)
+			default
+				return vec2(0., 0.)
+
+	private static function initTilesX(string selectedMap) returns int
+		switch selectedMap
+			case "AgeOfWarcraft_Islands_Small"
+				return 128
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return 104
+			default
+				return 0
+
+	private static function initTilesY(string selectedMap) returns int
+		switch selectedMap
+			case "AgeOfWarcraft_Islands_Small"
+				return 128
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return 104
+			default
+				return 0
+
+	private static function initOriginVec(string selectedMap) returns vec2
+		switch selectedMap
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return vec2(-6656., -7168.)
+			default
+				return vec2(0., 0.)
+
+	private static function initGenerateMap(string selectedMap) returns bool
+		switch selectedMap
+			case "AgeOfWarcraft_Islands_Small"
+				return false
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return true
+			default
+				return false
 
 
 // --------------------

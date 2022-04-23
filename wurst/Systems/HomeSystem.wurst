@@ -112,7 +112,7 @@ public function unit.getHome() returns Home
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Home h) returns bool
-	this.addMultiboardLine("Home:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Home: " + h.getUnit().getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Inhabitants: " + h.getInhabitantCount().toString(), INHABITANTS_ICON_PATH)
 	return true
 

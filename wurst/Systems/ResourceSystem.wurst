@@ -117,7 +117,7 @@ function getMaxWorkers(int resourceTypeId) returns int
 			return 2
 		case DestructableIdsCustom.Trees.maple
 			return 3
-	return 99
+	return 0
 
 /** Returns the default initial wares of given resource type. */
 public function getDefaultInitWares(int resourceTypeId) returns LinkedList<ware>
@@ -202,17 +202,13 @@ class Resource extends Stock
 
 
 function entity.addResource() returns Resource
-	if RESOURCE_MAP.has(this) == false
+	if getMaxWorkers(this.getTypeId()) > 0 and RESOURCE_MAP.has(this) == false
 		let resourceTypeId = this.getTypeId()
-		let wares = getDefaultInitWares(resourceTypeId)
-		if wares.isEmpty()
-			destroy wares
-		else
-			let resource = new Resource(this, isKilledWhenDepleted(resourceTypeId), wares)
-			RESOURCE_MAP.put(this, resource)
-			if this.userDest != null
-				DESTRUCTABLE_DEATH_TRIGGER.registerDeathEvent(this.userDest)
-			return resource
+		let resource = new Resource(this, isKilledWhenDepleted(resourceTypeId), getDefaultInitWares(resourceTypeId))
+		RESOURCE_MAP.put(this, resource)
+		if this.userDest != null
+			DESTRUCTABLE_DEATH_TRIGGER.registerDeathEvent(this.userDest)
+		return resource
 	return null
 
 function entity.removeResource()
@@ -325,7 +321,7 @@ public function entity.tryAddResouce() returns bool
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
-	this.addMultiboardLine("Resource:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Resource: " + r.getEntity().getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + r.getWorkerCount().toString() + "/" + getMaxWorkers(r.getEntity().getTypeId()).toString(), WORKERS_ICON_PATH)
 	for i = 0 to (r.getAmountOfWareTypes() - 1)
 		let ware = r.getWare(i)

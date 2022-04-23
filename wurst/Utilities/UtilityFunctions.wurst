@@ -16,6 +16,9 @@ import ConstantData
 import Orders
 import ObjectIds
 import ErrorHandling
+import Destructable_Spruce
+import Destructable_Maple
+import DestructablePreset
 
 
 // --------------------
@@ -64,6 +67,33 @@ public function int.getUnitTypeId() returns int
 	// 	case UnitIdsCustom.Trees.chestnut
 	// 		return getRandomInputInt(UnitIdsCustom.Trees.chestnut_Var1, UnitIdsCustom.Trees.chestnut_Var2)
 	return this
+
+/** Returns the replacing destructable type id of the given destructable type. */
+public function getReplacingDestructableTypeId(int destructableTypeId) returns int
+	switch destructableTypeId
+		case DestructableIds.summerTreeWall
+			return DestructableIdsCustom.Trees.spruce
+		case DestructableIds.felwoodCanopyTree
+			return DestructableIdsCustom.Trees.maple
+	return 0
+
+/** Returns a random variation for of given destructable type. */
+public function getRandomDestructableVariation(int destructableTypeId) returns int
+	switch destructableTypeId
+		case DestructableIdsCustom.Trees.spruce
+			return getRandomVariation(DestructableData_Spruce.variations)
+		case DestructableIdsCustom.Trees.maple
+			return getRandomVariation(DestructableData_Maple.variations)
+	return 0
+
+/** Returns a random scaling for of given destructable type. */
+public function getRandomDestructableScale(int destructableTypeId) returns real
+	switch destructableTypeId
+		case DestructableIdsCustom.Trees.spruce
+			return GetRandomReal(DestructableData_Spruce.minScale, DestructableData_Spruce.maxScale)
+		case DestructableIdsCustom.Trees.maple
+			return GetRandomReal(DestructableData_Maple.minScale, DestructableData_Maple.maxScale)
+	return 1.
 
 /** Returns the order needed to cast this ability id. */
 public function int.getAbilityOrder() returns string
@@ -253,12 +283,20 @@ public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool 
 	return this.issueTargetOrder(abilityId.getAbilityOrder(), target)
 
 /** Replaces this unit with a new unit of given type. */
-public function unit.replace(int unitTypeId) returns unit
+public function unit.replace(int newUnitTypeId) returns unit
 	this.hide()
-	let newUnit = createUnit(this.getOwner(), unitTypeId, this.getPos(), this.getFacingAngle())
+	let newUnit = createUnit(this.getOwner(), newUnitTypeId, this.getPos(), this.getFacingAngle())
 	this.kill()
 	this.remove()
 	return newUnit
+
+/** Replaces this destructable with a new destructable of given type. */
+public function destructable.replace(int newDestructableTypeId) returns destructable
+	this.show(false)
+	let newDestructable = createDestructable(newDestructableTypeId, this.getPos(), getRandomAngle(), getRandomDestructableScale(newDestructableTypeId), getRandomDestructableVariation(newDestructableTypeId))
+	this.kill()
+	this.remove()
+	return newDestructable
 
 /** Returns a string of the given unit ids. */
 public function getUnitIdsString(vararg int unitIds) returns string

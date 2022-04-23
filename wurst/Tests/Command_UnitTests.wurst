@@ -1,4 +1,5 @@
 package Command_UnitTests
+import ConstantData
 import UnitMap
 import Entity
 import Stock
@@ -15,7 +16,6 @@ import Array2D
 // Data code
 // --------------------
 
-let USER_PLAYER = Player(0)
 let COMMAND = "unit test"
 let COMMAND_SHORT = "ut"
 

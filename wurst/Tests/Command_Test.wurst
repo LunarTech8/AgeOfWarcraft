@@ -1,5 +1,5 @@
 package Command_Test
-// import ConstantData
+import ConstantData
 import ResourceSystem
 import BuildingSystem
 import OrderSystem
@@ -9,7 +9,6 @@ import OrderSystem
 // Data code
 // --------------------
 
-let USER_PLAYER = Player(0)
 let COMMAND = "test"
 let COMMAND_SHORT = "t"
 

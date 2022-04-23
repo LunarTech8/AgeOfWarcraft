@@ -430,7 +430,7 @@ public function int.isValidWorkerType(int workerUnitId) returns bool
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
-	this.addMultiboardLine("Building site:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Building site: " + bs.user.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Build progress: " + bs.getWorkProgressPercentage().toInt().toString() + "%", BUILD_PROGRESS_ICON_PATH)
 	let workPower = bs.getWorkPower()
 	if workPower > 0.

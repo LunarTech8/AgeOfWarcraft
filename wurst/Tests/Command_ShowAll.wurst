@@ -1,11 +1,11 @@
 package Command_ShowAll
+import ConstantData
 
 
 // --------------------
 // Data code
 // --------------------
 
-let USER_PLAYER = Player(0)
 let COMMAND = "show all"
 let COMMAND_SHORT = "sa"
 

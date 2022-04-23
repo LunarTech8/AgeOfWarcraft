@@ -23,19 +23,14 @@ import NoiseFunctions
 import SaveLoadData
 import UnitTest
 import ConversionFunctions
-import Destructable_Spruce
-import Destructable_Maple
+import MapBounds
 
 
 // --------------------
 // Data code
 // --------------------
 
-// General:
-var TILES_X = 104  // Has to be non-constant to allow for manageable unit tests
-var TILES_Y = 104  // Has to be non-constant to allow for manageable unit tests
-let ORIGIN_VEC = vec2(-6656., -7168.)  // Left, bottom point from which the terrain generation starts towards right, top point
-let USER_PLAYER = Player(0)
+// World data:
 let WORLD_DATA_LOAD = false
 let WORLD_DATA_SAVE = true
 let WORLD_DATA_FILE_NAME = "WorldData.pld"  // In folder ..\Documents\Warcraft III\CustomMapData
@@ -73,17 +68,17 @@ function getPlantBiomeType(real plantNoiseValue) returns PlantBiomeType
 // Functional code
 // --------------------
 
-let heightMap = new Array2DReal(TILES_X, TILES_Y)
-let plantMap = new Array2DInt(TILES_X, TILES_Y)
+let heightMap = new Array2DReal(MapData.TILES_X, MapData.TILES_Y)
+let plantMap = new Array2DInt(MapData.TILES_X, MapData.TILES_Y)
 var isWorldDataLoaded = false
 
 function encodeWorldData() returns ChunkedString
 	let maxHeightValueEncoded = (10).pow(WORLD_DATA_PART_LENGTHS[1] - WORLD_DATA_PART_LENGTHS[0])
 	let data = new ChunkedString(DEFAULT_CHUNK_SIZE)
 	// newInitSubStatus("Test9 " + computationCost.toString())  // DEBUG:
-	for	x = 0 to TILES_X - 1
-		// setInitStepStatus(x + 1, TILES_X)  // DEBUG:
-		for	y = 0 to TILES_Y - 1
+	for	x = 0 to MapData.TILES_X - 1
+		// setInitStepStatus(x + 1, MapData.TILES_X)  // DEBUG:
+		for	y = 0 to MapData.TILES_Y - 1
 			let heightValueEncoded = (((heightMap.get(x, y) - TERRAIN_HEIGHT_MIN) * 10.).round() + maxHeightValueEncoded).toString().substring(1)
 			let plantValueEncoded = plantMap.get(x, y).toString()
 			data.append(heightValueEncoded + plantValueEncoded)
@@ -100,10 +95,10 @@ function decodeWorldData(ChunkedString data)
 	let dataPartLength = WORLD_DATA_PART_LENGTHS[WORLD_DATA_PART_LENGTHS.length - 1]
 	let convertedData = convertCharsToNumbers(data)
 	// newInitSubStatus("Test13 " + computationCost.toString())  // DEBUG:
-	for	x = 0 to TILES_X - 1
-		// setInitStepStatus(x + 1, TILES_X)  // DEBUG:
-		for	y = 0 to TILES_Y - 1
-			let dataPart = convertedData.getUnsafeSubString((y + TILES_Y * x) * dataPartLength, (y + TILES_Y * x + 1) * dataPartLength)
+	for	x = 0 to MapData.TILES_X - 1
+		// setInitStepStatus(x + 1, MapData.TILES_X)  // DEBUG:
+		for	y = 0 to MapData.TILES_Y - 1
+			let dataPart = convertedData.getUnsafeSubString((y + MapData.TILES_Y * x) * dataPartLength, (y + MapData.TILES_Y * x + 1) * dataPartLength)
 			var i = 0
 			let heightValueDecoded = dataPart.substring(WORLD_DATA_PART_LENGTHS[i], WORLD_DATA_PART_LENGTHS[i] + WORLD_DATA_PART_LENGTHS[i + 1]).toReal() * 0.1 + TERRAIN_HEIGHT_MIN
 			i += 1
@@ -117,12 +112,12 @@ function decodeWorldData(ChunkedString data)
 
 function generateWorldData()
 	// Create height map:
-	var noiseMap = generatePerlinNoise(TILES_X, TILES_Y, 7, 0.6, "Cosine")
+	var noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, 7, 0.6, "Cosine")
 	newInitSubStatus("Calculate height data")
 	// newInitSubStatus("Test5 " + computationCost.toString())  // DEBUG:
-	for	x = 0 to TILES_X - 1
-		setInitStepStatus(x + 1, TILES_X)
-		for	y = 0 to TILES_Y - 1
+	for	x = 0 to MapData.TILES_X - 1
+		setInitStepStatus(x + 1, MapData.TILES_X)
+		for	y = 0 to MapData.TILES_Y - 1
 			heightMap.set(x, y, linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, noiseMap.get(x, y)))
 			computationCost += 0.069
 		checkForComputationBreak()
@@ -130,12 +125,12 @@ function generateWorldData()
 	destroy noiseMap
 	forceComputationBreak()
 	// Create plant map:
-	noiseMap = generatePerlinNoise(TILES_X, TILES_Y, 5, 0.6, "Cosine")
+	noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, 5, 0.6, "Cosine")
 	newInitSubStatus("Calculate plant data")
 	// newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
-	for	x = 0 to TILES_X - 1
-		setInitStepStatus(x + 1, TILES_X)
-		for	y = 0 to TILES_Y - 1
+	for	x = 0 to MapData.TILES_X - 1
+		setInitStepStatus(x + 1, MapData.TILES_X)
+		for	y = 0 to MapData.TILES_Y - 1
 			if heightMap.get(x, y) >= HEIGHT_LAND_MIN
 				plantMap.set(x, y, getPlantBiomeType(noiseMap.get(x, y)) castTo int)
 			else
@@ -175,11 +170,11 @@ public function createTerrain()
 	// Adjust the height for each tile:
 	newInitSubStatus("Adjust terrain heights")
 	// newInitSubStatus("Test7 " + computationCost.toString())  // DEBUG:
-	for	x = 0 to TILES_X - 1
-		setInitStepStatus(x + 1, TILES_X)
-		for	y = 0 to TILES_Y - 1
+	for	x = 0 to MapData.TILES_X - 1
+		setInitStepStatus(x + 1, MapData.TILES_X)
+		for	y = 0 to MapData.TILES_Y - 1
 			let z = heightMap.get(x, y)
-			let pos = ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE)
+			let pos = MapData.ORIGIN_VEC.add(x * TILE_DISTANCE, y * TILE_DISTANCE)
 			pos.addTerrainHeight(z - TERRAIN_HEIGHT_INIT)  // Terrain has to have water on it before hand for it to show up
 			let tile = pos.getTile()
 			// Assert that pathing is set to deep water beforehand
@@ -198,20 +193,27 @@ public function createPlants()
 	// Have 1 or 0 tree per tile:
 	newInitSubStatus("Add trees")
 	// newInitSubStatus("Test8 " + computationCost.toString())  // DEBUG:
-	for	x = 0 to TILES_X - 1
-		setInitStepStatus(x + 1, TILES_X)
-		for	y = 0 to TILES_Y - 1
+	for	x = 0 to MapData.TILES_X - 1
+		setInitStepStatus(x + 1, MapData.TILES_X)
+		for	y = 0 to MapData.TILES_Y - 1
 			let plantBiome = plantMap.get(x, y) castTo PlantBiomeType
 			if plantBiome == FOREST
-				let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
+				let pos = MapData.ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
 				// createUnit(NATURE_PLAYER, UnitIdsCustom.Trees.beech.getUnitTypeId(), pos, getRandomAngle())  // DEBUG:
-				// entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), GetRandomReal(DestructableData_Spruce.minScale, DestructableData_Spruce.maxScale), getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
-				entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), DestructableData_Spruce.maxScale, getRandomVariation(DestructableData_Spruce.variations))).tryAddResouce()
+				entity(null, createDestructable(DestructableIdsCustom.Trees.spruce, pos, getRandomAngle(), getRandomDestructableScale(DestructableIdsCustom.Trees.spruce), getRandomDestructableVariation(DestructableIdsCustom.Trees.spruce))).tryAddResouce()
 			else if plantBiome == WOODS
-				let pos = ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
-				entity(null, createDestructable(DestructableIdsCustom.Trees.maple, pos, getRandomAngle(), DestructableData_Maple.minScale, getRandomVariation(DestructableData_Maple.variations))).tryAddResouce()
+				let pos = MapData.ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
+				entity(null, createDestructable(DestructableIdsCustom.Trees.maple, pos, getRandomAngle(), getRandomDestructableScale(DestructableIdsCustom.Trees.maple), getRandomDestructableVariation(DestructableIdsCustom.Trees.maple))).tryAddResouce()
 			computationCost += 0.206
 		checkForComputationBreak()
+
+public function replaceDestructables()
+	newInitStatus("Replace destructables")
+	EnumDestructablesInRectAll(playableMapRect) ->
+		let enumDestructable = GetEnumDestructable()
+		let replacingDestructableTypeId = getReplacingDestructableTypeId(enumDestructable.getTypeId())
+		if replacingDestructableTypeId != 0
+			entity(null, enumDestructable.replace(replacingDestructableTypeId)).tryAddResouce()
 
 
 // --------------------
@@ -228,13 +230,13 @@ public function testWorldGenerationSystem_Encode(bool isInGameTest)
 	let testName = setTestName("testWorldGenerationSystem_Encode", isInGameTest)
 	if isInGameTest == false
 		isComputationControlActivated = false
-		TILES_X = 45
-		TILES_Y = 55
+		MapData.TILES_X = 45
+		MapData.TILES_Y = 55
 	// Set and check data:
-	for	x = 0 to TILES_X - 1
-		for	y = 0 to TILES_Y - 1
-			heightMap.set(x, y, ((y + TILES_Y * x) mod MAX_HEIGHT_VALUE_ENCODED) * 0.5 + TERRAIN_HEIGHT_MIN)
-			plantMap.set(x, y, (y + TILES_Y * x) mod MAX_PLANT_VALUE_ENCODED)
+	for	x = 0 to MapData.TILES_X - 1
+		for	y = 0 to MapData.TILES_Y - 1
+			heightMap.set(x, y, ((y + MapData.TILES_Y * x) mod MAX_HEIGHT_VALUE_ENCODED) * 0.5 + TERRAIN_HEIGHT_MIN)
+			plantMap.set(x, y, (y + MapData.TILES_Y * x) mod MAX_PLANT_VALUE_ENCODED)
 	heightMap.get(0, 0).assertEquals(testName, 0.0 + TERRAIN_HEIGHT_MIN, REAL_COMPARE_DELTA)
 	heightMap.get(0, 1).assertEquals(testName, 0.5 + TERRAIN_HEIGHT_MIN, REAL_COMPARE_DELTA)
 	heightMap.get(0, 2).assertEquals(testName, 1.0 + TERRAIN_HEIGHT_MIN, REAL_COMPARE_DELTA)
@@ -242,7 +244,7 @@ public function testWorldGenerationSystem_Encode(bool isInGameTest)
 	heightMap.get(0, 9).assertEquals(testName, 4.5 + TERRAIN_HEIGHT_MIN, REAL_COMPARE_DELTA)
 	// Encode and check data:
 	let encodedData = encodeWorldData()
-	encodedData.length().assertEquals(testName, (TILES_X * TILES_Y * DATA_PART_LENGTH / NUMBER_BASE_CHUNK_SIZE).ceil() * CHAR_BASE_CHUNK_SIZE)
+	encodedData.length().assertEquals(testName, (MapData.TILES_X * MapData.TILES_Y * DATA_PART_LENGTH / NUMBER_BASE_CHUNK_SIZE).ceil() * CHAR_BASE_CHUNK_SIZE)
 	encodedData.getChunkCount().assertEquals(testName, (encodedData.length() / DEFAULT_CHUNK_SIZE).ceil())
 	let encodedDataNumbers = convertCharsToNumbers(encodedData)
 	encodedDataNumbers.getUnsafeSubString(0 * DATA_PART_LENGTH, (0 + 1) * DATA_PART_LENGTH).assertEquals(testName, "0000" + "0")
@@ -261,11 +263,11 @@ public function testWorldGenerationSystem_EncodeAndDecode(bool isInGameTest)
 	let testName = setTestName("testWorldGenerationSystem_EncodeAndDecode", isInGameTest)
 	if isInGameTest == false
 		isComputationControlActivated = false
-		TILES_X = 45
-		TILES_Y = 55
+		MapData.TILES_X = 45
+		MapData.TILES_Y = 55
 	// Set and check data:
-	for	x = 0 to TILES_X - 1
-		for	y = 0 to TILES_Y - 1
+	for	x = 0 to MapData.TILES_X - 1
+		for	y = 0 to MapData.TILES_Y - 1
 			heightMap.set(x, y, TERRAIN_HEIGHT_MIN)
 			plantMap.set(x, y, 0)
 	heightMap.set(42, 37, 847.2)

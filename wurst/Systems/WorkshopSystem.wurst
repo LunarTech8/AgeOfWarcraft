@@ -267,7 +267,7 @@ public function unit.getWorkshop() returns Workshop
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
-	this.addMultiboardLine("Workshop:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workshop: " + ws.user.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Production progress: " + ws.getWorkProgressPercentage().toInt().toString() + "%", PRODUCTION_PROGRESS_ICON_PATH)
 	let workPower = ws.getWorkPower()
 	if workPower > 0.

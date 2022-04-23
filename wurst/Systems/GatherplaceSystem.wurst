@@ -145,7 +145,7 @@ public function unit.getGatherplace() returns Gatherplace
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Gatherplace gp) returns bool
 	let storage = gp.getStorage()
-	this.addMultiboardLine("Gatherplace:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Gatherplace: " + gp.user.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + gp.getWorkerCount().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Resource targets: " + gp.getTargetCount().toString(), RESOURCE_TARGETS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)

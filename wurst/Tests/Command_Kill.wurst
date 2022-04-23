@@ -1,11 +1,11 @@
 package Command_Kill
+import ConstantData
 
 
 // --------------------
 // Data code
 // --------------------
 
-let USER_PLAYER = Player(0)
 let COMMAND = "kill"
 let COMMAND_SHORT = "k"
 

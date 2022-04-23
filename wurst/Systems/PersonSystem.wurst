@@ -295,7 +295,7 @@ public function unit.getPerson() returns Person
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Person p) returns bool
-	this.addMultiboardLine(p.getName() + ":", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Person: " + p.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Food: " + p.food.toString(), FOOD_ICON_PATH)
 	this.addMultiboardLine("Sleep: " + p.sleep.toString(), SLEEP_ICON_PATH)
 	if p.home != null

@@ -31,8 +31,9 @@ import WorkplaceSystem
 // Data code
 // --------------------
 
-let MAX_STORABLE_EDUCTS = 5
-let MAX_STORABLE_PRODUCTS = 3
+public let MAX_STORABLE_EDUCTS = 5
+public let MAX_STORABLE_PRODUCTS = 3
+
 let PRODUCTION_ADJUSTMENT_RATE = 0.1
 let PRODUCTION_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let PRODUCTION_TIME_LEFT_ICON_PATH = Icons.bTNStatUp

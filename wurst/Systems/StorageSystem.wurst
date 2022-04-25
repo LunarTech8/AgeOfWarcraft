@@ -54,6 +54,9 @@ public class Storage extends Stock
 		this.maxCapacity = maxCapacity
 		usedCapacity = 0
 
+	function getUnit() returns unit
+		return user
+
 	function getMaxCapacity() returns int
 		return maxCapacity
 

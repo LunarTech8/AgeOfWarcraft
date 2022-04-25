@@ -50,7 +50,7 @@ let DAYS_TILL_EXHAUSTED = 1.  // Days of no sleep before person gets exhausted b
 let STATS_ADJUSTMENT_RATE = INGAME_DAY_DURATION / 24.
 let SLEEP_BOOST_BY_DAMAGE = 2 * (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)  // Adrenalin boost by taking damage
 
-int surnameCounter = 0
+var surnameCounter = 0
 
 function isPersonType(int unitId) returns bool
 	switch unitId

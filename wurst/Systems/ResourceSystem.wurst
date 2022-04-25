@@ -283,7 +283,7 @@ public function unit.findNextResource(vec2 pos, LinkedList<int> allowedTypeIds) 
 				validPriorityDestructables.add(target)
 		findNextResource_ValidDestructables.clear()
 		// Return nearest valid entity:
-		var nearestUnit = pos.getNearestUnit(findNextResource_ValidPriorityUnits)
+		var nearestUnit = pos.getNearestUnit(findNextResource_ValidPriorityUnits, true)
 		var nearestDest = pos.getNearestDestructable(validPriorityDestructables)
 		destroy(validPriorityDestructables)
 		if nearestUnit != null and nearestDest != null

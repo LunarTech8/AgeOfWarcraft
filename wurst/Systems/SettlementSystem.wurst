@@ -34,6 +34,8 @@ let POPULATION_ICON_PATH = Icons.bTNPeasant
 let BUILDINGS_ICON_PATH = Icons.bTNFarm
 let MAX_LEVEL = 3
 
+var nameCounter = 0
+
 function getBuildingRange(int level) returns real
 	switch level
 		case 1
@@ -85,6 +87,30 @@ function getInvalidMessageText(Validity val) returns string
 			error("Unregistered invalidity message text for " + (val castTo int).toString())
 			return null
 
+function getRandomName() returns string
+	nameCounter++
+	if nameCounter > 7
+		nameCounter = 1
+	switch nameCounter
+		// Source: https://en.wikipedia.org/wiki/List_of_cities_in_the_United_Kingdom
+		case 1
+			return "Aberdeen"
+		case 2
+			return "Armagh"
+		case 3
+			return "Bangor"
+		case 4
+			return "Bath"
+		case 5
+			return "Belfast"
+		case 6
+			return "Birmingham"
+		case 7
+			return "Bradford"
+		default
+			error("Wrong configuration for getRandomName")
+			return null
+
 
 // --------------------
 // Functional code
@@ -102,12 +128,14 @@ enum Validity
 
 class Settlement
 	private unit centreBuilding
+	private string name
 	protected group buildings
 	protected group persons
 	protected int level
 
-	construct(unit centreBuilding)
+	construct(unit centreBuilding, string name)
 		this.centreBuilding = centreBuilding
+		this.name = name
 		buildings = CreateGroup()
 		persons = CreateGroup()
 		updateLevel()
@@ -127,6 +155,9 @@ class Settlement
 		else
 			return persons.contains(member)
 
+	function getName() returns string
+		return name
+
 	function addMemeber(unit member)
 		if member.isType(UNIT_TYPE_STRUCTURE)
 			buildings.addUnit(member)
@@ -142,7 +173,7 @@ class Settlement
 			updateLevel()
 
 
-function unit.addSettlement() returns Validity
+function unit.addSettlement(string name) returns Validity
 	// Check validity:
 	if SETTLEMENT_MAP.has(this)
 		return Validity.ALREADY_ADDED
@@ -154,7 +185,7 @@ function unit.addSettlement() returns Validity
 		if pos.distanceTo(centreBuilding.getPos()) <= range
 			return Validity.TOO_CLOSE
 	// Add settlement and nearby units:
-	let settlement = new Settlement(this)
+	let settlement = new Settlement(this, name)
 	SETTLEMENT_MAP.put(this, settlement)
 	ENUM_GROUP.enumUnitsInRange(this.getPos(), getBuildingRange(settlement.level), null)
 	let owner = this.getOwner()
@@ -200,7 +231,7 @@ public function unit.getSettlement() returns Settlement
 
 /** Trys to add this unit as settlement. Returns if it could be added. */
 public function unit.tryAddSettlement() returns bool
-	return this.addSettlement() == Validity.VALID
+	return this.addSettlement(getRandomName()) == Validity.VALID
 
 /** Trys to add this unit given settlement. Returns if it could be added. */
 public function unit.tryAddToSettlement(unit centreBuilding) returns bool
@@ -214,7 +245,7 @@ public function unit.tryAddToSettlement(unit centreBuilding) returns bool
 
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
-	this.addMultiboardLine("Settlement:", HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Settlement: " + s.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Level: " + s.level.toString(), LEVEL_ICON_PATH)
 	this.addMultiboardLine("Population: " + s.persons.size().toString(), POPULATION_ICON_PATH)
 	this.addMultiboardLine("Buildings: " + s.buildings.size().toString(), BUILDINGS_ICON_PATH)
@@ -228,7 +259,7 @@ init
 		let building = GetTriggerUnit()
 		Validity val
 		if isCentreBuilding(building.getUnitId())
-			val = building.addSettlement()
+			val = building.addSettlement(getRandomName())
 		else
 			val = building.addToSettlementInRange()
 		if val != Validity.VALID

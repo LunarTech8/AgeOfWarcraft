@@ -31,7 +31,6 @@ Work status:
 		- Persons should become a group of refugees
 		- Buildings should become neutral (can be readded to new settlement in range)
 	- The influence range of settlements should be marked by border stones
-	- Add a unique name and show that in the object info
 !!>>- Create a GatherplaceSystem
 	>>>- All gather jobs have a building from where they start gathering and store their resources
 	>>>- The player may switch between different types of targets for the gatherers
@@ -41,7 +40,7 @@ Work status:
 !!>>- Create a DepositorySystem
 	>>- Serves as drop off for workshops and gatherplaces
 		- Implement usage in workshop and gatherplace
-	>- Workers deliver required wares to workshops
+	>>- Workers deliver required wares to workshops
 	>- Workers fetch products from workshops and gatherplaces
 	>- Implement usage in PersonSystem as workplace
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem

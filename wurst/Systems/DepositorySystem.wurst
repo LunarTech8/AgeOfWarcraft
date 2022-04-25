@@ -22,12 +22,14 @@ import Icons
 import RegisterEvents
 import StorageSystem
 import WorkplaceSystem
+import WorkshopSystem
 
 
 // --------------------
 // Data code
 // --------------------
 
+let MAX_AUTO_ORDER_RANGE = 1024.
 let WORKERS_ICON_PATH = Icons.bTNBash
 
 /** Returns the maximum ware capacity of the given depository type. */
@@ -54,8 +56,6 @@ public class Depository extends Workplace
 
 	ondestroy
 		destroy storage
-		for worker in workers
-			worker.show()
 
 	function getStorage() returns Storage
 		return storage
@@ -63,9 +63,12 @@ public class Depository extends Workplace
 	function orderWorking()
 		for worker in workers
 			// TODO: only for workers that are in the building
-			// TODO: find workshop that requires wares from depository and deliver them
-			// TODO: else find fullest workshop/gatherplace and take wares from there
-			// worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, targetBuilding, true)
+			let target = this.findNextWorkshopInNeedOfEducts()
+			if target != null
+				// TODO: give needed wares to worker and leave building
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
+			else
+				// TODO: find fullest workshop/gatherplace and take wares from there
 
 	/** Transfers as many wares as possible from source to this depository. */
 	override function transferWares(Storage source, bool _takeWares)
@@ -88,6 +91,37 @@ function unit.removeDepository()
 	let depository = DEPOSITORY_MAP.tryRemove(this)
 	if depository != null
 		destroy depository
+
+Storage findNextWorkshopInNeedOfEducts_SourceStorage
+int findNextWorkshopInNeedOfEducts_NeededEducts
+let findNextWorkshopInNeedOfEducts_ValidUnits = CreateGroup()
+function findNextWorkshopInNeedOfEducts_CheckValidity() returns bool
+	let workshop = GetFilterUnit().getWorkshop()
+	// Only allow workshops that require any of the available wares and need more educts:
+	if workshop != null and findNextWorkshopInNeedOfEducts_SourceStorage.hasWaresAny(workshop.getEducts())
+		let neededEducts = MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount()
+		if neededEducts >= findNextWorkshopInNeedOfEducts_NeededEducts
+			findNextWorkshopInNeedOfEducts_NeededEducts = neededEducts
+			return true
+	return false
+/** Returns next valid workshop unit in need of educts for this depository. */
+function Depository.findNextWorkshopInNeedOfEducts() returns unit
+	// Check if wares are available:
+	findNextWorkshopInNeedOfEducts_SourceStorage = this.getStorage()
+	if findNextWorkshopInNeedOfEducts_SourceStorage.isEmpty() == false
+		let pos = this.getUnit().getPos()
+		// Get valid workshops in range and get highest amount of needed educts:
+		findNextWorkshopInNeedOfEducts_NeededEducts = 1
+		let filter = Filter(() -> findNextWorkshopInNeedOfEducts_CheckValidity())
+		ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
+		filter.destr()
+		// Remove workshops with lower amount of needed educts:
+		for target from ENUM_GROUP
+			if MAX_STORABLE_EDUCTS - target.getWorkshop().getStoredEductsCount() == findNextWorkshopInNeedOfEducts_NeededEducts
+				findNextWorkshopInNeedOfEducts_ValidUnits.addUnit(target)
+		// Return nearest valid workshop:
+		return pos.getNearestUnit(findNextWorkshopInNeedOfEducts_ValidUnits, true)
+	return null
 
 /** Returns the depository of given unit. */
 public function unit.getDepository() returns Depository

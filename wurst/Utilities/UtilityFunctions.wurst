@@ -361,7 +361,7 @@ public function getRandomVariation(int maxVariations) returns int
 /** Throws an exception if the absolute of this value is smaller than epsilon, else returns the value. */
 public function real.divByZeroProt(real epsilon) returns real
 	if this.abs() <= epsilon
-		Log.error("Invalid divisor value (" + this.toString() + ")")
+		error("Invalid divisor value (" + this.toString() + ")")
 	return this
 /** Throws an exception if the absolute of the given value is smaller than 10^-7, else returns the value. */
 public function real.divByZeroProt() returns real
@@ -369,7 +369,7 @@ public function real.divByZeroProt() returns real
 /** Throws an exception if the given value is 0, else returns the value. */
 public function int.divByZeroProt() returns int
 	if this == 0
-		Log.error("Invalid divisor value (" + this.toString() + ")")
+		error("Invalid divisor value (" + this.toString() + ")")
 	return this
 
 /** Shows given image covering the full screen. Activates cinematic mode if use is given. */

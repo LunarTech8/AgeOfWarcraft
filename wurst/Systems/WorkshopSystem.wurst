@@ -218,16 +218,14 @@ public class Workshop extends Workplace
 		return false
 
 	function enterBuilding(unit worker)
-		if workers.contains(worker)
-			workPower += getUnitWorkPower(user.getUnitId(), worker.getUnitId())
-		else
+		if workers.contains(worker) == false
 			error("Worker does not belong to this workshop")
+		workPower += getUnitWorkPower(user.getUnitId(), worker.getUnitId())
 
 	function leaveBuilding(unit worker)
-		if workers.contains(worker)
-			workPower -= getUnitWorkPower(user.getUnitId(), worker.getUnitId())
-		else
+		if workers.contains(worker) == false
 			error("Worker does not belong to this workshop")
+		workPower -= getUnitWorkPower(user.getUnitId(), worker.getUnitId())
 
 	/** Transfers as many educts as possible from source storage to this workshop.
 	Afterwards transfers as many products as possible from this workshop to source storage. */

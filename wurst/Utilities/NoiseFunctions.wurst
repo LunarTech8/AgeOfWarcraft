@@ -15,6 +15,7 @@ import Array2D
 import ComputationControl
 import LoadStatusSystem
 import UtilityFunctions
+import ErrorHandling
 
 
 // --------------------
@@ -29,7 +30,7 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 	else if interpolation == "Cosine"
 		interpolationMethod = 1
 	else
-		Log.error("Invalid interpolation method")
+		error("Invalid interpolation method")
 	// Create smooth noise map:
 	let width = baseNoise.sizeX()
 	let height = baseNoise.sizeY()
@@ -137,7 +138,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 	else if distribution == "Uniform"  // Horizontal curve with no peak
 		forceComputationBreak()
 		if width % 2 != 0
-			Log.error("width (=" + width.toString() + ") has to be even for Uniform distribution")
+			error("width (=" + width.toString() + ") has to be even for Uniform distribution")
 		for i = 0 to (width div 2) - 1
 			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
@@ -147,12 +148,12 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				perlinNoise.set(i, j, EULER.pow(-0.5 * (z1 * z1 + z2 * z2)))
 				let acosInput = z1 / (z1 * z1 + z2 * z2).divByZeroProt()
 				if acosInput.abs() > 1
-					Log.error("Acos only allows numbers between -1 and 1 (" + acosInput.toString() + ")")
+					error("Acos only allows numbers between -1 and 1 (" + acosInput.toString() + ")")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
 				computationCost += 0.124
 			checkForComputationBreak()
 	else
-		Log.error("Invalid distribution method")
+		error("Invalid distribution method")
 	return perlinNoise
 public function generatePerlinNoise(int width, int height, int octaveCount, real persistance, string interpolation) returns Array2DReal
 	return generatePerlinNoise(width, height, octaveCount, persistance, interpolation, "Slope")

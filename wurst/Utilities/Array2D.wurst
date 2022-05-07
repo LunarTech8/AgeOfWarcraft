@@ -62,11 +62,9 @@ public class Array2D<T>
 		let s = slot2D(x, y)
 		s.checkBoundaries(sizeX, sizeY)
 		let key = s.toSlot1D(sizeX)
-		if data.has(key)
-			return data.get(key)
-		else
+		if data.has(key) == false
 			error("Slot (" + x.toString() + ", " + y.toString() + ") has no value")
-			return null
+		return data.get(key)
 
 	function set(int x, int y, T elem)
 		let s = slot2D(x, y)

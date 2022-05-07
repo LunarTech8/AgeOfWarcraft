@@ -85,16 +85,14 @@ public class Home
 		return getMaxInhabitants(user.getUnitId()) - inhabitants.size()
 
 	function addInhabitant(unit inhabitant)
-		if inhabitants.contains(inhabitant) == false and inhabitants.size() < getMaxInhabitants(user.getUnitId())
-			inhabitants.addUnit(inhabitant)
-		else
+		if inhabitants.contains(inhabitant) or inhabitants.size() >= getMaxInhabitants(user.getUnitId())
 			error("Can't add inhabitant to this home")
+		inhabitants.addUnit(inhabitant)
 
 	function removeInhabitant(unit inhabitant)
-		if inhabitants.contains(inhabitant)
-			inhabitants.removeUnit(inhabitant)
-		else
+		if inhabitants.contains(inhabitant) == false
 			error("Can't remove inhabitant from this home")
+		inhabitants.removeUnit(inhabitant)
 
 
 function unit.addHome()

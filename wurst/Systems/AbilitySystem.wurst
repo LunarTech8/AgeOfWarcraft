@@ -460,17 +460,19 @@ init
 							if targetGatherplace.isWorker(source) == false
 								source.getPerson().setWorkplaceBuilding(targetGatherplace)
 						else if targetDepository != null
-							// Transfer wares and add source to target depository as worker:
+							// Transfer wares, add source to target depository as worker and enter it:
+							let sourcePerson = source.getPerson()
 							targetDepository.transferWares(source.getStorage(), false)
 							if targetDepository.isWorker(source) == false
-								source.getPerson().setWorkplaceBuilding(targetDepository)
+								sourcePerson.setWorkplaceBuilding(targetDepository)
+							sourcePerson.enterBuilding(targetUnit)
 					case AbilityIdsCustom.removeWorker
 						let sourceWorkshop = source.getWorkshop()
 						let sourceGatherplace = source.getGatherplace()
 						if sourceWorkshop != null
 							// Remove a worker from source workshop:
 							let person = sourceWorkshop.getFirstWorker().getPerson()
-							if person.enteredBuilding == source
+							if person.getEnteredBuilding() == source
 								person.leaveBuilding()
 							person.setWorkplaceBuilding(null)
 						else if sourceGatherplace != null

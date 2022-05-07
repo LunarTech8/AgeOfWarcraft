@@ -77,11 +77,9 @@ public abstract class Workplace
 		return workers.size()
 
 	function getFirstWorker() returns unit
-		if workers.size() > 0
-			return workers.getUnitAt(0)
-		else
+		if workers.size() <= 0
 			error("Workplace doesn't have any worker")
-			return null
+		return workers.getUnitAt(0)
 
 	function getWorkers() returns group
 		let workers = CreateGroup()
@@ -92,13 +90,11 @@ public abstract class Workplace
 		return getMaxWorkers(user.getUnitId()) - workers.size()
 
 	function addWorker(unit worker)
-		if workers.contains(worker) == false and workers.size() < getMaxWorkers(user.getUnitId())
-			workers.addUnit(worker)
-		else
+		if workers.contains(worker) or workers.size() >= getMaxWorkers(user.getUnitId())
 			error("Can't add worker to this workplace")
+		workers.addUnit(worker)
 
 	function removeWorker(unit worker)
-		if workers.contains(worker)
-			workers.removeUnit(worker)
-		else
+		if workers.contains(worker) == false
 			error("Can't remove worker from this workplace")
+		workers.removeUnit(worker)

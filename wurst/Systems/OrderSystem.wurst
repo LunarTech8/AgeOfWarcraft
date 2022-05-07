@@ -67,16 +67,14 @@ class OrderTarget
 		destroy sources
 
 	function addSource(OrderSource source)
-		if sources.has(source) == false
-			sources.add(source)
-		else
+		if sources.has(source)
 			error("Source already has that target")
+		sources.add(source)
 
 	function removeSource(OrderSource source)
-		if sources.has(source)
-			sources.remove(source)
-		else
+		if sources.has(source) == false
 			error("Source does not have that target")
+		sources.remove(source)
 
 public class OrderAction
 	private timer t

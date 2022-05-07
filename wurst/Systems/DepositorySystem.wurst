@@ -60,15 +60,35 @@ public class Depository extends Workplace
 	function getStorage() returns Storage
 		return storage
 
-	function orderWorking()
-		for worker in workers
-			// TODO: only for workers that are in the building
-			let target = this.findNextWorkshopInNeedOfEducts()
-			if target != null
-				// TODO: give needed wares to worker and leave building
-				worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
-			else
-				// TODO: find fullest workshop/gatherplace and take wares from there
+	function orderWorking(unit worker, bool wasInBuilding)
+		// Go to and enter buidling:
+		if wasInBuilding == false
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, user, true)
+			return
+		// Search for workshop in need of educts:
+		var target = this.findNextWorkshopInNeedOfEducts()
+		if target != null
+			// Give needed educts to worker:
+			let educts = target.getWorkshop().getEducts()
+			let workshopStock = target.getWorkshop().getStock()
+			let workerStorage = worker.getStorage()
+			for iWare in educts
+				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - workshopStock.getWareCount(iWare.wareType), storage.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
+				if wareCount > 0
+					// Transfer ware:
+					storage.removeWare(ware(iWare.wareType, wareCount))
+					workerStorage.addWare(ware(iWare.wareType, wareCount))
+			destroy educts
+			// Order ware transfer:
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
+			return
+		// Search for workplace with products:
+		target = this.findNextWorkplaceWithProducts()
+		if target != null
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
+			return
+		// Reenter building:
+		worker.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, user, true)
 
 	/** Transfers as many wares as possible from source to this depository. */
 	override function transferWares(Storage source, bool _takeWares)
@@ -121,6 +141,11 @@ function Depository.findNextWorkshopInNeedOfEducts() returns unit
 				findNextWorkshopInNeedOfEducts_ValidUnits.addUnit(target)
 		// Return nearest valid workshop:
 		return pos.getNearestUnit(findNextWorkshopInNeedOfEducts_ValidUnits, true)
+	return null
+
+/** Returns next valid workshop or gatherplace unit with products for this depository. */
+function Depository.findNextWorkplaceWithProducts() returns unit
+	// TODO: implement
 	return null
 
 /** Returns the depository of given unit. */

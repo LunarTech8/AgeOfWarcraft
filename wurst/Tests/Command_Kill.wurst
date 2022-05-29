@@ -15,12 +15,12 @@ let COMMAND_SHORT = "k"
 // --------------------
 
 function executeCommand()
-	ENUM_GROUP.enumUnitsSelected(USER_PLAYER, null)
+	ENUM_GROUP.enumUnitsSelected(Settings.USER_PLAYER, null)
 	for u from ENUM_GROUP
 		u.kill()
 
 init
 	CreateTrigger()
 	..addAction(function executeCommand)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND_SHORT, true)

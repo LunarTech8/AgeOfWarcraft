@@ -22,6 +22,6 @@ public class DestructableData_Maple
 	..setMinScale(DestructableData_Maple.minScale)
 	..setPlaceableOnCliffs(true)
 	// Pathing:
-	..setPath("PathTextures\\2x2Default.tga")
+	..setPath("PathTextures\\4x4Default.tga")
 	// Text:
 	..setName("Maple")

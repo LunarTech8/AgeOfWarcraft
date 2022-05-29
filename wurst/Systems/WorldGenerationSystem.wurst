@@ -31,8 +31,6 @@ import MapBounds
 // --------------------
 
 // World data:
-let WORLD_DATA_LOAD = false
-let WORLD_DATA_SAVE = true
 let WORLD_DATA_FILE_NAME = "WorldData.pld"  // In folder ..\Documents\Warcraft III\CustomMapData
 let WORLD_DATA_PART_LENGTHS = [0, 4, 5]  // Indices where one data value ends and the next one starts
 
@@ -127,7 +125,7 @@ function generateWorldData()
 	// Create plant map:
 	noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, 5, 0.6, "Cosine")
 	newInitSubStatus("Calculate plant data")
-	// newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
 		setInitStepStatus(x + 1, MapData.TILES_X)
 		for	y = 0 to MapData.TILES_Y - 1
@@ -142,10 +140,10 @@ function generateWorldData()
 
 public function createWorldData()
 	newInitStatus("World data creation")
-	if WORLD_DATA_LOAD
+	if Settings.WORLD_DATA_LOAD
 		// Load world data:
 		newInitSubStatus("Load and synchronize data")
-		USER_PLAYER.loadData(WORLD_DATA_FILE_NAME) (status, data) ->
+		Settings.USER_PLAYER.loadData(WORLD_DATA_FILE_NAME) (status, data) ->
 			if status == SUCCESS
 				decodeWorldData(data)
 			else
@@ -159,10 +157,10 @@ public function createWorldData()
 		generateWorldData()
 		isWorldDataLoaded = true
 		// Save world data if requested:
-		if WORLD_DATA_SAVE
+		if Settings.WORLD_DATA_SAVE
 			newInitSubStatus("Save data")
 			let encodedData = encodeWorldData()
-			USER_PLAYER.saveData(WORLD_DATA_FILE_NAME, encodedData)
+			Settings.USER_PLAYER.saveData(WORLD_DATA_FILE_NAME, encodedData)
 			destroy encodedData
 
 public function createTerrain()

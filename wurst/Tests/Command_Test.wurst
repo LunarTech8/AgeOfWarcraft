@@ -43,9 +43,12 @@ function executeCommand()
 	print("Current order targets: " + getOrderTargetCount().toString())
 	print("Current building sites: " + getBuildingSiteCount().toString())
 	print("Current workers: " + getWorkerCount().toString())
+	testCounter += 1
+	print("-------- Test " + testCounter.toString() + ":")
+	print("Map name: " + Settings.SELECTED_MAP)
 
 init
 	CreateTrigger()
 	..addAction(function executeCommand)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND_SHORT, true)

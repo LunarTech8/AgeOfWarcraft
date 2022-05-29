@@ -17,7 +17,7 @@ let COMMAND_SHORT = "gw"
 // --------------------
 
 function executeCommand()
-	ENUM_GROUP.enumUnitsSelected(USER_PLAYER, null)
+	ENUM_GROUP.enumUnitsSelected(Settings.USER_PLAYER, null)
 	for u from ENUM_GROUP
 		let storage = u.getStorage()
 		if storage != null
@@ -28,5 +28,5 @@ function executeCommand()
 init
 	CreateTrigger()
 	..addAction(function executeCommand)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND_SHORT, true)

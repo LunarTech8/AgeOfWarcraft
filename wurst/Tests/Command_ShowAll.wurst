@@ -15,11 +15,11 @@ let COMMAND_SHORT = "sa"
 // --------------------
 
 function executeCommand()
-	bj_lastCreatedFogModifier = CreateFogModifierRect(USER_PLAYER, FOG_OF_WAR_VISIBLE, bj_mapInitialPlayableArea, true, false)
+	bj_lastCreatedFogModifier = CreateFogModifierRect(Settings.USER_PLAYER, FOG_OF_WAR_VISIBLE, bj_mapInitialPlayableArea, true, false)
 	FogModifierStart(bj_lastCreatedFogModifier)
 
 init
 	CreateTrigger()
 	..addAction(function executeCommand)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND, true)
-	..registerPlayerChatEvent(USER_PLAYER, COMMAND_SHORT, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND_SHORT, true)

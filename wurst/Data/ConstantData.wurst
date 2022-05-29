@@ -19,11 +19,15 @@ import HashMap
 // Data code
 // --------------------
 
-public constant USER_PLAYER = Player(0)
-public constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
-public constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
-public constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 17
-public constant INIT_UNIT_INDEX_SIZE = 256  // Estimation for amount of indexed units at initialisation
+public class Settings
+	static constant SELECTED_MAP = "AgeOfWarcraft_GenerateMap_Small"
+	static constant WORLD_DATA_LOAD = true
+	static constant WORLD_DATA_SAVE = true
+	static constant USER_PLAYER = Player(0)
+
+constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
+constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
+constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 17
 
 public class UnitIdsCustom
 	//--------------
@@ -188,13 +192,13 @@ public abstract class ImportPaths
 	static constant background05 = "LoadingScreens\\Background05.tga"
 
 public class MapData
-	static constant SELECTED_MAP = "AgeOfWarcraft_Islands_Small"
-	static constant START_VEC = compiletime(initStartVec(SELECTED_MAP))
-	static var TILES_X = compiletime(initTilesX(SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
-	static var TILES_Y = compiletime(initTilesY(SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
-	static constant ORIGIN_VEC = compiletime(initOriginVec(SELECTED_MAP))  // Left, bottom point from which the terrain generation starts towards right, top point
-	static constant GENERATE_MAP = compiletime(initGenerateMap(SELECTED_MAP))
+	static constant START_VEC = compiletime(initStartVec(Settings.SELECTED_MAP))
+	static var TILES_X = compiletime(initTilesX(Settings.SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
+	static var TILES_Y = compiletime(initTilesY(Settings.SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
+	static constant ORIGIN_VEC = compiletime(initOriginVec(Settings.SELECTED_MAP))  // Left, bottom point from which the terrain generation starts towards right, top point
+	static constant GENERATE_MAP = compiletime(initGenerateMap(Settings.SELECTED_MAP))
 
+	// TODO: Could also use build-in GetPlayerStartLocationX/Y instead
 	private static function initStartVec(string selectedMap) returns vec2
 		switch selectedMap
 			case "AgeOfWarcraft_Islands_Small"
@@ -204,6 +208,7 @@ public class MapData
 			default
 				return vec2(0., 0.)
 
+	// TODO: Could also use build-in GetPlayableMapRect instead
 	private static function initTilesX(string selectedMap) returns int
 		switch selectedMap
 			case "AgeOfWarcraft_Islands_Small"
@@ -213,6 +218,7 @@ public class MapData
 			default
 				return 0
 
+	// TODO: Could also use build-in GetPlayableMapRect instead
 	private static function initTilesY(string selectedMap) returns int
 		switch selectedMap
 			case "AgeOfWarcraft_Islands_Small"
@@ -222,6 +228,7 @@ public class MapData
 			default
 				return 0
 
+	// TODO: Could also use build-in MapBounds.playableMin instead
 	private static function initOriginVec(string selectedMap) returns vec2
 		switch selectedMap
 			case "AgeOfWarcraft_GenerateMap_Small"

@@ -171,11 +171,11 @@ public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	// Create new map:
 	let hashMapA = new UnitHashMap<string>(null)
 	// Add entries and check:
-	let unitA = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	hashMapA.put(unitA, "unitA")
 	hashMapA.get(unitA).assertEquals(testName, "unitA")
 	hashMapA.has(unitA).assertTrue(testName)
-	let unitB = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	hashMapA.put(unitB, "unitB")
 	hashMapA.get(unitB).assertEquals(testName, "unitB")
 	// Remove entry and check:
@@ -185,7 +185,7 @@ public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	hashMapA.tryRemove(unitA).assertEquals(testName, hashMapA.nullElem)
 	hashMapA.get(unitB).assertEquals(testName, "unitB")
 	hashMapA.tryGet(unitB).assertEquals(testName, "unitB")
-	let unitC = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	hashMapA.put(unitC, "unitC")
 	hashMapA.tryRemove(unitC).assertEquals(testName, "unitC")
 	// Create another map:
@@ -198,7 +198,7 @@ public function testUnitHashMap_AddAndRemove(bool isInGameTest)
 	hashMapB.put(unitC, 3)
 	hashMapB.get(unitC).assertEquals(testName, 3)
 	hashMapB.remove(unitB)
-	let unitD = createUnit(DUMMY_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitD = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	testFinish(testName)
 	// Remove test units:
 	if isInGameTest

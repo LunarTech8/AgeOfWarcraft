@@ -264,6 +264,14 @@ function unit.removeWorkshop()
 public function unit.getWorkshop() returns Workshop
 	return WORKSHOP_MAP.tryGet(this)
 
+/** Creates and returns a workshop building with given values. */
+public function createWorkshopBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
+	let building = createUnit(owner, unitId, pos, facing)
+	building.addWorkshop()
+	if WORKSHOP_MAP.has(building) == FALSE
+		error("Could not create " + building.getName() + " as workshop building")
+	return building
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
 	this.addMultiboardLine("Workshop: " + ws.user.getName(), HEADLINE_ICON_PATH)
@@ -305,7 +313,7 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
-	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
+	let unitA = createWorkshopBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
 	workshopA.getStock().addWare(ware(WareType.WOODEN_BOARDS, 4))
 	workshopA.getStoredProductsCount().assertEquals(testName, 2)
@@ -315,14 +323,14 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	workshopA.getWorkPower().assertEquals(testName, 0.)
 	workshopA.isValidWorkerType(UnitIdsCustom.AoW.peasant).assertTrue(testName)
 	// Add workers:
-	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let storageA = unitB.getStorage()
 	storageA.addWare(ware(WareType.WOOD, 6))
-	let unitC = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.issueTargetOrderById(OrderIds.smart, unitA)
 	unitC.issueTargetOrderById(OrderIds.smart, unitA)
-	let unitD = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let unitE = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitD = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitE = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check workshop status:
 		workshopA.getWorkerCount().assertEquals(testName, 2)
@@ -355,7 +363,7 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
-	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
+	let unitA = createWorkshopBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.getWorkshop()
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
@@ -387,9 +395,9 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	workshopA.changeProduct()
 	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
 	// Add workers directly:
-	let unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let unitC = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let unitD = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitD = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	workshopA.addWorker(unitB)
 	workshopA.enterBuilding(unitB)
 	unitB.hide()

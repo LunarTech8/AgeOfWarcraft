@@ -1,0 +1,25 @@
+package Command_CreatePeasant
+import ConstantData
+
+
+// --------------------
+// Data code
+// --------------------
+
+let COMMAND = "create peasant"
+let COMMAND_SHORT = "cp"
+
+
+// --------------------
+// Functional code
+// --------------------
+
+function executeCommand()
+	if localPlayer == Settings.USER_PLAYER
+		createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, getCameraTargetPosition(), angle(0))
+
+init
+	CreateTrigger()
+	..addAction(function executeCommand)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND, true)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND_SHORT, true)

@@ -20,7 +20,7 @@ Work status:
 // Worklog:
 // -------------
 
-!!>>- Improve Startup
+!!!>>- Improve Startup
 	>- Create a GenerateMap_Medium and GenerateMap_Big
 	>>>- Check and fix generation for implemented maps (computationCosts)
 	>>>- Check and fix that Command_UnitTests is still working

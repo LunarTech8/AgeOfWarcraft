@@ -42,7 +42,7 @@ function executeCommand()
 	// StorageSystem:
 	testStorageSystem_AddAndRemove(true)
 	// PersonSystem:
-	testPersonSystem_StatsAndBuildings()  // FIXME: nullpointer error for Home.isInhabitant()
+	testPersonSystem_StatsAndBuildings()  // FIXME: Fix "Unrecognized building type (Peasant House)"
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))
 	testPersonSystem_DamageReaction(vec2(0., 384.))
 	// BuildingSystem:

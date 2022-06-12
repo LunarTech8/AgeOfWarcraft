@@ -108,6 +108,14 @@ function unit.removeHome()
 public function unit.getHome() returns Home
 	return HOME_MAP.tryGet(this)
 
+/** Creates and returns a home building with given values. */
+public function createHomeBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
+	let building = createUnit(owner, unitId, pos, facing)
+	building.addHome()
+	if HOME_MAP.has(building) == FALSE
+		error("Could not create " + building.getName() + " as home building")
+	return building
+
 /** Sets system relevant infos for given object in target multiboard. */
 public function multiboard.setObjectInfoMultiboard(Home h) returns bool
 	this.addMultiboardLine("Home: " + h.getUnit().getName(), HEADLINE_ICON_PATH)

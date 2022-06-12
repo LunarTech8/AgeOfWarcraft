@@ -26,6 +26,7 @@ let MAX_COMPUTATION_COST_PER_CYCLE = 256.
 
 public var isComputationControlActivated = true
 public var computationCost = 0.
+public var computationCostBreakCounter = 0
 
 public function checkForComputationBreak()
 	if isComputationControlActivated
@@ -33,6 +34,7 @@ public function checkForComputationBreak()
 			if computationCost >= 2 * MAX_COMPUTATION_COST_PER_CYCLE
 				Log.warn("Bad placement of checkComputationCost (Residual cost of " + (computationCost - MAX_COMPUTATION_COST_PER_CYCLE).toString() + ")")
 			TriggerSleepAction(MIN_TRIGGER_SLEEP_TIME)
+			computationCostBreakCounter++
 			computationCost = 0.
 
 public function forceComputationBreak()

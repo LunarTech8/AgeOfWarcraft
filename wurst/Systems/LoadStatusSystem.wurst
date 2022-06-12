@@ -14,6 +14,7 @@ import ClosureTimers
 import LinkedList
 import UtilityFunctions
 import ConstantData
+import ComputationControl
 
 
 // --------------------
@@ -41,6 +42,7 @@ let LOAD_SCREEN_IMAGE_PATHS = [
 string loadStatusCategory
 let loadStatusText = new LinkedList<string>()
 int loadStatusSymbolIndex
+int loadStatusSymbolIndexBreakCounter
 int loadStatusTasksCurrent
 int loadStatusTasksAmount
 CallbackPeriodic loadStatusCb = null
@@ -48,34 +50,36 @@ CallbackPeriodic loadStatusCb = null
 string currentInitStatus = null
 string currentInitSubStatus = null
 
-function updateLoadStatus()
-	loadStatusSymbolIndex++
-	if loadStatusSymbolIndex >= UPDATE_SYMBOLS.length
-		loadStatusSymbolIndex = 0
-	while loadStatusText.size() > 1
-		print(loadStatusText.dequeue(), LOAD_STATUS_ADJUSTMENT_RATE)
-	ClearTextMessages()
+function determineLoadingSymbols() returns string
+	// Update load status symbol index:
+	if computationCostBreakCounter > loadStatusSymbolIndexBreakCounter
+		loadStatusSymbolIndexBreakCounter = computationCostBreakCounter
+		loadStatusSymbolIndex++
+		if loadStatusSymbolIndex >= UPDATE_SYMBOLS.length
+			loadStatusSymbolIndex = 0
+	// Determine status task based loading symbols:
 	var loadingSymbols = ""
 	for i = 1 to loadStatusTasksCurrent - 1
 		loadingSymbols += TASK_SYMBOL_FINISHED
 	loadingSymbols += UPDATE_SYMBOLS[loadStatusSymbolIndex]
 	for i = loadStatusTasksCurrent + 1 to loadStatusTasksAmount
 		loadingSymbols += TASK_SYMBOL_UNFINISHED
-	print(loadStatusCategory + " [" + loadingSymbols + "]", LOAD_STATUS_ADJUSTMENT_RATE)
+	return loadingSymbols
+
+function updateLoadStatus()
+	// Print stacked status texts silently:
+	while loadStatusText.size() > 1
+		print(loadStatusText.dequeue(), LOAD_STATUS_ADJUSTMENT_RATE)
+	ClearTextMessages()
+	// Print current load status:
+	print("Computation cost breaks: " + computationCostBreakCounter.toString(), LOAD_STATUS_ADJUSTMENT_RATE)  // DEBUG:
+	print(loadStatusCategory + " [" + determineLoadingSymbols() + "]", LOAD_STATUS_ADJUSTMENT_RATE)
 	print(loadStatusText.getFirst(), LOAD_STATUS_ADJUSTMENT_RATE)
 
 function updateLoadStatusWithoutClear()
 	if loadStatusText.isEmpty() == false
-		loadStatusSymbolIndex++
-		if loadStatusSymbolIndex >= UPDATE_SYMBOLS.length
-			loadStatusSymbolIndex = 0
-		var loadingSymbols = ""
-		for i = 1 to loadStatusTasksCurrent - 1
-			loadingSymbols += TASK_SYMBOL_FINISHED
-		loadingSymbols += UPDATE_SYMBOLS[loadStatusSymbolIndex]
-		for i = loadStatusTasksCurrent + 1 to loadStatusTasksAmount
-			loadingSymbols += TASK_SYMBOL_UNFINISHED
-		print(loadStatusCategory + " [" + loadingSymbols + "]")
+		// Print current load status and all stacked status texts:
+		print(loadStatusCategory + " [" + determineLoadingSymbols() + "]")
 		while loadStatusText.isEmpty() == false
 			print(loadStatusText.dequeue())
 

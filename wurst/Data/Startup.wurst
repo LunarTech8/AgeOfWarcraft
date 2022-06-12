@@ -35,8 +35,7 @@ let START_WOOD_COUNT_PER_PEASANT = 5
 
 function createPlayerUnits()
 	newInitStatus("Player units creation")
-	let settlementCentre = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.townHall, MapData.START_VEC, angle(225.))
-	settlementCentre.tryAddSettlement()
+	let settlementCentre = createSettlementBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.townHall, MapData.START_VEC, angle(225.))
 	for i = 1 to START_PEASANT_COUNT
 		let u = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, MapData.START_VEC, angle(0.))
 		nullTimer() ->

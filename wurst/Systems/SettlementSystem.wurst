@@ -229,9 +229,13 @@ public function unit.getSettlement() returns Settlement
 		settlement = null
 	return settlement
 
-/** Trys to add this unit as settlement. Returns if it could be added. */
-public function unit.tryAddSettlement() returns bool
-	return this.addSettlement(getRandomName()) == Validity.VALID
+/** Creates and returns a settlement building with given values. */
+public function createSettlementBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
+	let building = createUnit(owner, unitId, pos, facing)
+	building.addSettlement(getRandomName())
+	if SETTLEMENT_MAP.has(building) == FALSE
+		error("Could not create " + building.getName() + " as settlement building")
+	return building
 
 /** Trys to add this unit given settlement. Returns if it could be added. */
 public function unit.tryAddToSettlement(unit centreBuilding) returns bool
@@ -278,7 +282,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	// Remove units blocking the building:
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
 	// Order to build:
-	let unitA = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre, angle(0))
+	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let storageA = unitA.getStorage()
 	storageA.addWare(ware(WareType.WOOD, 4))
 	storageA.addWare(ware(WareType.STONE, 3))
@@ -291,7 +295,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check settlement mappings:
 		let filterA = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.townHall)
-		testSettlementSystem_Build_buildingA = testCentre.getNearestUnit(128., filterA, Player(0))
+		testSettlementSystem_Build_buildingA = testCentre.getNearestUnit(128., filterA, Settings.USER_PLAYER)
 		filterA.destr()
 		assertNotNull(testName, testSettlementSystem_Build_buildingA)
 		settlementA = testSettlementSystem_Build_buildingA.getSettlement()
@@ -301,14 +305,14 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		settlementA.buildings.size().assertEquals(testName, 0)
 		assertTrue(testName, settlementA.isMember(unitA))
 		// Order to build new structure for settlement:
-		unitB = createUnit(Player(0), UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
+		unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
 		let storageB = unitB.getStorage()
 		storageB.addWare(ware(WareType.WOOD, 4))
 		unitB.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre.add(384., 0.))
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Recheck settlement mappings:
 		let filterB = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.peasantHouse)
-		testSettlementSystem_Build_buildingB = testCentre.add(384., 0.).getNearestUnit(128., filterB, Player(0))
+		testSettlementSystem_Build_buildingB = testCentre.add(384., 0.).getNearestUnit(128., filterB, Settings.USER_PLAYER)
 		filterB.destr()
 		assertNotNull(testName, testSettlementSystem_Build_buildingB)
 		assertNotNull(testName, settlementA)  // DEBUG: settlementA is null in this callback, maybe because it was set in another callback

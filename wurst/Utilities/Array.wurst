@@ -13,6 +13,7 @@ package Array
 import LinkedList
 import ErrorHandling
 import UnitTest
+import ComputationControl
 
 
 // --------------------
@@ -203,6 +204,8 @@ public class ArrayReal
 			a.size = 0  // Set temporarily to 0 to avoid concurrent wrong accesses
 			for j = 0 to aSize - 1
 				setArrayRealValue(j + newIndexOffset, getArrayRealValue(j + a.indexOffset))
+				computationCost += 0.0256
+				checkForComputationBreak()
 			a.indexOffset = newIndexOffset
 			a.size = aSize
 			newIndexOffset = a.getFollowerIndexOffset()
@@ -305,8 +308,8 @@ public function testArray_SetAndGet(bool isInGameTest)
 	arrayB.get(5121).assertEquals(testName, 0.254, REAL_COMPARE_DELTA)
 	testFinish(testName)
 	// Destroy class objects:
-	destroy arrayA
 	destroy arrayB
+	destroy arrayA
 
 @Test public function testArray_CreateAndDestroy()
 	testArray_CreateAndDestroy(false)
@@ -344,8 +347,8 @@ public function testArray_CreateAndDestroy(bool isInGameTest)
 	arrayC.get(454).assertEquals(testName, 0., REAL_COMPARE_DELTA)
 	testFinish(testName)
 	// Destroy class objects:
-	destroy arrayB
 	destroy arrayC
+	destroy arrayB
 
 @Test public function testArray_FullMemoryAreaCheck()
 	testArray_FullMemoryAreaCheck(false)
@@ -372,6 +375,6 @@ public function testArray_FullMemoryAreaCheck(bool isInGameTest)
 	for i = 0 to ARRAY_INT_SIZE - indexOffsetInt - 1
 		arrayB.get(i).assertEquals(testName, i)
 	// Destroy arrays beforehand for other tests:
-	destroy arrayA
 	destroy arrayB
+	destroy arrayA
 	testFinish(testName)

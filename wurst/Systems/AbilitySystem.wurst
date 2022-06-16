@@ -281,7 +281,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		if this.getBuildingSiteOfWorker() != null
 			return Validity.WORKER_ALREADY_BUILDING
 		// Check if target has free worker slot:
-		if buildingSite.getFreeWorkerSlots() <= 0
+		if buildingSite.getFreeWorkerSlotsForBuildingSite() <= 0
 			return Validity.NO_FREE_UNIT_SLOT
 	else if abilityId == AbilityIdsCustom.harvest
 		// Check if source and target are valid:

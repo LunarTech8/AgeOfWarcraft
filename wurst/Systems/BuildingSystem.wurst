@@ -42,7 +42,7 @@ import WorkplaceSystem
 let BUILDING_ADJUSTMENT_RATE = 0.1
 let BUILDING_START_HP_PERCENTAGE = 0.1  // Has to be smaller than 1 and bigger than 0
 let MAX_AUTO_ORDER_RANGE = 1024.
-let MAX_NEAR_BY_RANGE = 256.
+let MAX_NEAR_BY_RANGE = 384.
 let BUILDING_GROUND_UNIT_ID = UnitIdsCustom.AoW.buildingGround
 let BUILD_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let BUILD_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
@@ -266,7 +266,7 @@ class BuildingSite extends Workplace
 		return workPower
 
 	override function addWorker(unit worker)
-		super.addWorker(worker)
+		super.addWorkerForBuildingSite(worker)
 		workPower += getUnitWorkPower(user.getUnitId(), worker.getUnitId())
 		InstantDummyCaster.castTarget(null, AbilityIdsCustom.addBuildingBuff, 1, AbilityIdsCustom.addBuildingBuff.getAbilityOrder(), worker)
 		doAfter(MIN_TRIGGER_SLEEP_TIME, () -> SetUnitAnimation(worker, "work"))
@@ -305,7 +305,7 @@ class BuildingSite extends Workplace
 		// Order nearby idle workers to build on building site:
 		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
 		let owner = user.getOwner()
-		var requiredWorkers = getFreeWorkerSlots()
+		var requiredWorkers = getFreeWorkerSlotsForBuildingSite()
 		for worker from ENUM_GROUP
 			// Check if more workers are required:
 			if requiredWorkers <= 0
@@ -320,7 +320,7 @@ class BuildingSite extends Workplace
 		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
 		let owner = user.getOwner()
 		for carrier from ENUM_GROUP
-			if carrier.getOwner() == owner and carrier.getOrderSource() == null and hasCarrierRequiredResources(carrier)
+			if carrier.getOwner() == owner and (carrier.getOrderSource() == null or carrier.isOrder(OrderIds.move)) and hasCarrierRequiredResources(carrier)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 
 	/** Transfers required wares from source storage to this building sie.
@@ -478,7 +478,7 @@ unit testBuildingSystem_Build_building = null
 public function testBuildingSystem_Build(vec2 testCentre)
 	let testName = setTestName("testBuildingSystem_Build", true)
 	// Remove units blocking the building:
-	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(640.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let unitB = createSettlementBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.townHall, testCentre.add(384., 0.), angle(0))
@@ -491,6 +491,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 		// Check unit mappings:
 		let buildingSiteA = unitA.getBuildingSiteOfWorker()
 		assertNotNull(testName, buildingSiteA)
+		assertEquals(testName, buildingSiteA.getWorkPower(), getUnitWorkPower(UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.peasant))
 		testBuildingSystem_Build_building = buildingSiteA.getUnit()
 		assertNotNull(testName, testBuildingSystem_Build_building)
 		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), buildingSiteA)
@@ -507,6 +508,6 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Remove test units:
 		unitA.kill()
-		unitB.kill()
 		unitA.remove()
+		unitB.kill()
 		unitB.remove()

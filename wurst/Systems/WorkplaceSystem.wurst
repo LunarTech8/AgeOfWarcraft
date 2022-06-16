@@ -34,16 +34,31 @@ function getWorkerUnitId(int workplaceUnitId) returns int
 	return 0
 
 /** Returns the maximum allowed amount of workers of the given workplace type. */
-function getMaxWorkers(int workplaceUnitId) returns int
-	switch workplaceUnitId
-		case UnitIdsCustom.AoW.lumberMill
-			return 3
-		case UnitIdsCustom.AoW.blacksmith
-			return 3
-		case UnitIdsCustom.AoW.lumberCamp
-			return 3
-		case UnitIdsCustom.AoW.townHall
-			return 3
+function getMaxWorkers(int workplaceUnitId, bool forBuildingSite) returns int
+	if forBuildingSite
+		switch workplaceUnitId
+			case UnitIdsCustom.AoW.townHall
+				return 6
+			case UnitIdsCustom.AoW.peasantHouse
+				return 3
+			case UnitIdsCustom.AoW.blacksmith
+				return 4
+			case UnitIdsCustom.AoW.lumberMill
+				return 4
+			case UnitIdsCustom.AoW.barracks
+				return 5
+			case UnitIdsCustom.AoW.lumberCamp
+				return 3
+	else
+		switch workplaceUnitId
+			case UnitIdsCustom.AoW.lumberMill
+				return 3
+			case UnitIdsCustom.AoW.blacksmith
+				return 3
+			case UnitIdsCustom.AoW.lumberCamp
+				return 3
+			case UnitIdsCustom.AoW.townHall
+				return 3
 	return 0
 
 
@@ -87,10 +102,18 @@ public abstract class Workplace
 		return workers
 
 	function getFreeWorkerSlots() returns int
-		return getMaxWorkers(user.getUnitId()) - workers.size()
+		return getMaxWorkers(user.getUnitId(), false) - workers.size()
+
+	function getFreeWorkerSlotsForBuildingSite() returns int
+		return getMaxWorkers(user.getUnitId(), true) - workers.size()
 
 	function addWorker(unit worker)
-		if workers.contains(worker) or workers.size() >= getMaxWorkers(user.getUnitId())
+		if workers.contains(worker) or workers.size() >= getMaxWorkers(user.getUnitId(), false)
+			error("Can't add worker to this workplace")
+		workers.addUnit(worker)
+
+	function addWorkerForBuildingSite(unit worker)
+		if workers.contains(worker) or workers.size() >= getMaxWorkers(user.getUnitId(), true)
 			error("Can't add worker to this workplace")
 		workers.addUnit(worker)
 

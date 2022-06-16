@@ -276,13 +276,21 @@ public function unit.setOrder(int orderId, entity target, OrderAction orderActio
 	else
 		error("Unit and destructable of entity are null")
 
-/** Returns if the unit has order with given parameters. */
+/** Returns if the unit has an order with given id and target. */
 public function unit.isOrder(int orderId, unit target) returns bool
 	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
 	if orderSource != null
 		return orderSource.orderId == orderId and (orderSource castTo OrderSourceU).target == target
 	else
 		return false
+/** Returns if the unit has an order with given id. */
+public function unit.isOrder(int orderId) returns bool
+	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
+	if orderSource != null
+		return orderSource.orderId == orderId
+	else
+		return false
+
 
 /** Clear unit as order source. */
 public function unit.removeSourceOrder()

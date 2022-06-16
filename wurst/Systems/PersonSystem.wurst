@@ -244,7 +244,7 @@ public class Person
 		else if targetDepository != null and targetDepository == workplace
 			DoNothing()
 		else
-			error("Unrecognized building type (" + building.getName() + ")")
+			error("Unrecognized building type to enter (" + building.getName() + ")")
 		enteredBuilding = building
 		user.hide()
 
@@ -261,7 +261,7 @@ public class Person
 		else if targetDepository != null and targetDepository == workplace
 			DoNothing()
 		else
-			error("Unrecognized building type (" + enteredBuilding.getName() + ")")
+			error("Unrecognized building type to leave (" + enteredBuilding.getName() + ")")
 		enteredBuilding = null
 		user.show()
 
@@ -356,9 +356,8 @@ init
 // Test code
 // --------------------
 
-public function testPersonSystem_StatsAndBuildings()
+public function testPersonSystem_StatsAndBuildings(vec2 testCentre)
 	let testName = setTestName("testPersonSystem_StatsAndBuildings", true)
-	let testCentre = vec2(0., 0.)
 	// Create person and reduce stats:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let personA = unitA.getPerson()
@@ -378,9 +377,7 @@ public function testPersonSystem_StatsAndBuildings()
 	personA.setHomeBuilding(homeB)
 	homeA.isInhabitant(unitA).assertFalse(testName)
 	homeB.isInhabitant(unitA).assertTrue(testName)
-	personA.enterBuilding(unitB)
 	personA.isSleeping().assertFalse(testName)
-	personA.leaveBuilding()
 	personA.enterBuilding(unitC)
 	personA.isSleeping().assertTrue(testName)
 	personA.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))

@@ -28,10 +28,10 @@ function executeCommand()
 	print("-------- Unit tests (16):")
 	// Array:
 	testArray_SetAndGet(true)
-	// testArray_CreateAndDestroy(true)  // FIXME: seems to stop on this ingame, maybe forceComputationBreak() are required
+	testArray_CreateAndDestroy(true)
 	// Array2D:
 	testArray2D_SetAndGet(true)
-	// testArray2D_CreateAndDestroy(true)  // FIXME: seems to stop on this ingame, maybe forceComputationBreak() are required
+	testArray2D_CreateAndDestroy(true)
 	// UnitMap:
 	testUnitHashMap_AddAndRemove(true)
 	// EntityMap:
@@ -42,7 +42,7 @@ function executeCommand()
 	// StorageSystem:
 	testStorageSystem_AddAndRemove(true)
 	// PersonSystem:
-	testPersonSystem_StatsAndBuildings()  // FIXME: Fix "Unrecognized building type (Peasant House)"
+	testPersonSystem_StatsAndBuildings(vec2(0., -384.))
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))
 	testPersonSystem_DamageReaction(vec2(0., 384.))
 	// BuildingSystem:
@@ -50,8 +50,8 @@ function executeCommand()
 	// SettlementSystem:
 	testSettlementSystem_Build(vec2(-1536., -2560.))
 	// WorkshopSystem:
-	testWorkshopSystem_Workers(vec2(0., -384.))
-	testWorkshopSystem_Production(vec2(0., 0.))
+	testWorkshopSystem_Workers(vec2(0., 0.))
+	testWorkshopSystem_Production(vec2(384., 0.))
 
 init
 	CreateTrigger()

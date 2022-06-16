@@ -178,8 +178,8 @@ public function testArray2D_SetAndGet(bool isInGameTest)
 	arrayB.get(51, 21).assertEquals(testName, 0.254, REAL_COMPARE_DELTA)
 	testFinish(testName)
 	// Destroy class objects:
-	destroy arrayA
 	destroy arrayB
+	destroy arrayA
 
 @Test public function testArray2D_CreateAndDestroy()
 	testArray2D_CreateAndDestroy(false)
@@ -212,5 +212,5 @@ public function testArray2D_CreateAndDestroy(bool isInGameTest)
 	arrayC.get(45, 4).assertEquals(testName, 0., REAL_COMPARE_DELTA)
 	testFinish(testName)
 	// Destroy class objects:
-	destroy arrayB
 	destroy arrayC
+	destroy arrayB

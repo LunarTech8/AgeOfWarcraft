@@ -23,7 +23,6 @@ Work status:
 !!!>>- Improve Startup
 	>- Create a GenerateMap_Medium and GenerateMap_Big
 	>>>- Check and fix generation for implemented maps (computationCosts)
-	>>>- Check and fix that Command_UnitTests is still working
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Create and use a 4x4Simple.tga pathing map for trees (border unbuildable but walkable)
 	- Make forests less crowded with trees

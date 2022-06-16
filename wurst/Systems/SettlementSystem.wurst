@@ -158,7 +158,7 @@ class Settlement
 	function getName() returns string
 		return name
 
-	function addMemeber(unit member)
+	function addMember(unit member)
 		if member.isType(UNIT_TYPE_STRUCTURE)
 			buildings.addUnit(member)
 		else
@@ -191,7 +191,7 @@ function unit.addSettlement(string name) returns Validity
 	let owner = this.getOwner()
 	for targetUnit from ENUM_GROUP
 		if targetUnit.getOwner() == owner and targetUnit.getSettlement() == null
-			settlement.addMemeber(targetUnit)
+			settlement.addMember(targetUnit)
 	return Validity.VALID
 
 function unit.addToSettlementInRange() returns Validity
@@ -201,7 +201,7 @@ function unit.addToSettlementInRange() returns Validity
 		if pos.distanceTo(centreBuilding.getPos()) <= getBuildingRange(settlement.level)
 			if getRequiredLevel(this.getUnitId()) > settlement.level
 				return Validity.INVALID_LEVEL
-			settlement.addMemeber(this)
+			settlement.addMember(this)
 			return Validity.VALID
 	return Validity.OUTSIDE_RANGE
 
@@ -244,7 +244,7 @@ public function unit.tryAddToSettlement(unit centreBuilding) returns bool
 		return false
 	if this.getPos().distanceTo(centreBuilding.getPos()) > getBuildingRange(settlement.level) or getRequiredLevel(this.getUnitId()) > settlement.level
 		return false
-	settlement.addMemeber(this)
+	settlement.addMember(this)
 	return true
 
 /** Sets system relevant infos for given object in target multiboard. */
@@ -275,12 +275,14 @@ init
 // Test code
 // --------------------
 
+unit testSettlementSystem_Build_unitA = null
 unit testSettlementSystem_Build_buildingA = null
 unit testSettlementSystem_Build_buildingB = null
+Settlement testSettlementSystem_Build_settlementA = null
 public function testSettlementSystem_Build(vec2 testCentre)
 	let testName = setTestName("testSettlementSystem_Build", true)
 	// Remove units blocking the building:
-	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(128.)), () -> GetEnumUnit().remove())
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(512.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let storageA = unitA.getStorage()
@@ -288,38 +290,39 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	storageA.addWare(ware(WareType.STONE, 3))
 	storageA.addWare(ware(WareType.METAL, 2))
 	unitA.issuePointOrderById(UnitIdsCustom.AoW.townHall, testCentre)
-	unit unitB = null
-	Settlement settlementA = null
+	testSettlementSystem_Build_unitA = null
 	testSettlementSystem_Build_buildingA = null
 	testSettlementSystem_Build_buildingB = null
+	testSettlementSystem_Build_settlementA = null
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check settlement mappings:
 		let filterA = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.townHall)
 		testSettlementSystem_Build_buildingA = testCentre.getNearestUnit(128., filterA, Settings.USER_PLAYER)
 		filterA.destr()
 		assertNotNull(testName, testSettlementSystem_Build_buildingA)
-		settlementA = testSettlementSystem_Build_buildingA.getSettlement()
-		assertNotNull(testName, settlementA)
-		settlementA.level.assertEquals(testName, 1)
-		settlementA.persons.size().assertEquals(testName, 1)
-		settlementA.buildings.size().assertEquals(testName, 0)
-		assertTrue(testName, settlementA.isMember(unitA))
+		testSettlementSystem_Build_settlementA = testSettlementSystem_Build_buildingA.getSettlement()
+		assertNotNull(testName, testSettlementSystem_Build_settlementA)
+		testSettlementSystem_Build_settlementA.level.assertEquals(testName, 1)
+		testSettlementSystem_Build_settlementA.persons.size().assertEquals(testName, 1)
+		testSettlementSystem_Build_settlementA.buildings.size().assertEquals(testName, 0)
+		assertTrue(testName, testSettlementSystem_Build_settlementA.isMember(unitA))
 		// Order to build new structure for settlement:
-		unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
-		let storageB = unitB.getStorage()
+		testSettlementSystem_Build_unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
+		testSettlementSystem_Build_unitA.tryAddToSettlement(testSettlementSystem_Build_buildingA).assertTrue(testName)
+		let storageB = testSettlementSystem_Build_unitA.getStorage()
 		storageB.addWare(ware(WareType.WOOD, 4))
-		unitB.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre.add(384., 0.))
+		testSettlementSystem_Build_unitA.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre.add(384., 0.))
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Recheck settlement mappings:
 		let filterB = Filter(() -> GetFilterUnit().getUnitId() == UnitIdsCustom.AoW.peasantHouse)
 		testSettlementSystem_Build_buildingB = testCentre.add(384., 0.).getNearestUnit(128., filterB, Settings.USER_PLAYER)
 		filterB.destr()
 		assertNotNull(testName, testSettlementSystem_Build_buildingB)
-		assertNotNull(testName, settlementA)  // DEBUG: settlementA is null in this callback, maybe because it was set in another callback
-		settlementA.level.assertEquals(testName, 1)  // FIXME: find solution or split up tests
-		settlementA.persons.size().assertEquals(testName, 1)
-		settlementA.buildings.size().assertEquals(testName, 1)
-		assertTrue(testName, settlementA.isMember(testSettlementSystem_Build_buildingB))
+		assertNotNull(testName, testSettlementSystem_Build_settlementA)
+		testSettlementSystem_Build_settlementA.level.assertEquals(testName, 1)
+		testSettlementSystem_Build_settlementA.persons.size().assertEquals(testName, 2)
+		testSettlementSystem_Build_settlementA.buildings.size().assertEquals(testName, 1)
+		assertTrue(testName, testSettlementSystem_Build_settlementA.isMember(testSettlementSystem_Build_buildingB))
 		testFail(testName, "Test implementation not finished yet")  // TODO: finish implementation
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Abort constructions:
@@ -330,5 +333,5 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		// Remove test units:
 		unitA.kill()
 		unitA.remove()
-		unitB.kill()
-		unitB.remove()
+		testSettlementSystem_Build_unitA.kill()
+		testSettlementSystem_Build_unitA.remove()

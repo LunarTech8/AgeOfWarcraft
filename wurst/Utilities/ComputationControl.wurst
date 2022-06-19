@@ -17,7 +17,7 @@ import UtilityFunctions
 // Data code
 // --------------------
 
-let MAX_COMPUTATION_COST_PER_CYCLE = 256.
+let MAX_COMPUTATION_COST_PER_CYCLE = 1000.
 
 
 // --------------------

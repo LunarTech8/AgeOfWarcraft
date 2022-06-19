@@ -37,9 +37,9 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 	let smoothNoise = new Array2DReal(width, height)
 	let samplePeriod = (2).pow(octave)
 	let sampleFrequency = 1. / samplePeriod
-	// newInitSubStatus("Test1 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test1 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
 	for i = 0 to width - 1
-		// setInitStepStatus(i + 1, width)  // DEBUG:
+		setInitStepStatus(i + 1, width)  // DEBUG:
 		// Calculate the horizontal sampling indices:
 		let horizontalSampleA = (i div samplePeriod) * samplePeriod
 		let horizontalSampleB = (horizontalSampleA + samplePeriod) mod width  // Wrap around
@@ -59,7 +59,7 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 			let bottom = linear(baseNoise.get(horizontalSampleA, verticalSampleB), baseNoise.get(horizontalSampleB, verticalSampleB), horizontalBlend)
 			// Final blend:
 			smoothNoise.set(i, j, linear(top, bottom, verticalBlend))
-			computationCost += 0.176
+			computationCost += 0.804
 		checkForComputationBreak()
 	return smoothNoise
 
@@ -67,12 +67,12 @@ function smoothNoise(Array2DReal baseNoise, string interpolation, int octave) re
 public function generateRandomNoise(int width, int height) returns Array2DReal
 	let baseNoise = new Array2DReal(width, height)
 	// Create base noise map:
-	// newInitSubStatus("Test0 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test0 " + computationCost.toString())  // DEBUG:
 	for i = 0 to width - 1
-		// setInitStepStatus(i + 1, width)  // DEBUG:
+		setInitStepStatus(i + 1, width)  // DEBUG:
 		for j = 0 to height - 1
 			baseNoise.set(i, j, GetRandomReal(0., 1.))
-			computationCost += 0.035
+			computationCost += 0.144
 		checkForComputationBreak()
 	return baseNoise
 
@@ -97,15 +97,15 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 			forceComputationBreak()
 			amplitude *= persistance
 			totalAmplitude += amplitude
-			// newInitSubStatus("Test2 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
+			newInitSubStatus("Test2 " + octave.toString() + " " + computationCost.toString())  // DEBUG:
 			for i = 0 to width - 1
-				// setInitStepStatus(i + 1, width)  // DEBUG:
+				setInitStepStatus(i + 1, width)  // DEBUG:
 				for j = 0 to height - 1
 					if octave == octaveCount - 1
 						perlinNoise.set(i, j, smoothNoise.get(i, j) * amplitude)
 					else
 						perlinNoise.set(i, j, perlinNoise.get(i, j) + smoothNoise.get(i, j) * amplitude)
-					computationCost += 0.099
+					computationCost += 0.401
 				checkForComputationBreak()
 			forceComputationBreak()
 			destroy smoothNoise
@@ -113,12 +113,12 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		forceComputationBreak()
 		// Normalisation:
 		newInitSubStatus("Noise normalisation")
-		// newInitSubStatus("Test3 " + computationCost.toString())  // DEBUG:
+		newInitSubStatus("Test3 " + computationCost.toString())  // DEBUG:
 		for i = 0 to width - 1
 			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, perlinNoise.get(i, j) / totalAmplitude)
-				computationCost += 0.190
+				computationCost += 0.742
 			checkForComputationBreak()
 	else
 		perlinNoise = generateRandomNoise(width, height)
@@ -128,12 +128,12 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 		return perlinNoise
 	else if distribution == "Slope"  // Half bell shaped curve with peak at 0
 		forceComputationBreak()
-		// newInitSubStatus("Test4 " + computationCost.toString())  // DEBUG:
+		newInitSubStatus("Test4 " + computationCost.toString())  // DEBUG:
 		for i = 0 to width - 1
 			setInitStepStatus(i + 1, width)
 			for j = 0 to height - 1
 				perlinNoise.set(i, j, (perlinNoise.get(i, j) * 2 - 1).abs())
-				computationCost += 0.069
+				computationCost += 0.283
 			checkForComputationBreak()
 	else if distribution == "Uniform"  // Horizontal curve with no peak
 		forceComputationBreak()
@@ -150,7 +150,7 @@ public function generatePerlinNoise(int width, int height, int octaveCount, real
 				if acosInput.abs() > 1
 					error("Acos only allows numbers between -1 and 1 (" + acosInput.toString() + ")")
 				perlinNoise.set(width - 1 - i, j, Acos(acosInput) / (2 * PI))
-				computationCost += 0.124
+				computationCost += 0.484
 			checkForComputationBreak()
 	else
 		error("Invalid distribution method")

@@ -22,9 +22,9 @@ import ComputationControl
 
 let SINGLE_ARRAY_SIZE = 8192
 let ARRAY_REAL_LIST = new LinkedList<ArrayReal>
-let ARRAY_REAL_SIZE = SINGLE_ARRAY_SIZE * 16
+let ARRAY_REAL_SIZE = SINGLE_ARRAY_SIZE * 32
 let ARRAY_INT_LIST = new LinkedList<ArrayInt>
-let ARRAY_INT_SIZE = SINGLE_ARRAY_SIZE * 4
+let ARRAY_INT_SIZE = SINGLE_ARRAY_SIZE * 8
 
 real array[SINGLE_ARRAY_SIZE] arrayReal01
 real array[SINGLE_ARRAY_SIZE] arrayReal02
@@ -42,140 +42,280 @@ real array[SINGLE_ARRAY_SIZE] arrayReal13
 real array[SINGLE_ARRAY_SIZE] arrayReal14
 real array[SINGLE_ARRAY_SIZE] arrayReal15
 real array[SINGLE_ARRAY_SIZE] arrayReal16
+real array[SINGLE_ARRAY_SIZE] arrayReal17
+real array[SINGLE_ARRAY_SIZE] arrayReal18
+real array[SINGLE_ARRAY_SIZE] arrayReal19
+real array[SINGLE_ARRAY_SIZE] arrayReal20
+real array[SINGLE_ARRAY_SIZE] arrayReal21
+real array[SINGLE_ARRAY_SIZE] arrayReal22
+real array[SINGLE_ARRAY_SIZE] arrayReal23
+real array[SINGLE_ARRAY_SIZE] arrayReal24
+real array[SINGLE_ARRAY_SIZE] arrayReal25
+real array[SINGLE_ARRAY_SIZE] arrayReal26
+real array[SINGLE_ARRAY_SIZE] arrayReal27
+real array[SINGLE_ARRAY_SIZE] arrayReal28
+real array[SINGLE_ARRAY_SIZE] arrayReal29
+real array[SINGLE_ARRAY_SIZE] arrayReal30
+real array[SINGLE_ARRAY_SIZE] arrayReal31
+real array[SINGLE_ARRAY_SIZE] arrayReal32
 int array[SINGLE_ARRAY_SIZE] arrayInt01
 int array[SINGLE_ARRAY_SIZE] arrayInt02
 int array[SINGLE_ARRAY_SIZE] arrayInt03
 int array[SINGLE_ARRAY_SIZE] arrayInt04
+int array[SINGLE_ARRAY_SIZE] arrayInt05
+int array[SINGLE_ARRAY_SIZE] arrayInt06
+int array[SINGLE_ARRAY_SIZE] arrayInt07
+int array[SINGLE_ARRAY_SIZE] arrayInt08
 
 function getArrayRealValue(int index) returns real
 	if index < 0 or index >= ARRAY_REAL_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
 		return 0.
-	else if index < SINGLE_ARRAY_SIZE * 8
-		if index < SINGLE_ARRAY_SIZE * 4
-			if index < SINGLE_ARRAY_SIZE * 2
-				if index < SINGLE_ARRAY_SIZE * 1
-					return arrayReal01[index - SINGLE_ARRAY_SIZE * 0]
+	else if index < SINGLE_ARRAY_SIZE * 16
+		if index < SINGLE_ARRAY_SIZE * 8
+			if index < SINGLE_ARRAY_SIZE * 4
+				if index < SINGLE_ARRAY_SIZE * 2
+					if index < SINGLE_ARRAY_SIZE * 1
+						return arrayReal01[index - SINGLE_ARRAY_SIZE * 0]
+					else
+						return arrayReal02[index - SINGLE_ARRAY_SIZE * 1]
 				else
-					return arrayReal02[index - SINGLE_ARRAY_SIZE * 1]
+					if index < SINGLE_ARRAY_SIZE * 3
+						return arrayReal03[index - SINGLE_ARRAY_SIZE * 2]
+					else
+						return arrayReal04[index - SINGLE_ARRAY_SIZE * 3]
 			else
-				if index < SINGLE_ARRAY_SIZE * 3
-					return arrayReal03[index - SINGLE_ARRAY_SIZE * 2]
+				if index < SINGLE_ARRAY_SIZE * 6
+					if index < SINGLE_ARRAY_SIZE * 5
+						return arrayReal05[index - SINGLE_ARRAY_SIZE * 4]
+					else
+						return arrayReal06[index - SINGLE_ARRAY_SIZE * 5]
 				else
-					return arrayReal04[index - SINGLE_ARRAY_SIZE * 3]
+					if index < SINGLE_ARRAY_SIZE * 7
+						return arrayReal07[index - SINGLE_ARRAY_SIZE * 6]
+					else
+						return arrayReal08[index - SINGLE_ARRAY_SIZE * 7]
 		else
-			if index < SINGLE_ARRAY_SIZE * 6
-				if index < SINGLE_ARRAY_SIZE * 5
-					return arrayReal05[index - SINGLE_ARRAY_SIZE * 4]
+			if index < SINGLE_ARRAY_SIZE * 12
+				if index < SINGLE_ARRAY_SIZE * 10
+					if index < SINGLE_ARRAY_SIZE * 9
+						return arrayReal09[index - SINGLE_ARRAY_SIZE * 8]
+					else
+						return arrayReal10[index - SINGLE_ARRAY_SIZE * 9]
 				else
-					return arrayReal06[index - SINGLE_ARRAY_SIZE * 5]
+					if index < SINGLE_ARRAY_SIZE * 11
+						return arrayReal11[index - SINGLE_ARRAY_SIZE * 10]
+					else
+						return arrayReal12[index - SINGLE_ARRAY_SIZE * 11]
 			else
-				if index < SINGLE_ARRAY_SIZE * 7
-					return arrayReal07[index - SINGLE_ARRAY_SIZE * 6]
+				if index < SINGLE_ARRAY_SIZE * 14
+					if index < SINGLE_ARRAY_SIZE * 13
+						return arrayReal13[index - SINGLE_ARRAY_SIZE * 12]
+					else
+						return arrayReal14[index - SINGLE_ARRAY_SIZE * 13]
 				else
-					return arrayReal08[index - SINGLE_ARRAY_SIZE * 7]
+					if index < SINGLE_ARRAY_SIZE * 15
+						return arrayReal15[index - SINGLE_ARRAY_SIZE * 14]
+					else
+						return arrayReal16[index - SINGLE_ARRAY_SIZE * 15]
 	else
-		if index < SINGLE_ARRAY_SIZE * 12
-			if index < SINGLE_ARRAY_SIZE * 10
-				if index < SINGLE_ARRAY_SIZE * 9
-					return arrayReal09[index - SINGLE_ARRAY_SIZE * 8]
+		if index < SINGLE_ARRAY_SIZE * 24
+			if index < SINGLE_ARRAY_SIZE * 20
+				if index < SINGLE_ARRAY_SIZE * 18
+					if index < SINGLE_ARRAY_SIZE * 17
+						return arrayReal17[index - SINGLE_ARRAY_SIZE * 16]
+					else
+						return arrayReal18[index - SINGLE_ARRAY_SIZE * 17]
 				else
-					return arrayReal10[index - SINGLE_ARRAY_SIZE * 9]
+					if index < SINGLE_ARRAY_SIZE * 19
+						return arrayReal19[index - SINGLE_ARRAY_SIZE * 18]
+					else
+						return arrayReal20[index - SINGLE_ARRAY_SIZE * 19]
 			else
-				if index < SINGLE_ARRAY_SIZE * 11
-					return arrayReal11[index - SINGLE_ARRAY_SIZE * 10]
+				if index < SINGLE_ARRAY_SIZE * 22
+					if index < SINGLE_ARRAY_SIZE * 21
+						return arrayReal21[index - SINGLE_ARRAY_SIZE * 20]
+					else
+						return arrayReal22[index - SINGLE_ARRAY_SIZE * 21]
 				else
-					return arrayReal12[index - SINGLE_ARRAY_SIZE * 11]
+					if index < SINGLE_ARRAY_SIZE * 23
+						return arrayReal23[index - SINGLE_ARRAY_SIZE * 22]
+					else
+						return arrayReal24[index - SINGLE_ARRAY_SIZE * 23]
 		else
-			if index < SINGLE_ARRAY_SIZE * 14
-				if index < SINGLE_ARRAY_SIZE * 13
-					return arrayReal13[index - SINGLE_ARRAY_SIZE * 12]
+			if index < SINGLE_ARRAY_SIZE * 28
+				if index < SINGLE_ARRAY_SIZE * 26
+					if index < SINGLE_ARRAY_SIZE * 25
+						return arrayReal25[index - SINGLE_ARRAY_SIZE * 24]
+					else
+						return arrayReal26[index - SINGLE_ARRAY_SIZE * 25]
 				else
-					return arrayReal14[index - SINGLE_ARRAY_SIZE * 13]
+					if index < SINGLE_ARRAY_SIZE * 27
+						return arrayReal27[index - SINGLE_ARRAY_SIZE * 26]
+					else
+						return arrayReal28[index - SINGLE_ARRAY_SIZE * 27]
 			else
-				if index < SINGLE_ARRAY_SIZE * 15
-					return arrayReal15[index - SINGLE_ARRAY_SIZE * 14]
+				if index < SINGLE_ARRAY_SIZE * 30
+					if index < SINGLE_ARRAY_SIZE * 29
+						return arrayReal29[index - SINGLE_ARRAY_SIZE * 28]
+					else
+						return arrayReal30[index - SINGLE_ARRAY_SIZE * 29]
 				else
-					return arrayReal16[index - SINGLE_ARRAY_SIZE * 15]
+					if index < SINGLE_ARRAY_SIZE * 31
+						return arrayReal31[index - SINGLE_ARRAY_SIZE * 30]
+					else
+						return arrayReal32[index - SINGLE_ARRAY_SIZE * 31]
 
 function setArrayRealValue(int index, real value)
 	if index < 0 or index >= ARRAY_REAL_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
-	else if index < SINGLE_ARRAY_SIZE * 8
-		if index < SINGLE_ARRAY_SIZE * 4
-			if index < SINGLE_ARRAY_SIZE * 2
-				if index < SINGLE_ARRAY_SIZE * 1
-					arrayReal01[index - SINGLE_ARRAY_SIZE * 0] = value
+	else if index < SINGLE_ARRAY_SIZE * 16
+		if index < SINGLE_ARRAY_SIZE * 8
+			if index < SINGLE_ARRAY_SIZE * 4
+				if index < SINGLE_ARRAY_SIZE * 2
+					if index < SINGLE_ARRAY_SIZE * 1
+						arrayReal01[index - SINGLE_ARRAY_SIZE * 0] = value
+					else
+						arrayReal02[index - SINGLE_ARRAY_SIZE * 1] = value
 				else
-					arrayReal02[index - SINGLE_ARRAY_SIZE * 1] = value
+					if index < SINGLE_ARRAY_SIZE * 3
+						arrayReal03[index - SINGLE_ARRAY_SIZE * 2] = value
+					else
+						arrayReal04[index - SINGLE_ARRAY_SIZE * 3] = value
 			else
-				if index < SINGLE_ARRAY_SIZE * 3
-					arrayReal03[index - SINGLE_ARRAY_SIZE * 2] = value
+				if index < SINGLE_ARRAY_SIZE * 6
+					if index < SINGLE_ARRAY_SIZE * 5
+						arrayReal05[index - SINGLE_ARRAY_SIZE * 4] = value
+					else
+						arrayReal06[index - SINGLE_ARRAY_SIZE * 5] = value
 				else
-					arrayReal04[index - SINGLE_ARRAY_SIZE * 3] = value
+					if index < SINGLE_ARRAY_SIZE * 7
+						arrayReal07[index - SINGLE_ARRAY_SIZE * 6] = value
+					else
+						arrayReal08[index - SINGLE_ARRAY_SIZE * 7] = value
 		else
-			if index < SINGLE_ARRAY_SIZE * 6
-				if index < SINGLE_ARRAY_SIZE * 5
-					arrayReal05[index - SINGLE_ARRAY_SIZE * 4] = value
+			if index < SINGLE_ARRAY_SIZE * 12
+				if index < SINGLE_ARRAY_SIZE * 10
+					if index < SINGLE_ARRAY_SIZE * 9
+						arrayReal09[index - SINGLE_ARRAY_SIZE * 8] = value
+					else
+						arrayReal10[index - SINGLE_ARRAY_SIZE * 9] = value
 				else
-					arrayReal06[index - SINGLE_ARRAY_SIZE * 5] = value
+					if index < SINGLE_ARRAY_SIZE * 11
+						arrayReal11[index - SINGLE_ARRAY_SIZE * 10] = value
+					else
+						arrayReal12[index - SINGLE_ARRAY_SIZE * 11] = value
 			else
-				if index < SINGLE_ARRAY_SIZE * 7
-					arrayReal07[index - SINGLE_ARRAY_SIZE * 6] = value
+				if index < SINGLE_ARRAY_SIZE * 14
+					if index < SINGLE_ARRAY_SIZE * 13
+						arrayReal13[index - SINGLE_ARRAY_SIZE * 12] = value
+					else
+						arrayReal14[index - SINGLE_ARRAY_SIZE * 13] = value
 				else
-					arrayReal08[index - SINGLE_ARRAY_SIZE * 7] = value
+					if index < SINGLE_ARRAY_SIZE * 15
+						arrayReal15[index - SINGLE_ARRAY_SIZE * 14] = value
+					else
+						arrayReal16[index - SINGLE_ARRAY_SIZE * 15] = value
 	else
-		if index < SINGLE_ARRAY_SIZE * 12
-			if index < SINGLE_ARRAY_SIZE * 10
-				if index < SINGLE_ARRAY_SIZE * 9
-					arrayReal09[index - SINGLE_ARRAY_SIZE * 8] = value
+		if index < SINGLE_ARRAY_SIZE * 24
+			if index < SINGLE_ARRAY_SIZE * 20
+				if index < SINGLE_ARRAY_SIZE * 18
+					if index < SINGLE_ARRAY_SIZE * 17
+						arrayReal17[index - SINGLE_ARRAY_SIZE * 16] = value
+					else
+						arrayReal18[index - SINGLE_ARRAY_SIZE * 17] = value
 				else
-					arrayReal10[index - SINGLE_ARRAY_SIZE * 9] = value
+					if index < SINGLE_ARRAY_SIZE * 19
+						arrayReal19[index - SINGLE_ARRAY_SIZE * 18] = value
+					else
+						arrayReal20[index - SINGLE_ARRAY_SIZE * 19] = value
 			else
-				if index < SINGLE_ARRAY_SIZE * 11
-					arrayReal11[index - SINGLE_ARRAY_SIZE * 10] = value
+				if index < SINGLE_ARRAY_SIZE * 22
+					if index < SINGLE_ARRAY_SIZE * 21
+						arrayReal21[index - SINGLE_ARRAY_SIZE * 20] = value
+					else
+						arrayReal22[index - SINGLE_ARRAY_SIZE * 21] = value
 				else
-					arrayReal12[index - SINGLE_ARRAY_SIZE * 11] = value
+					if index < SINGLE_ARRAY_SIZE * 23
+						arrayReal23[index - SINGLE_ARRAY_SIZE * 22] = value
+					else
+						arrayReal24[index - SINGLE_ARRAY_SIZE * 23] = value
 		else
-			if index < SINGLE_ARRAY_SIZE * 14
-				if index < SINGLE_ARRAY_SIZE * 13
-					arrayReal13[index - SINGLE_ARRAY_SIZE * 12] = value
+			if index < SINGLE_ARRAY_SIZE * 28
+				if index < SINGLE_ARRAY_SIZE * 26
+					if index < SINGLE_ARRAY_SIZE * 25
+						arrayReal25[index - SINGLE_ARRAY_SIZE * 24] = value
+					else
+						arrayReal26[index - SINGLE_ARRAY_SIZE * 25] = value
 				else
-					arrayReal14[index - SINGLE_ARRAY_SIZE * 13] = value
+					if index < SINGLE_ARRAY_SIZE * 27
+						arrayReal27[index - SINGLE_ARRAY_SIZE * 26] = value
+					else
+						arrayReal28[index - SINGLE_ARRAY_SIZE * 27] = value
 			else
-				if index < SINGLE_ARRAY_SIZE * 15
-					arrayReal15[index - SINGLE_ARRAY_SIZE * 14] = value
+				if index < SINGLE_ARRAY_SIZE * 30
+					if index < SINGLE_ARRAY_SIZE * 29
+						arrayReal29[index - SINGLE_ARRAY_SIZE * 28] = value
+					else
+						arrayReal30[index - SINGLE_ARRAY_SIZE * 29] = value
 				else
-					arrayReal16[index - SINGLE_ARRAY_SIZE * 15] = value
+					if index < SINGLE_ARRAY_SIZE * 31
+						arrayReal31[index - SINGLE_ARRAY_SIZE * 30] = value
+					else
+						arrayReal32[index - SINGLE_ARRAY_SIZE * 31] = value
 
 function getArrayIntValue(int index) returns int
 	if index < 0 or index >= ARRAY_INT_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
 		return 0
-	else if index < SINGLE_ARRAY_SIZE * 2
-		if index < SINGLE_ARRAY_SIZE * 1
-			return arrayInt01[index - SINGLE_ARRAY_SIZE * 0]
+	else if index < SINGLE_ARRAY_SIZE * 4
+		if index < SINGLE_ARRAY_SIZE * 2
+			if index < SINGLE_ARRAY_SIZE * 1
+				return arrayInt01[index - SINGLE_ARRAY_SIZE * 0]
+			else
+				return arrayInt02[index - SINGLE_ARRAY_SIZE * 1]
 		else
-			return arrayInt02[index - SINGLE_ARRAY_SIZE * 1]
+			if index < SINGLE_ARRAY_SIZE * 3
+				return arrayInt03[index - SINGLE_ARRAY_SIZE * 2]
+			else
+				return arrayInt04[index - SINGLE_ARRAY_SIZE * 3]
 	else
-		if index < SINGLE_ARRAY_SIZE * 3
-			return arrayInt03[index - SINGLE_ARRAY_SIZE * 2]
+		if index < SINGLE_ARRAY_SIZE * 6
+			if index < SINGLE_ARRAY_SIZE * 5
+				return arrayInt05[index - SINGLE_ARRAY_SIZE * 4]
+			else
+				return arrayInt06[index - SINGLE_ARRAY_SIZE * 5]
 		else
-			return arrayInt04[index - SINGLE_ARRAY_SIZE * 3]
+			if index < SINGLE_ARRAY_SIZE * 7
+				return arrayInt07[index - SINGLE_ARRAY_SIZE * 6]
+			else
+				return arrayInt08[index - SINGLE_ARRAY_SIZE * 7]
 
 function setArrayIntValue(int index, int value)
 	if index < 0 or index >= ARRAY_INT_SIZE
 		error("Index (" + index.toString() + ") is outside boundaries")
-	else if index < SINGLE_ARRAY_SIZE * 2
-		if index < SINGLE_ARRAY_SIZE * 1
-			arrayInt01[index - SINGLE_ARRAY_SIZE * 0] = value
+	else if index < SINGLE_ARRAY_SIZE * 4
+		if index < SINGLE_ARRAY_SIZE * 2
+			if index < SINGLE_ARRAY_SIZE * 1
+				arrayInt01[index - SINGLE_ARRAY_SIZE * 0] = value
+			else
+				arrayInt02[index - SINGLE_ARRAY_SIZE * 1] = value
 		else
-			arrayInt02[index - SINGLE_ARRAY_SIZE * 1] = value
+			if index < SINGLE_ARRAY_SIZE * 3
+				arrayInt03[index - SINGLE_ARRAY_SIZE * 2] = value
+			else
+				arrayInt04[index - SINGLE_ARRAY_SIZE * 3] = value
 	else
-		if index < SINGLE_ARRAY_SIZE * 3
-			arrayInt03[index - SINGLE_ARRAY_SIZE * 2] = value
+		if index < SINGLE_ARRAY_SIZE * 6
+			if index < SINGLE_ARRAY_SIZE * 5
+				arrayInt05[index - SINGLE_ARRAY_SIZE * 4] = value
+			else
+				arrayInt06[index - SINGLE_ARRAY_SIZE * 5] = value
 		else
-			arrayInt04[index - SINGLE_ARRAY_SIZE * 3] = value
+			if index < SINGLE_ARRAY_SIZE * 7
+				arrayInt07[index - SINGLE_ARRAY_SIZE * 6] = value
+			else
+				arrayInt08[index - SINGLE_ARRAY_SIZE * 7] = value
 
 public class ArrayReal
 	private int size
@@ -204,7 +344,7 @@ public class ArrayReal
 			a.size = 0  // Set temporarily to 0 to avoid concurrent wrong accesses
 			for j = 0 to aSize - 1
 				setArrayRealValue(j + newIndexOffset, getArrayRealValue(j + a.indexOffset))
-				computationCost += 0.0256
+				computationCost += 0.090
 				checkForComputationBreak()
 			a.indexOffset = newIndexOffset
 			a.size = aSize
@@ -283,6 +423,8 @@ public class ArrayInt
 public function testArray_SetAndGet(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.000001
 	let testName = setTestName("testArray_SetAndGet", isInGameTest)
+	if isInGameTest == false
+		isComputationControlActivated = false
 	// Create new array and check content:
 	let arrayA = new ArrayReal(4000)
 	arrayA.size().assertEquals(testName, 4000)
@@ -316,6 +458,8 @@ public function testArray_SetAndGet(bool isInGameTest)
 public function testArray_CreateAndDestroy(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.000001
 	let testName = setTestName("testArray_CreateAndDestroy", isInGameTest)
+	if isInGameTest == false
+		isComputationControlActivated = false
 	let arrayRealListStartSize = ARRAY_REAL_LIST.size()
 	// Create new arrays:
 	ARRAY_REAL_LIST.size().assertEquals(testName, arrayRealListStartSize)
@@ -355,6 +499,8 @@ public function testArray_CreateAndDestroy(bool isInGameTest)
 public function testArray_FullMemoryAreaCheck(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.000001
 	let testName = setTestName("testArray_FullMemoryAreaCheck", isInGameTest)
+	if isInGameTest == false
+		isComputationControlActivated = false
 	var indexOffsetReal = 0
 	var indexOffsetInt = 0
 	for a in ARRAY_REAL_LIST

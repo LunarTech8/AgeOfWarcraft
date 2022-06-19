@@ -1,0 +1,35 @@
+package Command_Camera
+import ConstantData
+
+
+// --------------------
+// Data code
+// --------------------
+
+let COMMAND = "camera "
+let COMMAND_SHORT = "c "
+
+
+// --------------------
+// Functional code
+// --------------------
+
+function executeCommand()
+	let commandFull = EventData.getChatMessage()
+	let commandTrigger = EventData.getChatMessageMatched()
+	let commandValue = commandFull.substring(commandTrigger.length())
+	if commandFull.startsWith(commandTrigger) and commandValue.toReal() > 0.
+		var targetDistanceOld = 0.
+		var farZOld = 0.
+		if GetLocalPlayer() == Settings.USER_PLAYER
+			// Use only local code (no net traffic) within this block to avoid desyncs.
+			targetDistanceOld = CAMERA_FIELD_TARGET_DISTANCE.get()
+			farZOld = CAMERA_FIELD_FARZ.get()
+		Settings.USER_PLAYER.setCameraField(CAMERA_FIELD_TARGET_DISTANCE, commandValue.toReal(), 0.)
+		Settings.USER_PLAYER.setCameraField(CAMERA_FIELD_FARZ, farZOld * (commandValue.toReal() / targetDistanceOld), 0.)
+
+init
+	CreateTrigger()
+	..addAction(function executeCommand)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND, false)
+	..registerPlayerChatEvent(Settings.USER_PLAYER, COMMAND_SHORT, false)

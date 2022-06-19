@@ -31,7 +31,7 @@ import MapBounds
 // --------------------
 
 // World data:
-let WORLD_DATA_FILE_NAME = "WorldData.pld"  // In folder ..\Documents\Warcraft III\CustomMapData
+let WORLD_DATA_FILE_NAME = Settings.SELECTED_MAP + "_WorldData.pld"  // In folder ..\Documents\Warcraft III\CustomMapData
 let WORLD_DATA_PART_LENGTHS = [0, 4, 5]  // Indices where one data value ends and the next one starts
 
 // Terrain:
@@ -73,18 +73,18 @@ var isWorldDataLoaded = false
 function encodeWorldData() returns ChunkedString
 	let maxHeightValueEncoded = (10).pow(WORLD_DATA_PART_LENGTHS[1] - WORLD_DATA_PART_LENGTHS[0])
 	let data = new ChunkedString(DEFAULT_CHUNK_SIZE)
-	// newInitSubStatus("Test9 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test9 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
-		// setInitStepStatus(x + 1, MapData.TILES_X)  // DEBUG:
+		setInitStepStatus(x + 1, MapData.TILES_X)  // DEBUG:
 		for	y = 0 to MapData.TILES_Y - 1
 			let heightValueEncoded = (((heightMap.get(x, y) - TERRAIN_HEIGHT_MIN) * 10.).round() + maxHeightValueEncoded).toString().substring(1)
 			let plantValueEncoded = plantMap.get(x, y).toString()
 			data.append(heightValueEncoded + plantValueEncoded)
-			computationCost += 0.092
+			computationCost += 0.370
 		checkForComputationBreak()
-	forceComputationBreak()
+	forceComputationBreak()  // FIXME: Stops at end before Test10 for bigger maps (208x208) even with bigger computationCost
 	let convertedData = convertNumbersToChars(data)
-	// newInitSubStatus("Test11 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test11 " + computationCost.toString())  // DEBUG:
 	destroy data
 	forceComputationBreak()
 	return convertedData
@@ -92,9 +92,9 @@ function encodeWorldData() returns ChunkedString
 function decodeWorldData(ChunkedString data)
 	let dataPartLength = WORLD_DATA_PART_LENGTHS[WORLD_DATA_PART_LENGTHS.length - 1]
 	let convertedData = convertCharsToNumbers(data)
-	// newInitSubStatus("Test13 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test13 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
-		// setInitStepStatus(x + 1, MapData.TILES_X)  // DEBUG:
+		setInitStepStatus(x + 1, MapData.TILES_X)  // DEBUG:
 		for	y = 0 to MapData.TILES_Y - 1
 			let dataPart = convertedData.getUnsafeSubString((y + MapData.TILES_Y * x) * dataPartLength, (y + MapData.TILES_Y * x + 1) * dataPartLength)
 			var i = 0
@@ -103,27 +103,27 @@ function decodeWorldData(ChunkedString data)
 			let plantValueDecoded = dataPart.substring(WORLD_DATA_PART_LENGTHS[i], WORLD_DATA_PART_LENGTHS[i] + WORLD_DATA_PART_LENGTHS[i + 1]).toInt()
 			heightMap.set(x, y, heightValueDecoded)
 			plantMap.set(x, y, plantValueDecoded)
-			computationCost += 0.124
+			computationCost += 0.484
 		checkForComputationBreak()
 	destroy convertedData
 	forceComputationBreak()
 
 function generateWorldData()
 	// Create height map:
-	var noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, 7, 0.6, "Cosine")
+	var noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, MapData.HEIGHT_MAP_OCTAVE_COUNT, 0.6, "Cosine")
 	newInitSubStatus("Calculate height data")
-	// newInitSubStatus("Test5 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test5 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
 		setInitStepStatus(x + 1, MapData.TILES_X)
 		for	y = 0 to MapData.TILES_Y - 1
 			heightMap.set(x, y, linear(TERRAIN_HEIGHT_MIN, TERRAIN_HEIGHT_MAX, noiseMap.get(x, y)))
-			computationCost += 0.069
+			computationCost += 0.283
 		checkForComputationBreak()
 	forceComputationBreak()
 	destroy noiseMap
 	forceComputationBreak()
 	// Create plant map:
-	noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, 5, 0.6, "Cosine")
+	noiseMap = generatePerlinNoise(MapData.TILES_X, MapData.TILES_Y, MapData.PLANT_MAP_OCTAVE_COUNT, 0.6, "Cosine")
 	newInitSubStatus("Calculate plant data")
 	newInitSubStatus("Test6 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
@@ -133,7 +133,7 @@ function generateWorldData()
 				plantMap.set(x, y, getPlantBiomeType(noiseMap.get(x, y)) castTo int)
 			else
 				plantMap.set(x, y, PlantBiomeType.BARRENS castTo int)
-			computationCost += 0.088
+			computationCost += 0.370
 		checkForComputationBreak()
 	forceComputationBreak()
 	destroy noiseMap
@@ -167,7 +167,7 @@ public function createTerrain()
 	newInitStatus("Terrain creation")
 	// Adjust the height for each tile:
 	newInitSubStatus("Adjust terrain heights")
-	// newInitSubStatus("Test7 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test7 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
 		setInitStepStatus(x + 1, MapData.TILES_X)
 		for	y = 0 to MapData.TILES_Y - 1
@@ -183,14 +183,14 @@ public function createTerrain()
 			else if z >= HEIGHT_SHALLOW_WATER_MIN
 				tile.setPathing(PATHING_TYPE_WALKABILITY, true)
 				tile.setPathing(PATHING_TYPE_BUILDABILITY, false)
-			computationCost += 0.821
+			computationCost += 3.207
 		checkForComputationBreak()
 
 public function createPlants()
 	newInitStatus("Plants creation")
 	// Have 1 or 0 tree per tile:
 	newInitSubStatus("Add trees")
-	// newInitSubStatus("Test8 " + computationCost.toString())  // DEBUG:
+	newInitSubStatus("Test8 " + computationCost.toString())  // DEBUG:
 	for	x = 0 to MapData.TILES_X - 1
 		setInitStepStatus(x + 1, MapData.TILES_X)
 		for	y = 0 to MapData.TILES_Y - 1
@@ -202,7 +202,7 @@ public function createPlants()
 			else if plantBiome == WOODS
 				let pos = MapData.ORIGIN_VEC + vec2(x + GetRandomReal(-0.5, 0.5), y + GetRandomReal(-0.5, 0.5)) * TILE_DISTANCE
 				entity(null, createDestructable(DestructableIdsCustom.Trees.maple, pos, getRandomAngle(), getRandomDestructableScale(DestructableIdsCustom.Trees.maple), getRandomDestructableVariation(DestructableIdsCustom.Trees.maple))).tryAddResouce()
-			computationCost += 0.206
+			computationCost += 0.804
 		checkForComputationBreak()
 
 public function replaceDestructables()

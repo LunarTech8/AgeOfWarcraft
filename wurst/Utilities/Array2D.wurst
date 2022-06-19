@@ -14,6 +14,7 @@ import HashMap
 import Array
 import ErrorHandling
 import UnitTest
+import ComputationControl
 
 
 // --------------------
@@ -151,6 +152,8 @@ public class Array2DInt
 public function testArray2D_SetAndGet(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.000001
 	let testName = setTestName("testArray2D_SetAndGet", isInGameTest)
+	if isInGameTest == false
+		isComputationControlActivated = false
 	// Create new array and check content:
 	let arrayA = new Array2DReal(100, 120)
 	arrayA.sizeX().assertEquals(testName, 100)
@@ -186,6 +189,8 @@ public function testArray2D_SetAndGet(bool isInGameTest)
 public function testArray2D_CreateAndDestroy(bool isInGameTest)
 	let REAL_COMPARE_DELTA = 0.000001
 	let testName = setTestName("testArray2D_CreateAndDestroy", isInGameTest)
+	if isInGameTest == false
+		isComputationControlActivated = false
 	// Create new arrays:
 	let arrayA = new Array2DReal(50, 100)
 	let arrayB = new Array2DReal(80, 100)

@@ -20,10 +20,15 @@ import HashMap
 // --------------------
 
 public class Settings
-	static constant SELECTED_MAP = "AgeOfWarcraft_GenerateMap_Small"
-	static constant WORLD_DATA_LOAD = true
+	static constant SELECTED_MAP = "AgeOfWarcraft_GenerateMap_Large"
+	static constant WORLD_DATA_LOAD = false
 	static constant WORLD_DATA_SAVE = true
 	static constant USER_PLAYER = Player(0)
+	// --- Available maps: ---
+	// AgeOfWarcraft_GenerateMap_Small
+	// AgeOfWarcraft_GenerateMap_Medium
+	// AgeOfWarcraft_GenerateMap_Large
+	// AgeOfWarcraft_Islands_Small
 
 constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
 constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
@@ -197,6 +202,8 @@ public class MapData
 	static var TILES_Y = compiletime(initTilesY(Settings.SELECTED_MAP))  // Has to be non-constant to allow for manageable unit tests
 	static constant ORIGIN_VEC = compiletime(initOriginVec(Settings.SELECTED_MAP))  // Left, bottom point from which the terrain generation starts towards right, top point
 	static constant GENERATE_MAP = compiletime(initGenerateMap(Settings.SELECTED_MAP))
+	static constant HEIGHT_MAP_OCTAVE_COUNT = compiletime(initHeightMapOctaveCount(Settings.SELECTED_MAP))
+	static constant PLANT_MAP_OCTAVE_COUNT = compiletime(initPlantMapOctaveCount(Settings.SELECTED_MAP))
 
 	// TODO: Could also use build-in GetPlayerStartLocationX/Y instead
 	private static function initStartVec(string selectedMap) returns vec2
@@ -205,6 +212,10 @@ public class MapData
 				return vec2(128., 0.)
 			case "AgeOfWarcraft_GenerateMap_Small"
 				return vec2(-6144., -7680.)
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return vec2(-6144., -7680.)
+			case "AgeOfWarcraft_GenerateMap_Large"
+				return vec2(-29184., -29696.)
 			default
 				return vec2(0., 0.)
 
@@ -214,6 +225,10 @@ public class MapData
 			case "AgeOfWarcraft_Islands_Small"
 				return 128
 			case "AgeOfWarcraft_GenerateMap_Small"
+				return 104
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return 208
+			case "AgeOfWarcraft_GenerateMap_Large"
 				return 104
 			default
 				return 0
@@ -225,6 +240,10 @@ public class MapData
 				return 128
 			case "AgeOfWarcraft_GenerateMap_Small"
 				return 104
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return 208
+			case "AgeOfWarcraft_GenerateMap_Large"
+				return 104
 			default
 				return 0
 
@@ -233,17 +252,45 @@ public class MapData
 		switch selectedMap
 			case "AgeOfWarcraft_GenerateMap_Small"
 				return vec2(-6656., -7168.)
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return vec2(-6656., -7168.)
+			case "AgeOfWarcraft_GenerateMap_Large"
+				return vec2(-29696., -29184.)
 			default
 				return vec2(0., 0.)
 
 	private static function initGenerateMap(string selectedMap) returns bool
 		switch selectedMap
-			case "AgeOfWarcraft_Islands_Small"
-				return false
 			case "AgeOfWarcraft_GenerateMap_Small"
+				return true
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return true
+			case "AgeOfWarcraft_GenerateMap_Large"
 				return true
 			default
 				return false
+
+	private static function initHeightMapOctaveCount(string selectedMap) returns int
+		switch selectedMap
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return 7
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return 7
+			case "AgeOfWarcraft_GenerateMap_Large"
+				return 7
+			default
+				return 0
+
+	private static function initPlantMapOctaveCount(string selectedMap) returns int
+		switch selectedMap
+			case "AgeOfWarcraft_GenerateMap_Small"
+				return 5
+			case "AgeOfWarcraft_GenerateMap_Medium"
+				return 5
+			case "AgeOfWarcraft_GenerateMap_Large"
+				return 5
+			default
+				return 0
 
 
 // --------------------

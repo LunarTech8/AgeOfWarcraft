@@ -76,34 +76,46 @@ public class Gatherplace extends Workplace
 
 	function getProducts() returns LinkedList<ware>
 		let wares = new LinkedList<ware>()
-		for targetId in getTargetTypeIds(user.getUnitId(), gatherVariant)
+		let allowedTypeIds = getAllowedTargetTypeIds()
+		for targetId in allowedTypeIds
 			for iWare in getDefaultInitWares(targetId)
-				var wareType = iWare.wareType
+				var hasWare = false
 				for jWare in wares
 					if iWare.hasSameType(jWare)
-						wareType = null
+						hasWare = true
 						break
-				if wareType != null
-					wares.add(ware(wareType, 1))
+				if hasWare == false
+					wares.add(ware(iWare.wareType, 1))
+		destroy allowedTypeIds
 		return wares
 
+	function getAllowedTargetTypeIds(int gatherVariant) returns LinkedList<int>
+		return getTargetTypeIds(user.getUnitId(), gatherVariant)
+	function getAllowedTargetTypeIds() returns LinkedList<int>
+		return getAllowedTargetTypeIds(gatherVariant)
+
 	function getTargetCount() returns int
-		return findResources(user.getPos(), getTargetTypeIds(user.getUnitId(), gatherVariant)).size()
+		let allowedTypeIds = getAllowedTargetTypeIds()
+		let targetCount = findResources(user.getPos(), allowedTypeIds).size()
+		destroy allowedTypeIds
+		return targetCount
 
 	function changeProduct()
-		var allowedTypeIds = getTargetTypeIds(user.getUnitId(), gatherVariant + 1)
+		var allowedTypeIds = getAllowedTargetTypeIds(gatherVariant + 1)
 		if allowedTypeIds.isEmpty() == false
 			gatherVariant = gatherVariant + 1
 		else if gatherVariant != 1
 			gatherVariant = 1
-			allowedTypeIds = getTargetTypeIds(user.getUnitId(), gatherVariant)
+			destroy allowedTypeIds
+			allowedTypeIds = getAllowedTargetTypeIds()
 		for worker in workers
-			// worker.abortOrder()  // TEST: maybe not needed here
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(allowedTypeIds).getWidget(), true)
-		// TEST: check if this works and maybe write unit test for it
+		destroy allowedTypeIds
 
 	function orderWorking(unit worker)
-		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(user.getPos(), getTargetTypeIds(user.getUnitId(), gatherVariant)).getWidget(), true)
+		let allowedTypeIds = getAllowedTargetTypeIds()
+		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(allowedTypeIds, user.getPos()).getWidget(), true)
+		destroy allowedTypeIds
 
 	/** Transfers as many wares as possible from this gatherplace to source storage or transfers products with reverse targets. */
 	override function transferWares(Storage source, bool takeWares)

@@ -254,19 +254,18 @@ function findNextResource_CheckValidity(entity filterEntity) returns bool
 	let resourceTypeId = filterEntity.getTypeId()
 	let priority = getHarvestPriority(resourceTypeId)
 	// Only allow resources that have wares left, free worker slots and a high enough priority:
-	if resource != null and resource.isEmpty() == false and resource.getFreeWorkerSlots() > 0 and priority >= findNextResource_Priority and findNextResource_AllowedTypeIds.has(resourceTypeId)
+	if resource != null and resource.isEmpty() == false and resource.getFreeWorkerSlots() > 0 and priority >= findNextResource_Priority and (findNextResource_AllowedTypeIds.isEmpty() or findNextResource_AllowedTypeIds.has(resourceTypeId))
 		findNextResource_Priority = priority
 		return true
 	return false
 /** Returns next valid resource from given allowed entity types at given position for this unit. */
-public function unit.findNextResource(vec2 pos, LinkedList<int> allowedTypeIds) returns entity
+public function unit.findNextResource(LinkedList<int> allowedTypeIds, vec2 pos) returns entity
 	// Check if worker has enough free space:
 	if this.getStorage().getFreeCapacity() > 0
 		// Get valid units and destructables in range and get highest priority:
 		findNextResource_Priority = 0
 		findNextResource_AllowedTypeIds.clear()
-		if allowedTypeIds != null
-			findNextResource_AllowedTypeIds.addAll(allowedTypeIds)
+		findNextResource_AllowedTypeIds.addAll(allowedTypeIds)
 		var filter = Filter(() -> findNextResource_CheckValidity(entity(GetFilterUnit(), null)))
 		ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
 		filter.destr()
@@ -296,13 +295,7 @@ public function unit.findNextResource(vec2 pos, LinkedList<int> allowedTypeIds) 
 		return entity(null, null)
 /** Returns next valid resource from given allowed entity types for this unit. */
 public function unit.findNextResource(LinkedList<int> allowedTypeIds) returns entity
-	return this.findNextResource(this.getPos(), allowedTypeIds)
-/** Returns next valid resource at given position for this unit. */
-public function unit.findNextResource(vec2 pos) returns entity
-	return this.findNextResource(pos, null)
-/** Returns next valid resource for this unit. */
-public function unit.findNextResource() returns entity
-	return this.findNextResource(this.getPos(), null)
+	return this.findNextResource(allowedTypeIds, this.getPos())
 
 /** Returns the resource of given entity. */
 public function entity.getResource(bool assertNotNull) returns Resource

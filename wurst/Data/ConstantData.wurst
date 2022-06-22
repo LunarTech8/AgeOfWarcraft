@@ -20,7 +20,7 @@ import HashMap
 // --------------------
 
 public class Settings
-	static constant SELECTED_MAP = "AgeOfWarcraft_GenerateMap_Large"
+	static constant SELECTED_MAP = "AgeOfWarcraft_Islands_Small"
 	static constant WORLD_DATA_LOAD = false
 	static constant WORLD_DATA_SAVE = true
 	static constant USER_PLAYER = Player(0)

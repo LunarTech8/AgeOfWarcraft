@@ -19,17 +19,17 @@ import UnitMap
 import ErrorHandling
 import ClosureTimers
 import UtilityFunctions
+import WorkplaceSystem
 import HomeSystem
 import WorkshopSystem
-import InstantDummyCaster
-import UnitTest
-import DamageEvent
-import WorkplaceSystem
-import UnitIndexer
-import RegisterEvents
 import BuildingSystem
 import GatherplaceSystem
 import DepositorySystem
+import InstantDummyCaster
+import UnitTest
+import DamageEvent
+import UnitIndexer
+import RegisterEvents
 import Unit_Peasant
 
 
@@ -217,6 +217,11 @@ public class Person
 	function getEnteredBuilding() returns unit
 		return enteredBuilding
 
+	function getWorkplaceBuilding() returns unit
+		if this.workplace != null
+			return workplace.getUnit()
+		return null
+
 	function setHomeBuilding(Home home)
 		if this.home != null
 			this.home.removeInhabitant(user)
@@ -235,13 +240,12 @@ public class Person
 		if isInBuilding()
 			error("Person is already in a building")
 		let targetHome = building.getHome()
-		let targetWorkshop = building.getWorkshop()
-		let targetDepository = building.getDepository()
+		let targetWorkplace = building.getWorkplace()
 		if targetHome != null and targetHome == home
 			sleep(building.getUnitId())
-		else if targetWorkshop != null and targetWorkshop == workplace
-			targetWorkshop.enterBuilding(user)
-		else if targetDepository != null and targetDepository == workplace
+		else if targetWorkplace instanceof Workshop and targetWorkplace == workplace
+			(targetWorkplace castTo Workshop).enterBuilding(user)
+		else if targetWorkplace instanceof Depository and targetWorkplace == workplace
 			DoNothing()
 		else
 			error("Unrecognized building type to enter (" + building.getName() + ")")
@@ -252,13 +256,12 @@ public class Person
 		if isInBuilding() == false
 			error("Person is not in a building")
 		let targetHome = enteredBuilding.getHome()
-		let targetWorkshop = enteredBuilding.getWorkshop()
-		let targetDepository = enteredBuilding.getDepository()
+		let targetWorkplace = enteredBuilding.getWorkplace()
 		if targetHome != null and targetHome == home
 			awake()
-		else if targetWorkshop != null and targetWorkshop == workplace
-			targetWorkshop.leaveBuilding(user)
-		else if targetDepository != null and targetDepository == workplace
+		else if targetWorkplace instanceof Workshop and targetWorkplace == workplace
+			(targetWorkplace castTo Workshop).leaveBuilding(user)
+		else if targetWorkplace instanceof Depository and targetWorkplace == workplace
 			DoNothing()
 		else
 			error("Unrecognized building type to leave (" + enteredBuilding.getName() + ")")
@@ -300,6 +303,23 @@ function unit.removePerson()
 	if person != null
 		destroy person
 
+/** Returns the workplace of given unit. */
+public function unit.getWorkplace() returns Workplace
+	Workplace workplace
+	workplace = this.getBuildingSite()
+	if workplace != null
+		return workplace
+	workplace = this.getWorkshop()
+	if workplace != null
+		return workplace
+	workplace = this.getGatherplace()
+	if workplace != null
+		return workplace
+	workplace = this.getDepository()
+	if workplace != null
+		return workplace
+	return null
+
 /** Returns the person of given unit. */
 public function unit.getPerson() returns Person
 	return PERSON_MAP.tryGet(this)
@@ -325,20 +345,11 @@ init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
 		let killedUnit = GetTriggerUnit()
 		let targetHome = killedUnit.getHome()
+		let targetWorkplace = killedUnit.getWorkplace()
 		if targetHome != null
 			targetHome.removePersons()
-		let targetWorkshop = killedUnit.getWorkshop()
-		let targetBuildingSite = killedUnit.getBuildingSite()
-		let targetGatherplace = killedUnit.getGatherplace()
-		let targetDepository = killedUnit.getDepository()
-		if targetWorkshop != null
-			targetWorkshop.removePersons()
-		else if targetBuildingSite != null
-			targetBuildingSite.removePersons()
-		else if targetGatherplace != null
-			targetGatherplace.removePersons()
-		else if targetDepository != null
-			targetDepository.removePersons()
+		else if targetWorkplace != null
+			targetWorkplace.removePersons()
 	// Reduce stats:
 	doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
 		for person in PERSON_MAP

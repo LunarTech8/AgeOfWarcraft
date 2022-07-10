@@ -37,12 +37,23 @@ function getTargetTypeIds(int gatherplaceUnitId, int gatherVariant) returns Link
 	let entityIds = new LinkedList<int>()
 	switch gatherplaceUnitId
 		case UnitIdsCustom.AoW.lumberCamp
-			switch gatherVariant
+			switch gatherVariant  // DEBUG: only for testing variants, later all tree types should be in one gather variant
 				case 1
 					entityIds.add(DestructableIdsCustom.Trees.spruce)
 				case 2
 					entityIds.add(DestructableIdsCustom.Trees.maple)
 	return entityIds
+
+/** Returns the target gather variant name for given gatherplace type and gather variant. */
+function getTargetVariantName(int gatherplaceUnitId, int gatherVariant) returns string
+	switch gatherplaceUnitId
+		case UnitIdsCustom.AoW.lumberCamp
+			switch gatherVariant  // DEBUG: only for testing variants, later all tree types should be in one gather variant
+				case 1
+					return "Spruces"
+				case 2
+					return "Maples"
+	return null
 
 /** Returns the maximum ware capacity of the given gatherplace type. */
 function getGatherplaceMaxCapacity(int gatherplaceUnitId) returns int
@@ -73,6 +84,9 @@ public class Gatherplace extends Workplace
 
 	function getStorage() returns Storage
 		return storage
+
+	function getGatherVariant() returns int
+		return gatherVariant
 
 	function getProducts() returns LinkedList<ware>
 		let wares = new LinkedList<ware>()
@@ -158,8 +172,8 @@ public function unit.getGatherplace() returns Gatherplace
 public function multiboard.setObjectInfoMultiboard(Gatherplace gp) returns bool
 	let storage = gp.getStorage()
 	this.addMultiboardLine("Gatherplace: " + gp.user.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Workers: " + gp.getWorkerCount().toString(), WORKERS_ICON_PATH)
-	this.addMultiboardLine("Resource targets: " + gp.getTargetCount().toString(), RESOURCE_TARGETS_ICON_PATH)
+	this.addMultiboardLine("Workers: " + gp.getWorkerCount().toString() + "/" + gp.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
+	this.addMultiboardLine("Targets: " + getTargetVariantName(gp.user.getUnitId(), gp.getGatherVariant()) + " (" + gp.getTargetCount().toString() + ")", RESOURCE_TARGETS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
 	for i = 0 to (storage.getAmountOfWareTypes() - 1)
 		let ware = storage.getWare(i)

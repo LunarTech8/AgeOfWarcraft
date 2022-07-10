@@ -166,32 +166,45 @@ function unit.transferWares(unit target)
 	if sourceStorage != null
 		// Check for possible transfer methods based on target:
 		let targetStorage = target.getStorage()
-		let targetWorkshop = target.getWorkshop()
-		let targetBuildingSite = target.getBuildingSite()
-		let targetGatherplace = target.getGatherplace()
-		let targetDepository = target.getDepository()
+		let targetWorkplace = target.getWorkplace()
 		if targetStorage != null
 			// Give wares to target storage:
 			sourceStorage.transferWares(targetStorage)
-		else if targetWorkshop != null
-			// Exchange wares with source storage:
-			targetWorkshop.transferWares(sourceStorage, true)
-		else if targetBuildingSite != null
+		else if targetWorkplace == null
+			error("No workplace type")
+		else if targetWorkplace instanceof BuildingSite
+			let targetBuildingSite = (targetWorkplace castTo BuildingSite)
 			// Take wares from source storage:
 			targetBuildingSite.transferWares(sourceStorage, true)
 			// Call over idel workers if no required wares are missing:
 			if targetBuildingSite.getStock().isEmpty()
 				targetBuildingSite.callOverIdleWorkers()
-		else if targetGatherplace != null
+		else if targetWorkplace instanceof Workshop
+			// Exchange wares with source storage:
+			(targetWorkplace castTo Workshop).transferWares(sourceStorage, true)
+		else if targetWorkplace instanceof Gatherplace
+			let targetGatherplace = (targetWorkplace castTo Gatherplace)
 			if targetGatherplace.isWorker(this)
 				// Give wares to target storage:
 				targetGatherplace.transferWares(sourceStorage, false)
 			else
 				// Take wares from target storage:
 				targetGatherplace.transferWares(sourceStorage, true)
-		else if targetDepository != null
+		else if targetWorkplace instanceof Depository
 			// Give wares to target storage:
-			targetDepository.transferWares(sourceStorage, false)
+			(targetWorkplace castTo Depository).transferWares(sourceStorage, false)
+
+/** Returns the next allowed resource at given position for this person unit. */
+function unit.findNextAllowedResource(vec2 pos) returns entity
+	let sourceWorkplaceBuilding = this.getPerson().getWorkplaceBuilding()
+	let sourceGatherplace = (sourceWorkplaceBuilding != null ? sourceWorkplaceBuilding.getGatherplace() : null)
+	let allowedTypeIds = (sourceGatherplace != null ? sourceGatherplace.getAllowedTargetTypeIds() : new LinkedList<int>())
+	let nextResource = this.findNextResource(allowedTypeIds, pos)
+	destroy allowedTypeIds
+	return nextResource
+/** Returns the next allowed resource for this person unit. */
+function unit.findNextAllowedResource() returns entity
+	return this.findNextAllowedResource(this.getPos())
 
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
@@ -218,10 +231,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			return Validity.INVALID_SOURCE
 		// Check target type specific validities:
 		let targetStorage = targetUnit.getStorage()
-		let targetWorkshop = targetUnit.getWorkshop()
-		let targetBuildingSite = targetUnit.getBuildingSite()
-		let targetGatherplace = targetUnit.getGatherplace()
-		let targetDepository = targetUnit.getDepository()
+		let targetWorkplace = targetUnit.getWorkplace()
 		if targetStorage != null
 			// Check if source has wares that can be transfered:
 			if sourceStorage.getUsedCapacity() <= 0
@@ -229,21 +239,26 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			// Check if target has free storage:
 			if targetStorage.getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
-		else if targetBuildingSite != null
+		else if targetWorkplace == null
+			error("No workplace type")
+		else if targetWorkplace instanceof BuildingSite
+			let targetBuildingSite = (targetWorkplace castTo BuildingSite)
 			// Check if target requires wares:
 			if targetBuildingSite.getStock().isEmpty()
 				return Validity.NO_REQUIRED_WARES
 			// Check if source has resources that can be transfered:
 			if sourceStorage.containsAny(targetBuildingSite.getStock()) == false
 				return Validity.WARES_NOT_AVAILABLE
-		else if targetWorkshop != null
+		else if targetWorkplace instanceof Workshop
+			let targetWorkshop = (targetWorkplace castTo Workshop)
 			// Check if source has educts or target has products that can be transfered:
 			let educts = targetWorkshop.getEducts()
 			let hasAnyEducts = sourceStorage.hasWaresAny(educts)
 			destroy educts
 			if hasAnyEducts == false and targetWorkshop.getStoredProductsCount() <= 0
 				return Validity.WARES_NOT_AVAILABLE
-		else if targetGatherplace != null
+		else if targetWorkplace instanceof Gatherplace
+			let targetGatherplace = (targetWorkplace castTo Gatherplace)
 			// Check if source has products or target has wares that can be transfered:
 			let products = targetGatherplace.getProducts()
 			let hasAnyProducts = sourceStorage.hasWaresAny(products)
@@ -253,12 +268,12 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			// Check if target has free storage for products:
 			if hasAnyProducts and targetGatherplace.getStorage().getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
-		else if targetDepository != null
+		else if targetWorkplace instanceof Depository
 			// Check if source has wares that can be transfered:
 			if sourceStorage.getUsedCapacity() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 			// Check if target has free storage:
-			if targetDepository.getStorage().getFreeCapacity() <= 0
+			if (targetWorkplace castTo Depository).getStorage().getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
 		else
 			return Validity.INVALID_TARGET
@@ -307,32 +322,35 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 		if this.getSettlement() != targetUnit.getSettlement()
 			return Validity.WRONG_SETTLEMENT
 		// Check target type specific validities:
-		let targetWorkshop = targetUnit.getWorkshop()
 		let targetHome = targetUnit.getHome()
-		let targetGatherplace = targetUnit.getGatherplace()
-		let targetDepository = targetUnit.getDepository()
-		if targetWorkshop != null
-			// Check if source is allowed to work at target:
-			if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
-				return Validity.INVALID_SOURCE
-			// Check if target works at target or has free worker slot:
-			if targetWorkshop.isWorker(this) == false and targetWorkshop.getFreeWorkerSlots() <= 0
-				return Validity.NO_FREE_UNIT_SLOT
-		else if targetHome != null
+		let targetWorkplace = targetUnit.getWorkplace()
+		if targetHome != null
 			// Check if source can inhabit target:
 			if targetHome.isValidInhabitantType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if source is inhabitant or target has free apartement slot:
 			if targetHome.isInhabitant(this) == false and targetHome.getFreeApartementSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
-		else if targetGatherplace != null
+		else if targetWorkplace == null
+			error("No workplace type")
+		else if targetWorkplace instanceof Workshop
+			let targetWorkshop = (targetWorkplace castTo Workshop)
+			// Check if source is allowed to work at target:
+			if targetWorkshop.isValidWorkerType(this.getUnitId()) == false
+				return Validity.INVALID_SOURCE
+			// Check if target works at target or has free worker slot:
+			if targetWorkshop.isWorker(this) == false and targetWorkshop.getFreeWorkerSlots() <= 0
+				return Validity.NO_FREE_UNIT_SLOT
+		else if targetWorkplace instanceof Gatherplace
+			let targetGatherplace = (targetWorkplace castTo Gatherplace)
 			// Check if source is allowed to work at target:
 			if targetGatherplace.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
 			// Check if target works at target or has free worker slot:
 			if targetGatherplace.isWorker(this) == false and targetGatherplace.getFreeWorkerSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
-		else if targetDepository != null
+		else if targetWorkplace instanceof Depository
+			let targetDepository = (targetWorkplace castTo Depository)
 			// Check if source is allowed to work at target:
 			if targetDepository.isValidWorkerType(this.getUnitId()) == false
 				return Validity.INVALID_SOURCE
@@ -343,22 +361,30 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			return Validity.INVALID_TARGET
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
-		let sourceWorkshop = this.getWorkshop()
-		let sourceGatherplace = this.getGatherplace()
-		if sourceWorkshop != null
+		let sourceWorkplace = this.getWorkplace()
+		if sourceWorkplace == null
+			error("No workplace type")
+		else if sourceWorkplace instanceof Workshop
 			// Check if source has workers:
-			if sourceWorkshop.getWorkerCount() <= 0
+			if (sourceWorkplace castTo Workshop).getWorkerCount() <= 0
 				return Validity.WORKERS_NOT_AVAILABLE
-		else if sourceGatherplace != null
+		else if sourceWorkplace instanceof Gatherplace
 			// Check if source has workers:
-			if sourceGatherplace.getWorkerCount() <= 0
+			if (sourceWorkplace castTo Gatherplace).getWorkerCount() <= 0
 				return Validity.WORKERS_NOT_AVAILABLE
 		else
 			error("Casting building is no workshop or gatherplace (" + this.getName() + ")")
 			return Validity.ERROR
 	else if abilityId == AbilityIdsCustom.changeProduct
 		// Check if source is valid:
-		if this.getWorkshop() == null and this.getGatherplace() == null
+		let sourceWorkplace = this.getWorkplace()
+		if sourceWorkplace == null
+			error("No workplace type")
+		else if sourceWorkplace instanceof Workshop
+			DoNothing()
+		else if sourceWorkplace instanceof Gatherplace
+			DoNothing()
+		else
 			error("Casting building is no workshop or gatherplace (" + this.getName() + ")")
 			return Validity.ERROR
 	else if abilityId == AbilityIdsCustom.targetDestructable
@@ -412,12 +438,9 @@ init
 						// Perform harvest after ability is finished:
 						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
-							let sourceGatherplace = source.getGatherplace()
-							let allowedTypeIds = (sourceGatherplace != null ? sourceGatherplace.getAllowedTargetTypeIds() : new LinkedList<int>())
-							var nextResource = source.findNextResource(allowedTypeIds)  // Look for new resource in range of worker
+							var nextResource = source.findNextAllowedResource()  // Look for new resource in range of worker
 							if nextResource.isEmpty()
-								nextResource = source.findNextResource(allowedTypeIds, target.getPos())  // Look for new resource in range of last target
-							destroy allowedTypeIds
+								nextResource = source.findNextAllowedResource(target.getPos())  // Look for new resource in range of last target
 							if nextResource.isEmpty() == false
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)  // Auto-recast on new target
 							else
@@ -430,10 +453,7 @@ init
 							if source.harvest(target)
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)  // Auto-recast on same target
 							else
-								let sourceGatherplace = source.getGatherplace()
-								let allowedTypeIds = (sourceGatherplace != null ? sourceGatherplace.getAllowedTargetTypeIds() : new LinkedList<int>())
-								let nextResource = source.findNextResource(allowedTypeIds)  // Look for new resource in range of worker
-								destroy allowedTypeIds
+								let nextResource = source.findNextAllowedResource()  // Look for new resource in range of worker
 								if nextResource.isEmpty() == false
 									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)  // Auto-recast on new target
 								else
@@ -443,58 +463,63 @@ init
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
 						let targetUnit = target.assertUnit()
-						let targetWorkshop = targetUnit.getWorkshop()
 						let targetHome = targetUnit.getHome()
-						let targetGatherplace = targetUnit.getGatherplace()
-						let targetDepository = targetUnit.getDepository()
-						if targetWorkshop != null
-							// Transfer educts, add source to target workshop as worker and enter it:
-							let sourcePerson = source.getPerson()
-							targetWorkshop.transferWares(source.getStorage(), false)
-							if targetWorkshop.isWorker(source) == false
-								sourcePerson.setWorkplaceBuilding(targetWorkshop)
-							sourcePerson.enterBuilding(targetUnit)
-						else if targetHome != null
+						let targetWorkplace = targetUnit.getWorkplace()
+						if targetHome != null
 							// Add source to target home as inhabitant or enter it:
 							let sourcePerson = source.getPerson()
 							if targetHome.isInhabitant(source)
 								sourcePerson.enterBuilding(targetUnit)
 							else
 								sourcePerson.setHomeBuilding(targetHome)
-						else if targetGatherplace != null
-							// Transfer wares and add source to target gatherplace as worker:
-							targetGatherplace.transferWares(source.getStorage(), true)
+						else if targetWorkplace == null
+							error("No workplace type")
+						else if targetWorkplace instanceof Workshop
+							let targetWorkshop = (targetWorkplace castTo Workshop)
+							// Transfer educts, add source to target workshop as worker and enter it:
+							let sourcePerson = source.getPerson()
+							targetWorkshop.transferWares(source.getStorage(), false)
+							if targetWorkshop.isWorker(source) == false
+								sourcePerson.setWorkplaceBuilding(targetWorkshop)
+							sourcePerson.enterBuilding(targetUnit)
+						else if targetWorkplace instanceof Gatherplace
+							let targetGatherplace = (targetWorkplace castTo Gatherplace)
+							// Transfer wares, add source to target gatherplace as worker and order to work:
+							targetGatherplace.transferWares(source.getStorage(), false)
 							if targetGatherplace.isWorker(source) == false
 								source.getPerson().setWorkplaceBuilding(targetGatherplace)
-						else if targetDepository != null
-							// Transfer wares, add source to target depository as worker and enter it:
-							let sourcePerson = source.getPerson()
+							targetGatherplace.orderWorking(source)
+						else if targetWorkplace instanceof Depository
+							let targetDepository = (targetWorkplace castTo Depository)
+							// Transfer wares, add source to target depository as worker and order to work:
 							targetDepository.transferWares(source.getStorage(), false)
 							if targetDepository.isWorker(source) == false
-								sourcePerson.setWorkplaceBuilding(targetDepository)
-							sourcePerson.enterBuilding(targetUnit)
+								source.getPerson().setWorkplaceBuilding(targetDepository)
+							targetDepository.orderWorking(source, true)
 					case AbilityIdsCustom.removeWorker
-						let sourceWorkshop = source.getWorkshop()
-						let sourceGatherplace = source.getGatherplace()
-						if sourceWorkshop != null
+						let sourceWorkplace = source.getWorkplace()
+						if sourceWorkplace == null
+							error("No workplace type")
+						else if sourceWorkplace instanceof Workshop
 							// Remove a worker from source workshop:
-							let person = sourceWorkshop.getFirstWorker().getPerson()
+							let person = (sourceWorkplace castTo Workshop).getFirstWorker().getPerson()
 							if person.getEnteredBuilding() == source
 								person.leaveBuilding()
 							person.setWorkplaceBuilding(null)
-						else if sourceGatherplace != null
+						else if sourceWorkplace instanceof Gatherplace
 							// Remove a worker from source gatherplace:
-							let person = sourceGatherplace.getFirstWorker().getPerson()
+							let person = (sourceWorkplace castTo Gatherplace).getFirstWorker().getPerson()
 							person.setWorkplaceBuilding(null)
 					case AbilityIdsCustom.changeProduct
-						let sourceWorkshop = source.getWorkshop()
-						let sourceGatherplace = source.getGatherplace()
-						if sourceWorkshop != null
+						let sourceWorkplace = source.getWorkplace()
+						if sourceWorkplace == null
+							error("No workplace type")
+						else if sourceWorkplace instanceof Workshop
 							// Cancel current production and change it to the next variant:
-							sourceWorkshop.changeProduct()
-						else if sourceGatherplace != null
-							// Cancel current production and change it to the next variant:
-							sourceGatherplace.changeProduct()
+							(sourceWorkplace castTo Workshop).changeProduct()
+						else if sourceWorkplace instanceof Gatherplace
+							// Cancel orders on current targets and change it to the next variant:
+							(sourceWorkplace castTo Gatherplace).changeProduct()
 					default
 						error("Unmapped ability (" + abilityId.getOrderName() + ")")
 			else if val != Validity.UNREGISTERED
@@ -515,10 +540,7 @@ init
 					case "harvest"
 						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
-							let sourceGatherplace = source.getGatherplace()
-							let allowedTypeIds = (sourceGatherplace != null ? sourceGatherplace.getAllowedTargetTypeIds() : new LinkedList<int>())
-							let nextResource = source.findNextResource(allowedTypeIds)
-							destroy allowedTypeIds
+							let nextResource = source.findNextAllowedResource()
 							if nextResource.isEmpty() == false
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
 						CallbackSimple cancelCb = () ->
@@ -537,10 +559,7 @@ init
 							if val == Validity.VALID
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)
 							else if val == Validity.NO_FREE_UNIT_SLOT
-								let sourceGatherplace = source.getGatherplace()
-								let allowedTypeIds = (sourceGatherplace != null ? sourceGatherplace.getAllowedTargetTypeIds() : new LinkedList<int>())
-								let nextResource = source.findNextResource(allowedTypeIds, target.getPos())
-								destroy allowedTypeIds
+								let nextResource = source.findNextAllowedResource(target.getPos())
 								if nextResource.isEmpty() == false
 									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
 								else

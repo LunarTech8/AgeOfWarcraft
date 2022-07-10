@@ -107,13 +107,19 @@ public abstract class Workplace
 	function getFreeWorkerSlotsForBuildingSite() returns int
 		return getMaxWorkers(user.getUnitId(), true) - workers.size()
 
+	function getMaxWorkerSlots() returns int
+		return getMaxWorkers(user.getUnitId(), false)
+
+	function getMaxWorkerSlotsForBuildingSite() returns int
+		return getMaxWorkers(user.getUnitId(), true)
+
 	function addWorker(unit worker)
-		if workers.contains(worker) or workers.size() >= getMaxWorkers(user.getUnitId(), false)
+		if workers.contains(worker) or workers.size() >= getMaxWorkerSlots()
 			error("Can't add worker to this workplace")
 		workers.addUnit(worker)
 
 	function addWorkerForBuildingSite(unit worker)
-		if workers.contains(worker) or workers.size() >= getMaxWorkers(user.getUnitId(), true)
+		if workers.contains(worker) or workers.size() >= getMaxWorkerSlotsForBuildingSite()
 			error("Can't add worker to this workplace")
 		workers.addUnit(worker)
 

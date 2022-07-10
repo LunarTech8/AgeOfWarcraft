@@ -230,7 +230,7 @@ function getScaling(int buildingUnitId) returns real
 
 let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>(null)
 
-class BuildingSite extends Workplace
+public class BuildingSite extends Workplace
 	private Stock stock
 	private real fullHP
 	private real workProgressCurrent
@@ -435,7 +435,7 @@ public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
 	let workPower = bs.getWorkPower()
 	if workPower > 0.
 		this.addMultiboardLine("Build time left: " + (bs.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
-		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString(), WORKERS_ICON_PATH)
+		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString() + "/" + bs.getMaxWorkerSlotsForBuildingSite().toString(), WORKERS_ICON_PATH)
 	let stock = bs.getStock()
 	let amountOfWareTypes = stock.getAmountOfWareTypes()
 	if amountOfWareTypes > 0

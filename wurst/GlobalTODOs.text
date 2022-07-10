@@ -41,8 +41,7 @@ Work status:
 	- The influence range of settlements should be marked by border stones
 !!>>- Create a GatherplaceSystem
 	>>>- All gather jobs have a building from where they start gathering and store their resources
-	>- Implement usage in PersonSystem as workplace
-	>- Smart order on gatherplace should transfer wares and then order the worker to search for next resource
+	- Implement usage in PersonSystem as workplace
 	- Each type of gatherplace has a specific gather range (around the centre of the building)
 		- Maybe the gather centre can be changed by the player (inside a max range from the gatherplace building)
 !!>>- Create a DepositorySystem
@@ -58,6 +57,10 @@ Work status:
 // -------------
 
 !!!- Building buff graphics isn't visible (buff is added correctly)
+!!!- When creating a building site more workers than the max allowed are smart ordered to the building site (but only the max number work on it)
+	- Also the unit creating the building site should always be prioritized to be in the worker group if possible
+!!!- When targeting an unreachable resource (eg. on cliff) workers are left indefinitly in "harvest"
+	- There should be max timer coupled with movement detection to prevent this
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
 	- Check if this is really needed anymore (else remove ShowTargetInfo)

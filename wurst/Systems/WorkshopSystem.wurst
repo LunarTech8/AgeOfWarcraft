@@ -279,7 +279,7 @@ public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
 	let workPower = ws.getWorkPower()
 	if workPower > 0.
 		this.addMultiboardLine("Production time left: " + (ws.getWorkProgressLeft() / workPower).toInt().toString() + "s", PRODUCTION_TIME_LEFT_ICON_PATH)
-		this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString(), WORKERS_ICON_PATH)
+		this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString() + "/" + ws.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Educts (" + ws.getStoredEductsCount().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
 	let educts = ws.getEducts()
 	for ware in educts

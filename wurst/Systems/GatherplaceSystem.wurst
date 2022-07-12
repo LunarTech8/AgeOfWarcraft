@@ -23,6 +23,7 @@ import StorageSystem
 import ResourceSystem
 import Entity
 import WorkplaceSystem
+import Orders
 
 
 // --------------------
@@ -31,6 +32,7 @@ import WorkplaceSystem
 
 let WORKERS_ICON_PATH = Icons.bTNBash
 let RESOURCE_TARGETS_ICON_PATH = Icons.bTNReturnGoods
+let MAX_AUTO_ORDER_RANGE = 1024.
 
 /** Returns the allowed target types for given gatherplace type and gather variant. */
 function getTargetTypeIds(int gatherplaceUnitId, int gatherVariant) returns LinkedList<int>
@@ -110,9 +112,15 @@ public class Gatherplace extends Workplace
 
 	function getTargetCount() returns int
 		let allowedTypeIds = getAllowedTargetTypeIds()
-		let targetCount = findResources(user.getPos(), allowedTypeIds).size()
+		let targetCount = findResources(getGatherCentrePos(), allowedTypeIds).size()
 		destroy allowedTypeIds
 		return targetCount
+
+	function getGatherCentrePos() returns vec2
+		let loc = GetUnitRallyPoint(user)
+		let pos = vec2(GetLocationX(loc), GetLocationY(loc))
+		RemoveLocation(loc)
+		return pos
 
 	function changeProduct()
 		var allowedTypeIds = getAllowedTargetTypeIds(gatherVariant + 1)
@@ -123,13 +131,16 @@ public class Gatherplace extends Workplace
 			destroy allowedTypeIds
 			allowedTypeIds = getAllowedTargetTypeIds()
 		for worker in workers
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(allowedTypeIds).getWidget(), true)
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos()).getWidget(), true)
 		destroy allowedTypeIds
 
 	function orderWorking(unit worker)
 		let allowedTypeIds = getAllowedTargetTypeIds()
-		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(allowedTypeIds, user.getPos()).getWidget(), true)
+		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos()).getWidget(), true)
 		destroy allowedTypeIds
+	function orderWorking()
+		for worker in workers
+			orderWorking(worker)
 
 	/** Transfers as many wares as possible from this gatherplace to source storage or transfers products with reverse targets. */
 	override function transferWares(Storage source, bool takeWares)
@@ -185,3 +196,9 @@ init
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_UPGRADE_FINISH, () -> GetTriggerUnit().addGatherplace())
 	// Remove gatherplace from every appropriate removed unit:
 	onUnitDeindex(() -> getIndexingUnit().removeGatherplace())
+	// Register rally point changes:
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER) ->
+		let gatherplace = GetOrderedUnit().getGatherplace()
+		let issuedOrderId = GetIssuedOrderId()
+		if gatherplace != null and (issuedOrderId == OrderIds.setrally or issuedOrderId == OrderIds.smart)
+			gatherplace.orderWorking()

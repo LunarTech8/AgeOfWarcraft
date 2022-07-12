@@ -38,6 +38,8 @@ import LinkedList
 // Data code
 // --------------------
 
+let MAX_AUTO_ORDER_RANGE = 1024.
+
 function getInvalidMessageText(int abilityId, Validity val) returns string
 	switch abilityId
 		case AbilityIdsCustom.transferWares
@@ -195,16 +197,16 @@ function unit.transferWares(unit target)
 			(targetWorkplace castTo Depository).transferWares(sourceStorage, false)
 
 /** Returns the next allowed resource at given position for this person unit. */
-function unit.findNextAllowedResource(vec2 pos) returns entity
+function unit.findNextAllowedResource(real maxRange, vec2 pos) returns entity
 	let sourceWorkplaceBuilding = this.getPerson().getWorkplaceBuilding()
 	let sourceGatherplace = (sourceWorkplaceBuilding != null ? sourceWorkplaceBuilding.getGatherplace() : null)
 	let allowedTypeIds = (sourceGatherplace != null ? sourceGatherplace.getAllowedTargetTypeIds() : new LinkedList<int>())
-	let nextResource = this.findNextResource(allowedTypeIds, pos)
+	let nextResource = this.findNextResource(maxRange, allowedTypeIds, pos)
 	destroy allowedTypeIds
 	return nextResource
 /** Returns the next allowed resource for this person unit. */
-function unit.findNextAllowedResource() returns entity
-	return this.findNextAllowedResource(this.getPos())
+function unit.findNextAllowedResource(real maxRange) returns entity
+	return this.findNextAllowedResource(maxRange, this.getPos())
 
 /** Run general reaction on invalid ability command. */
 function unit.reactOnInvalidAbility(int abilityId, Validity val)
@@ -438,9 +440,9 @@ init
 						// Perform harvest after ability is finished:
 						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
-							var nextResource = source.findNextAllowedResource()  // Look for new resource in range of worker
+							var nextResource = source.findNextAllowedResource(MAX_AUTO_ORDER_RANGE)  // Look for new resource in range of worker
 							if nextResource.isEmpty()
-								nextResource = source.findNextAllowedResource(target.getPos())  // Look for new resource in range of last target
+								nextResource = source.findNextAllowedResource(MAX_AUTO_ORDER_RANGE, target.getPos())  // Look for new resource in range of last target
 							if nextResource.isEmpty() == false
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)  // Auto-recast on new target
 							else
@@ -453,7 +455,7 @@ init
 							if source.harvest(target)
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)  // Auto-recast on same target
 							else
-								let nextResource = source.findNextAllowedResource()  // Look for new resource in range of worker
+								let nextResource = source.findNextAllowedResource(MAX_AUTO_ORDER_RANGE)  // Look for new resource in range of worker
 								if nextResource.isEmpty() == false
 									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)  // Auto-recast on new target
 								else
@@ -540,7 +542,7 @@ init
 					case "harvest"
 						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
-							let nextResource = source.findNextAllowedResource()
+							let nextResource = source.findNextAllowedResource(MAX_AUTO_ORDER_RANGE)
 							if nextResource.isEmpty() == false
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
 						CallbackSimple cancelCb = () ->
@@ -559,7 +561,7 @@ init
 							if val == Validity.VALID
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)
 							else if val == Validity.NO_FREE_UNIT_SLOT
-								let nextResource = source.findNextAllowedResource(target.getPos())
+								let nextResource = source.findNextAllowedResource(MAX_AUTO_ORDER_RANGE, target.getPos())
 								if nextResource.isEmpty() == false
 									source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
 								else

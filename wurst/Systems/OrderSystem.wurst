@@ -377,6 +377,6 @@ init
 		let source = GetOrderedUnit()
 		let targetPos = vec2(GetOrderPointX(), GetOrderPointY())
 		OrderAction orderAction = null
-		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attack
+		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attack or issuedOrderId == OrderIds.setrally
 			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 		source.setOrder(issuedOrderId, targetPos, orderAction)

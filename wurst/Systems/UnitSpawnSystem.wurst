@@ -1,0 +1,78 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Generates balanced, randomized unit waves based on defined unit costs.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package UnitSpawnSystem
+import ConstantData
+import ErrorHandling
+import LinkedList
+
+
+// --------------------
+// Data code
+// --------------------
+
+enum UnitCategory
+	HUMANS
+	UNDEAD
+	ORCS
+	ANIMALS
+
+/** Returns the spawn cost for given unit type. */
+function getUnitCost(int unitId) returns real
+	switch unitId
+		case UnitIdsCustom.AoW.peasant
+			return 1.
+		case UnitIdsCustom.AoW.footman
+			return 3.
+	return 0.
+
+/** Returns a list of available units for given category. The list is ordered by the units costs with rising values. */
+function getAvailableUnitIds(UnitCategory category) returns LinkedList<int>
+	let unitIds = new LinkedList<int>()
+	switch category
+		case HUMANS
+			unitIds.add(UnitIdsCustom.AoW.peasant)
+			unitIds.add(UnitIdsCustom.AoW.footman)
+		default
+			error("Unmapped category (" + (category castTo int).toString() + ")")
+	return unitIds
+
+// --------------------
+// Functional code
+// --------------------
+
+public class UnitWave
+	private real totalCost
+	private LinkedList<int> unitIds
+
+	construct(real maxTotalCost, UnitCategory category)
+		totalCost = 0.
+		unitIds = new LinkedList<int>()  // TODO: use a tuple<unitId, count> instead
+		generateUnitIds(maxTotalCost, category)
+
+	ondestroy
+		destroy unitIds
+
+	function generateUnitIds(real maxTotalCost, UnitCategory category)
+		let availableUnitIds = getAvailableUnitIds(category)
+		var biggestUnitCost = getUnitCost(availableUnitIds.peek())
+		while true
+			// Update available units list:
+			while biggestUnitCost > maxTotalCost - totalCost
+				availableUnitIds.pop()
+				if availableUnitIds.isEmpty()
+					destroy availableUnitIds
+					return
+				biggestUnitCost = getUnitCost(availableUnitIds.peek())
+			// Pick random unit:
+			let pickedUnitId = availableUnitIds.get(GetRandomInt(0, availableUnitIds.size() - 1))
+			totalCost += getUnitCost(pickedUnitId)
+			unitIds.add(pickedUnitId)

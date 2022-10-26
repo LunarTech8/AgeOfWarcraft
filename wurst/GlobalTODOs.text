@@ -47,6 +47,9 @@ Work status:
 	>>- Workers deliver required wares to workshops
 	>- Workers fetch products from workshops and gatherplaces
 	>- Implement usage in PersonSystem as workplace
+!>>- Create a UnitSpawnSystem
+	- Create units and add data for them
+	- Finish basic Implementation
 
 
 // -------------

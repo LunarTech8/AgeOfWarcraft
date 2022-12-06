@@ -13,11 +13,16 @@ package UnitSpawnSystem
 import ConstantData
 import ErrorHandling
 import LinkedList
+import UtilityFunctions
 
 
 // --------------------
 // Data code
 // --------------------
+
+let MAX_ENTRY_COUNT = 99999  // Is limited to allow tuple to be converted into a single int
+let MIN_ENTRY_UNIT_ID = OFFSET_UNIT_ID  // Is limited to allow tuple to be converted into a single int
+let MAX_ENTRY_UNIT_ID = OFFSET_UNIT_ID + 9999  // Is limited to allow tuple to be converted into a single int
 
 enum UnitCategory
 	HUMANS
@@ -49,13 +54,27 @@ function getAvailableUnitIds(UnitCategory category) returns LinkedList<int>
 // Functional code
 // --------------------
 
+tuple entry(int unitId, int count)
+
+public function entryToIndex(entry e) returns int
+	if e.count < 0 or e.count > MAX_ENTRY_COUNT
+		error("Entry count (" + e.count.toString() + ") isn't allowed to be smaller than 0 or bigger than " + MAX_ENTRY_COUNT.toString())
+	else if e.unitId < MIN_ENTRY_UNIT_ID or e.unitId > MAX_ENTRY_UNIT_ID
+		error("Entry unit type (" + e.unitId.toString() + ") isn't allowed to be smaller than " + MIN_ENTRY_UNIT_ID.toString() + " or bigger than " + MAX_ENTRY_UNIT_ID.toString())
+	return e.count + (e.unitId - MIN_ENTRY_UNIT_ID + 1) * (MAX_ENTRY_COUNT + 1)
+
+public function entryFromIndex(int index) returns entry
+	let count = index mod (MAX_ENTRY_COUNT + 1)
+	let unitId = ((index - count) div (MAX_ENTRY_COUNT + 1)) + MIN_ENTRY_UNIT_ID - 1
+	return entry(unitId, count)
+
 public class UnitWave
 	private real totalCost
-	private LinkedList<int> unitIds
+	private LinkedList<entry> unitIds
 
 	construct(real maxTotalCost, UnitCategory category)
 		totalCost = 0.
-		unitIds = new LinkedList<int>()  // TODO: use a tuple<unitId, count> instead
+		unitIds = new LinkedList<entry>()
 		generateUnitIds(maxTotalCost, category)
 
 	ondestroy
@@ -75,4 +94,20 @@ public class UnitWave
 			// Pick random unit:
 			let pickedUnitId = availableUnitIds.get(GetRandomInt(0, availableUnitIds.size() - 1))
 			totalCost += getUnitCost(pickedUnitId)
-			unitIds.add(pickedUnitId)
+			var targetEntry = entry(pickedUnitId, 0)
+			for iEntry in unitIds
+				if iEntry.unitId == pickedUnitId
+					targetEntry = iEntry
+					break
+			// Update picked units list:
+			if targetEntry.count > 0
+				unitIds.replace(targetEntry, entry(pickedUnitId, targetEntry.count + 1))
+			else
+				unitIds.add(entry(pickedUnitId, 1))
+
+	function instantiateWave(player owner, vec2 pos) returns group
+		let units = CreateGroup()
+		for iEntry in unitIds
+			for i = 0 to iEntry.count - 1
+				units.addUnit(createUnit(owner, iEntry.unitId, pos, getRandomAngle()))
+		return units

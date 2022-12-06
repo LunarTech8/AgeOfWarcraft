@@ -33,6 +33,7 @@ public class Settings
 constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
 constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
 constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 17
+public constant OFFSET_UNIT_ID = compiletime(OFFSET_UNIT_ID_GEN.getId(0))
 
 public class UnitIdsCustom
 	//--------------

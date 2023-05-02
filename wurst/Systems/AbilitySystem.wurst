@@ -249,7 +249,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if targetBuildingSite.getStock().isEmpty()
 				return Validity.NO_REQUIRED_WARES
 			// Check if source has resources that can be transfered:
-			if sourceStorage.containsAny(targetBuildingSite.getStock()) == false
+			if sourceStorage.hasWaresAny(targetBuildingSite.getStock()) == false
 				return Validity.WARES_NOT_AVAILABLE
 		else if targetWorkplace instanceof Workshop
 			let targetWorkshop = (targetWorkplace castTo Workshop)

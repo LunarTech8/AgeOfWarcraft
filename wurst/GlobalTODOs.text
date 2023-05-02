@@ -22,6 +22,8 @@ Work status:
 
 !!!>>- Improve Startup
 	>>>- Fix: "Stops at end before Test10 for bigger maps (208x208) even with bigger computationCost"
+!!!>- When creating a building site the unit creating the building site should always be prioritised to be in the worker group if possible (callOverIdleWorkers and callOverIdleWareCarriers)
+	- Maybe use selected unit/units or prioritise by distance to building site
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
 	- Create and use a 4x4Simple.tga pathing map for trees (border unbuildable but walkable)
 	- Make forests less crowded with trees
@@ -56,10 +58,9 @@ Work status:
 // -------------
 
 !!!- Building buff graphics isn't visible (buff is added correctly)
-!!!- When creating a building site more workers than the max allowed are smart ordered to the building site (but only the max number work on it)
-	- Also the unit creating the building site should always be prioritized to be in the worker group if possible
 !!!- When targeting an unreachable resource (eg. on cliff) workers are left indefinitly in "harvest"
 	- There should be max timer coupled with movement detection to prevent this
+!!!- Workers in production buildings are repeatedly/flickeringly shown as idle (maybe because of unit hiding)
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
 	- Check if this is really needed anymore (else remove ShowTargetInfo)

@@ -135,6 +135,8 @@ public class Stock
 
 	construct(LinkedList<ware> wares)
 		this.wares = wares
+	construct(Stock stock)
+		this.wares = stock.getWares()
 
 	ondestroy
 		destroy wares
@@ -192,6 +194,12 @@ public class Stock
 			if getWareCount(iWare.wareType) > 0
 				return true
 		return false
+	/** Returns if the stock has any wares of given target stock. */
+	function hasWaresAny(Stock targetStock) returns bool
+		for iWare in wares
+			if targetStock.getWareCount(iWare.wareType) > 0
+				return true
+		return false
 
 	/** Add given wares to the stock. */
 	function addWare(ware w)
@@ -218,17 +226,30 @@ public class Stock
 				else
 					wares.replace(iWare, iWare.changedCopy(-w.count))
 
+	/** Remove as many as available of given ware from the stock and return how many were removed. */
+	function removeWareAny(ware w) returns int
+		for iWare in wares
+			if iWare.hasSameType(w)
+				// Check and adjust ware:
+				let removedWareCount = min(iWare.count, w.count)
+				if iWare.count <= removedWareCount
+					wares.remove(iWare)
+				else
+					wares.replace(iWare, iWare.changedCopy(-removedWareCount))
+				return removedWareCount
+		return 0
+
 	/** Remove given wares from the stock. */
 	function removeWares(LinkedList<ware> wares)
 		for iWare in wares
 			removeWare(iWare)
 
-	/** Returns if the stock has any wares of given target stock. */
-	function containsAny(Stock targetStock) returns bool
+	/** Remove as many as available of given wares from the stock and return how many were removed. */
+	function removeWaresAny(LinkedList<ware> wares) returns int
+		var removedWareCount = 0
 		for iWare in wares
-			if targetStock.getWareCount(iWare.wareType) > 0
-				return true
-		return false
+			removedWareCount += removeWareAny(iWare)
+		return removedWareCount
 
 	/** Replaces all wares from the stock with the given wares. */
 	function replaceWares(LinkedList<ware> wares)
@@ -277,12 +298,12 @@ public function testStockSystem_AddAndRemove(bool isInGameTest)
 	waresA.add(ware(WareType.STRAW, 1))
 	waresA.add(ware(WareType.WOOD, 6))
 	stockB.hasWaresAny(waresA).assertFalse(testName)
-	stockB.containsAny(stockA).assertFalse(testName)
+	stockB.hasWaresAny(stockA).assertFalse(testName)
 	stockB.addWares(waresA)
 	stockB.isEmpty().assertFalse(testName)
 	stockB.getAmountOfWareTypes().assertEquals(testName, 4)
 	stockB.hasWares(waresA).assertTrue(testName)
-	stockB.containsAny(stockA).assertTrue(testName)
+	stockB.hasWaresAny(stockA).assertTrue(testName)
 	// Remove wares and check content:
 	let waresB = new LinkedList<ware>()
 	waresB.add(ware(WareType.FOOD, 3))

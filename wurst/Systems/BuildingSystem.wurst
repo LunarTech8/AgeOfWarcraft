@@ -253,6 +253,16 @@ public class BuildingSite extends Workplace
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
 
+	private static function checkCarrierForRequiredResources(unit carrier, Stock requiredResources) returns bool
+		var hasAnyRequiredResources = false
+		if requiredResources.isEmpty() == false
+			let carrierStorage = carrier.getStorage()
+			if carrierStorage != null
+				let carrierWares = carrierStorage.getWares()
+				hasAnyRequiredResources = (requiredResources.removeWaresAny(carrierWares) > 0)
+				destroy carrierWares
+		return hasAnyRequiredResources
+
 	function getStock() returns Stock
 		return stock
 
@@ -294,13 +304,6 @@ public class BuildingSite extends Workplace
 		UnitSetUpgradeProgress(user, upgradeProgress)
 		return false
 
-	function hasCarrierRequiredResources(unit carrier) returns bool
-		if stock.isEmpty() == false
-			let carrierStorage = carrier.getStorage()
-			if carrierStorage != null and carrierStorage.containsAny(stock)
-				return true
-		return false
-
 	function callOverIdleWorkers()
 		// Order nearby idle workers to build on building site:
 		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
@@ -316,12 +319,14 @@ public class BuildingSite extends Workplace
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
 
 	function callOverIdleWareCarriers()
-		// Order nearby idle workers to build on building site:
+		// Order nearby idle workers with required resources to transfer wares to the building site:
 		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
 		let owner = user.getOwner()
+		let requiredResources = new Stock(stock)
 		for carrier from ENUM_GROUP
-			if carrier.getOwner() == owner and (carrier.getOrderSource() == null or carrier.isOrder(OrderIds.move)) and hasCarrierRequiredResources(carrier)
+			if carrier.getOwner() == owner and (carrier.getOrderSource() == null or carrier.isOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, requiredResources)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
+		destroy requiredResources
 
 	/** Transfers required wares from source storage to this building sie.
 	Returns a list of all wares that are still missing. */

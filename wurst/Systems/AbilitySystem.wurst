@@ -180,7 +180,7 @@ function unit.transferWares(unit target)
 			targetBuildingSite.transferWares(sourceStorage, true)
 			// Call over idel workers if no required wares are missing:
 			if targetBuildingSite.getStock().isEmpty()
-				targetBuildingSite.callOverIdleWorkers()
+				targetBuildingSite.callOverIdleWorkers(this)
 		else if targetWorkplace instanceof Workshop
 			// Exchange wares with source storage:
 			(targetWorkplace castTo Workshop).transferWares(sourceStorage, true)

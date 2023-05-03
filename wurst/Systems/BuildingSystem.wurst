@@ -304,31 +304,49 @@ public class BuildingSite extends Workplace
 		UnitSetUpgradeProgress(user, upgradeProgress)
 		return false
 
-	function callOverIdleWorkers()
-		// Order nearby idle workers to build on building site:
-		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
+	private static let callOverIdleWorkers_PrioWorkers = CreateGroup()
+	/** Order nearby idle workers to build on building site.
+	Start with given prio workers who aren't checked for their order status. */
+	function callOverIdleWorkers(group prioWorkers)
 		let owner = user.getOwner()
-		var requiredWorkers = getFreeWorkerSlotsForBuildingSite()
-		for worker from ENUM_GROUP
-			// Check if more workers are required:
-			if requiredWorkers <= 0
-				return
-			// Look for idle workers or workers that want to transfer wares to the building site:
-			if user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker.isOrder(OrderIds.frostnova, user))
-				requiredWorkers -= 1
+		var requiredWorkerCount = getFreeWorkerSlotsForBuildingSite()
+		// Check prioritised units:
+		for worker in prioWorkers
+			if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner
+				requiredWorkerCount -= 1
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
+		// Look for idle workers or workers that want to transfer wares to the building site:
+		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
+		ENUM_GROUP.removeGroup(prioWorkers)
+		for worker from ENUM_GROUP
+			if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker.isOrder(OrderIds.frostnova, user))
+				requiredWorkerCount -= 1
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
+	/** Order nearby idle workers to build on building site.
+	Start with given prio worker who isn't checked for his order status. */
+	function callOverIdleWorkers(unit prioWorker)
+		callOverIdleWorkers_PrioWorkers.addUnit(prioWorker)
+		callOverIdleWorkers(callOverIdleWorkers_PrioWorkers)
+		callOverIdleWorkers_PrioWorkers.clear()
 
-	function callOverIdleWareCarriers()
-		// Order nearby idle workers with required resources to transfer wares to the building site:
-		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
+	/** Order nearby idle workers with required resources to transfer wares to the building site.
+	Start with given prio workers who aren't checked for their order status. */
+	function callOverIdleWareCarriers(group prioWorkers)
 		let owner = user.getOwner()
 		let requiredResources = new Stock(stock)
+		// Check prioritised units:
+		for carrier in prioWorkers
+			if carrier.getOwner() == owner and checkCarrierForRequiredResources(carrier, requiredResources)
+				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
+		// Look for idle workers or moving workers:
+		ENUM_GROUP.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
+		ENUM_GROUP.removeGroup(prioWorkers)
 		for carrier from ENUM_GROUP
 			if carrier.getOwner() == owner and (carrier.getOrderSource() == null or carrier.isOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, requiredResources)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 		destroy requiredResources
 
-	/** Transfers required wares from source storage to this building sie.
+	/** Transfers required wares from source storage to this building site.
 	Returns a list of all wares that are still missing. */
 	override function transferWares(Storage source, bool _takeWares)
 		let leftRequiredWares = new LinkedList<ware>()
@@ -349,6 +367,7 @@ public class BuildingSite extends Workplace
 		stock.replaceWares(leftRequiredWares)
 
 
+let addBuildingSite_SelectedUnits = CreateGroup()
 function unit.addBuildingSite()
 	if BUILDING_SITE_MAP.has(this) == false
 		let targetUnitId = this.getUnitId()
@@ -359,10 +378,12 @@ function unit.addBuildingSite()
 		buildingGround.setMaxHP(max(1, (fullHP * BUILDING_START_HP_PERCENTAGE).toInt()))
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
+		addBuildingSite_SelectedUnits.enumUnitsSelected(this.getOwner(), null)
 		if buildingSite.getStock().isEmpty()
-			buildingSite.callOverIdleWorkers()
+			buildingSite.callOverIdleWorkers(addBuildingSite_SelectedUnits)
 		else
-			buildingSite.callOverIdleWareCarriers()
+			buildingSite.callOverIdleWareCarriers(addBuildingSite_SelectedUnits)
+		addBuildingSite_SelectedUnits.clear()
 
 function unit.removeBuildingSite()
 	let buildingSite = BUILDING_SITE_MAP.tryRemove(this)

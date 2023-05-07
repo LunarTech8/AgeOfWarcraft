@@ -10,6 +10,7 @@ import PersonSystem
 import SettlementSystem
 import Array
 import Array2D
+import UtilityFunctions
 
 
 // --------------------
@@ -25,7 +26,7 @@ let COMMAND_SHORT = "ut"
 // --------------------
 
 function executeCommand()
-	print("-------- Unit tests (16):")
+	print("-------- Unit tests (17):")
 	// Array:
 	testArray_SetAndGet(true)
 	testArray_CreateAndDestroy(true)
@@ -41,6 +42,8 @@ function executeCommand()
 	testStockSystem_AddAndRemove(true)
 	// StorageSystem:
 	testStorageSystem_AddAndRemove(true)
+	// UtilityFunctions:
+	testUtilityFunctions_SortByDistance(vec2(0., 0.))
 	// PersonSystem:
 	testPersonSystem_StatsAndBuildings(vec2(0., -384.))
 	testPersonSystem_LowerStatLimits(vec2(-384., 0.))

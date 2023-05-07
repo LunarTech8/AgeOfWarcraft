@@ -18,6 +18,7 @@ import ErrorHandling
 import Destructable_Spruce
 import Destructable_Maple
 import DestructablePreset
+import UnitTest
 
 
 // --------------------
@@ -284,6 +285,16 @@ public function vec2.getNearestDestructable(LinkedList<destructable> validDestru
 			nearestDest = target
 	return nearestDest
 
+/** Sorts the units in given group by their distance from this vector. */
+public function vec2.sortByDistance(group validUnits) returns group
+	ENUM_GROUP.addGroup(validUnits)
+	validUnits.clear()
+	while ENUM_GROUP.isEmpty() == false
+		let nearestUnit = this.getNearestUnit(ENUM_GROUP, false)
+		ENUM_GROUP.removeUnit(nearestUnit)
+		validUnits.addUnit(nearestUnit)
+	return validUnits
+
 /** Issues this unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
 public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns bool
 	if resetAbility
@@ -392,3 +403,33 @@ public function hideFullscreenImage(bool useCinematicMode)
 	DisplayCineFilter(false)
 	if useCinematicMode
 		CinematicModeBJ(false, GetPlayersAll())
+
+
+// --------------------
+// Test code
+// --------------------
+
+public function testUtilityFunctions_SortByDistance(vec2 testCentre)
+	let testName = setTestName("testUtilityFunctions_SortByDistance", false)
+	// Create and check units:
+	let units = CreateGroup()
+	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(0.0, 0.0), angle(0))
+	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.footman, testCentre.add(32.0, 0.0), angle(0))
+	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantGirl, testCentre.add(64.0, 0.0), angle(0))
+	units.addUnit(unitC)
+	units.addUnit(unitA)
+	units.addUnit(unitB)
+	assertEquals(testName, units.getUnitAt(0).getName(), unitC.getName())
+	assertEquals(testName, units.getUnitAt(1).getName(), unitA.getName())
+	assertEquals(testName, units.getUnitAt(2).getName(), unitB.getName())
+	// Sort and check units:
+	testCentre.sortByDistance(units)
+	assertEquals(testName, units.getUnitAt(0).getName(), unitA.getName())
+	assertEquals(testName, units.getUnitAt(1).getName(), unitB.getName())
+	assertEquals(testName, units.getUnitAt(2).getName(), unitC.getName())
+	// Remove test units:
+	unitA.remove()
+	unitB.remove()
+	unitC.remove()
+	// Destroy groups:
+	units.destr()

@@ -20,7 +20,8 @@ Work status:
 // Worklog:
 // -------------
 
-!!>- When creating a building site the called over units should be prioritise/ordered by their distance to the building site (callOverIdleWorkers and callOverIdleWareCarriers)
+!!>>>- When creating a building site the called over units should be prioritise/ordered by their distance to the building site (callOverIdleWorkers and callOverIdleWareCarriers)
+	- Seems that sorting for callOverIdleWorkers and callOverIdleWareCarriers doesn't work
 !!!- Bug: Right click worker on townhall returns error "No workplace type" (AbilitySystem line 337)
 
 !!!>>- Improve Startup

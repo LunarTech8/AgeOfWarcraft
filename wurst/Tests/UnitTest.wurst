@@ -171,15 +171,21 @@ public function real.assertLessThanOrEqual(string testName, real greater)
 	if this > greater
 		testFail(testName, false, "Expected <" + this.toString() + "> to be less than or equal to <" + greater.toString() + ">")
 
-
 /**
- * Asserts that two reals are equal to within a positive delta. If they are not, an error is thrown
- * with a message.
+ * Asserts that two reals are equal to within a positive delta. If they are not, an error is thrown with a message.
  */
 public function real.assertEquals(string testName, real expected, real delta)
 	useTestName(testName)
 	if (this - expected > delta) or (expected - this > delta)
 		testFail(testName, false, "Expected <" + expected.toString() + ">, Actual <" + this.toString() + " with delta " + delta.toString() + ">")
+
+/**
+ * Asserts that two booleans are equal. If they are not, an error is thrown with a message.
+ */
+public function unit.assertEquals(string testName, unit expected)
+	useTestName(testName)
+	if this != expected
+		testFail(testName, false, "Expected <" + expected.getName() + ">, Actual <" + this.getName() + ">")
 
 /**
  * Asserts that two booleans are equal. If they are not, an error is thrown with a message.

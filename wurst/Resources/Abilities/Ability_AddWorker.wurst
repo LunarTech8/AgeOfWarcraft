@@ -1,4 +1,4 @@
-package Ability_RemoveWorker
+package Ability_AddWorker
 import AbilityPresetFunctions
 
 
@@ -7,17 +7,14 @@ import AbilityPresetFunctions
 // --------------------
 
 @compiletime function genObj()
-	new AbilityDefinitionMountainKingThunderClap(AbilityIdsCustom.removeWorker)
+	new AbilityDefinitionTaurenChieftainWarStomp(AbilityIdsCustom.addWorker)
 	// Ability specific data:
-	..presetAOEDamage((int lvl) -> 0.)
-	..presetAttackSpeedReduction((int lvl) -> 0.)
-	..presetMovementSpeedReduction((int lvl) -> 0.)
+	..presetDamage((int lvl) -> 0.)
 	// Art:
 	..setAnimationNames("")
-	..presetButtonPosNormal(2, 0)
+	..presetButtonPosNormal(1, 0)
 	..setArtCaster("")
-	..setCasterAttachmentPoint("")
-	..setIconNormal(Icons.bTNUnloadDwarf)
+	..setIconNormal(Icons.bTNLoadDwarf)
 	// Stats:
 	..presetAreaofEffect(0.)
 	..presetBuffs(BuffIdsCustom.emptyBuff)
@@ -29,5 +26,5 @@ import AbilityPresetFunctions
 	..setRace(Race.Other)
 	..presetTargetsAllowed(TargetsAllowed.none)
 	// Text:
-	..setHotkeyNormal("E")
-	..presetNameAndTooltips("Remove worker", "Remove one worker from this building.")
+	..setHotkeyNormal("W")
+	..presetNameAndTooltips("Add worker", "Add one worker to this building.")

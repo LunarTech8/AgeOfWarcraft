@@ -12,7 +12,7 @@ public class UnitData_LumberMill
 @compiletime function genObj()
 	new BuildingPreset(UnitIdsCustom.AoW.lumberMill, UnitIds.humanlumbermill)
 	// Abilities:
-	..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.removeWorker)
+	..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.addWorker, AbilityIdsCustom.removeWorker)
 	// Art:
 	..setGroundTexture("OMED")  // Altar of Storms, Barracks, ...
 	..setScalingValue(UnitData_LumberMill.scalingValue)

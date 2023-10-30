@@ -32,7 +32,7 @@ public class Settings
 
 constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
 constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
-constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 17
+constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 18
 public constant OFFSET_UNIT_ID = compiletime(OFFSET_UNIT_ID_GEN.getId(0))
 
 public class UnitIdsCustom
@@ -154,6 +154,7 @@ public abstract class AbilityIdsCustom
 	static constant addBuildingBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(4))
 	static constant enterBuilding = compiletime(OFFSET_ABIL_ID_GEN.getId(7))
 	static constant changeProduct = compiletime(OFFSET_ABIL_ID_GEN.getId(8))
+	static constant addWorker = compiletime(OFFSET_ABIL_ID_GEN.getId(18))
 	static constant removeWorker = compiletime(OFFSET_ABIL_ID_GEN.getId(9))
 	static constant targetDestructable = compiletime(OFFSET_ABIL_ID_GEN.getId(10))
 	static constant addSleepingBuff = compiletime(OFFSET_ABIL_ID_GEN.getId(11))

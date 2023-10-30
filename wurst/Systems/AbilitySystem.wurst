@@ -98,10 +98,18 @@ function getInvalidMessageText(int abilityId, Validity val) returns string
 					return "Target already reached its maximum of concurrent units"
 				default
 					return null
+		case AbilityIdsCustom.addWorker
+			switch val
+				case WORKERS_NOT_AVAILABLE
+					return "No worker available to add"
+				case NO_FREE_UNIT_SLOT
+					return "Workplace already reached its maximum of concurrent workers"
+				default
+					return null
 		case AbilityIdsCustom.removeWorker
 			switch val
 				case WORKERS_NOT_AVAILABLE
-					return "No workers left to remove"
+					return "No worker left to remove"
 				default
 					return null
 		case AbilityIdsCustom.targetDestructable
@@ -361,34 +369,30 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 				return Validity.NO_FREE_UNIT_SLOT
 		else
 			return Validity.INVALID_TARGET
+	else if abilityId == AbilityIdsCustom.addWorker
+		// Check if source is valid:
+		let sourceWorkplace = this.getWorkplace()
+		let sourceSettlement = this.getSettlement()
+		if sourceWorkplace == null
+			error("No workplace type")
+		else if sourceSettlement == null
+			error("Not belonging to a settlement")
+		else if sourceWorkplace.getFreeWorkerSlots() <= 0
+			return Validity.NO_FREE_UNIT_SLOT
+		else if sourceWorkplace.getUnemployedFromGroup(sourceSettlement.getInhabitants()) == null
+			return Validity.WORKERS_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.removeWorker
 		// Check if source is valid:
 		let sourceWorkplace = this.getWorkplace()
 		if sourceWorkplace == null
 			error("No workplace type")
-		else if sourceWorkplace instanceof Workshop
-			// Check if source has workers:
-			if (sourceWorkplace castTo Workshop).getWorkerCount() <= 0
-				return Validity.WORKERS_NOT_AVAILABLE
-		else if sourceWorkplace instanceof Gatherplace
-			// Check if source has workers:
-			if (sourceWorkplace castTo Gatherplace).getWorkerCount() <= 0
-				return Validity.WORKERS_NOT_AVAILABLE
-		else
-			error("Casting building is no workshop or gatherplace (" + this.getName() + ")")
-			return Validity.ERROR
+		else if sourceWorkplace.getWorkerCount() <= 0
+			return Validity.WORKERS_NOT_AVAILABLE
 	else if abilityId == AbilityIdsCustom.changeProduct
 		// Check if source is valid:
 		let sourceWorkplace = this.getWorkplace()
 		if sourceWorkplace == null
 			error("No workplace type")
-		else if sourceWorkplace instanceof Workshop
-			DoNothing()
-		else if sourceWorkplace instanceof Gatherplace
-			DoNothing()
-		else
-			error("Casting building is no workshop or gatherplace (" + this.getName() + ")")
-			return Validity.ERROR
 	else if abilityId == AbilityIdsCustom.targetDestructable
 		// Check if target is valid:
 		if target.userDest == null or target.userUnit != null
@@ -474,8 +478,6 @@ init
 								sourcePerson.enterBuilding(targetUnit)
 							else
 								sourcePerson.setHomeBuilding(targetHome)
-						else if targetWorkplace == null
-							error("No workplace type")
 						else if targetWorkplace instanceof Workshop
 							let targetWorkshop = (targetWorkplace castTo Workshop)
 							// Transfer educts, add source to target workshop as worker and enter it:
@@ -498,11 +500,17 @@ init
 							if targetDepository.isWorker(source) == false
 								source.getPerson().setWorkplaceBuilding(targetDepository)
 							targetDepository.orderWorking(source, true)
+					case AbilityIdsCustom.addWorker
+						let sourceWorkplace = source.getWorkplace()
+						let person = sourceWorkplace.getUnemployedFromGroup(source.getSettlement().getInhabitants())
+						// Add a worker to source workplace:
+						if person.isInBuilding()
+							person.leaveBuilding()
+						person.setWorkplaceBuilding(sourceWorkplace)
+						person.getUnit().issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, source, true)
 					case AbilityIdsCustom.removeWorker
 						let sourceWorkplace = source.getWorkplace()
-						if sourceWorkplace == null
-							error("No workplace type")
-						else if sourceWorkplace instanceof Workshop
+						if sourceWorkplace instanceof Workshop
 							// Remove a worker from source workshop:
 							let person = (sourceWorkplace castTo Workshop).getFirstWorker().getPerson()
 							if person.getEnteredBuilding() == source
@@ -511,12 +519,11 @@ init
 						else if sourceWorkplace instanceof Gatherplace
 							// Remove a worker from source gatherplace:
 							let person = (sourceWorkplace castTo Gatherplace).getFirstWorker().getPerson()
+							person.getUnit().abortOrder()
 							person.setWorkplaceBuilding(null)
 					case AbilityIdsCustom.changeProduct
 						let sourceWorkplace = source.getWorkplace()
-						if sourceWorkplace == null
-							error("No workplace type")
-						else if sourceWorkplace instanceof Workshop
+						if sourceWorkplace instanceof Workshop
 							// Cancel current production and change it to the next variant:
 							(sourceWorkplace castTo Workshop).changeProduct()
 						else if sourceWorkplace instanceof Gatherplace

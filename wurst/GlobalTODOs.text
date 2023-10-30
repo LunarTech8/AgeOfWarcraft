@@ -20,6 +20,15 @@ Work status:
 // Worklog:
 // -------------
 
+!!>>- Change gameplay to indirect unit control
+	>>- Workers should not be controllable directly anymore but only via buildings (add/remove worker etc.)
+	- Building sites should be placed via the settlement centre building or a builder building
+	- Military units should be controlled indirectly via troop tents
+		- Rally point should act as target position
+		- Add commands like retreat (faster move without attack with exhausten debuff afterwards) and charge (faster attack move with exhausten debuff afterwards)
+		- Multiple troops can be added to a company with adjustable fixed formation of different troops
+		- Tent acts as sleeping and food retrival point
+
 !!>>>- When creating a building site the called over units should be prioritise/ordered by their distance to the building site (callOverIdleWorkers and callOverIdleWareCarriers)
 	- Seems that sorting for callOverIdleWorkers and callOverIdleWareCarriers doesn't work
 !!!- Bug: Right click worker on townhall returns error "No workplace type" (AbilitySystem line 337)

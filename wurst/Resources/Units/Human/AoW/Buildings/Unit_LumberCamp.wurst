@@ -9,7 +9,7 @@ import BuildingPreset
 @compiletime function genObj()
 	new BuildingPreset(UnitIdsCustom.AoW.lumberCamp, UnitIds.farm)
 	// Abilities:
-	..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.removeWorker, AbilityIds.rallyPoint)
+	..presetNormalAbilities(AbilityIdsCustom.changeProduct, AbilityIdsCustom.addWorker, AbilityIdsCustom.removeWorker, AbilityIds.rallyPoint)
 	// Art:
 	..setGroundTexture("OMED")  // Altar of Storms, Barracks, ...
 	// Stats:

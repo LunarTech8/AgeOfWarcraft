@@ -3,7 +3,7 @@
 1.0.0
 
 // Description:
-Stores settlements and its buildings, persons and progress level.
+Stores settlements and its buildings, inhabitants and progress level.
 
 // Changelog:
 - 1.0.0:
@@ -130,46 +130,51 @@ class Settlement
 	private unit centreBuilding
 	private string name
 	protected group buildings
-	protected group persons
+	protected group inhabitants
 	protected int level
 
 	construct(unit centreBuilding, string name)
 		this.centreBuilding = centreBuilding
 		this.name = name
 		buildings = CreateGroup()
-		persons = CreateGroup()
+		inhabitants = CreateGroup()
 		updateLevel()
 
 	ondestroy
 		for building in buildings
 			building.setOwner(Player(PLAYER_NEUTRAL_PASSIVE), true)
 		buildings.destr()
-		persons.destr()
+		inhabitants.destr()
 
 	private function updateLevel()
-		level = getLevel(persons.size())
+		level = getLevel(inhabitants.size())
 
 	function isMember(unit member) returns bool
 		if member.isType(UNIT_TYPE_STRUCTURE)
 			return buildings.contains(member)
 		else
-			return persons.contains(member)
+			return inhabitants.contains(member)
 
 	function getName() returns string
 		return name
+
+	function getInhabitants() returns group
+		let inhabitants = CreateGroup()
+		inhabitants.addGroup(this.inhabitants)
+		return inhabitants
 
 	function addMember(unit member)
 		if member.isType(UNIT_TYPE_STRUCTURE)
 			buildings.addUnit(member)
 		else
-			persons.addUnit(member)
+			inhabitants.addUnit(member)
 			updateLevel()
 
 	function removeMember(unit member)
 		if member.isType(UNIT_TYPE_STRUCTURE)
 			buildings.removeUnit(member)
 		else
-			persons.removeUnit(member)
+			inhabitants.removeUnit(member)
 			updateLevel()
 
 
@@ -251,7 +256,7 @@ public function unit.tryAddToSettlement(unit centreBuilding) returns bool
 public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
 	this.addMultiboardLine("Settlement: " + s.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Level: " + s.level.toString(), LEVEL_ICON_PATH)
-	this.addMultiboardLine("Population: " + s.persons.size().toString(), POPULATION_ICON_PATH)
+	this.addMultiboardLine("Population: " + s.inhabitants.size().toString(), POPULATION_ICON_PATH)
 	this.addMultiboardLine("Buildings: " + s.buildings.size().toString(), BUILDINGS_ICON_PATH)
 	return true
 
@@ -303,7 +308,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		testSettlementSystem_Build_settlementA = testSettlementSystem_Build_buildingA.getSettlement()
 		assertNotNull(testName, testSettlementSystem_Build_settlementA)
 		testSettlementSystem_Build_settlementA.level.assertEquals(testName, 1)
-		testSettlementSystem_Build_settlementA.persons.size().assertEquals(testName, 1)
+		testSettlementSystem_Build_settlementA.inhabitants.size().assertEquals(testName, 1)
 		testSettlementSystem_Build_settlementA.buildings.size().assertEquals(testName, 0)
 		assertTrue(testName, testSettlementSystem_Build_settlementA.isMember(unitA))
 		// Order to build new structure for settlement:
@@ -320,7 +325,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		assertNotNull(testName, testSettlementSystem_Build_buildingB)
 		assertNotNull(testName, testSettlementSystem_Build_settlementA)
 		testSettlementSystem_Build_settlementA.level.assertEquals(testName, 1)
-		testSettlementSystem_Build_settlementA.persons.size().assertEquals(testName, 2)
+		testSettlementSystem_Build_settlementA.inhabitants.size().assertEquals(testName, 2)
 		testSettlementSystem_Build_settlementA.buildings.size().assertEquals(testName, 1)
 		assertTrue(testName, testSettlementSystem_Build_settlementA.isMember(testSettlementSystem_Build_buildingB))
 		testFail(testName, "Test implementation not finished yet")  // TODO: finish implementation

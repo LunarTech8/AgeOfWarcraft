@@ -214,6 +214,9 @@ public class Person
 	function getName() returns string
 		return name
 
+	function getUnit() returns unit
+		return user
+
 	function getEnteredBuilding() returns unit
 		return enteredBuilding
 
@@ -319,6 +322,17 @@ public function unit.getWorkplace() returns Workplace
 	if workplace != null
 		return workplace
 	return null
+
+/** Returns an unemployed person fitting to this workplace from given unit group. */
+public function Workplace.getUnemployedFromGroup(group source) returns Person
+	Person person = null
+	for iUnit from source
+		person = iUnit.getPerson()
+		if person != null and person.getWorkplaceBuilding() == null and this.isValidWorkerType(iUnit.getUnitId())
+			break
+		person = null
+	source.destr()
+	return person
 
 /** Returns the person of given unit. */
 public function unit.getPerson() returns Person

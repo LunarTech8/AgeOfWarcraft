@@ -25,6 +25,7 @@ public class UnitData_Peasant
 	// Pathing:
 	..setCollisionSize(12.)
 	// Stats:
+	..setBuildTime(60)
 	..presetNoGoldAndLumber()
 	// Techtree:
 	..setStructuresBuilt(getUnitIdsString(UnitIdsCustom.AoW.townHall, UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.barracks, UnitIdsCustom.AoW.blacksmith, UnitIdsCustom.AoW.lumberMill, UnitIdsCustom.AoW.lumberCamp))

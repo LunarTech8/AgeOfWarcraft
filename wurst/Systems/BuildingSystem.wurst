@@ -22,6 +22,8 @@ import UtilityFunctions
 import Stock
 import StorageSystem
 import SettlementSystem
+import WorkplaceSystem
+import DepositorySystem
 import OrderSystem
 import UnitMap
 import UnitIndexer
@@ -32,7 +34,6 @@ import Unit_TownHall
 import Unit_LumberMill
 import Unit_Barracks
 import Unit_Blacksmith
-import WorkplaceSystem
 
 
 // --------------------
@@ -480,15 +481,17 @@ public function getWorkerCount() returns int
 public function int.isValidWorkerType(int workerUnitId) returns bool
 	return getUnitWorkPower(this, workerUnitId) > 0.
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(BuildingSite bs) returns bool
-	this.addMultiboardLine("Building site: " + bs.user.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Build progress: " + bs.getWorkProgressPercentage().toInt().toString() + "%", BUILD_PROGRESS_ICON_PATH)
-	let workPower = bs.getWorkPower()
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(BuildingSite object) returns bool
+	if object == null
+		return false
+	this.addMultiboardLine("Building site: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Build progress: " + object.getWorkProgressPercentage().toInt().toString() + "%", BUILD_PROGRESS_ICON_PATH)
+	let workPower = object.getWorkPower()
 	if workPower > 0.
-		this.addMultiboardLine("Build time left: " + (bs.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
-		this.addMultiboardLine("Workers: " + bs.getWorkerCount().toString() + "/" + bs.getMaxWorkerSlotsForBuildingSite().toString(), WORKERS_ICON_PATH)
-	let stock = bs.getStock()
+		this.addMultiboardLine("Build time left: " + (object.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
+		this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlotsForBuildingSite().toString(), WORKERS_ICON_PATH)
+	let stock = object.getStock()
 	let amountOfWareTypes = stock.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
@@ -533,7 +536,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(640.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let unitB = createSettlementBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.townHall, testCentre.add(384., 0.), angle(0))
+	let unitB = createDepositoryBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.townHall, testCentre.add(384., 0.), angle(0)).addAsSettlement()
 	let storageA = unitA.getStorage()
 	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))

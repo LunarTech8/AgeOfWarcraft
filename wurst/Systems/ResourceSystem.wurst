@@ -312,12 +312,14 @@ public function getResourceCount() returns int
 public function entity.tryAddResouce() returns bool
 	return this.addResource() != null
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Resource r) returns bool
-	this.addMultiboardLine("Resource: " + r.getEntity().getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Workers: " + r.getWorkerCount().toString() + "/" + getMaxWorkers(r.getEntity().getTypeId()).toString(), WORKERS_ICON_PATH)
-	for i = 0 to (r.getAmountOfWareTypes() - 1)
-		let ware = r.getWare(i)
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Resource object) returns bool
+	if object == null
+		return false
+	this.addMultiboardLine("Resource: " + object.getEntity().getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + getMaxWorkers(object.getEntity().getTypeId()).toString(), WORKERS_ICON_PATH)
+	for i = 0 to (object.getAmountOfWareTypes() - 1)
+		let ware = object.getWare(i)
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 

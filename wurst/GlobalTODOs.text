@@ -20,19 +20,19 @@ Work status:
 // Worklog:
 // -------------
 
-!!>>- Change gameplay to indirect unit control
-	>>- Workers should not be controllable directly anymore but only via buildings (add/remove worker etc.)
+!!>>>- Sent worker back to workplace if he is working at a depository
+!!>>>- When creating a building site the called over units should be prioritise/ordered by their distance to the building site (callOverIdleWorkers and callOverIdleWareCarriers)
+	- Seems that sorting for callOverIdleWorkers and callOverIdleWareCarriers doesn't work
+
+!!>- Change gameplay to indirect unit control
+	- Workers should not be controllable directly anymore but only via buildings (add/remove worker etc.)
 	- Building sites should be placed via the settlement centre building or a builder building
 	- Military units should be controlled indirectly via troop tents
 		- Rally point should act as target position
 		- Add commands like retreat (faster move without attack with exhausten debuff afterwards) and charge (faster attack move with exhausten debuff afterwards)
 		- Multiple troops can be added to a company with adjustable fixed formation of different troops
 		- Tent acts as sleeping and food retrival point
-
-!!>>>- When creating a building site the called over units should be prioritise/ordered by their distance to the building site (callOverIdleWorkers and callOverIdleWareCarriers)
-	- Seems that sorting for callOverIdleWorkers and callOverIdleWareCarriers doesn't work
-!!!- Bug: Right click worker on townhall returns error "No workplace type" (AbilitySystem line 337)
-
+	- General population acts based on daily routines and needs
 !!!>>- Improve Startup
 	>>>- Fix: "Stops at end before Test10 for bigger maps (208x208) even with bigger computationCost"
 !!>>- Find a way to generate usable maps with the WorldGenerationSystem
@@ -45,8 +45,9 @@ Work status:
 	- Maybe transform debug sub statuses into real sub statuses
 !!>>- Create a SettlementSystem
 	>>- Write unit tests
-	- Add trained units to settlement
+	- Add trained units as person to settlement and to home if not full
 	- Add a way to handle person belonging to/from settlements
+	- When building a new settlement centre building or cast enter building on it the unit should switch settlements to it
 	- When selecting a centre building all persons and buildings should be marked with overhead arrows
 	- What should happen to buildings in a settlement if the settlement gets destroyed? How to handle the persons?
 		- Persons should become a group of refugees
@@ -75,9 +76,6 @@ Work status:
 !!- Create a NatureSystem that controlls plant and animal growth and reproduction
 !!- Create a hero option unit for ShowTargetInfo and other globals abilities
 	- Check if this is really needed anymore (else remove ShowTargetInfo)
-!!- Make general population not directly controllable, only military and planning units
-	- Control general population via buildings (workplaces, houses, etc.)
-	- General population acts based on daily routines and needs
 !- Create an ExperienceSystem that manages how good persons are in different tasks/professions
 	- Have a level system (apprentice, journeyman, adept, master, expert, ...) that unlocks new abilities or improves them
 	- Each work step adds exp for that profession
@@ -93,6 +91,7 @@ Work status:
 !- Maybe have repeating order actions to have less object destruction
 !- Add unit tests to all bigger / more complexe systems (Missing systems: AbilitySystem, OrderSystem, PersonSystem, ResourceSystem, Array2D)
 !- Maybe have a counter for how many unit tests from total are finished already and display that after each finish
+!- Maybe improve storage system by adding reserved wares (that already are planned to be picked up by a unit and thus shouldn't be available for other lookups)
 
 // -------------
 // Info:

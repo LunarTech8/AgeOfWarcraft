@@ -126,13 +126,15 @@ function unit.removeStorage()
 public function unit.getStorage() returns Storage
 	return STORAGE_MAP.tryGet(this)
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Storage s, bool showWares) returns bool
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Storage object, bool showWares) returns bool
+	if object == null
+		return false
 	this.addMultiboardLine("Storage:", HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Capacity: " + s.getUsedCapacity().toString() + "/" + s.getMaxCapacity().toString(), CAPACITY_ICON_PATH)
+	this.addMultiboardLine("Capacity: " + object.getUsedCapacity().toString() + "/" + object.getMaxCapacity().toString(), CAPACITY_ICON_PATH)
 	if showWares
-		for i = 0 to (s.getAmountOfWareTypes() - 1)
-			let ware = s.getWare(i)
+		for i = 0 to (object.getAmountOfWareTypes() - 1)
+			let ware = object.getWare(i)
 			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 

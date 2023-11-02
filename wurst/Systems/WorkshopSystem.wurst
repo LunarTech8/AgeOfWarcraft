@@ -251,9 +251,11 @@ public class Workshop extends Workplace
 			destroy products
 
 
-function unit.addWorkshop()
+function unit.addWorkshop() returns bool
 	if WORKSHOP_MAP.has(this) == false and getRequiredWorkPower(this.getUnitId(), 1) > 0.
 		WORKSHOP_MAP.put(this, new Workshop(this))
+		return true
+	return false
 
 function unit.removeWorkshop()
 	let workshop = WORKSHOP_MAP.tryRemove(this)
@@ -267,26 +269,27 @@ public function unit.getWorkshop() returns Workshop
 /** Creates and returns a workshop building with given values. */
 public function createWorkshopBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
 	let building = createUnit(owner, unitId, pos, facing)
-	building.addWorkshop()
-	if WORKSHOP_MAP.has(building) == FALSE
+	if building.addWorkshop() == false
 		error("Could not create " + building.getName() + " as workshop building")
 	return building
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Workshop ws) returns bool
-	this.addMultiboardLine("Workshop: " + ws.user.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Production progress: " + ws.getWorkProgressPercentage().toInt().toString() + "%", PRODUCTION_PROGRESS_ICON_PATH)
-	let workPower = ws.getWorkPower()
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Workshop object) returns bool
+	if object == null
+		return false
+	this.addMultiboardLine("Workshop: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Production progress: " + object.getWorkProgressPercentage().toInt().toString() + "%", PRODUCTION_PROGRESS_ICON_PATH)
+	let workPower = object.getWorkPower()
 	if workPower > 0.
-		this.addMultiboardLine("Production time left: " + (ws.getWorkProgressLeft() / workPower).toInt().toString() + "s", PRODUCTION_TIME_LEFT_ICON_PATH)
-		this.addMultiboardLine("Workers: " + ws.getWorkerCount().toString() + "/" + ws.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
-	this.addMultiboardLine("Educts (" + ws.getStoredEductsCount().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
-	let educts = ws.getEducts()
+		this.addMultiboardLine("Production time left: " + (object.getWorkProgressLeft() / workPower).toInt().toString() + "s", PRODUCTION_TIME_LEFT_ICON_PATH)
+		this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
+	this.addMultiboardLine("Educts (" + object.getStoredEductsCount().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
+	let educts = object.getEducts()
 	for ware in educts
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy educts
-	this.addMultiboardLine("Products (" + ws.getStoredProductsCount().toString() + "/" + MAX_STORABLE_PRODUCTS.toString() + ")", SUB_HEADLINE_ICON_PATH)
-	let products = ws.getProducts()
+	this.addMultiboardLine("Products (" + object.getStoredProductsCount().toString() + "/" + MAX_STORABLE_PRODUCTS.toString() + ")", SUB_HEADLINE_ICON_PATH)
+	let products = object.getProducts()
 	for ware in products
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy products

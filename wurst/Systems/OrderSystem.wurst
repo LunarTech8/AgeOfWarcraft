@@ -325,9 +325,11 @@ public function getOrderSourceCount() returns int
 public function getOrderTargetCount() returns int
 	return ORDER_TARGET_MAP.getValueCount()
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(OrderSource o) returns bool
-	var currentOrderName = o.orderId.getOrderName(o.source)
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(OrderSource object) returns bool
+	if object == null
+		return false
+	var currentOrderName = object.orderId.getOrderName(object.source)
 	if currentOrderName == null
 		currentOrderName = "none"
 	this.addMultiboardLine("Order:", HEADLINE_ICON_PATH)

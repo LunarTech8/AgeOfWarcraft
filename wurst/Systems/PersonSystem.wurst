@@ -338,15 +338,17 @@ public function Workplace.getUnemployedFromGroup(group source) returns Person
 public function unit.getPerson() returns Person
 	return PERSON_MAP.tryGet(this)
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Person p) returns bool
-	this.addMultiboardLine("Person: " + p.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Food: " + p.food.toString(), FOOD_ICON_PATH)
-	this.addMultiboardLine("Sleep: " + p.sleep.toString(), SLEEP_ICON_PATH)
-	if p.home != null
-		this.addMultiboardLine("Home: " + p.home.getUnit().getName(), HOME_ICON_PATH)
-	if p.workplace != null
-		this.addMultiboardLine("Workplace: " + p.workplace.getUnit().getName(), WORKPLACE_ICON_PATH)
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Person object) returns bool
+	if object == null
+		return false
+	this.addMultiboardLine("Person: " + object.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Food: " + object.food.toString(1) + "/" + MAX_FOOD.toInt().toString(), FOOD_ICON_PATH)
+	this.addMultiboardLine("Sleep: " + object.sleep.toString(1) + "/" + MAX_SLEEP.toInt().toString(), SLEEP_ICON_PATH)
+	if object.home != null
+		this.addMultiboardLine("Home: " + object.home.getUnit().getName(), HOME_ICON_PATH)
+	if object.workplace != null
+		this.addMultiboardLine("Workplace: " + object.workplace.getUnit().getName(), WORKPLACE_ICON_PATH)
 	return true
 
 init

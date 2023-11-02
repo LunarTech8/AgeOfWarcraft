@@ -234,15 +234,13 @@ public function unit.getSettlement() returns Settlement
 		settlement = null
 	return settlement
 
-/** Creates and returns a settlement building with given values. */
-public function createSettlementBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
-	let building = createUnit(owner, unitId, pos, facing)
-	building.addSettlement(getRandomName())
-	if SETTLEMENT_MAP.has(building) == FALSE
-		error("Could not create " + building.getName() + " as settlement building")
-	return building
+/** Add this unit as a new settlement. Returns back this unit. */
+public function unit.addAsSettlement() returns unit
+	if this.addSettlement(getRandomName()) != Validity.VALID
+		error("Could not create " + this.getName() + " as settlement building")
+	return this
 
-/** Trys to add this unit given settlement. Returns if it could be added. */
+/** Trys to add this unit to given settlement. Returns if it could be added. */
 public function unit.tryAddToSettlement(unit centreBuilding) returns bool
 	let settlement = SETTLEMENT_MAP.tryGet(centreBuilding)
 	if settlement == null
@@ -252,12 +250,14 @@ public function unit.tryAddToSettlement(unit centreBuilding) returns bool
 	settlement.addMember(this)
 	return true
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Settlement s) returns bool
-	this.addMultiboardLine("Settlement: " + s.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Level: " + s.level.toString(), LEVEL_ICON_PATH)
-	this.addMultiboardLine("Population: " + s.inhabitants.size().toString(), POPULATION_ICON_PATH)
-	this.addMultiboardLine("Buildings: " + s.buildings.size().toString(), BUILDINGS_ICON_PATH)
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Settlement object) returns bool
+	if object == null
+		return false
+	this.addMultiboardLine("Settlement: " + object.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Level: " + object.level.toString(), LEVEL_ICON_PATH)
+	this.addMultiboardLine("Population: " + object.inhabitants.size().toString(), POPULATION_ICON_PATH)
+	this.addMultiboardLine("Buildings: " + object.buildings.size().toString(), BUILDINGS_ICON_PATH)
 	return true
 
 init

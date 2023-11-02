@@ -24,6 +24,7 @@ import ResourceSystem
 import Entity
 import WorkplaceSystem
 import Orders
+import ErrorHandling
 
 
 // --------------------
@@ -166,9 +167,11 @@ public class Gatherplace extends Workplace
 			destroy products
 
 
-function unit.addGatherplace()
+function unit.addGatherplace() returns bool
 	if GATHERPLACE_MAP.has(this) == false and getGatherplaceMaxCapacity(this.getUnitId()) > 0
 		GATHERPLACE_MAP.put(this, new Gatherplace(this))
+		return true
+	return false
 
 function unit.removeGatherplace()
 	let gatherplace = GATHERPLACE_MAP.tryRemove(this)
@@ -179,12 +182,21 @@ function unit.removeGatherplace()
 public function unit.getGatherplace() returns Gatherplace
 	return GATHERPLACE_MAP.tryGet(this)
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Gatherplace gp) returns bool
-	let storage = gp.getStorage()
-	this.addMultiboardLine("Gatherplace: " + gp.user.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Workers: " + gp.getWorkerCount().toString() + "/" + gp.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
-	this.addMultiboardLine("Targets: " + getTargetVariantName(gp.user.getUnitId(), gp.getGatherVariant()) + " (" + gp.getTargetCount().toString() + ")", RESOURCE_TARGETS_ICON_PATH)
+/** Creates and returns a gatherplace building with given values. */
+public function createGatherplaceBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
+	let building = createUnit(owner, unitId, pos, facing)
+	if building.addGatherplace() == false
+		error("Could not create " + building.getName() + " as gatherplace building")
+	return building
+
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Gatherplace object) returns bool
+	if object == null
+		return false
+	let storage = object.getStorage()
+	this.addMultiboardLine("Gatherplace: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
+	this.addMultiboardLine("Targets: " + getTargetVariantName(object.user.getUnitId(), object.getGatherVariant()) + " (" + object.getTargetCount().toString() + ")", RESOURCE_TARGETS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
 	for i = 0 to (storage.getAmountOfWareTypes() - 1)
 		let ware = storage.getWare(i)

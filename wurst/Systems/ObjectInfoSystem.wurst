@@ -7,7 +7,7 @@ This system shows each player informations about his currently targeted object i
 Objects can be targeted by using the "Show Target Info" ability on it. Units are also targeted by simply selecting them.
 The currently supported object types are: Units and destructables (Adjust the "Show Target Info" ability adequately)
 
-Other systems can show system relevant info through a public function setObjectInfoMultiboard that should be called and priorized through the createMultiboardLines function.
+Other systems can show system relevant info through a public function trySetObjectInfoMultiboard that should be called and priorized through the createMultiboardLines function.
 These other systems can set the relevant info through the use of the addMultiboardLine function that is defined in the MultiboardPrioritySystem package.
 
 Add new lines with "AddMultiboardline" with a text and an icon input.
@@ -35,6 +35,7 @@ import WorkshopSystem
 import HomeSystem
 import SettlementSystem
 import GatherplaceSystem
+import DepositorySystem
 import ErrorHandling
 
 
@@ -107,39 +108,26 @@ function deactivateDataset(int playerID)
 	// Disable multiboard:
 	dataset.displayMultiboard(playerID, false)
 
-/** Checks if targeted object of given player has relevant infos that should be displayed and sets them over the corresponding setObjectInfoMultiboard function of that system. */
+/** Checks if targeted object of given player has relevant infos that should be displayed and sets them over the corresponding trySetObjectInfoMultiboard function of that system. */
 function createMultiboardLines(int playerID) returns bool
 	var hasInfo = false
-	let resource = datasets[playerID].target.getResource(false)
-	if resource != null
-		hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(resource) or hasInfo
+	let playerMultiboard = datasets[playerID].getMultiboard()
+	hasInfo = playerMultiboard.trySetObjectInfoMultiboard(datasets[playerID].target.getResource(false)) or hasInfo
 	if datasets[playerID].target.userUnit != null
 		let targetUnit = datasets[playerID].target.assertUnit()
 		// Check info sources that require ownerhsip by the given player:
 		if targetUnit.getOwner() == Player(playerID)
-			let buildingSite = targetUnit.getBuildingSite()
-			if buildingSite != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(buildingSite) or hasInfo
-			let person = targetUnit.getPerson()
-			if person != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(person) or hasInfo
-			let workshop = targetUnit.getWorkshop()
-			if workshop != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(workshop) or hasInfo
-			let gatherplace = targetUnit.getGatherplace()
-			if gatherplace != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(gatherplace) or hasInfo
-			let home = targetUnit.getHome()
-			if home != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(home) or hasInfo
 			if isCentreBuilding(targetUnit.getUnitId())
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(targetUnit.getSettlement()) or hasInfo
-			let storage = targetUnit.getStorage()
-			if storage != null
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(storage, true) or hasInfo
-			let orderSource = targetUnit.getOrderSource()
-			if orderSource != null and targetUnit.isType(UNIT_TYPE_STRUCTURE) == false
-				hasInfo = datasets[playerID].getMultiboard().setObjectInfoMultiboard(orderSource) or hasInfo
+				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getSettlement()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getBuildingSite()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getPerson()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getWorkshop()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getGatherplace()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getDepository()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getHome()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getStorage(), true) or hasInfo
+			if targetUnit.isType(UNIT_TYPE_STRUCTURE) == false
+				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getOrderSource()) or hasInfo
 	return hasInfo
 
 function showObjectInfo(int playerID)

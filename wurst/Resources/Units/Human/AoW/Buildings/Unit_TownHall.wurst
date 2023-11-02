@@ -16,10 +16,11 @@ public class UnitData_Townhall
 	// Art:
 	..setScalingValue(UnitData_Townhall.scalingValue)
 	// Stats:
+	..setFoodProduced(0)
 	..presetNoGoldAndLumber()
 	// Techtree:
-	..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
+	..setUnitsTrained("")
 	..setUpgradesTo(getUnitIdsString(UnitIdsCustom.AoW.keep))
 	..setResearchesAvailable("")
 	// Text:
-	..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure.")
+	..presetNameAndTooltips(true, "Town Hall", "Primary settlement structure. Also acts as depository.")

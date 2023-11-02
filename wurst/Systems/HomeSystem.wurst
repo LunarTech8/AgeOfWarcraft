@@ -52,8 +52,8 @@ function getMaxInhabitants(int buildingId) returns int
 let HOME_MAP = new IterableUnitHashMap<Home>(null)
 
 public class Home
-	private unit user
-	private group inhabitants
+	protected unit user
+	protected group inhabitants
 
 	construct(unit home)
 		user = home
@@ -95,9 +95,11 @@ public class Home
 		inhabitants.removeUnit(inhabitant)
 
 
-function unit.addHome()
+function unit.addHome() returns bool
 	if HOME_MAP.has(this) == false and getMaxInhabitants(this.getUnitId()) > 0.
 		HOME_MAP.put(this, new Home(this))
+		return true
+	return false
 
 function unit.removeHome()
 	let home = HOME_MAP.tryRemove(this)
@@ -111,15 +113,16 @@ public function unit.getHome() returns Home
 /** Creates and returns a home building with given values. */
 public function createHomeBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
 	let building = createUnit(owner, unitId, pos, facing)
-	building.addHome()
-	if HOME_MAP.has(building) == FALSE
+	if building.addHome() == false
 		error("Could not create " + building.getName() + " as home building")
 	return building
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Home h) returns bool
-	this.addMultiboardLine("Home: " + h.getUnit().getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Inhabitants: " + h.getInhabitantCount().toString(), INHABITANTS_ICON_PATH)
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Home object) returns bool
+	if object == null
+		return false
+	this.addMultiboardLine("Home: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Inhabitants: " + object.getInhabitantCount().toString() + "/" + getMaxInhabitants(object.user.getUnitId()).toString(), INHABITANTS_ICON_PATH)
 	return true
 
 init

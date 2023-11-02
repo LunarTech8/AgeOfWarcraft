@@ -23,6 +23,7 @@ import RegisterEvents
 import StorageSystem
 import WorkplaceSystem
 import WorkshopSystem
+import ErrorHandling
 
 
 // --------------------
@@ -60,11 +61,12 @@ public class Depository extends Workplace
 	function getStorage() returns Storage
 		return storage
 
-	function orderWorking(unit worker, bool wasInBuilding)
-		// Go to and enter buidling:
-		if wasInBuilding == false
+	/** Searches for a task for the given worker if he is near the building else orders him to move there. Returns if no task could be found. */
+	function orderWorking(unit worker, bool isNearBuilding) returns bool
+		// Go to buidling:
+		if isNearBuilding == false
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, user, true)
-			return
+			return false
 		// Search for workshop in need of educts:
 		var target = this.findNextWorkshopInNeedOfEducts()
 		if target != null
@@ -81,14 +83,14 @@ public class Depository extends Workplace
 			destroy educts
 			// Order ware transfer:
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
-			return
+			return false
 		// Search for workplace with products:
 		target = this.findNextWorkplaceWithProducts()
 		if target != null
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
-			return
-		// Reenter building:
-		worker.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, user, true)
+			return false
+		// Nothing to do at the moment, enter building:
+		return true
 
 	/** Transfers as many wares as possible from source to this depository. */
 	override function transferWares(Storage source, bool _takeWares)
@@ -103,9 +105,11 @@ public class Depository extends Workplace
 		destroy wares
 
 
-function unit.addDepository()
+function unit.addDepository() returns bool
 	if DEPOSITORY_MAP.has(this) == false and getDepositoryMaxCapacity(this.getUnitId()) > 0
 		DEPOSITORY_MAP.put(this, new Depository(this))
+		return true
+	return false
 
 function unit.removeDepository()
 	let depository = DEPOSITORY_MAP.tryRemove(this)
@@ -152,11 +156,20 @@ function Depository.findNextWorkplaceWithProducts() returns unit
 public function unit.getDepository() returns Depository
 	return DEPOSITORY_MAP.tryGet(this)
 
-/** Sets system relevant infos for given object in target multiboard. */
-public function multiboard.setObjectInfoMultiboard(Depository d) returns bool
-	let storage = d.getStorage()
-	this.addMultiboardLine("Depository: " + d.user.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Workers: " + d.getWorkerCount().toString() + "/" + d.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
+/** Creates and returns a depository building with given values. */
+public function createDepositoryBuilding(player owner, int unitId, vec2 pos, angle facing) returns unit
+	let building = createUnit(owner, unitId, pos, facing)
+	if building.addDepository() == false
+		error("Could not create " + building.getName() + " as depository building")
+	return building
+
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Depository object) returns bool
+	if object == null
+		return false
+	let storage = object.getStorage()
+	this.addMultiboardLine("Depository: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
 	for i = 0 to (storage.getAmountOfWareTypes() - 1)
 		let ware = storage.getWare(i)

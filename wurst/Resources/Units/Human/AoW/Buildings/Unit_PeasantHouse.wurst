@@ -11,6 +11,9 @@ import BuildingPreset
 	// Abilities:
 	..presetNormalAbilities()
 	// Stats:
+	..setFoodProduced(5)
 	..presetNoGoldAndLumber()
+	// Techtree:
+	..setUnitsTrained(getUnitIdsString(UnitIdsCustom.AoW.peasant))
 	// Text:
 	..presetNameAndTooltips(true, "Peasant House", "Home for peasants.")

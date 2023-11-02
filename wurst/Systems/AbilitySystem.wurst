@@ -250,7 +250,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if targetStorage.getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
 		else if targetWorkplace == null
-			error("No workplace type")
+			return Validity.INVALID_TARGET
 		else if targetWorkplace instanceof BuildingSite
 			let targetBuildingSite = (targetWorkplace castTo BuildingSite)
 			// Check if target requires wares:
@@ -342,7 +342,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if targetHome.isInhabitant(this) == false and targetHome.getFreeApartementSlots() <= 0
 				return Validity.NO_FREE_UNIT_SLOT
 		else if targetWorkplace == null
-			error("No workplace type")
+			return Validity.INVALID_TARGET
 		else if targetWorkplace instanceof Workshop
 			let targetWorkshop = (targetWorkplace castTo Workshop)
 			// Check if source is allowed to work at target:
@@ -426,8 +426,14 @@ init
 			if val == Validity.VALID
 				switch abilityId
 					case AbilityIdsCustom.transferWares
-						// Transfer wares from source to target:
-						source.transferWares(target.assertUnit())
+						let targetUnit = target.assertUnit()
+						// Transfer wares between source and target:
+						source.transferWares(targetUnit)
+						// Sent worker back to workplace if he is working at a depository
+						let workplace = source.getWorkplace()
+						if workplace != null and workplace instanceof Depository and targetUnit != workplace.getUnit()
+							Log.debug("send back to depository: " + workplace.getUnit().getName())  // TEST: check if it works
+							source.setOrder(AbilityIdsCustom.enterBuilding, workplace.getUnit())
 					case AbilityIdsCustom.build
 						// Add worker to building site:
 						let targetBuildingSite = target.assertUnit().getBuildingSite()
@@ -496,10 +502,12 @@ init
 						else if targetWorkplace instanceof Depository
 							let targetDepository = (targetWorkplace castTo Depository)
 							// Transfer wares, add source to target depository as worker and order to work:
+							let sourcePerson = source.getPerson()
 							targetDepository.transferWares(source.getStorage(), false)
 							if targetDepository.isWorker(source) == false
-								source.getPerson().setWorkplaceBuilding(targetDepository)
-							targetDepository.orderWorking(source, true)
+								sourcePerson.setWorkplaceBuilding(targetDepository)
+							if targetDepository.orderWorking(source, true)
+								sourcePerson.enterBuilding(targetUnit)
 					case AbilityIdsCustom.addWorker
 						let sourceWorkplace = source.getWorkplace()
 						let person = sourceWorkplace.getUnemployedFromGroup(source.getSettlement().getInhabitants())

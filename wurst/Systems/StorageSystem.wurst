@@ -32,7 +32,7 @@ function getStorageMaxCapacity(int storageUnitId) returns int
 	switch storageUnitId
 		case UnitIdsCustom.AoW.peasant
 			// return 10
-			return 100  // DEBUG
+			return 100  // DEBUG: for easier testing
 		default
 			return 0
 

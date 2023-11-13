@@ -30,7 +30,7 @@ public class Settings
 	// AgeOfWarcraft_GenerateMap_Large
 	// AgeOfWarcraft_Islands_Small
 
-constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 76
+constant OFFSET_UNIT_ID_GEN = new OffsetIdGenerator('xz00')  // Last used offset id: 77
 constant OFFSET_DEST_ID_GEN = new OffsetIdGenerator('Dz00')  // Last used offset id: 1
 constant OFFSET_ABIL_ID_GEN = new OffsetIdGenerator('Az00')  // Last used offset id: 18
 public constant OFFSET_UNIT_ID = compiletime(OFFSET_UNIT_ID_GEN.getId(0))
@@ -54,6 +54,7 @@ public class UnitIdsCustom
 		static constant peasant = compiletime(OFFSET_UNIT_ID_GEN.getId(64))
 		static constant footman = compiletime(OFFSET_UNIT_ID_GEN.getId(65))
 		static constant peasantGirl = compiletime(OFFSET_UNIT_ID_GEN.getId(71))
+		static constant knight = compiletime(OFFSET_UNIT_ID_GEN.getId(77))
 		// Special:
 		static constant buildingGround = compiletime(OFFSET_UNIT_ID_GEN.getId(63))
 		static constant dimensionGate = compiletime(OFFSET_UNIT_ID_GEN.getId(31))

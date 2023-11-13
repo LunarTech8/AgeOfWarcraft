@@ -20,10 +20,6 @@ Work status:
 // Worklog:
 // -------------
 
-!!>>>- Sent worker back to workplace if he is working at a depository
-!!>>>- When creating a building site the called over units should be prioritise/ordered by their distance to the building site (callOverIdleWorkers and callOverIdleWareCarriers)
-	- Seems that sorting for callOverIdleWorkers and callOverIdleWareCarriers doesn't work
-
 !!>- Change gameplay to indirect unit control
 	- Workers should not be controllable directly anymore but only via buildings (add/remove worker etc.)
 	- Building sites should be placed via the settlement centre building or a builder building
@@ -92,6 +88,7 @@ Work status:
 !- Add unit tests to all bigger / more complexe systems (Missing systems: AbilitySystem, OrderSystem, PersonSystem, ResourceSystem, Array2D)
 !- Maybe have a counter for how many unit tests from total are finished already and display that after each finish
 !- Maybe improve storage system by adding reserved wares (that already are planned to be picked up by a unit and thus shouldn't be available for other lookups)
+!- Maybe replace all CreateGroup() with new LinkedList<unit>() for groups that get destroyed regularily or use getGroup()
 
 // -------------
 // Info:

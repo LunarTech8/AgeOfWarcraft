@@ -415,25 +415,16 @@ init
 		let abilityId = GetSpellAbilityId()
 		let sourceUnitId = source.getUnitId()
 		if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
-			// Cancel current target order for clean cast validity and ordering:
-			let orderSource = source.getOrderSource()
-			if orderSource == null
+			// Finish current target order as casted for clean cast validity and ordering:
+			if source.setOrderToCasted() == false
 				Log.warn("WARNING: " + source.getName() + " cast " + abilityId.getOrderName() + " on " + target.getName() + " without being registered as an OrderSource")
-			else
-				orderSource.cancel()
 			// Check ability validity:
 			let val = source.getAbilityValidity(abilityId, target)
 			if val == Validity.VALID
 				switch abilityId
 					case AbilityIdsCustom.transferWares
-						let targetUnit = target.assertUnit()
 						// Transfer wares between source and target:
-						source.transferWares(targetUnit)
-						// Sent worker back to workplace if he is working at a depository
-						let workplace = source.getWorkplace()
-						if workplace != null and workplace instanceof Depository and targetUnit != workplace.getUnit()
-							Log.debug("send back to depository: " + workplace.getUnit().getName())  // TEST: check if it works
-							source.setOrder(AbilityIdsCustom.enterBuilding, workplace.getUnit())
+						source.transferWares(target.assertUnit())
 					case AbilityIdsCustom.build
 						// Add worker to building site:
 						let targetBuildingSite = target.assertUnit().getBuildingSite()
@@ -442,9 +433,9 @@ init
 								let nextBuildingSite = source.findNextBuildingSite()
 								if nextBuildingSite != null
 									source.issueTargetAbilityOrder(AbilityIdsCustom.build, nextBuildingSite, true)
-						CallbackSimple cancelCb = () ->
+						CallbackSimple onDestroyCb = () ->
 							targetBuildingSite.removeWorker(source)
-						source.setOrder(AbilityIdsCustom.build, target, new OrderAction(invalidateCb, cancelCb))
+						source.setOrder(AbilityIdsCustom.build, target, new OrderAction(null, invalidateCb, onDestroyCb))
 						targetBuildingSite.addWorker(source)
 					case AbilityIdsCustom.harvest
 						// Perform harvest after ability is finished:
@@ -458,9 +449,9 @@ init
 							else
 								printTimedToPlayer("Warning: Worker has no resource in range anymore", INFO_MSG_TIME, source.getOwner())
 								source.abortOrder()
-						CallbackSimple cancelCb = () ->
+						CallbackSimple onDestroyCb = () ->
 							targetResource.removeWorker()
-						CallbackSimple finishCb = () ->
+						CallbackSimple timedFinishCb = () ->
 							targetResource.removeWorker()
 							if source.harvest(target)
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, target.getWidget(), true)  // Auto-recast on same target
@@ -471,7 +462,7 @@ init
 								else
 									printTimedToPlayer("Warning: Worker has no resource in range anymore", INFO_MSG_TIME, source.getOwner())
 									source.abortOrder()
-						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(invalidateCb, cancelCb, finishCb, AbilityData_Harvest.cooldown, null))
+						source.setOrder(AbilityIdsCustom.harvest, target, new OrderAction(null, invalidateCb, onDestroyCb, timedFinishCb, AbilityData_Harvest.cooldown, null))
 						targetResource.addWorker()
 					case AbilityIdsCustom.enterBuilding
 						let targetUnit = target.assertUnit()
@@ -554,22 +545,32 @@ init
 			var val = source.getAbilityValidity(abilityId, target)
 			if val == Validity.VALID
 				switch orderName
+					case "transfer wares"
+						let targetUnit = target.assertUnit()
+						let workplaceBuilding = source.getPerson().getWorkplaceBuilding()
+						// Sent worker back to workplace after transfer if he is working at a depository
+						if workplaceBuilding != null and workplaceBuilding.isDepository() and targetUnit != workplaceBuilding
+							CallbackSimple castedCb = () ->
+								source.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, workplaceBuilding, true)
+							CallbackSimple invalidateCb = () ->
+								source.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, workplaceBuilding, true)
+							source.setOrder(issuedOrderId, targetUnit, new OrderAction(castedCb, invalidateCb, null))
 					case "harvest"
 						let targetResource = target.getResource(true)
 						CallbackSimple invalidateCb = () ->
 							let nextResource = source.findNextAllowedResource(MAX_AUTO_ORDER_RANGE)
 							if nextResource.isEmpty() == false
 								source.issueTargetAbilityOrder(AbilityIdsCustom.harvest, nextResource.getWidget(), true)
-						CallbackSimple cancelCb = () ->
+						CallbackSimple onDestroyCb = () ->
 							targetResource.removeWorker()
-						source.setOrder(issuedOrderId, target, new OrderAction(invalidateCb, cancelCb))
+						source.setOrder(issuedOrderId, target, new OrderAction(null, invalidateCb, onDestroyCb))
 						targetResource.addWorker()  // Reserve worker slot to avoid that too many workers target the same resource
 					case "build"
 						CallbackSimple invalidateCb = () ->
 							let nextBuildingSite = source.findNextBuildingSite()
 							if nextBuildingSite != null
 								source.issueTargetAbilityOrder(AbilityIdsCustom.build, nextBuildingSite, true)
-						source.setOrder(issuedOrderId, target.assertUnit(), new OrderAction(invalidateCb, null))
+						source.setOrder(issuedOrderId, target.assertUnit(), new OrderAction(null, invalidateCb, null))
 					case "target destructable"
 						if source.hasAbility(AbilityIdsCustom.harvest)
 							val = source.getAbilityValidity(AbilityIdsCustom.harvest, target)

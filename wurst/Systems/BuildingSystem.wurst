@@ -309,34 +309,31 @@ public class BuildingSite extends Workplace
 	/** Order nearby idle workers to build on building site.
 	Start with given prio workers who aren't checked for their order status. */
 	function callOverIdleWorkers(group prioWorkers)
-		Log.debug("callOverIdleWorkers group")  // DEBUG:
 		let owner = user.getOwner()
 		var requiredWorkerCount = getFreeWorkerSlotsForBuildingSite()
 		// Check prioritised workers:
-		user.getPos().sortByDistance(prioWorkers)
-		for worker in prioWorkers
-			Log.debug("Prio worker: " + worker.getName() + " " + worker.getPos().distanceToSq(user.getPos()).toString())  // DEBUG:
+		let sortedPrioWorkers = prioWorkers.toList().sortByDistance(user.getPos())
+		for worker in sortedPrioWorkers
 			if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner
 				requiredWorkerCount -= 1
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
+		destroy sortedPrioWorkers
 		// Look for idle workers or workers that want to transfer wares to the building site:
 		if requiredWorkerCount > 0
 			callOverIdleWorkers_Workers.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
 			callOverIdleWorkers_Workers.removeGroup(prioWorkers)
-			user.getPos().sortByDistance(callOverIdleWorkers_Workers)
-			for worker from callOverIdleWorkers_Workers
-				Log.debug("Non prio worker: " + worker.getName() + " " + worker.getPos().distanceToSq(user.getPos()).toString())  // DEBUG:
-				if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker.isOrder(OrderIds.frostnova, user))
+			let sortedWorkers = callOverIdleWorkers_Workers.asList().sortByDistance(user.getPos())
+			for worker in sortedWorkers
+				if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.hasOrder() == false or worker.hasOrder(OrderIds.frostnova, user))
 					requiredWorkerCount -= 1
 					worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
+			destroy sortedWorkers
 	/** Order nearby idle workers to build on building site.
 	Start with given prio worker who isn't checked for his order status. */
 	function callOverIdleWorkers(unit prioWorker)
-		Log.debug("callOverIdleWorkers unit")  // DEBUG:
 		let owner = user.getOwner()
 		var requiredWorkerCount = getFreeWorkerSlotsForBuildingSite()
 		// Check prioritised worker:
-		Log.debug("Prio worker: " + prioWorker.getName() + " " + prioWorker.getPos().distanceTo(user.getPos()).toString())  // DEBUG:
 		if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(prioWorker.getUnitId()) and prioWorker.getOwner() == owner
 			requiredWorkerCount -= 1
 			prioWorker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
@@ -344,33 +341,32 @@ public class BuildingSite extends Workplace
 		if requiredWorkerCount > 0
 			callOverIdleWorkers_Workers.enumUnitsInRange(user.getPos(), MAX_AUTO_ORDER_RANGE, null)
 			callOverIdleWorkers_Workers.removeUnit(prioWorker)
-			user.getPos().sortByDistance(callOverIdleWorkers_Workers)
-			for worker from callOverIdleWorkers_Workers
-				Log.debug("Non prio worker: " + worker.getName() + " " + worker.getPos().distanceTo(user.getPos()).toString())  // DEBUG: does not seem to be sorted
-				if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.getOrderSource() == null or worker.isOrder(OrderIds.frostnova, user))
+			let sortedWorkers = callOverIdleWorkers_Workers.asList().sortByDistance(user.getPos())
+			for worker in sortedWorkers
+				if requiredWorkerCount > 0 and user.getUnitId().isValidWorkerType(worker.getUnitId()) and worker.getOwner() == owner and (worker.hasOrder() == false or worker.hasOrder(OrderIds.frostnova, user))
 					requiredWorkerCount -= 1
 					worker.issueTargetAbilityOrder(AbilityIdsCustom.build, user, true)
+			destroy sortedWorkers
 
 	private static let callOverIdleWareCarriers_Workers = CreateGroup()
 	/** Order nearby idle workers with required resources to transfer wares to the building site.
 	Start with given prio workers who aren't checked for their order status. */
-	function callOverIdleWareCarriers(group prioWorkers)  // FIXME: seems to overlap with callOverIdleWorkers if builder has required resources
-		Log.debug("callOverIdleWareCarriers")  // DEBUG:
+	function callOverIdleWareCarriers(group prioWorkers)
 		let owner = user.getOwner()
 		let requiredResources = new Stock(stock)
 		// Check prioritised workers:
 		for carrier in prioWorkers
-			Log.debug("Prio carrier: " + carrier.getName() + " " + carrier.getPos().distanceTo(user.getPos()).toString())  // DEBUG:
 			if carrier.getOwner() == owner and checkCarrierForRequiredResources(carrier, requiredResources)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
-		// Look for idle workers or moving workers:
-		callOverIdleWareCarriers_Workers.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
-		callOverIdleWareCarriers_Workers.removeGroup(prioWorkers)
-		user.getPos().sortByDistance(callOverIdleWareCarriers_Workers)
-		for carrier from callOverIdleWareCarriers_Workers
-			Log.debug("Non prio carrier: " + carrier.getName() + " " + carrier.getPos().distanceTo(user.getPos()).toString())  // DEBUG: does not seem to be sorted
-			if carrier.getOwner() == owner and (carrier.getOrderSource() == null or carrier.isOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, requiredResources)
-				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
+		if requiredResources.isEmpty() == false
+			// Look for idle workers or moving workers:
+			callOverIdleWareCarriers_Workers.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
+			callOverIdleWareCarriers_Workers.removeGroup(prioWorkers)
+			let sortedWorkers = callOverIdleWareCarriers_Workers.asList().sortByDistance(user.getPos())
+			for carrier in sortedWorkers
+				if carrier.getOwner() == owner and carrier.isType(UNIT_TYPE_STRUCTURE) == false and (carrier.hasOrder() == false or carrier.hasOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, requiredResources)
+					carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
+			destroy sortedWorkers
 		destroy requiredResources
 
 	/** Transfers required wares from source storage to this building site.

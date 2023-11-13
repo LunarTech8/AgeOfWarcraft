@@ -11,6 +11,7 @@ Initial version.
 -------------------------------------------------------------*/
 package UtilityFunctions
 import LinkedList
+import ClosureForGroups
 import HashMap
 import Orders
 import ObjectIds
@@ -285,15 +286,13 @@ public function vec2.getNearestDestructable(LinkedList<destructable> validDestru
 			nearestDest = target
 	return nearestDest
 
-/** Sorts the units in given group by their distance from this vector. */
-public function vec2.sortByDistance(group validUnits) returns group
-	ENUM_GROUP.addGroup(validUnits)
-	validUnits.clear()
-	while ENUM_GROUP.isEmpty() == false
-		let nearestUnit = this.getNearestUnit(ENUM_GROUP, false)
-		ENUM_GROUP.removeUnit(nearestUnit)
-		validUnits.addUnit(nearestUnit)
-	return validUnits
+/** Sorts the units in this list by their distance from given vector. */
+public function LinkedList<unit>.sortByDistance(vec2 pos) returns LinkedList<unit>
+	// Use a linked list instead of a group because that is unordered
+	Comparator<unit> comparator = (unitA, unitB) -> (pos.distanceToSq(unitA.getPos()) - pos.distanceToSq(unitB.getPos())).toInt()
+	this.sortWith(comparator)
+	destroy comparator
+	return this
 
 /** Issues this unit to cast given ability on target widget. The ability can be reset beforehand to bypass the cooldown. */
 public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool resetAbility) returns bool
@@ -317,6 +316,13 @@ public function destructable.replace(int newDestructableTypeId) returns destruct
 	this.kill()
 	this.remove()
 	return newDestructable
+
+/** Returns a linked list of all units from this group without removing them there. */
+public function group.toList() returns LinkedList<unit>
+	let result = new LinkedList<unit>()
+	this.forEachIn() u ->
+		result.add(u)
+	return result
 
 /** Returns a string of the given unit ids. */
 public function getUnitIdsString(vararg int unitIds) returns string
@@ -411,26 +417,51 @@ public function hideFullscreenImage(bool useCinematicMode)
 
 public function testUtilityFunctions_SortByDistance(vec2 testCentre)
 	let testName = setTestName("testUtilityFunctions_SortByDistance", true)
-	// Create and check units:
-	let units = CreateGroup()
+	let posDelta = 0.01
+	// Remove blocking units:
+	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
+	// Create and check unit distances:
+	let units = new LinkedList<unit>()
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(0.0, 0.0), angle(0))
-	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.footman, testCentre.add(32.0, 0.0), angle(0))
-	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantGirl, testCentre.add(64.0, 0.0), angle(0))
-	units.addUnit(unitC)
-	units.addUnit(unitA)
-	units.addUnit(unitB)
-	units.getUnitAt(0).assertEquals(testName, unitC)
-	units.getUnitAt(1).assertEquals(testName, unitA)
-	units.getUnitAt(2).assertEquals(testName, unitB)
-	// Sort and check units:
-	testCentre.sortByDistance(units)
-	units.getUnitAt(0).assertEquals(testName, unitA)
-	units.getUnitAt(1).assertEquals(testName, unitB)
-	units.getUnitAt(2).assertEquals(testName, unitC)
+	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.footman, testCentre.add(-64.0, 0.0), angle(0))
+	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantGirl, testCentre.add(64.0, 64.0), angle(0))
+	let unitD = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.knight, testCentre.add(96.0, 0.0), angle(0))
+	let unitE = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantGirl, testCentre.add(128.0, 0.0), angle(0))
+	let unitF = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(-96.0, -96.0), angle(0))
+	unitA.getPos().distanceTo(testCentre).assertEquals(testName, 0.0, posDelta)
+	unitB.getPos().distanceTo(testCentre).assertEquals(testName, 64.0, posDelta)
+	unitC.getPos().distanceTo(testCentre).assertEquals(testName, 90.51, posDelta)
+	unitD.getPos().distanceTo(testCentre).assertEquals(testName, 96.0, posDelta)
+	unitE.getPos().distanceTo(testCentre).assertEquals(testName, 128.0, posDelta)
+	unitF.getPos().distanceTo(testCentre).assertEquals(testName, 135.76, posDelta)
+	// Add and check unit list positions:
+	units.add(unitC)
+	units.add(unitA)
+	units.add(unitD)
+	units.add(unitB)
+	units.add(unitE)
+	units.add(unitF)
+	units.get(0).assertEquals(testName, unitC)
+	units.get(1).assertEquals(testName, unitA)
+	units.get(2).assertEquals(testName, unitD)
+	units.get(3).assertEquals(testName, unitB)
+	units.get(4).assertEquals(testName, unitE)
+	units.get(5).assertEquals(testName, unitF)
+	// Sort and check unit list positions:
+	units.sortByDistance(testCentre)
+	units.get(0).assertEquals(testName, unitA)
+	units.get(1).assertEquals(testName, unitB)
+	units.get(2).assertEquals(testName, unitC)
+	units.get(3).assertEquals(testName, unitD)
+	units.get(4).assertEquals(testName, unitE)
+	units.get(5).assertEquals(testName, unitF)
 	testFinish(testName)
 	// Remove test units:
 	unitA.remove()
 	unitB.remove()
 	unitC.remove()
-	// Destroy groups:
-	units.destr()
+	unitD.remove()
+	unitE.remove()
+	unitF.remove()
+	// Destroy lists:
+	destroy units

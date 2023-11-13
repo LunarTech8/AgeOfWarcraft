@@ -78,58 +78,71 @@ class OrderTarget
 
 public class OrderAction
 	private timer t
+	private CallbackSimple castedCb  // Is called if order is casted and resolves the cast finish execution actions of the order
 	private CallbackSimple invalidateCb  // Is called if order becomes invalid (eg. target becomes invalid) and resolves consequential actions
-	private CallbackSimple cancelCb  // Is called if order is overwritten by another order or becoming invalid and resolves clean up actions for the previous order
-	private CallbackSimple finishCb  // Is called after the given duration and resolves the execution actions of the order
-	private CallbackCondition finishCondition  // Is called repeatedly after the given duration and returns if the order action can be finished
+	private CallbackSimple onDestroyCb  // Is called on destruction of the order (eg. if it is overwritten by another order or becoming invalid or is casted) and resolves clean up actions for the previous order
+	private CallbackSimple timedFinishCb  // Is called after the given duration and resolves the timed finish execution actions of the order
+	private CallbackCondition timedFinishCondition  // Is called repeatedly after the given duration and returns if the order action can be finished
 
-	construct(CallbackSimple invalidateCb, CallbackSimple cancelCb)
+	construct(CallbackSimple castedCb, CallbackSimple invalidateCb, CallbackSimple onDestroyCb)
+		this.castedCb = castedCb
 		this.invalidateCb = invalidateCb
-		this.cancelCb = cancelCb
-		this.finishCb = null
-		this.finishCondition = null
+		this.onDestroyCb = onDestroyCb
+		this.timedFinishCb = null
+		this.timedFinishCondition = null
 		t = null
-	construct(CallbackSimple invalidateCb, CallbackSimple cancelCb, CallbackSimple finishCb, real duration, CallbackCondition finishCondition)
+	construct(CallbackSimple castedCb, CallbackSimple invalidateCb, CallbackSimple onDestroyCb, CallbackSimple timedFinishCb, real timedFinishDuration, CallbackCondition timedFinishCondition)
+		this.castedCb = castedCb
 		this.invalidateCb = invalidateCb
-		this.cancelCb = cancelCb
-		this.finishCb = finishCb
-		this.finishCondition = finishCondition
+		this.onDestroyCb = onDestroyCb
+		this.timedFinishCb = timedFinishCb
+		this.timedFinishCondition = timedFinishCondition
 		t = getTimer()
 		t.setData(this castTo int)
-		if finishCondition == null
-			t.start(duration, () -> finish())
+		if timedFinishCondition == null
+			t.start(timedFinishDuration, () -> finish())
 		else
-			t.startPeriodic(duration, () -> finish())
+			t.startPeriodic(timedFinishDuration, () -> finish())
 
 	ondestroy
 		if t != null
 			t.release()
+		if castedCb != null
+			destroy castedCb
 		if invalidateCb != null
 			destroy invalidateCb
-		if cancelCb != null
-			cancelCb.call()
-			destroy cancelCb
-		if finishCb != null
-			destroy finishCb
-		if finishCondition != null
-			destroy finishCondition
+		if onDestroyCb != null
+			onDestroyCb.call()
+			destroy onDestroyCb
+		if timedFinishCb != null
+			destroy timedFinishCb
+		if timedFinishCondition != null
+			destroy timedFinishCondition
 
 	private static function finish()
 		let t = GetExpiredTimer()
 		thistype cb = t.getData() castTo thistype
-		if cb.finishCondition == null or cb.finishCondition.call()
+		if cb.timedFinishCondition == null or cb.timedFinishCondition.call()
 			cb.t = null
 			t.release()
+			if cb.castedCb != null
+				destroy cb.castedCb
+				cb.castedCb = null
 			if cb.invalidateCb != null
 				destroy cb.invalidateCb
 				cb.invalidateCb = null
-			if cb.cancelCb != null
-				destroy cb.cancelCb
-				cb.cancelCb = null
-			if cb.finishCb != null
-				cb.finishCb.call()
+			if cb.onDestroyCb != null
+				destroy cb.onDestroyCb
+				cb.onDestroyCb = null
+			if cb.timedFinishCb != null
+				cb.timedFinishCb.call()
 
-	function invalidate()
+	protected function casted()
+		if castedCb != null
+			castedCb.call()
+		destroy this
+
+	protected function invalidate()
 		if invalidateCb != null
 			invalidateCb.call()
 		destroy this
@@ -148,15 +161,18 @@ class OrderSource
 		if orderAction != null
 			destroy orderAction
 
-	function invalidate()
-		ORDER_SOURCE_MAP.put(source, null)  // Has to be called first to avoid overwriting consequential callback orders
+	protected function casted()
+		ORDER_SOURCE_MAP.remove(source)  // Has to be called first to avoid overwriting consequential callback orders
 		if orderAction != null
-			orderAction.invalidate()
+			orderAction.casted()
 			orderAction = null
 		destroy this
 
-	function cancel()
-		ORDER_SOURCE_MAP.put(source, null)  // Has to be called first to avoid overwriting consequential callback orders
+	protected function invalidate()
+		ORDER_SOURCE_MAP.remove(source)  // Has to be called first to avoid overwriting consequential callback orders
+		if orderAction != null
+			orderAction.invalidate()
+			orderAction = null
 		destroy this
 
 class OrderSourceU extends OrderSource
@@ -276,21 +292,40 @@ public function unit.setOrder(int orderId, entity target, OrderAction orderActio
 	else
 		error("Unit and destructable of entity are null")
 
+/** Sets the units order to casted if it has any else returns false. */
+public function unit.setOrderToCasted() returns bool
+	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
+	if orderSource != null
+		orderSource.casted()
+		return true
+	else
+		return false
+
 /** Returns if the unit has an order with given id and target. */
-public function unit.isOrder(int orderId, unit target) returns bool
+public function unit.hasOrder(int orderId, unit target) returns bool
 	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
 	if orderSource != null
 		return orderSource.orderId == orderId and (orderSource castTo OrderSourceU).target == target
 	else
 		return false
 /** Returns if the unit has an order with given id. */
-public function unit.isOrder(int orderId) returns bool
+public function unit.hasOrder(int orderId) returns bool
 	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
 	if orderSource != null
 		return orderSource.orderId == orderId
 	else
 		return false
+/** Returns if given unit has any order. */
+public function unit.hasOrder() returns bool
+	return ORDER_SOURCE_MAP.has(this)
 
+/** Returns the order name of given unit. */
+public function unit.getOrderName() returns string
+	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
+	if orderSource != null
+		return orderSource.orderId.getOrderName(orderSource.source)
+	else
+		return "none"
 
 /** Clear unit as order source. */
 public function unit.removeSourceOrder()
@@ -313,25 +348,18 @@ public function unit.removeAllOrders()
 	if orderTarget != null
 		destroy orderTarget
 
-/** Returns the order source of given unit. */
-public function unit.getOrderSource() returns OrderSource
-	return ORDER_SOURCE_MAP.tryGet(this)
-
 /** Returns the count of all order sources. */
-public function getOrderSourceCount() returns int
+public function getSourceOrderCount() returns int
 	return ORDER_SOURCE_MAP.getValueCount()
 
 /** Returns the count of all order targets. */
-public function getOrderTargetCount() returns int
+public function getTargetOrderCount() returns int
 	return ORDER_TARGET_MAP.getValueCount()
 
 /** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
-public function multiboard.trySetObjectInfoMultiboard(OrderSource object) returns bool
-	if object == null
+public function multiboard.trySetObjectInfoMultiboard(string currentOrderName) returns bool
+	if currentOrderName == "none"
 		return false
-	var currentOrderName = object.orderId.getOrderName(object.source)
-	if currentOrderName == null
-		currentOrderName = "none"
 	this.addMultiboardLine("Order:", HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Current: " + currentOrderName.firstUpper(), ORDER_ICON_PATH)
 	return true
@@ -352,27 +380,27 @@ init
 			if targetU != null
 				let sourceUnitId = source.getUnitId()
 				if sourceUnitId != DUMMY_CASTER_UNIT_ID and sourceUnitId != DUMMY_UNIT_ID  // Ignore dummy orders
-					if targetU.isType(UNIT_TYPE_STRUCTURE) and issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
+					if targetU.isType(UNIT_TYPE_STRUCTURE) and (issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move)
+						orderAction = new OrderAction(null, null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 					source.setOrder(issuedOrderId, targetU, orderAction)
 			else
 				let targetD = GetOrderTargetDestructable()
 				if targetD != null
 					if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-						orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
+						orderAction = new OrderAction(null, null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 					source.setOrder(issuedOrderId, targetD, orderAction)
 				else
 					let targetI = GetOrderTargetItem()
 					if targetI != null
 						if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move
-							orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetI.getPos(), POS_TOLERANCE_RANGE))
+							orderAction = new OrderAction(null, null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, () -> source.getPos().inRange(targetI.getPos(), POS_TOLERANCE_RANGE))
 						source.setOrder(issuedOrderId, targetI, orderAction)
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()
 		let source = GetOrderedUnit()
 		OrderAction orderAction = null
 		if issuedOrderId == OrderIds.stop
-			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), MIN_ACTION_SLEEP_TIME, null)
+			orderAction = new OrderAction(null, null, null, () -> source.removeSourceOrder(), MIN_ACTION_SLEEP_TIME, null)
 		source.setOrder(issuedOrderId, orderAction)
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER) ->
 		let issuedOrderId = GetIssuedOrderId()
@@ -380,5 +408,5 @@ init
 		let targetPos = vec2(GetOrderPointX(), GetOrderPointY())
 		OrderAction orderAction = null
 		if issuedOrderId == OrderIds.smart or issuedOrderId == OrderIds.move or issuedOrderId == OrderIds.attack or issuedOrderId == OrderIds.setrally
-			orderAction = new OrderAction(null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
+			orderAction = new OrderAction(null, null, null, () -> source.removeSourceOrder(), POS_CHECK_RATE, source.getConditionNoMovement())
 		source.setOrder(issuedOrderId, targetPos, orderAction)

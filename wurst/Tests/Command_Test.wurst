@@ -39,8 +39,8 @@ function executeCommand()
 	testCounter += 1
 	print("-------- Test " + testCounter.toString() + ":")
 	print("Current resources: " + getResourceCount().toString())
-	print("Current order sources: " + getOrderSourceCount().toString())
-	print("Current order targets: " + getOrderTargetCount().toString())
+	print("Current order sources: " + getSourceOrderCount().toString())
+	print("Current order targets: " + getTargetOrderCount().toString())
 	print("Current building sites: " + getBuildingSiteCount().toString())
 	print("Current workers: " + getWorkerCount().toString())
 	testCounter += 1

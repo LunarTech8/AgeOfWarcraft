@@ -87,6 +87,7 @@ public class Depository extends Workplace
 		// Search for workplace with products:
 		target = this.findNextWorkplaceWithProducts()
 		if target != null
+			// Order ware transfer:
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
 			return false
 		// Nothing to do at the moment, enter building:
@@ -151,6 +152,10 @@ function Depository.findNextWorkshopInNeedOfEducts() returns unit
 function Depository.findNextWorkplaceWithProducts() returns unit
 	// TODO: implement
 	return null
+
+/** Returns if given unit is a depository. */
+public function unit.isDepository() returns bool
+	return DEPOSITORY_MAP.has(this)
 
 /** Returns the depository of given unit. */
 public function unit.getDepository() returns Depository

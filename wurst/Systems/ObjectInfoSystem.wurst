@@ -127,7 +127,7 @@ function createMultiboardLines(int playerID) returns bool
 			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getHome()) or hasInfo
 			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getStorage(), true) or hasInfo
 			if targetUnit.isType(UNIT_TYPE_STRUCTURE) == false
-				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getOrderSource()) or hasInfo
+				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getOrderName()) or hasInfo
 	return hasInfo
 
 function showObjectInfo(int playerID)

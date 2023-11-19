@@ -24,6 +24,7 @@ import StorageSystem
 import WorkplaceSystem
 import WorkshopSystem
 import ErrorHandling
+import GatherplaceSystem
 
 
 // --------------------
@@ -148,10 +149,42 @@ function Depository.findNextWorkshopInNeedOfEducts() returns unit
 		return pos.getNearestUnit(findNextWorkshopInNeedOfEducts_ValidUnits, true)
 	return null
 
+int findNextWorkplaceWithProducts_AvailableProducts
+let findNextWorkplaceWithProducts_ValidUnits = CreateGroup()
+function findNextWorkplaceWithProducts_CheckValidity() returns bool
+	let workshop = GetFilterUnit().getWorkshop()
+	let gatherplace = GetFilterUnit().getGatherplace()
+	// Only allow workshops or gatherplaces that have more products available:
+	var availableProducts = 0
+	if workshop != null
+		availableProducts = workshop.getStoredProductsCount()
+	else if gatherplace != null
+		availableProducts = gatherplace.getStoredProductsCount()
+	if availableProducts >= findNextWorkplaceWithProducts_AvailableProducts
+		findNextWorkplaceWithProducts_AvailableProducts = availableProducts
+		return true
+	return false
 /** Returns next valid workshop or gatherplace unit with products for this depository. */
 function Depository.findNextWorkplaceWithProducts() returns unit
-	// TODO: implement
-	return null
+	let pos = this.getUnit().getPos()
+	// Get valid workplaces in range and get highest amount of available products:
+	findNextWorkplaceWithProducts_AvailableProducts = 1
+	let filter = Filter(() -> findNextWorkplaceWithProducts_CheckValidity())
+	ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
+	filter.destr()
+	// Remove workshops and gatherplaces with lower amount of available products:
+	for target from ENUM_GROUP
+		let workshop = target.getWorkshop()
+		let gatherplace = target.getGatherplace()
+		var availableProducts = 0
+		if workshop != null
+			availableProducts = workshop.getStoredProductsCount()
+		else if gatherplace != null
+			availableProducts = gatherplace.getStoredProductsCount()
+		if availableProducts == findNextWorkplaceWithProducts_AvailableProducts
+			findNextWorkplaceWithProducts_ValidUnits.addUnit(target)
+	// Return nearest valid workplaces:
+	return pos.getNearestUnit(findNextWorkplaceWithProducts_ValidUnits, true)
 
 /** Returns if given unit is a depository. */
 public function unit.isDepository() returns bool

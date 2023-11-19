@@ -91,6 +91,14 @@ public class Gatherplace extends Workplace
 	function getGatherVariant() returns int
 		return gatherVariant
 
+	function getStoredProductsCount() returns int
+		var amount = MAX_WARE_COUNT
+		let products = getProducts()
+		for iWare in products
+			amount = min(amount, storage.getWareCount(iWare.wareType) div iWare.count)
+		destroy products
+		return amount
+
 	function getProducts() returns LinkedList<ware>
 		let wares = new LinkedList<ware>()
 		let allowedTypeIds = getAllowedTargetTypeIds()
@@ -132,12 +140,16 @@ public class Gatherplace extends Workplace
 			destroy allowedTypeIds
 			allowedTypeIds = getAllowedTargetTypeIds()
 		for worker in workers
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos()).getWidget(), true)
+			let targetWidget = worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos())
+			if targetWidget.isEmpty() == false
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetWidget.getWidget(), true)
 		destroy allowedTypeIds
 
 	function orderWorking(unit worker)
 		let allowedTypeIds = getAllowedTargetTypeIds()
-		worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos()).getWidget(), true)
+		let targetWidget = worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos())
+		if targetWidget.isEmpty() == false
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetWidget.getWidget(), true)
 		destroy allowedTypeIds
 	function orderWorking()
 		for worker in workers

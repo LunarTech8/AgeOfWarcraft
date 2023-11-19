@@ -49,6 +49,7 @@ let MAX_DAYS_NO_SLEEP = 3.  // Max days of no sleep before person falls asleep o
 let DAYS_TILL_EXHAUSTED = 1.  // Days of no sleep before person gets exhausted by sleep deprivation
 let STATS_ADJUSTMENT_RATE = INGAME_DAY_DURATION / 24.
 let SLEEP_BOOST_BY_DAMAGE = 2 * (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)  // Adrenalin boost by taking damage
+let IDLE_WORKER_CHECK_RATE = 2.
 
 var surnameCounter = 0
 
@@ -367,15 +368,27 @@ init
 			targetWorkplace.removePersons()
 	// Reduce stats:
 	doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
-		for person in PERSON_MAP
-			if person != null and PERSON_MAP.get(person).reduceStats()
-				// person.kill()  // DEBUG: for testing deactivated
+		for user in PERSON_MAP
+			if user != null and PERSON_MAP.get(user).reduceStats()
+				// user.kill()  // DEBUG: for testing deactivated
 	// Register attacks on sleeping persons:
 	DamageEvent.addListener() ->
 		let targetPerson = DamageEvent.getTarget().getPerson()
 		if targetPerson != null and targetPerson.isSleeping()
 			targetPerson.sleep += SLEEP_BOOST_BY_DAMAGE
 			targetPerson.awake()
+	// Find new targets for all idle workers inside a workplace:
+	doPeriodically(IDLE_WORKER_CHECK_RATE) cb ->
+		for user in PERSON_MAP
+			if user != null
+				let person = PERSON_MAP.get(user)
+				let workplaceBuilding = person.getWorkplaceBuilding()
+				if workplaceBuilding != null and workplaceBuilding == person.getEnteredBuilding()
+					let depository = workplaceBuilding.getDepository()
+					if depository != null
+						person.leaveBuilding()
+						if depository.orderWorking(user, true)
+							person.enterBuilding(workplaceBuilding)
 
 
 // --------------------

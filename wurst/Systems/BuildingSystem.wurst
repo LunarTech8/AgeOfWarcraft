@@ -482,11 +482,11 @@ public function multiboard.trySetObjectInfoMultiboard(BuildingSite object) retur
 	if object == null
 		return false
 	this.addMultiboardLine("Building site: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlotsForBuildingSite().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Build progress: " + object.getWorkProgressPercentage().toInt().toString() + "%", BUILD_PROGRESS_ICON_PATH)
 	let workPower = object.getWorkPower()
 	if workPower > 0.
 		this.addMultiboardLine("Build time left: " + (object.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
-		this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlotsForBuildingSite().toString(), WORKERS_ICON_PATH)
 	let stock = object.getStock()
 	let amountOfWareTypes = stock.getAmountOfWareTypes()
 	if amountOfWareTypes > 0

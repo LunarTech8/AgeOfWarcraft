@@ -20,10 +20,10 @@ import MultiboardPrioritySystem
 import UnitIndexer
 import Icons
 import RegisterEvents
+import ErrorHandling
 import StorageSystem
 import WorkplaceSystem
 import WorkshopSystem
-import ErrorHandling
 import GatherplaceSystem
 
 
@@ -72,16 +72,17 @@ public class Depository extends Workplace
 		var target = this.findNextWorkshopInNeedOfEducts()
 		if target != null
 			// Give needed educts to worker:
-			let educts = target.getWorkshop().getEducts()
-			let workshopStock = target.getWorkshop().getStock()
+			let targetWorkshop = target.getWorkshop()
+			let targetEducts = targetWorkshop.getEducts()
+			let targetStock = targetWorkshop.getStock()
 			let workerStorage = worker.getStorage()
-			for iWare in educts
-				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - workshopStock.getWareCount(iWare.wareType), storage.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
+			for iWare in targetEducts
+				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetStock.getWareCount(iWare.wareType), storage.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
 					storage.removeWare(ware(iWare.wareType, wareCount))
 					workerStorage.addWare(ware(iWare.wareType, wareCount))
-			destroy educts
+			destroy targetEducts
 			// Order ware transfer:
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
 			return false

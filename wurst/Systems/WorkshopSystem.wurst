@@ -227,6 +227,44 @@ public class Workshop extends Workplace
 			error("Worker does not belong to this workshop")
 		workPower -= getUnitWorkPower(user.getUnitId(), worker.getUnitId())
 
+	/** Searches for a task for the given worker if he is near the building else orders him to move there. Returns if no task could be found. */
+	function orderWorking(unit worker, bool isNearBuilding) returns bool  // TODO: implement usage
+		// Go to buidling:
+		if isNearBuilding == false
+			worker.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, user, true)
+			return false
+		// Search for workshop that need products if stock is full:
+		if getStoredProductsCount() >= MAX_STORABLE_PRODUCTS
+			let target = this.findNextWorkshopInNeedOfProducts()
+			if target != null
+				// Give needed products to worker:
+				let productsAsStock = new Stock(getProducts())
+				let targetWorkshop = target.getWorkshop()
+				let targetEducts = targetWorkshop.getEducts()
+				let targetStock = targetWorkshop.getStock()
+				let workerStorage = worker.getStorage()
+				for iWare in targetEducts
+					if productsAsStock.hasWareAny(iWare)
+						let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetStock.getWareCount(iWare.wareType), stock.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
+						if wareCount > 0
+							// Transfer ware:
+							stock.removeWare(ware(iWare.wareType, wareCount))
+							workerStorage.addWare(ware(iWare.wareType, wareCount))
+				destroy productsAsStock
+				destroy targetEducts
+				// Order ware transfer:
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
+				return false
+		// Search for workplace with educts if none are stored and no production is in progress:
+		if getStoredEductsCount() == 0 and workPower > 0.
+			let target = this.findNextWorkplaceWithEducts()
+			if target != null
+				// Order ware transfer:
+				worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
+				return false
+		// Nothing to do at the moment, enter building:
+		return true
+
 	/** Transfers as many educts as possible from source storage to this workshop.
 	Afterwards transfers as many products as possible from this workshop to source storage. */
 	override function transferWares(Storage source, bool takeProducts)
@@ -262,6 +300,16 @@ function unit.removeWorkshop()
 	if workshop != null
 		destroy workshop
 
+/** Returns next valid workshop unit in need of products from this workshop. */
+function Workshop.findNextWorkshopInNeedOfProducts() returns unit
+	// TODO: implement
+	return null
+
+/** Returns next valid workshop or gatherplace unit with educts for this workshop. */
+function Workshop.findNextWorkplaceWithEducts() returns unit
+	// TODO: implement
+	return null
+
 /** Returns the workshop of given unit. */
 public function unit.getWorkshop() returns Workshop
 	return WORKSHOP_MAP.tryGet(this)
@@ -278,11 +326,11 @@ public function multiboard.trySetObjectInfoMultiboard(Workshop object) returns b
 	if object == null
 		return false
 	this.addMultiboardLine("Workshop: " + object.user.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Production progress: " + object.getWorkProgressPercentage().toInt().toString() + "%", PRODUCTION_PROGRESS_ICON_PATH)
 	let workPower = object.getWorkPower()
 	if workPower > 0.
 		this.addMultiboardLine("Production time left: " + (object.getWorkProgressLeft() / workPower).toInt().toString() + "s", PRODUCTION_TIME_LEFT_ICON_PATH)
-		this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Educts (" + object.getStoredEductsCount().toString() + "/" + MAX_STORABLE_EDUCTS.toString() + "):", SUB_HEADLINE_ICON_PATH)
 	let educts = object.getEducts()
 	for ware in educts

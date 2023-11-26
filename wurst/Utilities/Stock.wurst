@@ -188,6 +188,10 @@ public class Stock
 				return false
 		return true
 
+	/** Returns if the stock has any of the given ware. */
+	function hasWareAny(ware w) returns bool
+		return getWareCount(w.wareType) > 0
+
 	/** Returns if the stock has any of the given wares. */
 	function hasWaresAny(LinkedList<ware> wares) returns bool
 		for iWare in wares

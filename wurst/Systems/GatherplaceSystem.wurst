@@ -145,12 +145,14 @@ public class Gatherplace extends Workplace
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetWidget.getWidget(), true)
 		destroy allowedTypeIds
 
+	/** Searches for a task for the given worker of this gatherplace. */
 	function orderWorking(unit worker)
 		let allowedTypeIds = getAllowedTargetTypeIds()
 		let targetWidget = worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos())
 		if targetWidget.isEmpty() == false
 			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetWidget.getWidget(), true)
 		destroy allowedTypeIds
+	/** Searches for a task for all workers of this gatherplace. */
 	function orderWorking()
 		for worker in workers
 			orderWorking(worker)

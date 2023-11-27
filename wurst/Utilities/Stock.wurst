@@ -163,12 +163,19 @@ public class Stock
 	function getAmountOfWareTypes() returns int
 		return wares.size()
 
-	/** Returns count of given ware type. */
+	/** Returns count of given ware type in the stock. */
 	function getWareCount(WareType wt) returns int
 		for iWare in wares
 			if iWare.wareType == wt
 				return iWare.count
 		return 0
+
+	/** Returns count of given wares in the stock. */
+	function getWareCount(LinkedList<ware> wares) returns int
+		var wareCount = 0
+		for iWare in wares
+			wareCount += min(getWareCount(iWare.wareType), iWare.count)
+		return wareCount
 
 	/** Returns if the stock has the given ware. */
 	function hasWare(ware w) returns bool
@@ -181,16 +188,16 @@ public class Stock
 					return false
 		return false
 
+	/** Returns if the stock has any of the given ware. */
+	function hasWareAny(ware w) returns bool
+		return getWareCount(w.wareType) > 0
+
 	/** Returns if the stock has the given wares. */
 	function hasWares(LinkedList<ware> wares) returns bool
 		for iWare in wares
 			if hasWare(iWare) == false
 				return false
 		return true
-
-	/** Returns if the stock has any of the given ware. */
-	function hasWareAny(ware w) returns bool
-		return getWareCount(w.wareType) > 0
 
 	/** Returns if the stock has any of the given wares. */
 	function hasWaresAny(LinkedList<ware> wares) returns bool

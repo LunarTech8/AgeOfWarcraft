@@ -31,7 +31,7 @@ import GatherplaceSystem
 // Data code
 // --------------------
 
-let MAX_AUTO_ORDER_RANGE = 1024.
+let MAX_AUTO_ORDER_RANGE = 1024.  // TODO: replace with taking all buildings of same settlement into account
 let WORKERS_ICON_PATH = Icons.bTNBash
 
 /** Returns the maximum ware capacity of the given depository type. */
@@ -119,61 +119,37 @@ function unit.removeDepository()
 	if depository != null
 		destroy depository
 
-Storage findNextWorkshopInNeedOfEducts_SourceStorage
-int findNextWorkshopInNeedOfEducts_NeededEducts
-let findNextWorkshopInNeedOfEducts_ValidUnits = CreateGroup()
-function findNextWorkshopInNeedOfEducts_CheckValidity() returns bool
-	let workshop = GetFilterUnit().getWorkshop()
-	// Only allow workshops that require any of the available wares and need more educts:
-	if workshop != null and findNextWorkshopInNeedOfEducts_SourceStorage.hasWaresAny(workshop.getEducts())
-		let neededEducts = MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount()
-		if neededEducts >= findNextWorkshopInNeedOfEducts_NeededEducts
-			findNextWorkshopInNeedOfEducts_NeededEducts = neededEducts
-			return true
-	return false
 /** Returns next valid workshop unit in need of educts for this depository. */
 function Depository.findNextWorkshopInNeedOfEducts() returns unit
+	unit bestBuilding = null
+	var bestNeededEducts = 1
+	var bestDistanceSq = REAL_MAX
 	// Check if wares are available:
-	findNextWorkshopInNeedOfEducts_SourceStorage = this.getStorage()
-	if findNextWorkshopInNeedOfEducts_SourceStorage.isEmpty() == false
-		let pos = this.getUnit().getPos()
-		// Get valid workshops in range and get highest amount of needed educts:
-		findNextWorkshopInNeedOfEducts_NeededEducts = 1
-		let filter = Filter(() -> findNextWorkshopInNeedOfEducts_CheckValidity())
-		ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
-		filter.destr()
-		// Remove workshops with lower amount of needed educts:
+	let sourceStorage = this.getStorage()
+	if sourceStorage.isEmpty() == false
+		// Search buildings in range:
+		let sourcePos = this.getUnit().getPos()
+		ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 		for target from ENUM_GROUP
-			if MAX_STORABLE_EDUCTS - target.getWorkshop().getStoredEductsCount() == findNextWorkshopInNeedOfEducts_NeededEducts
-				findNextWorkshopInNeedOfEducts_ValidUnits.addUnit(target)
-		// Return nearest valid workshop:
-		return pos.getNearestUnit(findNextWorkshopInNeedOfEducts_ValidUnits, true)
-	return null
+			let workshop = target.getWorkshop()
+			if workshop != null and sourceStorage.hasWaresAny(workshop.getEducts())
+				let neededEducts = MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount()
+				let distanceSq = sourcePos.distanceToSq(target.getPos())
+				// Get workshop that needs the most educts and is closest:
+				if neededEducts > bestNeededEducts or (neededEducts == bestNeededEducts and distanceSq < bestDistanceSq)
+					bestBuilding = target
+					bestNeededEducts = neededEducts
+					bestDistanceSq = distanceSq
+	return bestBuilding
 
-int findNextWorkplaceWithProducts_AvailableProducts
-let findNextWorkplaceWithProducts_ValidUnits = CreateGroup()
-function findNextWorkplaceWithProducts_CheckValidity() returns bool
-	let workshop = GetFilterUnit().getWorkshop()
-	let gatherplace = GetFilterUnit().getGatherplace()
-	// Only allow workshops or gatherplaces that have more products available:
-	var availableProducts = 0
-	if workshop != null
-		availableProducts = workshop.getStoredProductsCount()
-	else if gatherplace != null
-		availableProducts = gatherplace.getStoredProductsCount()
-	if availableProducts >= findNextWorkplaceWithProducts_AvailableProducts
-		findNextWorkplaceWithProducts_AvailableProducts = availableProducts
-		return true
-	return false
 /** Returns next valid workshop or gatherplace unit with products for this depository. */
 function Depository.findNextWorkplaceWithProducts() returns unit
-	let pos = this.getUnit().getPos()
-	// Get valid workplaces in range and get highest amount of available products:
-	findNextWorkplaceWithProducts_AvailableProducts = 1
-	let filter = Filter(() -> findNextWorkplaceWithProducts_CheckValidity())
-	ENUM_GROUP.enumUnitsInRange(pos, MAX_AUTO_ORDER_RANGE, filter)
-	filter.destr()
-	// Remove workshops and gatherplaces with lower amount of available products:
+	unit bestBuilding = null
+	var bestAvailableProducts = 1
+	var bestDistanceSq = REAL_MAX
+	// Search buildings in range:
+	let sourcePos = this.getUnit().getPos()
+	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 	for target from ENUM_GROUP
 		let workshop = target.getWorkshop()
 		let gatherplace = target.getGatherplace()
@@ -182,10 +158,13 @@ function Depository.findNextWorkplaceWithProducts() returns unit
 			availableProducts = workshop.getStoredProductsCount()
 		else if gatherplace != null
 			availableProducts = gatherplace.getStoredProductsCount()
-		if availableProducts == findNextWorkplaceWithProducts_AvailableProducts
-			findNextWorkplaceWithProducts_ValidUnits.addUnit(target)
-	// Return nearest valid workplaces:
-	return pos.getNearestUnit(findNextWorkplaceWithProducts_ValidUnits, true)
+		let distanceSq = sourcePos.distanceToSq(target.getPos())
+		// Get workplace that has the most available products and is closest:
+		if availableProducts > bestAvailableProducts or (availableProducts == bestAvailableProducts and distanceSq < bestDistanceSq)
+			bestBuilding = target
+			bestAvailableProducts = availableProducts
+			bestDistanceSq = distanceSq
+	return bestBuilding
 
 /** Returns if given unit is a depository. */
 public function unit.isDepository() returns bool

@@ -25,6 +25,7 @@ import StorageSystem
 import Orders
 import ErrorHandling
 import WorkplaceSystem
+import GatherplaceSystem
 
 
 // --------------------
@@ -34,6 +35,7 @@ import WorkplaceSystem
 public let MAX_STORABLE_EDUCTS = 5
 public let MAX_STORABLE_PRODUCTS = 3
 
+let MAX_AUTO_ORDER_RANGE = 1024.  // TODO: replace with taking all buildings of same settlement into account
 let PRODUCTION_ADJUSTMENT_RATE = 0.1
 let PRODUCTION_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let PRODUCTION_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
@@ -302,13 +304,50 @@ function unit.removeWorkshop()
 
 /** Returns next valid workshop unit in need of products from this workshop. */
 function Workshop.findNextWorkshopInNeedOfProducts() returns unit
-	// TODO: implement
-	return null
+	unit bestBuilding = null
+	var bestNeededProducts = 1
+	var bestDistanceSq = REAL_MAX
+	// Search buildings in range:
+	let sourcePos = this.getUnit().getPos()
+	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
+	let productsAsStock = new Stock(this.getProducts())
+	for target from ENUM_GROUP
+		let workshop = target.getWorkshop()
+		if workshop != null
+			let neededProducts = productsAsStock.getWareCount(workshop.getEducts()) * (MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount())
+			let distanceSq = sourcePos.distanceToSq(target.getPos())
+			// Get workshop that needs the most of the available products and is closest:
+			if neededProducts > bestNeededProducts or (neededProducts == bestNeededProducts and distanceSq < bestDistanceSq)
+				bestBuilding = target
+				bestNeededProducts = neededProducts
+				bestDistanceSq = distanceSq
+	return bestBuilding
 
 /** Returns next valid workshop or gatherplace unit with educts for this workshop. */
 function Workshop.findNextWorkplaceWithEducts() returns unit
-	// TODO: implement
-	return null
+	unit bestBuilding = null
+	var bestAvailableEducts = 1
+	var bestDistanceSq = REAL_MAX
+	// Search buildings in range:
+	let sourcePos = this.getUnit().getPos()
+	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
+	ENUM_GROUP.removeUnit(this.getUnit())
+	let eductsAsStock = new Stock(this.getEducts())
+	for target from ENUM_GROUP
+		let workshop = target.getWorkshop()
+		let gatherplace = target.getGatherplace()
+		var availableEducts = 0
+		if workshop != null
+			availableEducts = eductsAsStock.getWareCount(workshop.getProducts()) * workshop.getStoredProductsCount()
+		else if gatherplace != null
+			availableEducts = eductsAsStock.getWareCount(gatherplace.getProducts()) * gatherplace.getStoredProductsCount()
+		let distanceSq = sourcePos.distanceToSq(target.getPos())
+		// Get workplace that has the most available products and is closest:
+		if availableEducts > bestAvailableEducts or (availableEducts == bestAvailableEducts and distanceSq < bestDistanceSq)
+			bestBuilding = target
+			bestAvailableEducts = availableEducts
+			bestDistanceSq = distanceSq
+	return bestBuilding
 
 /** Returns the workshop of given unit. */
 public function unit.getWorkshop() returns Workshop

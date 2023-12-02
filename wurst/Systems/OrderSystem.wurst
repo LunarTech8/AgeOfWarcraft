@@ -227,6 +227,28 @@ class OrderSourceV extends OrderSource
 		this.target = target
 
 
+function OrderSource.getTargetWidget() returns widget
+	widget targetWidget = null
+	if this instanceof OrderSourceU
+		targetWidget = (this castTo OrderSourceU).target
+	else if this instanceof OrderSourceD
+		targetWidget = (this castTo OrderSourceD).target
+	else if this instanceof OrderSourceI
+		targetWidget = (this castTo OrderSourceI).target
+	return targetWidget
+
+function OrderSource.getTargetPos() returns vec2
+	vec2 targetPos = ZERO2
+	if this instanceof OrderSourceV
+		targetPos = (this castTo OrderSourceV).target
+	else if this instanceof OrderSourceU
+		targetPos = (this castTo OrderSourceU).target.getPos()
+	else if this instanceof OrderSourceD
+		targetPos = (this castTo OrderSourceD).target.getPos()
+	else if this instanceof OrderSourceI
+		targetPos = (this castTo OrderSourceI).target.getPos()
+	return targetPos
+
 function unit.getConditionNoMovement() returns CallbackCondition
 	var _lastPos = this.getPos()
 	CallbackCondition condition = () ->
@@ -302,10 +324,10 @@ public function unit.setOrderToCasted() returns bool
 		return false
 
 /** Returns if the unit has an order with given id and target. */
-public function unit.hasOrder(int orderId, unit target) returns bool
+public function unit.hasOrder(int orderId, widget target) returns bool
 	let orderSource = ORDER_SOURCE_MAP.tryGet(this)
 	if orderSource != null
-		return orderSource.orderId == orderId and (orderSource castTo OrderSourceU).target == target
+		return orderSource.orderId == orderId and orderSource.getTargetWidget() == target
 	else
 		return false
 /** Returns if the unit has an order with given id. */
@@ -347,6 +369,17 @@ public function unit.removeAllOrders()
 	let orderTarget = ORDER_TARGET_MAP.tryRemove(entity(this, null))
 	if orderTarget != null
 		destroy orderTarget
+
+/** Issues this unit to cast the ability stored by it's order source. */
+public function unit.castAbilityOrder()
+	let orderSource = ORDER_SOURCE_MAP.get(this)
+	let targetWidget = orderSource.getTargetWidget()
+	if targetWidget != null
+		this.issueTargetAbilityOrder(orderSource.orderId, targetWidget, true)
+	else if orderSource instanceof OrderSourceV
+		this.issuePointAbilityOrder(orderSource.orderId, orderSource.getTargetPos(), true)
+	else
+		this.issueImmediateAbilityOrder(orderSource.orderId, true)
 
 /** Returns the count of all order sources. */
 public function getSourceOrderCount() returns int

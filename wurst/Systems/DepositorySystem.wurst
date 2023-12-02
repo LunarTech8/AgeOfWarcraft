@@ -25,6 +25,7 @@ import StorageSystem
 import WorkplaceSystem
 import WorkshopSystem
 import GatherplaceSystem
+import OrderSystem
 
 
 // --------------------
@@ -62,12 +63,8 @@ public class Depository extends Workplace
 	function getStorage() returns Storage
 		return storage
 
-	/** Searches for a task for the given worker if he is near the building else orders him to move there. Returns if no task could be found. */
-	function orderWorking(unit worker, bool isNearBuilding) returns bool
-		// Go to buidling:
-		if isNearBuilding == false
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, user, true)
-			return false
+	/** Searches a work task for the given worker (expecting him to be near/in the building). Returns if a task could be found. */
+	function findWorkOrder(unit worker) returns bool
 		// Search for workshop in need of educts:
 		var target = this.findNextWorkshopInNeedOfEducts()
 		if target != null
@@ -84,16 +81,16 @@ public class Depository extends Workplace
 					workerStorage.addWare(ware(iWare.wareType, wareCount))
 			destroy targetEducts
 			// Order ware transfer:
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
-			return false
+			worker.setOrder(AbilityIdsCustom.transferWares, target)
+			return true
 		// Search for workplace with products:
 		target = this.findNextWorkplaceWithProducts()
 		if target != null
 			// Order ware transfer:
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, target, true)
-			return false
-		// Nothing to do at the moment, enter building:
-		return true
+			worker.setOrder(AbilityIdsCustom.transferWares, target)
+			return true
+		// Nothing to do at the moment:
+		return false
 
 	/** Transfers as many wares as possible from source to this depository. */
 	override function transferWares(Storage source, bool _takeWares)

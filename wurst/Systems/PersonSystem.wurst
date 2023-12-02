@@ -31,6 +31,7 @@ import DamageEvent
 import UnitIndexer
 import RegisterEvents
 import Unit_Peasant
+import OrderSystem
 
 
 // --------------------
@@ -384,11 +385,16 @@ init
 				let person = PERSON_MAP.get(user)
 				let workplaceBuilding = person.getWorkplaceBuilding()
 				if workplaceBuilding != null and workplaceBuilding == person.getEnteredBuilding()
+					let workshop = workplaceBuilding.getWorkshop()
+					if workshop != null and workshop.isProducing() == false
+						if workshop.findWorkOrder(user)
+							person.leaveBuilding()
+							user.castAbilityOrder()
 					let depository = workplaceBuilding.getDepository()
 					if depository != null
-						person.leaveBuilding()
-						if depository.orderWorking(user, true)
-							person.enterBuilding(workplaceBuilding)
+						if depository.findWorkOrder(user)
+							person.leaveBuilding()
+							user.castAbilityOrder()
 
 
 // --------------------

@@ -477,12 +477,15 @@ init
 								sourcePerson.setHomeBuilding(targetHome)
 						else if targetWorkplace instanceof Workshop
 							let targetWorkshop = (targetWorkplace castTo Workshop)
-							// Transfer educts, add source to target workshop as worker and enter it:
+							// Transfer educts, add source to target workshop as worker and order to work:
 							let sourcePerson = source.getPerson()
 							targetWorkshop.transferWares(source.getStorage(), false)
 							if targetWorkshop.isWorker(source) == false
 								sourcePerson.setWorkplaceBuilding(targetWorkshop)
-							sourcePerson.enterBuilding(targetUnit)
+							if targetWorkshop.findWorkOrder(source)
+								source.castAbilityOrder()
+							else
+								sourcePerson.enterBuilding(targetUnit)
 						else if targetWorkplace instanceof Gatherplace
 							let targetGatherplace = (targetWorkplace castTo Gatherplace)
 							// Transfer wares, add source to target gatherplace as worker and order to work:
@@ -497,7 +500,9 @@ init
 							targetDepository.transferWares(source.getStorage(), false)
 							if targetDepository.isWorker(source) == false
 								sourcePerson.setWorkplaceBuilding(targetDepository)
-							if targetDepository.orderWorking(source, true)
+							if targetDepository.findWorkOrder(source)
+								source.castAbilityOrder()
+							else
 								sourcePerson.enterBuilding(targetUnit)
 					case AbilityIdsCustom.addWorker
 						let sourceWorkplace = source.getWorkplace()
@@ -548,8 +553,8 @@ init
 					case "transfer wares"
 						let targetUnit = target.assertUnit()
 						let workplaceBuilding = source.getPerson().getWorkplaceBuilding()
-						// Sent worker back to workplace after transfer if he is working at a depository
-						if workplaceBuilding != null and workplaceBuilding.isDepository() and targetUnit != workplaceBuilding
+						// Sent worker back to workplace after transfer
+						if workplaceBuilding != null and targetUnit != workplaceBuilding
 							CallbackSimple castedCb = () ->
 								source.issueTargetAbilityOrder(AbilityIdsCustom.enterBuilding, workplaceBuilding, true)
 							CallbackSimple invalidateCb = () ->

@@ -301,6 +301,20 @@ public function unit.issueTargetAbilityOrder(int abilityId, widget target, bool 
 		this.addAbility(abilityId)
 	return this.issueTargetOrder(abilityId.getAbilityOrder(), target)
 
+/** Issues this unit to cast given ability on target position. The ability can be reset beforehand to bypass the cooldown. */
+public function unit.issuePointAbilityOrder(int abilityId, vec2 pos, bool resetAbility) returns bool
+	if resetAbility
+		this.removeAbility(abilityId)
+		this.addAbility(abilityId)
+	return this.issuePointOrder(abilityId.getAbilityOrder(), pos)
+
+/** Issues this unit to cast given ability. The ability can be reset beforehand to bypass the cooldown. */
+public function unit.issueImmediateAbilityOrder(int abilityId, bool resetAbility) returns bool
+	if resetAbility
+		this.removeAbility(abilityId)
+		this.addAbility(abilityId)
+	return this.issueImmediateOrder(abilityId.getAbilityOrder())
+
 /** Replaces this unit with a new unit of given type. */
 public function unit.replace(int newUnitTypeId) returns unit
 	this.hide()

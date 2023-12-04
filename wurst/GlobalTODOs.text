@@ -24,8 +24,12 @@ Work status:
 !!>- Transform orderWorking to findWorkOrder for gatherplaces
 !!>- Expand "Find new targets for all idle workers inside a workplace" in PersonSystem for gatherplaces
 !!>- Replace MAX_AUTO_ORDER_RANGE with taking in all buildings of same settlement
-!!!>- Improve storage system by adding reserved wares (that already are planned to be picked up by a unit and thus shouldn't be available for other lookups)
+!!!>>- Improve storage system by adding reserved wares (that already are planned to be picked up by a unit and thus shouldn't be available for other lookups)
 	- This should solve that eg. not all workers from a workshop go to take wares from same target gatherplace
+	- Replace Stock in BuildingSystem, WorkshopSystem, StorageSystem with ReservableStock and implement reservations
+!!>- Maybe remove user from Storage and move it under Utilities and instead give Person its own storage property like with the other classes
+!!>- Maybe rename Stock to Wares and replace every use of LinkedList<ware> with it as is just a wrapper for a ware list with helpful functions
+!!>- Replace Stock of Workpshop with an expanded class (SpecializedStorage vs GeneralStorage) that allows for max count of each allowed ware instead of max number of educts and products
 
 !!>- Change gameplay to indirect unit control
 	- Workers should not be controllable directly anymore but only via buildings (add/remove worker etc.)

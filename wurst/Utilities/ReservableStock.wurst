@@ -1,0 +1,38 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Extension of the Stock class that adds an extra ware list for reserved wares.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package ReservableStock
+import Stock
+import LinkedList
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public class ReservableStock extends Stock
+	protected LinkedList<ware> reservedWares
+
+	construct()
+		this.reservedWares = new LinkedList<ware>()
+	construct(LinkedList<ware> wares, LinkedList<ware> reservedWares)
+		super(wares)
+		this.reservedWares = reservedWares
+	construct(ReservableStock reservableStock)
+		super(reservableStock)
+		this.reservedWares = reservableStock.getReservedWares()
+
+	ondestroy
+		destroy reservedWares
+
+	/** Returns a copied list of the reserved wares of the stock. */
+	function getReservedWares() returns LinkedList<ware>
+		return reservedWares.copy()

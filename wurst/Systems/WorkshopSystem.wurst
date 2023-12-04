@@ -117,7 +117,7 @@ public class Workshop extends Workplace
 
 	construct(unit workshop)
 		super(workshop)
-		stock = new Stock(new LinkedList<ware>())
+		stock = new Stock()
 		productionVariant = 1
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(workshop.getUnitId(), productionVariant)

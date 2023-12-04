@@ -49,7 +49,6 @@ public class Storage extends Stock
 	private int usedCapacity
 
 	construct(unit storage, int maxCapacity)
-		super(new LinkedList<ware>())
 		user = storage
 		this.maxCapacity = maxCapacity
 		usedCapacity = 0

@@ -232,7 +232,7 @@ function getScaling(int buildingUnitId) returns real
 let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>(null)
 
 public class BuildingSite extends Workplace
-	private Stock stock
+	private Stock requiredResources
 	private real fullHP
 	private real workProgressCurrent
 	private real workProgressFinished
@@ -241,7 +241,7 @@ public class BuildingSite extends Workplace
 
 	construct(unit building, real fullHP, LinkedList<ware> requiredWares)
 		super(building)
-		stock = new Stock(requiredWares)
+		requiredResources = new Stock(requiredWares)
 		this.fullHP = fullHP
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(building.getUnitId())
@@ -249,7 +249,7 @@ public class BuildingSite extends Workplace
 		upgradeProgress = 1
 
 	ondestroy
-		destroy stock
+		destroy requiredResources
 		for worker in workers
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
@@ -265,7 +265,7 @@ public class BuildingSite extends Workplace
 		return hasAnyRequiredResources
 
 	function getStock() returns Stock
-		return stock
+		return requiredResources
 
 	function getWorkProgressPercentage() returns real
 		return 100. * workProgressCurrent / workProgressFinished
@@ -353,29 +353,29 @@ public class BuildingSite extends Workplace
 	Start with given prio workers who aren't checked for their order status. */
 	function callOverIdleWareCarriers(group prioWorkers)
 		let owner = user.getOwner()
-		let requiredResources = new Stock(stock)
+		let leftRequiredResources = new Stock(this.requiredResources)
 		// Check prioritised workers:
 		for carrier in prioWorkers
-			if carrier.getOwner() == owner and checkCarrierForRequiredResources(carrier, requiredResources)
+			if carrier.getOwner() == owner and checkCarrierForRequiredResources(carrier, leftRequiredResources)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
-		if requiredResources.isEmpty() == false
+		if leftRequiredResources.isEmpty() == false
 			// Look for idle workers or moving workers:
 			callOverIdleWareCarriers_Workers.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
 			callOverIdleWareCarriers_Workers.removeGroup(prioWorkers)
 			let sortedWorkers = callOverIdleWareCarriers_Workers.asList().sortByDistance(user.getPos())
 			for carrier in sortedWorkers
-				if carrier.getOwner() == owner and carrier.isType(UNIT_TYPE_STRUCTURE) == false and (carrier.hasOrder() == false or carrier.hasOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, requiredResources)
+				if carrier.getOwner() == owner and carrier.isType(UNIT_TYPE_STRUCTURE) == false and (carrier.hasOrder() == false or carrier.hasOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, leftRequiredResources)
 					carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 			destroy sortedWorkers
-		destroy requiredResources
+		destroy leftRequiredResources
 
 	/** Transfers required wares from source storage to this building site.
 	Returns a list of all wares that are still missing. */
 	override function transferWares(Storage source, bool _takeWares)
 		let leftRequiredWares = new LinkedList<ware>()
 		// Look through all required wares:
-		for i = 0 to stock.getAmountOfWareTypes() - 1
-			let ware = stock.getWare(i)
+		for i = 0 to requiredResources.getAmountOfWareTypes() - 1
+			let ware = requiredResources.getWare(i)
 			var count = source.getWareCount(ware.wareType)
 			if count < ware.count
 				// Note down still missing wares:
@@ -387,7 +387,7 @@ public class BuildingSite extends Workplace
 				// Remove taken wares from source:
 				source.removeWare(ware(ware.wareType, count))
 		// Update still required wares:
-		stock.replaceWares(leftRequiredWares)
+		requiredResources.replaceWares(leftRequiredWares)
 
 
 let addBuildingSite_SelectedUnits = CreateGroup()

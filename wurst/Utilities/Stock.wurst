@@ -133,6 +133,8 @@ public function LinkedList<ware>.isEqual(LinkedList<ware> waresCompare) returns 
 public class Stock
 	protected LinkedList<ware> wares
 
+	construct()
+		this.wares = new LinkedList<ware>()
 	construct(LinkedList<ware> wares)
 		this.wares = wares
 	construct(Stock stock)
@@ -277,7 +279,7 @@ public class Stock
 public function testStockSystem_AddAndRemove(bool isInGameTest)
 	let testName = setTestName("testStockSystem_AddAndRemove", isInGameTest)
 	// Create new stock and check content:
-	let stockA = new Stock(new LinkedList<ware>())
+	let stockA = new Stock()
 	stockA.isEmpty().assertTrue(testName)
 	stockA.getAmountOfWareTypes().assertEquals(testName, 0)
 	// Add wares and check content:
@@ -299,7 +301,7 @@ public function testStockSystem_AddAndRemove(bool isInGameTest)
 	stockA.getAmountOfWareTypes().assertEquals(testName, 2)
 	stockA.getWareCount(WareType.FOOD).assertEquals(testName, 1)
 	// Create another storage and check content:
-	let stockB = new Stock(new LinkedList<ware>())
+	let stockB = new Stock()
 	stockB.isEmpty().assertTrue(testName)
 	stockB.getAmountOfWareTypes().assertEquals(testName, 0)
 	// Add wares and check content:

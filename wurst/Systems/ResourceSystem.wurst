@@ -261,7 +261,7 @@ function findNextResource_CheckValidity(entity filterEntity) returns bool
 /** Returns next valid resource from given allowed entity types at given position for this unit. */
 public function unit.findNextResource(real maxRange, LinkedList<int> allowedTypeIds, vec2 pos) returns entity
 	// Check if worker has enough free space:
-	if this.getStorage().getFreeCapacity() > 0
+	if this.toStorage().getFreeCapacity() > 0
 		// Get valid units and destructables in range and get highest priority:
 		findNextResource_Priority = 0
 		findNextResource_AllowedTypeIds.clear()

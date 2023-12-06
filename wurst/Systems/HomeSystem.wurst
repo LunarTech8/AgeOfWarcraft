@@ -106,8 +106,8 @@ function unit.removeHome()
 	if home != null
 		destroy home
 
-/** Returns the home of given unit. */
-public function unit.getHome() returns Home
+/** Returns the home of given building. */
+public function unit.toHome() returns Home
 	return HOME_MAP.tryGet(this)
 
 /** Creates and returns a home building with given values. */

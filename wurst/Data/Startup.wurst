@@ -41,7 +41,7 @@ function createPlayerUnits()
 		let u = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, MapData.START_VEC, angle(0.))
 		nullTimer() ->
 			u.tryAddToSettlement(settlementCentre)
-			let storage = u.getStorage()
+			let storage = u.toStorage()
 			if storage != null
 				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
 	createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.footman, MapData.START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)

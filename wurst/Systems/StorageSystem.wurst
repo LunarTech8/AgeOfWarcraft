@@ -122,7 +122,7 @@ function unit.removeStorage()
 		destroy storage
 
 /** Returns the storage of given unit. */
-public function unit.getStorage() returns Storage
+public function unit.toStorage() returns Storage
 	return STORAGE_MAP.tryGet(this)
 
 /** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */

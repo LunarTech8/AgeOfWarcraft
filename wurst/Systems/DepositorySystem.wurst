@@ -33,6 +33,7 @@ import OrderSystem
 // --------------------
 
 let MAX_AUTO_ORDER_RANGE = 1024.  // TODO: replace with taking all buildings of same settlement into account
+let MAX_NEAR_BY_RANGE = 256.
 let WORKERS_ICON_PATH = Icons.bTNBash
 
 /** Returns the maximum ware capacity of the given depository type. */
@@ -53,9 +54,9 @@ let DEPOSITORY_MAP = new IterableUnitHashMap<Depository>(null)
 public class Depository extends Workplace
 	private Storage storage
 
-	construct(unit depository)
-		super(depository)
-		storage = new Storage(depository, getDepositoryMaxCapacity(GetUnitTypeId(depository)))
+	construct(unit building)
+		super(building)
+		storage = new Storage(building, getDepositoryMaxCapacity(GetUnitTypeId(building)))
 
 	ondestroy
 		destroy storage
@@ -63,16 +64,20 @@ public class Depository extends Workplace
 	function getStorage() returns Storage
 		return storage
 
-	/** Searches a work task for the given worker (expecting him to be near/in the building). Returns if a task could be found. */
-	function findWorkOrder(unit worker) returns bool
+	/** Searches a work task for the given worker. Returns if a task could be found. */
+	override function findWorkOrder(unit worker) returns bool
+		// Enter workplace if to far away:
+		if worker.getPos().distanceTo(user.getPos()) > MAX_NEAR_BY_RANGE
+			worker.setOrder(AbilityIdsCustom.enterBuilding, user)
+			return true
 		// Search for workshop in need of educts:
 		var target = this.findNextWorkshopInNeedOfEducts()
 		if target != null
 			// Give needed educts to worker:
-			let targetWorkshop = target.getWorkshop()
+			let targetWorkshop = target.toWorkshop()
 			let targetEducts = targetWorkshop.getEducts()
 			let targetStock = targetWorkshop.getStock()
-			let workerStorage = worker.getStorage()
+			let workerStorage = worker.toStorage()
 			for iWare in targetEducts
 				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetStock.getWareCount(iWare.wareType), storage.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
 				if wareCount > 0
@@ -80,13 +85,11 @@ public class Depository extends Workplace
 					storage.removeWare(ware(iWare.wareType, wareCount))
 					workerStorage.addWare(ware(iWare.wareType, wareCount))
 			destroy targetEducts
-			// Order ware transfer:
 			worker.setOrder(AbilityIdsCustom.transferWares, target)
 			return true
 		// Search for workplace with products:
 		target = this.findNextWorkplaceWithProducts()
 		if target != null
-			// Order ware transfer:
 			worker.setOrder(AbilityIdsCustom.transferWares, target)
 			return true
 		// Nothing to do at the moment:
@@ -128,7 +131,7 @@ function Depository.findNextWorkshopInNeedOfEducts() returns unit
 		let sourcePos = this.getUnit().getPos()
 		ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 		for target from ENUM_GROUP
-			let workshop = target.getWorkshop()
+			let workshop = target.toWorkshop()
 			if workshop != null and sourceStorage.hasWaresAny(workshop.getEducts())
 				let neededEducts = MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount()
 				let distanceSq = sourcePos.distanceToSq(target.getPos())
@@ -148,8 +151,8 @@ function Depository.findNextWorkplaceWithProducts() returns unit
 	let sourcePos = this.getUnit().getPos()
 	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 	for target from ENUM_GROUP
-		let workshop = target.getWorkshop()
-		let gatherplace = target.getGatherplace()
+		let workshop = target.toWorkshop()
+		let gatherplace = target.toGatherplace()
 		var availableProducts = 0
 		if workshop != null
 			availableProducts = workshop.getStoredProductsCount()
@@ -167,8 +170,8 @@ function Depository.findNextWorkplaceWithProducts() returns unit
 public function unit.isDepository() returns bool
 	return DEPOSITORY_MAP.has(this)
 
-/** Returns the depository of given unit. */
-public function unit.getDepository() returns Depository
+/** Returns the depository of given building. */
+public function unit.toDepository() returns Depository
 	return DEPOSITORY_MAP.tryGet(this)
 
 /** Creates and returns a depository building with given values. */

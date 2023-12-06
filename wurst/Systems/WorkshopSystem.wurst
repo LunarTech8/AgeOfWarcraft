@@ -37,6 +37,7 @@ public let MAX_STORABLE_EDUCTS = 5
 public let MAX_STORABLE_PRODUCTS = 3
 
 let MAX_AUTO_ORDER_RANGE = 1024.  // TODO: replace with taking all buildings of same settlement into account
+let MAX_NEAR_BY_RANGE = 256.
 let PRODUCTION_ADJUSTMENT_RATE = 0.1
 let PRODUCTION_PROGRESS_ICON_PATH = Icons.bTNEngineeringUpgrade
 let PRODUCTION_TIME_LEFT_ICON_PATH = Icons.bTNStatUp
@@ -115,12 +116,12 @@ public class Workshop extends Workplace
 	private real workProgressFinished
 	private real workPower
 
-	construct(unit workshop)
-		super(workshop)
+	construct(unit building)
+		super(building)
 		stock = new Stock()
 		productionVariant = 1
 		workProgressCurrent = 0.
-		workProgressFinished = getRequiredWorkPower(workshop.getUnitId(), productionVariant)
+		workProgressFinished = getRequiredWorkPower(building.getUnitId(), productionVariant)
 		workPower = 0.
 
 	ondestroy
@@ -232,18 +233,25 @@ public class Workshop extends Workplace
 			error("Worker does not belong to this workshop")
 		workPower -= getUnitWorkPower(user.getUnitId(), worker.getUnitId())
 
-	/** Searches a work task for the given worker (expecting him to be near/in the building). Returns if a task could be found. */
-	function findWorkOrder(unit worker) returns bool
+	/** Searches a work task for the given worker. Returns if a task could be found. */
+	override function findWorkOrder(unit worker) returns bool
+		// Enter workplace if to far away:
+		if worker.getPos().distanceTo(user.getPos()) > MAX_NEAR_BY_RANGE
+			worker.setOrder(AbilityIdsCustom.enterBuilding, user)
+			return true
+		// Don't do anything else if a production is in progress:
+		if isProducing()
+			return false
 		// Search for workshop that need products if stock is full:
 		if getStoredProductsCount() >= MAX_STORABLE_PRODUCTS
 			let target = this.findNextWorkshopInNeedOfProducts()
 			if target != null
 				// Give needed products to worker:
 				let productsAsStock = new Stock(getProducts())
-				let targetWorkshop = target.getWorkshop()
+				let targetWorkshop = target.toWorkshop()
 				let targetEducts = targetWorkshop.getEducts()
 				let targetStock = targetWorkshop.getStock()
-				let workerStorage = worker.getStorage()
+				let workerStorage = worker.toStorage()
 				for iWare in targetEducts
 					if productsAsStock.hasWareAny(iWare)
 						let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetStock.getWareCount(iWare.wareType), stock.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
@@ -256,8 +264,8 @@ public class Workshop extends Workplace
 				// Order ware transfer:
 				worker.setOrder(AbilityIdsCustom.transferWares, target)
 				return true
-		// Search for workplace with educts if none are stored and no production is in progress:
-		if getStoredEductsCount() == 0 and isProducing() == false
+		// Search for workplace with educts if none are stored:
+		if getStoredEductsCount() == 0
 			let target = this.findNextWorkplaceWithEducts()
 			if target != null
 				// Order ware transfer:
@@ -311,7 +319,7 @@ function Workshop.findNextWorkshopInNeedOfProducts() returns unit
 	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 	let productsAsStock = new Stock(this.getProducts())
 	for target from ENUM_GROUP
-		let workshop = target.getWorkshop()
+		let workshop = target.toWorkshop()
 		if workshop != null
 			let neededProducts = productsAsStock.getWareCount(workshop.getEducts()) * (MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount())
 			let distanceSq = sourcePos.distanceToSq(target.getPos())
@@ -333,8 +341,8 @@ function Workshop.findNextWorkplaceWithEducts() returns unit
 	ENUM_GROUP.removeUnit(this.getUnit())
 	let eductsAsStock = new Stock(this.getEducts())
 	for target from ENUM_GROUP
-		let workshop = target.getWorkshop()
-		let gatherplace = target.getGatherplace()
+		let workshop = target.toWorkshop()
+		let gatherplace = target.toGatherplace()
 		var availableEducts = 0
 		if workshop != null
 			availableEducts = eductsAsStock.getWareCount(workshop.getProducts()) * workshop.getStoredProductsCount()
@@ -348,8 +356,8 @@ function Workshop.findNextWorkplaceWithEducts() returns unit
 			bestDistanceSq = distanceSq
 	return bestBuilding
 
-/** Returns the workshop of given unit. */
-public function unit.getWorkshop() returns Workshop
+/** Returns the workshop of given building. */
+public function unit.toWorkshop() returns Workshop
 	return WORKSHOP_MAP.tryGet(this)
 
 /** Creates and returns a workshop building with given values. */
@@ -403,7 +411,7 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
 	let unitA = createWorkshopBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
-	let workshopA = unitA.getWorkshop()
+	let workshopA = unitA.toWorkshop()
 	workshopA.getStock().addWare(ware(WareType.WOODEN_BOARDS, 4))
 	workshopA.getStoredProductsCount().assertEquals(testName, 2)
 	workshopA.getStoredEductsCount().assertEquals(testName, 0)
@@ -413,7 +421,7 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	workshopA.isValidWorkerType(UnitIdsCustom.AoW.peasant).assertTrue(testName)
 	// Add workers:
 	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let storageA = unitB.getStorage()
+	let storageA = unitB.toStorage()
 	storageA.addWare(ware(WareType.WOOD, 6))
 	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.issueTargetOrderById(OrderIds.smart, unitA)
@@ -453,7 +461,7 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(256.)), () -> GetEnumUnit().remove())
 	// Create workshop:
 	let unitA = createWorkshopBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
-	let workshopA = unitA.getWorkshop()
+	let workshopA = unitA.toWorkshop()
 	assertNotNull(testName, workshopA)
 	workshopA.getWorkProgressPercentage().assertEquals(testName, 0.)
 	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)

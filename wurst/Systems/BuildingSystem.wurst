@@ -257,14 +257,14 @@ public class BuildingSite extends Workplace
 	private static function checkCarrierForRequiredResources(unit carrier, Stock requiredResources) returns bool
 		var hasAnyRequiredResources = false
 		if requiredResources.isEmpty() == false
-			let carrierStorage = carrier.getStorage()
+			let carrierStorage = carrier.toStorage()
 			if carrierStorage != null
 				let carrierWares = carrierStorage.getWares()
 				hasAnyRequiredResources = (requiredResources.removeWaresAny(carrierWares) > 0)
 				destroy carrierWares
 		return hasAnyRequiredResources
 
-	function getStock() returns Stock
+	function getRequiredResources() returns Stock
 		return requiredResources
 
 	function getWorkProgressPercentage() returns real
@@ -369,6 +369,15 @@ public class BuildingSite extends Workplace
 			destroy sortedWorkers
 		destroy leftRequiredResources
 
+	/** Searches a work task for the given worker. Returns if a task could be found. */
+	override function findWorkOrder(unit worker) returns bool
+		// Build if all required resources are available:
+		if requiredResources.isEmpty()
+			worker.setOrder(AbilityIdsCustom.build, user)
+			return true
+		// Nothing to do at the moment:
+		return false
+
 	/** Transfers required wares from source storage to this building site.
 	Returns a list of all wares that are still missing. */
 	override function transferWares(Storage source, bool _takeWares)
@@ -402,7 +411,7 @@ function unit.addBuildingSite()
 		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
 		addBuildingSite_SelectedUnits.enumUnitsSelected(this.getOwner(), null)
-		if buildingSite.getStock().isEmpty()
+		if buildingSite.getRequiredResources().isEmpty()
 			buildingSite.callOverIdleWorkers(addBuildingSite_SelectedUnits)
 		else
 			buildingSite.callOverIdleWareCarriers(addBuildingSite_SelectedUnits)
@@ -416,9 +425,9 @@ function unit.removeBuildingSite()
 function findNextBuildingSite_GetFilter() returns filterfunc
 	return Filter() ->
 		var conditionsFulfilled = false
-		let buildingSite = GetFilterUnit().getBuildingSite()
+		let buildingSite = GetFilterUnit().toBuildingSite()
 		// Only allow building sites that don't have any required wares left:
-		if buildingSite != null and buildingSite.getStock().isEmpty()
+		if buildingSite != null and buildingSite.getRequiredResources().isEmpty()
 			conditionsFulfilled = true
 		return conditionsFulfilled
 /** Returns next valid building site unit at the position for given player. */
@@ -448,8 +457,8 @@ public function unit.findNextBuildingSite() returns unit
 	filter.destr()
 	return nearestBuilding
 
-/** Returns the building site of given unit. */
-public function unit.getBuildingSite() returns BuildingSite
+/** Returns the building site of given building. */
+public function unit.toBuildingSite() returns BuildingSite
 	return BUILDING_SITE_MAP.tryGet(this)
 
 /** Returns the building site of given worker. */
@@ -487,7 +496,7 @@ public function multiboard.trySetObjectInfoMultiboard(BuildingSite object) retur
 	let workPower = object.getWorkPower()
 	if workPower > 0.
 		this.addMultiboardLine("Build time left: " + (object.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
-	let stock = object.getStock()
+	let stock = object.getRequiredResources()
 	let amountOfWareTypes = stock.getAmountOfWareTypes()
 	if amountOfWareTypes > 0
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
@@ -533,7 +542,7 @@ public function testBuildingSystem_Build(vec2 testCentre)
 	// Order to build:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let unitB = createDepositoryBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.townHall, testCentre.add(384., 0.), angle(0)).addAsSettlement()
-	let storageA = unitA.getStorage()
+	let storageA = unitA.toStorage()
 	assertNotNull(testName, storageA)
 	storageA.addWare(ware(WareType.WOOD, 5))
 	unitA.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre)
@@ -545,13 +554,13 @@ public function testBuildingSystem_Build(vec2 testCentre)
 		assertEquals(testName, buildingSiteA.getWorkPower(), getUnitWorkPower(UnitIdsCustom.AoW.peasantHouse, UnitIdsCustom.AoW.peasant))
 		testBuildingSystem_Build_building = buildingSiteA.getUnit()
 		assertNotNull(testName, testBuildingSystem_Build_building)
-		assertEquals(testName, testBuildingSystem_Build_building.getBuildingSite(), buildingSiteA)
+		assertEquals(testName, testBuildingSystem_Build_building.toBuildingSite(), buildingSiteA)
 		assertEquals(testName, unitA.findNextBuildingSite(), testBuildingSystem_Build_building)
 		// Check building site status:
 		buildingSiteA.getWorkPower().assertEquals(testName, 1.)
 		buildingSiteA.getWorkerCount().assertEquals(testName, 1)
 		buildingSiteA.getWorkProgressPercentage().assertLessThan(testName, 2 * MIN_ACTION_SLEEP_TIME * 1.)
-		buildingSiteA.getStock().isEmpty().assertTrue(testName)
+		buildingSiteA.getRequiredResources().isEmpty().assertTrue(testName)
 		testFinish(testName)
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Abort construction:

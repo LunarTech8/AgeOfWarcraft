@@ -118,14 +118,14 @@ function createMultiboardLines(int playerID) returns bool
 		// Check info sources that require ownerhsip by the given player:
 		if targetUnit.getOwner() == Player(playerID)
 			if isCentreBuilding(targetUnit.getUnitId())
-				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getSettlement()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getBuildingSite()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getPerson()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getWorkshop()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getGatherplace()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getDepository()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getHome()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getStorage(), true) or hasInfo
+				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toSettlement()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toBuildingSite()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toPerson()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toWorkshop()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toGatherplace()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toDepository()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toHome()) or hasInfo
+			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toStorage(), true) or hasInfo
 			if targetUnit.isType(UNIT_TYPE_STRUCTURE) == false
 				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getOrderName()) or hasInfo
 	return hasInfo

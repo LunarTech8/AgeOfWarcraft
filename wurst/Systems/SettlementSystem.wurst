@@ -195,7 +195,7 @@ function unit.addSettlement(string name) returns Validity
 	ENUM_GROUP.enumUnitsInRange(this.getPos(), getBuildingRange(settlement.level), null)
 	let owner = this.getOwner()
 	for targetUnit from ENUM_GROUP
-		if targetUnit.getOwner() == owner and targetUnit.getSettlement() == null
+		if targetUnit.getOwner() == owner and targetUnit.toSettlement() == null
 			settlement.addMember(targetUnit)
 	return Validity.VALID
 
@@ -215,7 +215,7 @@ function unit.removeFromSettlement()
 	if settlement != null
 		destroy settlement  // Destroy settlement if centre building gets removed
 	else
-		settlement = this.getSettlement()
+		settlement = this.toSettlement()
 		if settlement != null
 			settlement.removeMember(this)
 
@@ -224,7 +224,7 @@ public function isCentreBuilding(int buildingId) returns bool
 	return getRequiredLevel(buildingId) == 0
 
 /** Returns the settlement of given unit. */
-public function unit.getSettlement() returns Settlement
+public function unit.toSettlement() returns Settlement
 	var settlement = SETTLEMENT_MAP.tryGet(this)  // Check if it is the centre building
 	if settlement == null
 		for centreBuilding in SETTLEMENT_MAP
@@ -290,7 +290,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(512.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let storageA = unitA.getStorage()
+	let storageA = unitA.toStorage()
 	storageA.addWare(ware(WareType.WOOD, 4))
 	storageA.addWare(ware(WareType.STONE, 3))
 	storageA.addWare(ware(WareType.METAL, 2))
@@ -305,7 +305,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		testSettlementSystem_Build_buildingA = testCentre.getNearestUnit(128., filterA, Settings.USER_PLAYER)
 		filterA.destr()
 		assertNotNull(testName, testSettlementSystem_Build_buildingA)
-		testSettlementSystem_Build_settlementA = testSettlementSystem_Build_buildingA.getSettlement()
+		testSettlementSystem_Build_settlementA = testSettlementSystem_Build_buildingA.toSettlement()
 		assertNotNull(testName, testSettlementSystem_Build_settlementA)
 		testSettlementSystem_Build_settlementA.level.assertEquals(testName, 1)
 		testSettlementSystem_Build_settlementA.inhabitants.size().assertEquals(testName, 1)
@@ -314,7 +314,7 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		// Order to build new structure for settlement:
 		testSettlementSystem_Build_unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
 		testSettlementSystem_Build_unitA.tryAddToSettlement(testSettlementSystem_Build_buildingA).assertTrue(testName)
-		let storageB = testSettlementSystem_Build_unitA.getStorage()
+		let storageB = testSettlementSystem_Build_unitA.toStorage()
 		storageB.addWare(ware(WareType.WOOD, 4))
 		testSettlementSystem_Build_unitA.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre.add(384., 0.))
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->

@@ -222,19 +222,22 @@ public class Person
 	function getEnteredBuilding() returns unit
 		return enteredBuilding
 
+	function getWorkplace() returns Workplace
+		return this.workplace
+
 	function getWorkplaceBuilding() returns unit
 		if this.workplace != null
 			return workplace.getUnit()
 		return null
 
-	function setHomeBuilding(Home home)
+	function setHome(Home home)
 		if this.home != null
 			this.home.removeInhabitant(user)
 		if home != null
 			home.addInhabitant(user)
 		this.home = home
 
-	function setWorkplaceBuilding(Workplace workplace)
+	function setWorkplace(Workplace workplace)
 		if this.workplace != null
 			this.workplace.removeWorker(user)
 		if workplace != null
@@ -244,14 +247,13 @@ public class Person
 	function enterBuilding(unit building)
 		if isInBuilding()
 			error("Person is already in a building")
-		let targetHome = building.getHome()
-		let targetWorkplace = building.getWorkplace()
+		let targetHome = building.toHome()
+		let targetWorkplace = building.toWorkplace()
 		if targetHome != null and targetHome == home
 			sleep(building.getUnitId())
-		else if targetWorkplace instanceof Workshop and targetWorkplace == workplace
-			(targetWorkplace castTo Workshop).enterBuilding(user)
-		else if targetWorkplace instanceof Depository and targetWorkplace == workplace
-			DoNothing()
+		else if targetWorkplace != null and targetWorkplace == workplace
+			if targetWorkplace instanceof Workshop
+				(targetWorkplace castTo Workshop).enterBuilding(user)
 		else
 			error("Unrecognized building type to enter (" + building.getName() + ")")
 		enteredBuilding = building
@@ -260,14 +262,13 @@ public class Person
 	function leaveBuilding()
 		if isInBuilding() == false
 			error("Person is not in a building")
-		let targetHome = enteredBuilding.getHome()
-		let targetWorkplace = enteredBuilding.getWorkplace()
+		let targetHome = enteredBuilding.toHome()
+		let targetWorkplace = enteredBuilding.toWorkplace()
 		if targetHome != null and targetHome == home
 			awake()
-		else if targetWorkplace instanceof Workshop and targetWorkplace == workplace
-			(targetWorkplace castTo Workshop).leaveBuilding(user)
-		else if targetWorkplace instanceof Depository and targetWorkplace == workplace
-			DoNothing()
+		else if targetWorkplace != null and targetWorkplace == workplace
+			if targetWorkplace instanceof Workshop
+				(targetWorkplace castTo Workshop).leaveBuilding(user)
 		else
 			error("Unrecognized building type to leave (" + enteredBuilding.getName() + ")")
 		enteredBuilding = null
@@ -280,20 +281,20 @@ function getRandomName() returns string
 function Home.removePersons()
 	let inhabitants = this.getInhabitants()
 	for inhabitant from inhabitants
-		let person = inhabitant.getPerson()
+		let person = inhabitant.toPerson()
 		if person != null
 			if person.getEnteredBuilding() == this.getUnit()
 				person.leaveBuilding()
-			person.setHomeBuilding(null)
+			person.setHome(null)
 	inhabitants.destr()
 function Workplace.removePersons()
 	let workers = this.getWorkers()
 	for worker from workers
-		let person = worker.getPerson()
+		let person = worker.toPerson()
 		if person != null
 			if person.getEnteredBuilding() == this.getUnit()
 				person.leaveBuilding()
-			person.setWorkplaceBuilding(null)
+			person.setWorkplace(null)
 	workers.destr()
 
 function unit.addPerson(string name)
@@ -308,22 +309,22 @@ function unit.removePerson()
 		destroy person
 
 /** Returns the person of given unit. */
-public function unit.getPerson() returns Person
+public function unit.toPerson() returns Person
 	return PERSON_MAP.tryGet(this)
 
 /** Returns the workplace of given building. */
-public function unit.getWorkplace() returns Workplace
+public function unit.toWorkplace() returns Workplace
 	Workplace workplace
-	workplace = this.getBuildingSite()
+	workplace = this.toWorkshop()
 	if workplace != null
 		return workplace
-	workplace = this.getWorkshop()
+	workplace = this.toGatherplace()
 	if workplace != null
 		return workplace
-	workplace = this.getGatherplace()
+	workplace = this.toDepository()
 	if workplace != null
 		return workplace
-	workplace = this.getDepository()
+	workplace = this.toBuildingSite()
 	if workplace != null
 		return workplace
 	return null
@@ -332,7 +333,7 @@ public function unit.getWorkplace() returns Workplace
 public function Workplace.getUnemployedFromGroup(group source) returns Person
 	Person person = null
 	for iUnit from source
-		person = iUnit.getPerson()
+		person = iUnit.toPerson()
 		if person != null and person.getWorkplaceBuilding() == null and this.isValidWorkerType(iUnit.getUnitId())
 			break
 		person = null
@@ -361,8 +362,8 @@ init
 	// Register death of homes and workplaces:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
 		let killedUnit = GetTriggerUnit()
-		let targetHome = killedUnit.getHome()
-		let targetWorkplace = killedUnit.getWorkplace()
+		let targetHome = killedUnit.toHome()
+		let targetWorkplace = killedUnit.toWorkplace()
 		if targetHome != null
 			targetHome.removePersons()
 		else if targetWorkplace != null
@@ -374,7 +375,7 @@ init
 				// user.kill()  // DEBUG: for testing deactivated
 	// Register attacks on sleeping persons:
 	DamageEvent.addListener() ->
-		let targetPerson = DamageEvent.getTarget().getPerson()
+		let targetPerson = DamageEvent.getTarget().toPerson()
 		if targetPerson != null and targetPerson.isSleeping()
 			targetPerson.sleep += SLEEP_BOOST_BY_DAMAGE
 			targetPerson.awake()
@@ -383,18 +384,11 @@ init
 		for user in PERSON_MAP
 			if user != null
 				let person = PERSON_MAP.get(user)
-				let workplaceBuilding = person.getWorkplaceBuilding()
-				if workplaceBuilding != null and workplaceBuilding == person.getEnteredBuilding()
-					let workshop = workplaceBuilding.getWorkshop()
-					if workshop != null and workshop.isProducing() == false
-						if workshop.findWorkOrder(user)
-							person.leaveBuilding()
-							user.castAbilityOrder()
-					let depository = workplaceBuilding.getDepository()
-					if depository != null
-						if depository.findWorkOrder(user)
-							person.leaveBuilding()
-							user.castAbilityOrder()
+				let workplace = person.getWorkplace()
+				if workplace != null and workplace.getUnit() == person.getEnteredBuilding()
+					if workplace.findWorkOrder(user)
+						person.leaveBuilding()
+						user.castAbilityOrder()
 
 
 // --------------------
@@ -405,7 +399,7 @@ public function testPersonSystem_StatsAndBuildings(vec2 testCentre)
 	let testName = setTestName("testPersonSystem_StatsAndBuildings", true)
 	// Create person and reduce stats:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let personA = unitA.getPerson()
+	let personA = unitA.toPerson()
 	personA.reduceStats()
 	personA.reduceStats()
 	personA.reduceStats()
@@ -415,11 +409,11 @@ public function testPersonSystem_StatsAndBuildings(vec2 testCentre)
 	// Check home building and sleep:
 	let unitB = createHomeBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
 	let unitC = createHomeBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
-	let homeA = unitB.getHome()
-	let homeB = unitC.getHome()
-	personA.setHomeBuilding(homeA)
+	let homeA = unitB.toHome()
+	let homeB = unitC.toHome()
+	personA.setHome(homeA)
 	homeA.isInhabitant(unitA).assertTrue(testName)
-	personA.setHomeBuilding(homeB)
+	personA.setHome(homeB)
 	homeA.isInhabitant(unitA).assertFalse(testName)
 	homeB.isInhabitant(unitA).assertTrue(testName)
 	personA.isSleeping().assertFalse(testName)
@@ -449,7 +443,7 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 	let testName = setTestName("testPersonSystem_LowerStatLimits", true)
 	// Check lower stat limits:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let personA = unitA.getPerson()
+	let personA = unitA.toPerson()
 	personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP - DAYS_TILL_EXHAUSTED + (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
 	unitA.hasAbility(BuffIdsCustom.exhausted).assertFalse(testName)
 	personA.reduceStats()
@@ -491,7 +485,7 @@ public function testPersonSystem_DamageReaction(vec2 testCentre)
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.setFacing(unitB.getPos().angleTo(unitA.getPos()))
-	let personA = unitA.getPerson()
+	let personA = unitA.toPerson()
 	personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
 	personA.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->

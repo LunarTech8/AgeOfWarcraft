@@ -25,6 +25,7 @@ import Entity
 import WorkplaceSystem
 import Orders
 import ErrorHandling
+import OrderSystem
 
 
 // --------------------
@@ -77,9 +78,9 @@ public class Gatherplace extends Workplace
 	private Storage storage
 	private int gatherVariant
 
-	construct(unit gatherplace)
-		super(gatherplace)
-		storage = new Storage(gatherplace, getGatherplaceMaxCapacity(GetUnitTypeId(gatherplace)))
+	construct(unit building)
+		super(building)
+		storage = new Storage(building, getGatherplaceMaxCapacity(GetUnitTypeId(building)))
 		gatherVariant = 1
 
 	ondestroy
@@ -145,17 +146,27 @@ public class Gatherplace extends Workplace
 				worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetWidget.getWidget(), true)
 		destroy allowedTypeIds
 
-	/** Searches for a task for the given worker of this gatherplace. */
-	function orderWorking(unit worker)
-		let allowedTypeIds = getAllowedTargetTypeIds()
-		let targetWidget = worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos())
-		if targetWidget.isEmpty() == false
-			worker.issueTargetAbilityOrder(AbilityIdsCustom.harvest, targetWidget.getWidget(), true)
-		destroy allowedTypeIds
 	/** Searches for a task for all workers of this gatherplace. */
 	function orderWorking()
 		for worker in workers
-			orderWorking(worker)
+			if findWorkOrder(worker) == false
+				worker.setOrder(AbilityIdsCustom.enterBuilding, user)
+			worker.castAbilityOrder()
+
+	/** Searches a work task for the given worker. Returns if a task could be found. */
+	override function findWorkOrder(unit worker) returns bool
+		// Search for next allowed resource:
+		let allowedTypeIds = getAllowedTargetTypeIds()
+		let targetEntity = worker.findNextResource(MAX_AUTO_ORDER_RANGE, allowedTypeIds, getGatherCentrePos())
+		destroy allowedTypeIds
+		if targetEntity.isUnit()
+			worker.setOrder(AbilityIdsCustom.harvest, targetEntity.assertUnit())
+			return true
+		else if targetEntity.isDestructable()
+			worker.setOrder(AbilityIdsCustom.harvest, targetEntity.assertDestructable())
+			return true
+		// Nothing to do at the moment:
+		return false
 
 	/** Transfers as many wares as possible from this gatherplace to source storage or transfers products with reverse targets. */
 	override function transferWares(Storage source, bool takeWares)
@@ -192,8 +203,8 @@ function unit.removeGatherplace()
 	if gatherplace != null
 		destroy gatherplace
 
-/** Returns the gatherplace of given unit. */
-public function unit.getGatherplace() returns Gatherplace
+/** Returns the gatherplace of given building. */
+public function unit.toGatherplace() returns Gatherplace
 	return GATHERPLACE_MAP.tryGet(this)
 
 /** Creates and returns a gatherplace building with given values. */
@@ -224,7 +235,7 @@ init
 	onUnitDeindex(() -> getIndexingUnit().removeGatherplace())
 	// Register rally point changes:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER) ->
-		let gatherplace = GetOrderedUnit().getGatherplace()
+		let gatherplace = GetOrderedUnit().toGatherplace()
 		let issuedOrderId = GetIssuedOrderId()
 		if gatherplace != null and (issuedOrderId == OrderIds.setrally or issuedOrderId == OrderIds.smart)
 			gatherplace.orderWorking()

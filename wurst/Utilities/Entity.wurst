@@ -95,6 +95,12 @@ public function entity.assertDestructable() returns destructable
 public function entity.isEmpty() returns bool
 	return this.userUnit == null and this.userDest == null
 
+public function entity.isUnit() returns bool
+	return this.userUnit != null and this.userDest == null
+
+public function entity.isDestructable() returns bool
+	return this.userUnit == null and this.userDest != null
+
 public function entity.remove()
 	if this.userUnit != null
 		this.userUnit.remove()

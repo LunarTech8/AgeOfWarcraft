@@ -19,7 +19,7 @@ let COMMAND_SHORT = "gw"
 function executeCommand()
 	ENUM_GROUP.enumUnitsSelected(Settings.USER_PLAYER, null)
 	for u from ENUM_GROUP
-		let storage = u.getStorage()
+		let storage = u.toStorage()
 		if storage != null
 			storage.addWare(ware(WareType.WOOD, 4))
 			storage.addWare(ware(WareType.STONE, 3))

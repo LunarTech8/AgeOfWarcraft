@@ -407,7 +407,8 @@ public function int.divByZeroProt() returns int
 /** Shows given image covering the full screen. Activates cinematic mode if use is given. */
 public function showFullscreenImage(string imagePath, bool useCinematicMode)
 	if useCinematicMode
-		// CinematicModeBJ(true, GetPlayersAll())  // DEBUG: only for developement
+		DoNothing()  // DEBUG: only for developement
+		// CinematicModeBJ(true, GetPlayersAll())
 	SetCineFilterTexture(imagePath)
 	SetCineFilterBlendMode(BLEND_MODE_NONE)
 	SetCineFilterTexMapFlags(TEXMAP_FLAG_NONE)

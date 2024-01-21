@@ -15,7 +15,7 @@ import ConstantData
 import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
-import StorageSystem
+import Storage
 import OrderSystem
 import Entity
 import UnitIndexer
@@ -62,6 +62,9 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceTypeId) returns
 		// case UnitIdsCustom.Trees.chestnut
 		// 	return 0.5
 		case DestructableIdsCustom.Trees.spruce
+			switch workerUnitId
+				case UnitIdsCustom.AoW.peasant
+					return 0.67
 			return 0.5
 		case DestructableIdsCustom.Trees.maple
 			return 0.5

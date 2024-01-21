@@ -21,7 +21,7 @@ import UnitIndexer
 import Icons
 import RegisterEvents
 import ErrorHandling
-import StorageSystem
+import Storage
 import WorkplaceSystem
 import WorkshopSystem
 import GatherplaceSystem
@@ -56,7 +56,7 @@ public class Depository extends Workplace
 
 	construct(unit building)
 		super(building)
-		storage = new Storage(building, getDepositoryMaxCapacity(GetUnitTypeId(building)))
+		storage = new Storage(getDepositoryMaxCapacity(GetUnitTypeId(building)))
 
 	ondestroy
 		destroy storage

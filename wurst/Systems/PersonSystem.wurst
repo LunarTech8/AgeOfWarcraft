@@ -32,6 +32,7 @@ import UnitIndexer
 import RegisterEvents
 import Unit_Peasant
 import OrderSystem
+import Storage
 
 
 // --------------------
@@ -145,6 +146,15 @@ function getRandomSurname() returns string
 			error("Wrong configuration for getRandomSurname")
 			return null
 
+/** Returns the maximum ware capacity of the given person type. */
+function getPersonMaxCapacity(int personUnitId) returns int
+	switch personUnitId
+		case UnitIdsCustom.AoW.peasant
+			// return 12
+			return 100  // DEBUG: for easier testing
+		default
+			return 10
+
 
 // --------------------
 // Functional code
@@ -159,6 +169,7 @@ public class Person
 	protected real food
 	protected real sleep
 	protected real sleepRate
+	private Storage storage
 	protected Home home
 	protected Workplace workplace
 
@@ -169,6 +180,7 @@ public class Person
 		food = MAX_FOOD
 		sleep = MAX_SLEEP
 		sleepRate = 0.
+		storage = new Storage(getPersonMaxCapacity(GetUnitTypeId(person)))
 		home = null
 		workplace = null
 
@@ -369,10 +381,11 @@ init
 		else if targetWorkplace != null
 			targetWorkplace.removePersons()
 	// Reduce stats:
-	doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
-		for user in PERSON_MAP
-			if user != null and PERSON_MAP.get(user).reduceStats()
-				// user.kill()  // DEBUG: for testing deactivated
+	// DEBUG: for testing deactivated
+	// doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
+	// 	for user in PERSON_MAP
+	// 		if user != null and PERSON_MAP.get(user).reduceStats()
+	// 			user.kill()
 	// Register attacks on sleeping persons:
 	DamageEvent.addListener() ->
 		let targetPerson = DamageEvent.getTarget().toPerson()

@@ -20,7 +20,7 @@ import ConstantData
 import MultiboardPrioritySystem
 import UtilityFunctions
 import Stock
-import StorageSystem
+import Storage
 import SettlementSystem
 import WorkplaceSystem
 import DepositorySystem

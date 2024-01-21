@@ -15,7 +15,7 @@ import ConstantData
 import UtilityFunctions
 import Entity
 import Stock
-import StorageSystem
+import Storage
 import BuildingSystem
 import ResourceSystem
 import OrderSystem

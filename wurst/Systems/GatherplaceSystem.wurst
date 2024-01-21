@@ -19,7 +19,7 @@ import MultiboardPrioritySystem
 import UnitIndexer
 import Icons
 import RegisterEvents
-import StorageSystem
+import Storage
 import ResourceSystem
 import Entity
 import WorkplaceSystem
@@ -80,7 +80,7 @@ public class Gatherplace extends Workplace
 
 	construct(unit building)
 		super(building)
-		storage = new Storage(building, getGatherplaceMaxCapacity(GetUnitTypeId(building)))
+		storage = new Storage(getGatherplaceMaxCapacity(GetUnitTypeId(building)))
 		gatherVariant = 1
 
 	ondestroy

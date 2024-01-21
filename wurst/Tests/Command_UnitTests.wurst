@@ -3,7 +3,7 @@ import ConstantData
 import UnitMap
 import Entity
 import Stock
-import StorageSystem
+import Storage
 import BuildingSystem
 import WorkshopSystem
 import PersonSystem
@@ -38,10 +38,10 @@ function executeCommand()
 	// EntityMap:
 	testEntity_CreateAndIndex(true)
 	testEntity_HashMapAddAndRemove(true)
-	// StockSystem:
-	testStockSystem_AddAndRemove(true)
-	// StorageSystem:
-	testStorageSystem_AddAndRemove(true)
+	// Stock:
+	testStock_AddAndRemove(true)
+	// Storage:
+	testStorage_AddAndRemove(true)
 	// UtilityFunctions:
 	testUtilityFunctions_SortByDistance(vec2(0., 0.))
 	// PersonSystem:

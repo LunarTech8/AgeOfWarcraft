@@ -23,7 +23,7 @@ package ObjectInfoSystem
 import RegisterEvents
 import TimerUtils
 import MultiboardPrioritySystem
-import StorageSystem
+import Storage
 import ResourceSystem
 import BuildingSystem
 import ConstantData

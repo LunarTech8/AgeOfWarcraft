@@ -274,10 +274,10 @@ public class Stock
 // Test code
 // --------------------
 
-@Test public function testStockSystem_AddAndRemove()
-	testStockSystem_AddAndRemove(false)
-public function testStockSystem_AddAndRemove(bool isInGameTest)
-	let testName = setTestName("testStockSystem_AddAndRemove", isInGameTest)
+@Test public function testStock_AddAndRemove()
+	testStock_AddAndRemove(false)
+public function testStock_AddAndRemove(bool isInGameTest)
+	let testName = setTestName("testStock_AddAndRemove", isInGameTest)
 	// Create new stock and check content:
 	let stockA = new Stock()
 	stockA.isEmpty().assertTrue(testName)

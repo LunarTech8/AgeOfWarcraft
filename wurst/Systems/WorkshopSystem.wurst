@@ -21,7 +21,7 @@ import UnitIndexer
 import ClosureTimers
 import Icons
 import RegisterEvents
-import StorageSystem
+import Storage
 import Orders
 import ErrorHandling
 import WorkplaceSystem

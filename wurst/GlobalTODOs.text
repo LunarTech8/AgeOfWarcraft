@@ -22,9 +22,9 @@ Work status:
 
 !!!>>- Improve storage system by adding reserved wares (that already are planned to be picked up by a unit and thus shouldn't be available for other lookups)
 	- This should solve that eg. not all workers from a workshop go to take wares from same target gatherplace
-	- Replace Stock in BuildingSystem, WorkshopSystem, Storage with ReservableStock and implement reservations
-!!>- Maybe rename Stock to Wares and replace every use of LinkedList<ware> with it as is just a wrapper for a ware list with helpful functions
-!!>- Replace Stock of Workpshop with an expanded class (SpecializedStorage vs GeneralStorage) that allows for max count of each allowed ware instead of max number of educts and products
+	- Replace Wares in BuildingSystem, WorkshopSystem, Storage with ReservableWares and implement reservations
+!!>- Replace wares of Workpshop with an expanded class (SpecializedStorage vs GeneralStorage) that allows for max count of each allowed ware instead of max number of educts and products
+!!>- Check if it wouldn't be better to not use the tuple ware but just the type and count
 !!>- Replace MAX_AUTO_ORDER_RANGE with taking in all buildings of same settlement
 
 !!>- Change gameplay to indirect unit control

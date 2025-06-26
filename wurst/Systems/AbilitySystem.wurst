@@ -13,9 +13,11 @@ package AbilitySystem
 import RegisterEvents
 import ConstantData
 import UtilityFunctions
+import LinkedList
 import Entity
-import Stock
+import Wares
 import Storage
+import PersonData
 import BuildingSystem
 import ResourceSystem
 import OrderSystem
@@ -27,11 +29,10 @@ import WorkshopSystem
 import HomeSystem
 import GatherplaceSystem
 import DepositorySystem
-import PersonSystem
 import SettlementSystem
 import ErrorHandling
 import WorkplaceSystem
-import LinkedList
+import PersonSystem
 
 
 // --------------------
@@ -140,9 +141,9 @@ enum Validity
 	WORKER_ALREADY_BUILDING
 	RESOURCE_IS_DEPLETED
 
-/** Perform harvest and returns if another harvest with the given target is still valid. */
+/** Perform harvest for this unit and return if another harvest with the given target is still valid. */
 function unit.harvest(entity target) returns bool
-	let storage = this.toStorage()
+	let storage = this.getStorage()
 	let resource = target.getResource(true)
 	// Work resource:
 	let wares = resource.harvest(this.getUnitId())
@@ -150,7 +151,7 @@ function unit.harvest(entity target) returns bool
 		// Transfere wares:
 		for iWare in wares
 			// Check resource count:
-			let resourceWareCount = resource.getWareCount(iWare.wareType)
+			let resourceWareCount = resource.getCount(iWare.wareType)
 			let freeCapacity = storage.getFreeCapacity()
 			if resourceWareCount > 0 and freeCapacity > 0
 				// Limit by resource count:
@@ -160,8 +161,8 @@ function unit.harvest(entity target) returns bool
 				if freeCapacity < iWare.count
 					iWare.count = freeCapacity
 				// Add ware to storage and remove from resource:
-				storage.addWare(iWare)
-				resource.removeWare(iWare)
+				storage.add(iWare)
+				resource.remove(iWare)
 		destroy wares
 		// Check for resource depletion:
 		if resource.checkForDepletionKill()
@@ -172,14 +173,14 @@ function unit.harvest(entity target) returns bool
 /** Transfer wares between this unit and the given target. */
 function unit.transferWares(unit target)
 	// Check if wares can be transfered:
-	let sourceStorage = this.toStorage()
+	let sourceStorage = this.getStorage()
 	if sourceStorage != null
 		// Check for possible transfer methods based on target:
-		let targetStorage = target.toStorage()
+		let targetPersonStorage = target.getStorage()
 		let targetWorkplace = target.toWorkplace()
-		if targetStorage != null
+		if targetPersonStorage != null
 			// Give wares to target storage:
-			sourceStorage.transferWares(targetStorage)
+			sourceStorage.transferWares(targetPersonStorage)
 		else if targetWorkplace == null
 			error("No workplace type")
 		else if targetWorkplace instanceof BuildingSite
@@ -229,25 +230,25 @@ function unit.reactOnInvalidAbility(int abilityId, Validity val)
 		printTimedToPlayer("Invalid: " + messageText, INFO_MSG_TIME, owner)
 	this.abortOrder()
 
-/** Returns the units validity for casting given ability on given target. */
+/** Returns this units validity for casting given ability on given target. */
 function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 	if abilityId == AbilityIdsCustom.transferWares
 		if target.userUnit == null
 			return Validity.INVALID_TARGET
 		let targetUnit = target.assertUnit()
 		// Check if source is valid:
-		let sourceStorage = this.toStorage()
+		let sourceStorage = this.getStorage()
 		if sourceStorage == null
 			return Validity.INVALID_SOURCE
 		// Check target type specific validities:
-		let targetStorage = targetUnit.toStorage()
+		let targetPersonStorage = targetUnit.getStorage()
 		let targetWorkplace = targetUnit.toWorkplace()
-		if targetStorage != null
+		if targetPersonStorage != null
 			// Check if source has wares that can be transfered:
 			if sourceStorage.getUsedCapacity() <= 0
 				return Validity.WARES_NOT_AVAILABLE
 			// Check if target has free storage:
-			if targetStorage.getFreeCapacity() <= 0
+			if targetPersonStorage.getFreeCapacity() <= 0
 				return Validity.NO_FREE_STORAGE
 		else if targetWorkplace == null
 			return Validity.INVALID_TARGET
@@ -257,13 +258,13 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			if targetBuildingSite.getRequiredResources().isEmpty()
 				return Validity.NO_REQUIRED_WARES
 			// Check if source has resources that can be transfered:
-			if sourceStorage.hasWaresAny(targetBuildingSite.getRequiredResources()) == false
+			if sourceStorage.hasAny(targetBuildingSite.getRequiredResources()) == false
 				return Validity.WARES_NOT_AVAILABLE
 		else if targetWorkplace instanceof Workshop
 			let targetWorkshop = (targetWorkplace castTo Workshop)
 			// Check if source has educts or target has products that can be transfered:
 			let educts = targetWorkshop.getEducts()
-			let hasAnyEducts = sourceStorage.hasWaresAny(educts)
+			let hasAnyEducts = sourceStorage.hasAny(educts)
 			destroy educts
 			if hasAnyEducts == false and targetWorkshop.getStoredProductsCount() <= 0
 				return Validity.WARES_NOT_AVAILABLE
@@ -271,7 +272,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			let targetGatherplace = (targetWorkplace castTo Gatherplace)
 			// Check if source has products or target has wares that can be transfered:
 			let products = targetGatherplace.getProducts()
-			let hasAnyProducts = sourceStorage.hasWaresAny(products)
+			let hasAnyProducts = sourceStorage.hasAny(products)
 			destroy products
 			if hasAnyProducts == false and targetGatherplace.getStorage().getUsedCapacity() <= 0
 				return Validity.WARES_NOT_AVAILABLE
@@ -311,7 +312,7 @@ function unit.getAbilityValidity(int abilityId, entity target) returns Validity
 			return Validity.NO_FREE_UNIT_SLOT
 	else if abilityId == AbilityIdsCustom.harvest
 		// Check if source and target are valid:
-		let storage = this.toStorage()
+		let storage = this.getStorage()
 		if storage == null
 			return Validity.INVALID_SOURCE
 		let resource = target.getResource(false)
@@ -478,7 +479,7 @@ init
 						else if targetWorkplace != null
 							// Transfer wares, add source to target workplace as worker and find work:
 							let sourcePerson = source.toPerson()
-							targetWorkplace.transferWares(source.toStorage(), false)
+							targetWorkplace.transferWares(sourcePerson.getStorage(), false)
 							if targetWorkplace.isWorker(source) == false
 								sourcePerson.setWorkplace(targetWorkplace)
 							if targetWorkplace.findWorkOrder(source)

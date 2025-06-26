@@ -20,8 +20,9 @@ import UtilityFunctions
 import ConstantData
 import UnitTest
 import ClosureTimers
+import Wares
 import Storage
-import Stock
+import PersonData
 import ErrorHandling
 
 
@@ -290,10 +291,10 @@ public function testSettlementSystem_Build(vec2 testCentre)
 	ForGroup(GetUnitsInRectAll(testCentre.withRadiusRect(512.)), () -> GetEnumUnit().remove())
 	// Order to build:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let storageA = unitA.toStorage()
-	storageA.addWare(ware(WareType.WOOD, 4))
-	storageA.addWare(ware(WareType.STONE, 3))
-	storageA.addWare(ware(WareType.METAL, 2))
+	let storageA = unitA.getStorage()
+	storageA.add(ware(WareType.WOOD, 4))
+	storageA.add(ware(WareType.STONE, 3))
+	storageA.add(ware(WareType.METAL, 2))
 	unitA.issuePointOrderById(UnitIdsCustom.AoW.townHall, testCentre)
 	testSettlementSystem_Build_unitA = null
 	testSettlementSystem_Build_buildingA = null
@@ -314,8 +315,8 @@ public function testSettlementSystem_Build(vec2 testCentre)
 		// Order to build new structure for settlement:
 		testSettlementSystem_Build_unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre.add(384., 0.), angle(0))
 		testSettlementSystem_Build_unitA.tryAddToSettlement(testSettlementSystem_Build_buildingA).assertTrue(testName)
-		let storageB = testSettlementSystem_Build_unitA.toStorage()
-		storageB.addWare(ware(WareType.WOOD, 4))
+		let storageB = testSettlementSystem_Build_unitA.getStorage()
+		storageB.add(ware(WareType.WOOD, 4))
 		testSettlementSystem_Build_unitA.issuePointOrderById(UnitIdsCustom.AoW.peasantHouse, testCentre.add(384., 0.))
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Recheck settlement mappings:

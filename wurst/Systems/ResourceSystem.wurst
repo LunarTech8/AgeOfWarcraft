@@ -14,8 +14,9 @@ import MapBounds
 import ConstantData
 import MultiboardPrioritySystem
 import UtilityFunctions
-import Stock
+import Wares
 import Storage
+import PersonData
 import OrderSystem
 import Entity
 import UnitIndexer
@@ -71,8 +72,8 @@ function getWorkProgressPerHarvest(int workerUnitId, int resourceTypeId) returns
 		default
 			return 0.
 
-function getWaresPerFinishedWork(int resourceTypeId) returns LinkedList<ware>
-	let wares = new LinkedList<ware>()
+function getWaresPerFinishedWork(int resourceTypeId) returns Wares
+	let wares = new Wares()
 	switch resourceTypeId
 		// case UnitIdsCustom.Trees.beech
 		// 	wares.add(ware(WareType.WOOD, 1))
@@ -123,8 +124,8 @@ function getMaxWorkers(int resourceTypeId) returns int
 	return 0
 
 /** Returns the default initial wares of given resource type. */
-public function getDefaultInitWares(int resourceTypeId) returns LinkedList<ware>
-	let wares = new LinkedList<ware>()
+public function getDefaultInitWares(int resourceTypeId) returns Wares
+	let wares = new Wares()
 	switch resourceTypeId
 		// case UnitIdsCustom.Trees.beech
 		// 	wares.add(ware(WareType.WOOD, GetRandomInt(6, 8)))
@@ -148,13 +149,13 @@ public function getDefaultInitWares(int resourceTypeId) returns LinkedList<ware>
 let RESOURCE_MAP = new EntityHashMap<Resource>(null)
 let DESTRUCTABLE_DEATH_TRIGGER = CreateTrigger()
 
-class Resource extends Stock
+class Resource extends Wares
 	private entity user
 	private bool isKilledWhenDepleted
 	private real workProgress
 	private int workerCount
 
-	construct(entity resource, bool isKilledWhenDepleted, LinkedList<ware> initWares)
+	construct(entity resource, bool isKilledWhenDepleted, Wares initWares)
 		super(initWares)
 		user = resource
 		this.isKilledWhenDepleted = isKilledWhenDepleted
@@ -179,7 +180,7 @@ class Resource extends Stock
 		return getMaxWorkers(user.getTypeId()) - workerCount
 
 	/** Perform harvest and returns the harvested wares. */
-	function harvest(int workerUnitId) returns LinkedList<ware>
+	function harvest(int workerUnitId) returns Wares
 		let resourceUnitId = user.getTypeId()
 		// Work resource:
 		if work(getWorkProgressPerHarvest(workerUnitId, resourceUnitId))
@@ -264,7 +265,7 @@ function findNextResource_CheckValidity(entity filterEntity) returns bool
 /** Returns next valid resource from given allowed entity types at given position for this unit. */
 public function unit.findNextResource(real maxRange, LinkedList<int> allowedTypeIds, vec2 pos) returns entity
 	// Check if worker has enough free space:
-	if this.toStorage().getFreeCapacity() > 0
+	if this.getStorage().getFreeCapacity() > 0
 		// Get valid units and destructables in range and get highest priority:
 		findNextResource_Priority = 0
 		findNextResource_AllowedTypeIds.clear()
@@ -321,8 +322,7 @@ public function multiboard.trySetObjectInfoMultiboard(Resource object) returns b
 		return false
 	this.addMultiboardLine("Resource: " + object.getEntity().getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + getMaxWorkers(object.getEntity().getTypeId()).toString(), WORKERS_ICON_PATH)
-	for i = 0 to (object.getAmountOfWareTypes() - 1)
-		let ware = object.getWare(i)
+	for ware in object
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 

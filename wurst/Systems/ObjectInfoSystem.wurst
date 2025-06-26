@@ -23,14 +23,13 @@ package ObjectInfoSystem
 import RegisterEvents
 import TimerUtils
 import MultiboardPrioritySystem
-import Storage
 import ResourceSystem
 import BuildingSystem
 import ConstantData
 import Entity
 import UtilityFunctions
+import PersonData
 import OrderSystem
-import PersonSystem
 import WorkshopSystem
 import HomeSystem
 import SettlementSystem
@@ -125,7 +124,6 @@ function createMultiboardLines(int playerID) returns bool
 			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toGatherplace()) or hasInfo
 			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toDepository()) or hasInfo
 			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toHome()) or hasInfo
-			hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.toStorage(), true) or hasInfo
 			if targetUnit.isType(UNIT_TYPE_STRUCTURE) == false
 				hasInfo = playerMultiboard.trySetObjectInfoMultiboard(targetUnit.getOrderName()) or hasInfo
 	return hasInfo

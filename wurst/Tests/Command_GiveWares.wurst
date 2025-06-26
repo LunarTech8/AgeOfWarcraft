@@ -1,7 +1,7 @@
 package Command_GiveWares
 import ConstantData
-import Stock
-import Storage
+import Wares
+import PersonData
 
 
 // --------------------
@@ -19,11 +19,11 @@ let COMMAND_SHORT = "gw"
 function executeCommand()
 	ENUM_GROUP.enumUnitsSelected(Settings.USER_PLAYER, null)
 	for u from ENUM_GROUP
-		let storage = u.toStorage()
+		let storage = u.getStorage()
 		if storage != null
-			storage.addWare(ware(WareType.WOOD, 4))
-			storage.addWare(ware(WareType.STONE, 3))
-			storage.addWare(ware(WareType.METAL, 2))
+			storage.add(ware(WareType.WOOD, 4))
+			storage.add(ware(WareType.STONE, 3))
+			storage.add(ware(WareType.METAL, 2))
 
 init
 	CreateTrigger()

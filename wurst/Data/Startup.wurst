@@ -13,7 +13,8 @@ package Startup
 import ConstantData
 import ClosureTimers
 import Storage
-import Stock
+import Wares
+import PersonData
 import SettlementSystem
 import DepositorySystem
 import WorldGenerationSystem
@@ -41,9 +42,9 @@ function createPlayerUnits()
 		let u = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, MapData.START_VEC, angle(0.))
 		nullTimer() ->
 			u.tryAddToSettlement(settlementCentre)
-			let storage = u.toStorage()
+			let storage = u.getStorage()
 			if storage != null
-				storage.addWare(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
+				storage.add(ware(WareType.WOOD, START_WOOD_COUNT_PER_PEASANT))
 	createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.footman, MapData.START_VEC, angle(0.)).tryAddToSettlement(settlementCentre)
 
 function runStartup()

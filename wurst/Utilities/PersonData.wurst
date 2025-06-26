@@ -1,0 +1,307 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Contains all data of persons like name, home, workplace, storage, etc.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package PersonData
+import ConstantData
+import LinkedList
+import MultiboardPrioritySystem
+import Icons
+import UnitMap
+import ErrorHandling
+import UtilityFunctions
+import HomeSystem
+import WorkplaceSystem
+import UnitIndexer
+import RegisterEvents
+import Storage
+import Wares
+
+
+// --------------------
+// Data code
+// --------------------
+
+public let MAX_FOOD = 100.
+public let MAX_SLEEP = 100.
+
+let FOOD_ICON_PATH = Icons.bTNMonsterLure
+let SLEEP_ICON_PATH = Icons.bTNSleep
+let HOME_ICON_PATH = Icons.bTNFarm
+let WORKPLACE_ICON_PATH = Icons.bTNWorkshop
+
+var surnameCounter = 0
+
+function isPersonType(int unitId) returns bool
+	switch unitId
+		case UnitIdsCustom.AoW.peasant
+			return true
+		case UnitIdsCustom.AoW.footman
+			return true
+		default
+			return false
+
+function getRandomForename() returns string
+	let i = GetRandomInt(1, 4)
+	switch i
+		case 1
+			return "Peter"
+		case 2
+			return "Hans"
+		case 3
+			return "Theodor"
+		case 4
+			return "Michael"
+		default
+			error("Wrong configuration for getRandomForename")
+			return null
+
+function getRandomSurname() returns string
+	surnameCounter++
+	if surnameCounter > 23
+		surnameCounter = 1
+	switch surnameCounter
+		// Source: https://en.wiktionary.org/wiki/Category:English_surnames_from_Old_English
+		case 1
+			return "Abram"
+		case 2
+			return "Acker"
+		case 3
+			return "Acton"
+		case 4
+			return "Addington"
+		case 5
+			return "Adley"
+		case 6
+			return "Ainsley"
+		case 7
+			return "Ainsworth"
+		case 8
+			return "Alby"
+		case 9
+			return "Allerton"
+		case 10
+			return "Alston"
+		case 11
+			return "Altham"
+		case 12
+			return "Alton"
+		case 13
+			return "Anderton"
+		case 14
+			return "Ansley"
+		case 15
+			return "Anstey"
+		case 16
+			return "Appleton"
+		case 17
+			return "Asheton"
+		case 18
+			return "Ashley"
+		case 19
+			return "Ashton"
+		case 20
+			return "Astley"
+		case 21
+			return "Atherton"
+		case 22
+			return "Atterton"
+		case 23
+			return "Axton"
+		default
+			error("Wrong configuration for getRandomSurname")
+			return null
+
+/** Returns the maximum ware capacity of the given person type. */
+function getPersonMaxCapacity(int personUnitId) returns int
+	switch personUnitId
+		case UnitIdsCustom.AoW.peasant
+			// return 12
+			return 100  // DEBUG: for easier testing
+		default
+			return 10
+
+
+// --------------------
+// Functional code
+// --------------------
+
+let PERSON_MAP = new IterableUnitHashMap<Person>(null)
+
+public class Person
+	private unit user
+	private string name
+	private unit enteredBuilding
+	protected real food
+	protected real sleep
+	protected real sleepRate
+	private Storage storage
+	protected Home home
+	protected Workplace workplace
+
+	construct(unit person, string name)
+		user = person
+		this.name = name
+		enteredBuilding = null
+		food = MAX_FOOD
+		sleep = MAX_SLEEP
+		sleepRate = 0.
+		storage = new Storage(getPersonMaxCapacity(GetUnitTypeId(person)))
+		home = null
+		workplace = null
+
+	ondestroy
+		destroy storage
+
+	function isSleeping() returns bool
+		return sleepRate > 0.
+
+	function isInBuilding() returns bool
+		return enteredBuilding != null
+
+	function getName() returns string
+		return name
+
+	function getUnit() returns unit
+		return user
+
+	function getFood() returns real
+		return food
+
+	function getSleep() returns real
+		return sleep
+
+	function getSleepRate() returns real
+		return sleepRate
+
+	function getStorage() returns Storage
+		return storage
+
+	function getEnteredBuilding() returns unit
+		return enteredBuilding
+
+	function getHome() returns Home
+		return this.home
+
+	function getWorkplace() returns Workplace
+		return this.workplace
+
+	function getWorkplaceBuilding() returns unit
+		if this.workplace != null
+			return workplace.getUnit()
+		return null
+
+	function setSleepRate(real sleepRate)
+		if sleepRate < 0.
+			error("Sleep rate cannot be negative (" + sleepRate.toString() + ")")
+		this.sleepRate = sleepRate
+
+	function setFood(real food)
+		if food < 0.
+			error("Food cannot be negative (" + food.toString() + ")")
+		if food > MAX_FOOD
+			error("Food cannot be greater than maximum (" + food.toString() + "/" + MAX_FOOD.toString() + ")")
+		this.food = food
+
+	function setSleep(real sleep)
+		if sleep < 0.
+			error("Sleep cannot be negative (" + sleep.toString() + ")")
+		if sleep > MAX_SLEEP
+			error("Sleep cannot be greater than maximum (" + sleep.toString() + "/" + MAX_SLEEP.toString() + ")")
+		this.sleep = sleep
+
+	function setEnteredBuilding(unit enteredBuilding)
+		if enteredBuilding != null and this.enteredBuilding != null
+			error("Person is already in a building")
+		if enteredBuilding == null and this.enteredBuilding == null
+			error("Person is not in a building")
+		this.enteredBuilding = enteredBuilding
+
+	function setHome(Home home)
+		if this.home != null
+			this.home.removeInhabitant(user)
+		if home != null
+			home.addInhabitant(user)
+		this.home = home
+
+	function setWorkplace(Workplace workplace)
+		if this.workplace != null
+			this.workplace.removeWorker(user)
+		if workplace != null
+			workplace.addWorker(user)
+		this.workplace = workplace
+
+
+function getRandomName() returns string
+	return getRandomForename() + " " + getRandomSurname()
+
+function unit.addPerson(string name)
+	if PERSON_MAP.has(this) == false
+		if isPersonType(GetUnitTypeId(this))
+			let person = new Person(this, name)
+			PERSON_MAP.put(this, person)
+
+function unit.removePerson()
+	let person = PERSON_MAP.tryRemove(this)
+	if person != null
+		destroy person
+
+/** Returns the person of this unit. */
+public function unit.toPerson() returns Person
+	return PERSON_MAP.tryGet(this)
+
+/** Returns the storage of this unit */
+public function unit.getStorage() returns Storage
+	if PERSON_MAP.has(this)
+		return PERSON_MAP.get(this).getStorage()
+	else
+		return null
+
+/** Returns an unemployed person fitting to this workplace from given unit group. */
+public function Workplace.getUnemployedFromGroup(group source) returns Person
+	Person person = null
+	for iUnit from source
+		person = iUnit.toPerson()
+		if person != null and person.getWorkplaceBuilding() == null and this.isValidWorkerType(iUnit.getUnitId())
+			break
+		person = null
+	source.destr()
+	return person
+
+/** Returns a list with all persons. */
+public function getAllPersons() returns LinkedList<Person>
+	let persons = new LinkedList<Person>()
+	for user in PERSON_MAP
+		persons.add(PERSON_MAP.get(user))
+	return persons
+
+/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
+public function multiboard.trySetObjectInfoMultiboard(Person object) returns bool
+	if object == null
+		return false
+	let storage = object.getStorage()
+	this.addMultiboardLine("Person: " + object.getName(), HEADLINE_ICON_PATH)
+	this.addMultiboardLine("Food: " + object.food.toString(1) + "/" + MAX_FOOD.toInt().toString(), FOOD_ICON_PATH)
+	this.addMultiboardLine("Sleep: " + object.sleep.toString(1) + "/" + MAX_SLEEP.toInt().toString(), SLEEP_ICON_PATH)
+	if object.home != null
+		this.addMultiboardLine("Home: " + object.home.getUnit().getName(), HOME_ICON_PATH)
+	if object.workplace != null
+		this.addMultiboardLine("Workplace: " + object.workplace.getUnit().getName(), WORKPLACE_ICON_PATH)
+	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
+	for ware in storage
+		this.addMultiboardLine(storage.getCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	return true
+
+init
+	// Add person to every appropriate new unit:
+	onUnitIndex(() -> getIndexingUnit().addPerson(getRandomName()))
+	// Remove person from every appropriate removed unit:
+	onUnitDeindex(() -> getIndexingUnit().removePerson())
+	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removePerson())

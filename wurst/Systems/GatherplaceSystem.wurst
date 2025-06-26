@@ -13,7 +13,7 @@ package GatherplaceSystem
 import ConstantData
 import UnitMap
 import LinkedList
-import Stock
+import Wares
 import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitIndexer
@@ -96,21 +96,16 @@ public class Gatherplace extends Workplace
 		var amount = MAX_WARE_COUNT
 		let products = getProducts()
 		for iWare in products
-			amount = min(amount, storage.getWareCount(iWare.wareType) div iWare.count)
+			amount = min(amount, storage.getCount(iWare.wareType) div iWare.count)
 		destroy products
 		return amount
 
-	function getProducts() returns LinkedList<ware>
-		let wares = new LinkedList<ware>()
+	function getProducts() returns Wares
+		let wares = new Wares()
 		let allowedTypeIds = getAllowedTargetTypeIds()
 		for targetId in allowedTypeIds
 			for iWare in getDefaultInitWares(targetId)
-				var hasWare = false
-				for jWare in wares
-					if iWare.hasSameType(jWare)
-						hasWare = true
-						break
-				if hasWare == false
+				if wares.hasAny(iWare) == false
 					wares.add(ware(iWare.wareType, 1))
 		destroy allowedTypeIds
 		return wares
@@ -172,23 +167,23 @@ public class Gatherplace extends Workplace
 	override function transferWares(Storage source, bool takeWares)
 		if takeWares
 			// Look for wares in gatherplace:
-			let wares = storage.getWares()
+			let wares = new Wares(storage)
 			for iWare in wares
-				let wareCount = min(storage.getWareCount(iWare.wareType), source.getFreeCapacity())
+				let wareCount = min(storage.getCount(iWare.wareType), source.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					storage.removeWare(ware(iWare.wareType, wareCount))
-					source.addWare(ware(iWare.wareType, wareCount))
+					storage.remove(ware(iWare.wareType, wareCount))
+					source.add(ware(iWare.wareType, wareCount))
 			destroy wares
 		else
 			// Look for products in source storage:
 			let products = getProducts()
 			for iWare in products
-				let wareCount = min(source.getWareCount(iWare.wareType), storage.getFreeCapacity())
+				let wareCount = min(source.getCount(iWare.wareType), storage.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					source.removeWare(ware(iWare.wareType, wareCount))
-					storage.addWare(ware(iWare.wareType, wareCount))
+					source.remove(ware(iWare.wareType, wareCount))
+					storage.add(ware(iWare.wareType, wareCount))
 			destroy products
 
 
@@ -223,9 +218,8 @@ public function multiboard.trySetObjectInfoMultiboard(Gatherplace object) return
 	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Targets: " + getTargetVariantName(object.user.getUnitId(), object.getGatherVariant()) + " (" + object.getTargetCount().toString() + ")", RESOURCE_TARGETS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
-	for i = 0 to (storage.getAmountOfWareTypes() - 1)
-		let ware = storage.getWare(i)
-		this.addMultiboardLine(storage.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	for ware in storage
+		this.addMultiboardLine(storage.getCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init

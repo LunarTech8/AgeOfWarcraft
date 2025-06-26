@@ -13,15 +13,15 @@ Initial version.
 package DepositorySystem
 import ConstantData
 import UnitMap
-import LinkedList
-import Stock
 import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitIndexer
 import Icons
 import RegisterEvents
 import ErrorHandling
+import Wares
 import Storage
+import PersonData
 import WorkplaceSystem
 import WorkshopSystem
 import GatherplaceSystem
@@ -76,14 +76,14 @@ public class Depository extends Workplace
 			// Give needed educts to worker:
 			let targetWorkshop = target.toWorkshop()
 			let targetEducts = targetWorkshop.getEducts()
-			let targetStock = targetWorkshop.getStock()
-			let workerStorage = worker.toStorage()
+			let targetWares = targetWorkshop.getWares()
+			let workerStorage = worker.getStorage()
 			for iWare in targetEducts
-				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetStock.getWareCount(iWare.wareType), storage.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
+				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetWares.getCount(iWare.wareType), storage.getCount(iWare.wareType), workerStorage.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					storage.removeWare(ware(iWare.wareType, wareCount))
-					workerStorage.addWare(ware(iWare.wareType, wareCount))
+					storage.remove(ware(iWare.wareType, wareCount))
+					workerStorage.add(ware(iWare.wareType, wareCount))
 			destroy targetEducts
 			worker.setOrder(AbilityIdsCustom.transferWares, target)
 			return true
@@ -98,13 +98,13 @@ public class Depository extends Workplace
 	/** Transfers as many wares as possible from source to this depository. */
 	override function transferWares(Storage source, bool _takeWares)
 		// Look for wares in source storage:
-		let wares = source.getWares()
+		let wares = new Wares(source)
 		for iWare in wares
 			let wareCount = min(iWare.count, storage.getFreeCapacity())
 			if wareCount > 0
 				// Transfer ware:
-				source.removeWare(ware(iWare.wareType, wareCount))
-				storage.addWare(ware(iWare.wareType, wareCount))
+				source.remove(ware(iWare.wareType, wareCount))
+				storage.add(ware(iWare.wareType, wareCount))
 		destroy wares
 
 
@@ -132,7 +132,7 @@ function Depository.findNextWorkshopInNeedOfEducts() returns unit
 		ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 		for target from ENUM_GROUP
 			let workshop = target.toWorkshop()
-			if workshop != null and sourceStorage.hasWaresAny(workshop.getEducts())
+			if workshop != null and sourceStorage.hasAny(workshop.getEducts())
 				let neededEducts = MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount()
 				let distanceSq = sourcePos.distanceToSq(target.getPos())
 				// Get workshop that needs the most educts and is closest:
@@ -189,9 +189,8 @@ public function multiboard.trySetObjectInfoMultiboard(Depository object) returns
 	this.addMultiboardLine("Depository: " + object.user.getName(), HEADLINE_ICON_PATH)
 	this.addMultiboardLine("Workers: " + object.getWorkerCount().toString() + "/" + object.getMaxWorkerSlots().toString(), WORKERS_ICON_PATH)
 	this.addMultiboardLine("Capacity: " + storage.getUsedCapacity().toString() + "/" + storage.getMaxCapacity().toString(), SUB_HEADLINE_ICON_PATH)
-	for i = 0 to (storage.getAmountOfWareTypes() - 1)
-		let ware = storage.getWare(i)
-		this.addMultiboardLine(storage.getWareCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
+	for ware in storage
+		this.addMultiboardLine(storage.getCount(ware.wareType).toString() + " " + ware.toString(true), ware.getIconPath())
 	return true
 
 init

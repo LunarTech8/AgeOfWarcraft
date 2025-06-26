@@ -12,16 +12,16 @@ Initial version.
 package WorkshopSystem
 import ConstantData
 import UnitMap
-import LinkedList
 import UnitTest
-import Stock
 import UtilityFunctions
 import MultiboardPrioritySystem
 import UnitIndexer
 import ClosureTimers
 import Icons
 import RegisterEvents
+import Wares
 import Storage
+import PersonData
 import Orders
 import ErrorHandling
 import WorkplaceSystem
@@ -70,8 +70,8 @@ function getRequiredWorkPower(int workshopUnitId, int productionVariant) returns
 	return 0.
 
 /** Returns educts for given workshop type and production variant. */
-function getWorkshopEducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
-	let wares = new LinkedList<ware>()
+function getWorkshopEducts(int workshopUnitId, int productionVariant) returns Wares
+	let wares = new Wares()
 	switch workshopUnitId
 		case UnitIdsCustom.AoW.lumberMill
 			switch productionVariant
@@ -87,8 +87,8 @@ function getWorkshopEducts(int workshopUnitId, int productionVariant) returns Li
 	return wares
 
 /** Returns products for given workshop type and production variant. */
-function getWorkshopProducts(int workshopUnitId, int productionVariant) returns LinkedList<ware>
-	let wares = new LinkedList<ware>()
+function getWorkshopProducts(int workshopUnitId, int productionVariant) returns Wares
+	let wares = new Wares()
 	switch workshopUnitId
 		case UnitIdsCustom.AoW.lumberMill
 			switch productionVariant
@@ -110,7 +110,7 @@ function getWorkshopProducts(int workshopUnitId, int productionVariant) returns 
 let WORKSHOP_MAP = new IterableUnitHashMap<Workshop>(null)
 
 public class Workshop extends Workplace
-	private Stock stock
+	private Wares wares
 	private int productionVariant
 	private real workProgressCurrent
 	private real workProgressFinished
@@ -118,29 +118,29 @@ public class Workshop extends Workplace
 
 	construct(unit building)
 		super(building)
-		stock = new Stock()
+		wares = new Wares()
 		productionVariant = 1
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(building.getUnitId(), productionVariant)
 		workPower = 0.
 
 	ondestroy
-		destroy stock
+		destroy wares
 
 	private function startProduction() returns bool
 		// Check if there are enough educts:
 		let educts = getEducts()
-		if stock.hasWares(educts)
+		if wares.has(educts)
 			// Check if there is enough free space for the products:
 			let products = getProducts()
 			for iWare in products
-				if stock.getWareCount(iWare.wareType) > iWare.count * (MAX_STORABLE_PRODUCTS - 1)
+				if wares.getCount(iWare.wareType) > iWare.count * (MAX_STORABLE_PRODUCTS - 1)
 					// Too many products:
 					destroy products
 					return false
 			destroy products
 			// Start production:
-			stock.removeWares(educts)
+			wares.remove(educts)
 			destroy educts
 			return true
 		else
@@ -154,20 +154,20 @@ public class Workshop extends Workplace
 			workProgressCurrent = 0.
 			// Regain educts:
 			let educts = getEducts()
-			stock.addWares(educts)
+			wares.add(educts)
 			destroy educts
 
 	function isProducing() returns bool
 		return workProgressCurrent > 0.
 
-	function getStock() returns Stock
-		return stock
+	function getWares() returns Wares
+		return wares
 
 	function getStoredEductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let educts = getEducts()
 		for iWare in educts
-			amount = min(amount, stock.getWareCount(iWare.wareType) div iWare.count)
+			amount = min(amount, wares.getCount(iWare.wareType) div iWare.count)
 		destroy educts
 		return amount
 
@@ -175,14 +175,14 @@ public class Workshop extends Workplace
 		var amount = MAX_WARE_COUNT
 		let products = getProducts()
 		for iWare in products
-			amount = min(amount, stock.getWareCount(iWare.wareType) div iWare.count)
+			amount = min(amount, wares.getCount(iWare.wareType) div iWare.count)
 		destroy products
 		return amount
 
-	function getProducts() returns LinkedList<ware>
+	function getProducts() returns Wares
 		return getWorkshopProducts(user.getUnitId(), productionVariant)
 
-	function getEducts() returns LinkedList<ware>
+	function getEducts() returns Wares
 		return getWorkshopEducts(user.getUnitId(), productionVariant)
 
 	function getWorkProgressPercentage() returns real
@@ -213,7 +213,7 @@ public class Workshop extends Workplace
 			if workProgressCurrent >= workProgressFinished
 				// Finish production:
 				let products = getProducts()
-				stock.addWares(products)
+				wares.add(products)
 				destroy products
 				// Directly start with next production if possible:
 				if startProduction()
@@ -242,24 +242,24 @@ public class Workshop extends Workplace
 		// Don't do anything else if a production is in progress:
 		if isProducing()
 			return false
-		// Search for workshop that need products if stock is full:
+		// Search for workshop that need products if wares is full:
 		if getStoredProductsCount() >= MAX_STORABLE_PRODUCTS
 			let target = this.findNextWorkshopInNeedOfProducts()
 			if target != null
 				// Give needed products to worker:
-				let productsAsStock = new Stock(getProducts())
+				let products = getProducts()
 				let targetWorkshop = target.toWorkshop()
 				let targetEducts = targetWorkshop.getEducts()
-				let targetStock = targetWorkshop.getStock()
-				let workerStorage = worker.toStorage()
+				let targetWares = targetWorkshop.getWares()
+				let workerStorage = worker.getStorage()
 				for iWare in targetEducts
-					if productsAsStock.hasWareAny(iWare)
-						let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetStock.getWareCount(iWare.wareType), stock.getWareCount(iWare.wareType), workerStorage.getFreeCapacity())
+					if products.hasAny(iWare)
+						let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetWares.getCount(iWare.wareType), wares.getCount(iWare.wareType), workerStorage.getFreeCapacity())
 						if wareCount > 0
 							// Transfer ware:
-							stock.removeWare(ware(iWare.wareType, wareCount))
-							workerStorage.addWare(ware(iWare.wareType, wareCount))
-				destroy productsAsStock
+							wares.remove(ware(iWare.wareType, wareCount))
+							workerStorage.add(ware(iWare.wareType, wareCount))
+				destroy products
 				destroy targetEducts
 				// Order ware transfer:
 				worker.setOrder(AbilityIdsCustom.transferWares, target)
@@ -280,21 +280,21 @@ public class Workshop extends Workplace
 		// Look for educts in source:
 		let educts = getEducts()
 		for iWare in educts
-			let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - stock.getWareCount(iWare.wareType), source.getWareCount(iWare.wareType))
+			let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - wares.getCount(iWare.wareType), source.getCount(iWare.wareType))
 			if wareCount > 0
 				// Transfer ware:
-				source.removeWare(ware(iWare.wareType, wareCount))
-				stock.addWare(ware(iWare.wareType, wareCount))
+				source.remove(ware(iWare.wareType, wareCount))
+				wares.add(ware(iWare.wareType, wareCount))
 		destroy educts
 		// Look for products in workshop:
 		if takeProducts
 			let products = getProducts()
 			for iWare in products
-				let wareCount = min(stock.getWareCount(iWare.wareType), source.getFreeCapacity())
+				let wareCount = min(wares.getCount(iWare.wareType), source.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					stock.removeWare(ware(iWare.wareType, wareCount))
-					source.addWare(ware(iWare.wareType, wareCount))
+					wares.remove(ware(iWare.wareType, wareCount))
+					source.add(ware(iWare.wareType, wareCount))
 			destroy products
 
 
@@ -317,11 +317,11 @@ function Workshop.findNextWorkshopInNeedOfProducts() returns unit
 	// Search buildings in range:
 	let sourcePos = this.getUnit().getPos()
 	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
-	let productsAsStock = new Stock(this.getProducts())
+	let products = this.getProducts()
 	for target from ENUM_GROUP
 		let workshop = target.toWorkshop()
 		if workshop != null
-			let neededProducts = productsAsStock.getWareCount(workshop.getEducts()) * (MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount())
+			let neededProducts = products.getCount(workshop.getEducts()) * (MAX_STORABLE_EDUCTS - workshop.getStoredEductsCount())
 			let distanceSq = sourcePos.distanceToSq(target.getPos())
 			// Get workshop that needs the most of the available products and is closest:
 			if neededProducts > bestNeededProducts or (neededProducts == bestNeededProducts and distanceSq < bestDistanceSq)
@@ -339,15 +339,15 @@ function Workshop.findNextWorkplaceWithEducts() returns unit
 	let sourcePos = this.getUnit().getPos()
 	ENUM_GROUP.enumUnitsInRange(sourcePos, MAX_AUTO_ORDER_RANGE)
 	ENUM_GROUP.removeUnit(this.getUnit())
-	let eductsAsStock = new Stock(this.getEducts())
+	let educts = this.getEducts()
 	for target from ENUM_GROUP
 		let workshop = target.toWorkshop()
 		let gatherplace = target.toGatherplace()
 		var availableEducts = 0
 		if workshop != null
-			availableEducts = eductsAsStock.getWareCount(workshop.getProducts()) * workshop.getStoredProductsCount()
+			availableEducts = educts.getCount(workshop.getProducts()) * workshop.getStoredProductsCount()
 		else if gatherplace != null
-			availableEducts = eductsAsStock.getWareCount(gatherplace.getProducts()) * gatherplace.getStoredProductsCount()
+			availableEducts = educts.getCount(gatherplace.getProducts()) * gatherplace.getStoredProductsCount()
 		let distanceSq = sourcePos.distanceToSq(target.getPos())
 		// Get workplace that has the most available products and is closest:
 		if availableEducts > bestAvailableEducts or (availableEducts == bestAvailableEducts and distanceSq < bestDistanceSq)
@@ -412,7 +412,7 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	// Create workshop:
 	let unitA = createWorkshopBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.toWorkshop()
-	workshopA.getStock().addWare(ware(WareType.WOODEN_BOARDS, 4))
+	workshopA.getWares().add(ware(WareType.WOODEN_BOARDS, 4))
 	workshopA.getStoredProductsCount().assertEquals(testName, 2)
 	workshopA.getStoredEductsCount().assertEquals(testName, 0)
 	assertNotNull(testName, workshopA)
@@ -421,8 +421,8 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	workshopA.isValidWorkerType(UnitIdsCustom.AoW.peasant).assertTrue(testName)
 	// Add workers:
 	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
-	let storageA = unitB.toStorage()
-	storageA.addWare(ware(WareType.WOOD, 6))
+	let storageA = unitB.getStorage()
+	storageA.add(ware(WareType.WOOD, 6))
 	let unitC = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.issueTargetOrderById(OrderIds.smart, unitA)
 	unitC.issueTargetOrderById(OrderIds.smart, unitA)
@@ -467,7 +467,7 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	workshopA.getWorkProgressLeft().assertEquals(testName, 15.)
 	workshopA.getStoredEductsCount().assertEquals(testName, 0)
 	workshopA.getStoredProductsCount().assertEquals(testName, 0)
-	let waresA = new LinkedList<ware>()
+	let waresA = new Wares()
 	waresA.add(ware(WareType.WOOD, 3))
 	var waresB = workshopA.getEducts()
 	waresA.isEqual(waresB).assertTrue(testName)
@@ -508,7 +508,7 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	// Add educts:
 	waresA.clear()
 	waresA.add(ware(WareType.WOOD, 7))
-	workshopA.getStock().addWares(waresA)
+	workshopA.getWares().add(waresA)
 	workshopA.getStoredEductsCount().assertEquals(testName, 2)
 	workshopA.getStoredProductsCount().assertEquals(testName, 0)
 	doAfter(2.) () ->

@@ -3,9 +3,8 @@
 1.0.0
 
 // Description:
-Contains all data of persons like name, home, workplace, etc.
-Monitors basic values like sleep and food.
-Handles the automatizations based on the data and basic values.
+Monitors basic values like sleep and food for persons.
+Handles the automatisations based on the data and basic values.
 
 // Changelog:
 - 1.0.0:
@@ -13,56 +12,34 @@ Initial version.
 -------------------------------------------------------------*/
 package PersonSystem
 import ConstantData
-import MultiboardPrioritySystem
-import Icons
-import UnitMap
 import ErrorHandling
 import ClosureTimers
 import UtilityFunctions
-import WorkplaceSystem
 import HomeSystem
+import WorkplaceSystem
 import WorkshopSystem
-import BuildingSystem
 import GatherplaceSystem
 import DepositorySystem
+import BuildingSystem
 import InstantDummyCaster
 import UnitTest
 import DamageEvent
-import UnitIndexer
 import RegisterEvents
 import Unit_Peasant
 import OrderSystem
-import Storage
+import PersonData
 
 
 // --------------------
 // Data code
 // --------------------
 
-let FOOD_ICON_PATH = Icons.bTNMonsterLure
-let SLEEP_ICON_PATH = Icons.bTNSleep
-let HOME_ICON_PATH = Icons.bTNFarm
-let WORKPLACE_ICON_PATH = Icons.bTNWorkshop
-
-let MAX_FOOD = 100.
-let MAX_SLEEP = 100.
 let MAX_DAYS_NO_FOOD = 4. // Max days of no food before person dies of starvation
 let MAX_DAYS_NO_SLEEP = 3.  // Max days of no sleep before person falls asleep on the ground
 let DAYS_TILL_EXHAUSTED = 1.  // Days of no sleep before person gets exhausted by sleep deprivation
 let STATS_ADJUSTMENT_RATE = INGAME_DAY_DURATION / 24.
 let SLEEP_BOOST_BY_DAMAGE = 2 * (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)  // Adrenalin boost by taking damage
 let IDLE_WORKER_CHECK_RATE = 2.
-
-var surnameCounter = 0
-
-function isPersonType(int unitId) returns bool
-	switch unitId
-		case UnitIdsCustom.AoW.peasant
-			return true
-		case UnitIdsCustom.AoW.footman
-			return true
-		default
-			return false
 
 /** Returns the sleep rate per day for the given building type. */
 function getSleepRate(int buildingUnitId) returns real
@@ -75,220 +52,50 @@ function getSleepRate(int buildingUnitId) returns real
 			error("Unregistered buildingUnitId + (" + buildingUnitId.toString() + ") for sleeping")
 			return 0.
 
-function getRandomForename() returns string
-	let i = GetRandomInt(1, 4)
-	switch i
-		case 1
-			return "Peter"
-		case 2
-			return "Hans"
-		case 3
-			return "Theodor"
-		case 4
-			return "Michael"
-		default
-			error("Wrong configuration for getRandomForename")
-			return null
-
-function getRandomSurname() returns string
-	surnameCounter++
-	if surnameCounter > 23
-		surnameCounter = 1
-	switch surnameCounter
-		// Source: https://en.wiktionary.org/wiki/Category:English_surnames_from_Old_English
-		case 1
-			return "Abram"
-		case 2
-			return "Acker"
-		case 3
-			return "Acton"
-		case 4
-			return "Addington"
-		case 5
-			return "Adley"
-		case 6
-			return "Ainsley"
-		case 7
-			return "Ainsworth"
-		case 8
-			return "Alby"
-		case 9
-			return "Allerton"
-		case 10
-			return "Alston"
-		case 11
-			return "Altham"
-		case 12
-			return "Alton"
-		case 13
-			return "Anderton"
-		case 14
-			return "Ansley"
-		case 15
-			return "Anstey"
-		case 16
-			return "Appleton"
-		case 17
-			return "Asheton"
-		case 18
-			return "Ashley"
-		case 19
-			return "Ashton"
-		case 20
-			return "Astley"
-		case 21
-			return "Atherton"
-		case 22
-			return "Atterton"
-		case 23
-			return "Axton"
-		default
-			error("Wrong configuration for getRandomSurname")
-			return null
-
-/** Returns the maximum ware capacity of the given person type. */
-function getPersonMaxCapacity(int personUnitId) returns int
-	switch personUnitId
-		case UnitIdsCustom.AoW.peasant
-			// return 12
-			return 100  // DEBUG: for easier testing
-		default
-			return 10
-
 
 // --------------------
 // Functional code
 // --------------------
 
-let PERSON_MAP = new IterableUnitHashMap<Person>(null)
+function Person.sleep(int buildingUnitId)
+	if this.isSleeping() == true
+		error("Person is already sleeping")
+	this.setSleepRate(getSleepRate(buildingUnitId))
 
-public class Person
-	private unit user
-	private string name
-	private unit enteredBuilding
-	protected real food
-	protected real sleep
-	protected real sleepRate
-	private Storage storage
-	protected Home home
-	protected Workplace workplace
-
-	construct(unit person, string name)
-		user = person
-		this.name = name
-		enteredBuilding = null
-		food = MAX_FOOD
-		sleep = MAX_SLEEP
-		sleepRate = 0.
-		storage = new Storage(getPersonMaxCapacity(GetUnitTypeId(person)))
-		home = null
-		workplace = null
-
-	private function sleep(int buildingUnitId)
-		if isSleeping() == true
-			error("Person is already sleeping")
-		sleepRate = getSleepRate(buildingUnitId)
-
-	protected function reduceStats() returns bool
-		// Adjust food:
-		food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-		food = min(food, MAX_FOOD)
-		// Adjust sleep:
-		sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-		sleep += sleepRate * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
-		sleep = min(sleep, MAX_SLEEP)
-		if sleep <= 0. and isSleeping() == false
-			if isInBuilding()
-				leaveBuilding()
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addSleepingBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
-			sleep(0)
-		else if sleep >= MAX_SLEEP
-			if home != null and enteredBuilding == home.getUnit()
-				leaveBuilding()
-			else
-				user.removeAbility(BuffIdsCustom.sleeping)
-				sleepRate = 0.
-		if sleep <= MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted) == false
-			InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addExhaustedBuff.getAbilityOrder(), user)
-		else if sleep > MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted)
-			user.removeAbility(BuffIdsCustom.exhausted)
-		return food <= 0.
-
-	protected function awake()
-		if isSleeping() == false
-			error("Person is already awake")
-		sleepRate = 0.
-
-	function isSleeping() returns bool
-		return sleepRate > 0.
-
-	function isInBuilding() returns bool
-		return enteredBuilding != null
-
-	function getName() returns string
-		return name
-
-	function getUnit() returns unit
-		return user
-
-	function getEnteredBuilding() returns unit
-		return enteredBuilding
-
-	function getWorkplace() returns Workplace
-		return this.workplace
-
-	function getWorkplaceBuilding() returns unit
-		if this.workplace != null
-			return workplace.getUnit()
-		return null
-
-	function setHome(Home home)
-		if this.home != null
-			this.home.removeInhabitant(user)
-		if home != null
-			home.addInhabitant(user)
-		this.home = home
-
-	function setWorkplace(Workplace workplace)
-		if this.workplace != null
-			this.workplace.removeWorker(user)
-		if workplace != null
-			workplace.addWorker(user)
-		this.workplace = workplace
-
-	function enterBuilding(unit building)
-		if isInBuilding()
-			error("Person is already in a building")
-		let targetHome = building.toHome()
-		let targetWorkplace = building.toWorkplace()
-		if targetHome != null and targetHome == home
-			sleep(building.getUnitId())
-		else if targetWorkplace != null and targetWorkplace == workplace
-			if targetWorkplace instanceof Workshop
-				(targetWorkplace castTo Workshop).enterBuilding(user)
+function Person.reduceStats() returns bool
+	// Adjust food:
+	var food = this.getFood()
+	food -= (MAX_FOOD / MAX_DAYS_NO_FOOD) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+	food = min(food, MAX_FOOD)
+	this.setFood(food)
+	// Adjust sleep:
+	var sleep = this.getSleep()
+	sleep -= (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+	sleep += this.getSleepRate() * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+	sleep = min(sleep, MAX_SLEEP)
+	this.setSleep(sleep)
+	let user = this.getUnit()
+	if sleep <= 0. and this.isSleeping() == false
+		if this.isInBuilding()
+			this.leaveBuilding()
+		InstantDummyCaster.castTarget(null, AbilityIdsCustom.addSleepingBuff, 1, AbilityIdsCustom.addSleepingBuff.getAbilityOrder(), user)
+		this.sleep(0)
+	else if sleep >= MAX_SLEEP
+		if this.getHome() != null and this.getEnteredBuilding() == this.getHome().getUnit()
+			this.leaveBuilding()
 		else
-			error("Unrecognized building type to enter (" + building.getName() + ")")
-		enteredBuilding = building
-		user.hide()
+			user.removeAbility(BuffIdsCustom.sleeping)
+			this.setSleepRate(0.)
+	if sleep <= MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted) == false
+		InstantDummyCaster.castTarget(null, AbilityIdsCustom.addExhaustedBuff, 1, AbilityIdsCustom.addExhaustedBuff.getAbilityOrder(), user)
+	else if sleep > MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP) and user.hasAbility(BuffIdsCustom.exhausted)
+		user.removeAbility(BuffIdsCustom.exhausted)
+	return food <= 0.
 
-	function leaveBuilding()
-		if isInBuilding() == false
-			error("Person is not in a building")
-		let targetHome = enteredBuilding.toHome()
-		let targetWorkplace = enteredBuilding.toWorkplace()
-		if targetHome != null and targetHome == home
-			awake()
-		else if targetWorkplace != null and targetWorkplace == workplace
-			if targetWorkplace instanceof Workshop
-				(targetWorkplace castTo Workshop).leaveBuilding(user)
-		else
-			error("Unrecognized building type to leave (" + enteredBuilding.getName() + ")")
-		enteredBuilding = null
-		user.show()
-
-
-function getRandomName() returns string
-	return getRandomForename() + " " + getRandomSurname()
+function Person.awake()
+	if this.isSleeping() == false
+		error("Person is already awake")
+	this.setSleepRate(0.)
 
 function Home.removePersons()
 	let inhabitants = this.getInhabitants()
@@ -309,22 +116,7 @@ function Workplace.removePersons()
 			person.setWorkplace(null)
 	workers.destr()
 
-function unit.addPerson(string name)
-	if PERSON_MAP.has(this) == false
-		if isPersonType(GetUnitTypeId(this))
-			let person = new Person(this, name)
-			PERSON_MAP.put(this, person)
-
-function unit.removePerson()
-	let person = PERSON_MAP.tryRemove(this)
-	if person != null
-		destroy person
-
-/** Returns the person of given unit. */
-public function unit.toPerson() returns Person
-	return PERSON_MAP.tryGet(this)
-
-/** Returns the workplace of given building. */
+/** Returns the workplace of this building. */
 public function unit.toWorkplace() returns Workplace
 	Workplace workplace
 	workplace = this.toWorkshop()
@@ -341,36 +133,40 @@ public function unit.toWorkplace() returns Workplace
 		return workplace
 	return null
 
-/** Returns an unemployed person fitting to this workplace from given unit group. */
-public function Workplace.getUnemployedFromGroup(group source) returns Person
-	Person person = null
-	for iUnit from source
-		person = iUnit.toPerson()
-		if person != null and person.getWorkplaceBuilding() == null and this.isValidWorkerType(iUnit.getUnitId())
-			break
-		person = null
-	source.destr()
-	return person
+/** Let this person enter given building. */
+public function Person.enterBuilding(unit building)
+	if this.isInBuilding()
+		error("Person is already in a building")
+	let targetHome = building.toHome()
+	let targetWorkplace = building.toWorkplace()
+	if targetHome != null and targetHome == this.getHome()
+		this.sleep(building.getUnitId())
+	else if targetWorkplace != null and targetWorkplace == this.getWorkplace()
+		if targetWorkplace instanceof Workshop
+			(targetWorkplace castTo Workshop).enterBuilding(this.getUnit())
+	else
+		error("Unrecognized building type to enter (" + building.getName() + ")")
+	this.setEnteredBuilding(building)
+	this.getUnit().hide()
 
-/** Try to set system relevant infos for given object in this multiboard. Returns if it could be set. */
-public function multiboard.trySetObjectInfoMultiboard(Person object) returns bool
-	if object == null
-		return false
-	this.addMultiboardLine("Person: " + object.getName(), HEADLINE_ICON_PATH)
-	this.addMultiboardLine("Food: " + object.food.toString(1) + "/" + MAX_FOOD.toInt().toString(), FOOD_ICON_PATH)
-	this.addMultiboardLine("Sleep: " + object.sleep.toString(1) + "/" + MAX_SLEEP.toInt().toString(), SLEEP_ICON_PATH)
-	if object.home != null
-		this.addMultiboardLine("Home: " + object.home.getUnit().getName(), HOME_ICON_PATH)
-	if object.workplace != null
-		this.addMultiboardLine("Workplace: " + object.workplace.getUnit().getName(), WORKPLACE_ICON_PATH)
-	return true
+/** Let this person leave current building. */
+public function Person.leaveBuilding()
+	if this.isInBuilding() == false
+		error("Person is not in a building")
+	let enteredBuilding = this.getEnteredBuilding()
+	let targetHome = enteredBuilding.toHome()
+	let targetWorkplace = enteredBuilding.toWorkplace()
+	if targetHome != null and targetHome == this.getHome()
+		this.awake()
+	else if targetWorkplace != null and targetWorkplace == this.getWorkplace()
+		if targetWorkplace instanceof Workshop
+			(targetWorkplace castTo Workshop).leaveBuilding(this.getUnit())
+	else
+		error("Unrecognized building type to leave (" + enteredBuilding.getName() + ")")
+	this.setEnteredBuilding(null)
+	this.getUnit().show()
 
 init
-	// Add person to every appropriate new unit:
-	onUnitIndex(() -> getIndexingUnit().addPerson(getRandomName()))
-	// Remove person from every appropriate removed unit:
-	onUnitDeindex(() -> getIndexingUnit().removePerson())
-	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, () -> GetTriggerUnit().removePerson())
 	// Register death of homes and workplaces:
 	registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
 		let killedUnit = GetTriggerUnit()
@@ -381,7 +177,7 @@ init
 		else if targetWorkplace != null
 			targetWorkplace.removePersons()
 	// Reduce stats:
-	// DEBUG: for testing deactivated
+	// DEBUG: no stat reduction for easier testing
 	// doPeriodically(STATS_ADJUSTMENT_RATE) cb ->
 	// 	for user in PERSON_MAP
 	// 		if user != null and PERSON_MAP.get(user).reduceStats()
@@ -390,18 +186,17 @@ init
 	DamageEvent.addListener() ->
 		let targetPerson = DamageEvent.getTarget().toPerson()
 		if targetPerson != null and targetPerson.isSleeping()
-			targetPerson.sleep += SLEEP_BOOST_BY_DAMAGE
+			targetPerson.setSleep(targetPerson.getSleep() + SLEEP_BOOST_BY_DAMAGE)
 			targetPerson.awake()
 	// Find new targets for all idle workers inside a workplace:
 	doPeriodically(IDLE_WORKER_CHECK_RATE) cb ->
-		for user in PERSON_MAP
-			if user != null
-				let person = PERSON_MAP.get(user)
-				let workplace = person.getWorkplace()
-				if workplace != null and workplace.getUnit() == person.getEnteredBuilding()
-					if workplace.findWorkOrder(user)
-						person.leaveBuilding()
-						user.castAbilityOrder()
+		for person in getAllPersons()
+			let workplace = person.getWorkplace()
+			if workplace != null and workplace.getUnit() == person.getEnteredBuilding()
+				let user = person.getUnit()
+				if workplace.findWorkOrder(user)
+					person.leaveBuilding()
+					user.castAbilityOrder()
 
 
 // --------------------
@@ -417,8 +212,8 @@ public function testPersonSystem_StatsAndBuildings(vec2 testCentre)
 	personA.reduceStats()
 	personA.reduceStats()
 	personA.reduceStats()
-	personA.food.assertEquals(testName, MAX_FOOD * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_FOOD * INGAME_DAY_DURATION)), 0.001)
-	personA.sleep.assertEquals(testName, MAX_SLEEP * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)), 0.001)
+	personA.getFood().assertEquals(testName, MAX_FOOD * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_FOOD * INGAME_DAY_DURATION)), 0.001)
+	personA.getSleep().assertEquals(testName, MAX_SLEEP * (1 - 4 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)), 0.001)
 	// Check home building and sleep:
 	let unitB = createHomeBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
 	let unitC = createHomeBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasantHouse, testCentre, angle(0))
@@ -432,15 +227,15 @@ public function testPersonSystem_StatsAndBuildings(vec2 testCentre)
 	personA.isSleeping().assertFalse(testName)
 	personA.enterBuilding(unitC)
 	personA.isSleeping().assertTrue(testName)
-	personA.sleepRate.assertEquals(testName, getSleepRate(unitC.getUnitId()))
+	personA.getSleepRate().assertEquals(testName, getSleepRate(unitC.getUnitId()))
 	personA.reduceStats()
-	personA.sleep.assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION), 0.001)
+	personA.getSleep().assertEquals(testName, MAX_SLEEP * (1 - 5 * STATS_ADJUSTMENT_RATE / (MAX_DAYS_NO_SLEEP * INGAME_DAY_DURATION)) + getSleepRate(unitC.getUnitId()) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION), 0.001)
 	// Check max sleep limit:
-	personA.sleep.assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
+	personA.getSleep().assertEquals(testName, (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP + (4 - 5) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)), 0.001)
 	assertEquals(testName, personA.getEnteredBuilding(), unitC)
 	personA.isSleeping().assertTrue(testName)
 	personA.reduceStats()
-	personA.sleep.assertEquals(testName, MAX_SLEEP)
+	personA.getSleep().assertEquals(testName, MAX_SLEEP)
 	assertEquals(testName, personA.getEnteredBuilding(), null)
 	personA.isSleeping().assertFalse(testName)
 	testFinish(testName)
@@ -457,29 +252,29 @@ public function testPersonSystem_LowerStatLimits(vec2 testCentre)
 	// Check lower stat limits:
 	let unitA = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	let personA = unitA.toPerson()
-	personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP - DAYS_TILL_EXHAUSTED + (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
+	personA.setSleep((MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (MAX_DAYS_NO_SLEEP - DAYS_TILL_EXHAUSTED + (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)))
 	unitA.hasAbility(BuffIdsCustom.exhausted).assertFalse(testName)
 	personA.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is exhausted:
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
-		personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+		personA.setSleep((MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertFalse(testName)
 		personA.isSleeping().assertFalse(testName)
 		personA.reduceStats()
 	doAfter(2 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is sleeping on the ground:
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertTrue(testName)
-		personA.sleepRate.assertEquals(testName, getSleepRate(0))
+		personA.getSleepRate().assertEquals(testName, getSleepRate(0))
 		personA.isSleeping().assertTrue(testName)
-		personA.sleep = MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP)
+		personA.setSleep(MAX_SLEEP * (1 - DAYS_TILL_EXHAUSTED / MAX_DAYS_NO_SLEEP))
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertTrue(testName)
 		personA.reduceStats()
 	doAfter(3 * MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person isn't exhausted anymore but still sleeping:
 		unitA.hasAbility(BuffIdsCustom.exhausted).assertFalse(testName)
 		unitA.hasAbility(BuffIdsCustom.sleeping).assertTrue(testName)
-		personA.sleep = MAX_SLEEP
+		personA.setSleep(MAX_SLEEP)
 		personA.isSleeping().assertTrue(testName)
 		personA.reduceStats()
 	doAfter(4 * MIN_ACTION_SLEEP_TIME) () ->
@@ -499,7 +294,7 @@ public function testPersonSystem_DamageReaction(vec2 testCentre)
 	let unitB = createUnit(Settings.USER_PLAYER, UnitIdsCustom.AoW.peasant, testCentre, angle(0))
 	unitB.setFacing(unitB.getPos().angleTo(unitA.getPos()))
 	let personA = unitA.toPerson()
-	personA.sleep = (MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION)
+	personA.setSleep((MAX_SLEEP / MAX_DAYS_NO_SLEEP) * (STATS_ADJUSTMENT_RATE / INGAME_DAY_DURATION))
 	personA.reduceStats()
 	doAfter(MIN_ACTION_SLEEP_TIME) () ->
 		// Check that person is sleeping and attack it:

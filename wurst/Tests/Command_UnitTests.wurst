@@ -2,7 +2,7 @@ package Command_UnitTests
 import ConstantData
 import UnitMap
 import Entity
-import Stock
+import Wares
 import Storage
 import BuildingSystem
 import WorkshopSystem
@@ -38,8 +38,8 @@ function executeCommand()
 	// EntityMap:
 	testEntity_CreateAndIndex(true)
 	testEntity_HashMapAddAndRemove(true)
-	// Stock:
-	testStock_AddAndRemove(true)
+	// Wares:
+	testWares_AddAndRemove(true)
 	// Storage:
 	testStorage_AddAndRemove(true)
 	// UtilityFunctions:

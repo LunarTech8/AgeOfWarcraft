@@ -1,0 +1,306 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Manages the type and count of wares that are associated with a Ware object.
+Base class for a list of wares with base helper functions. Can be extended into specialised classes.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package Wares
+import Icons
+import LinkedList
+import UnitTest
+import ErrorHandling
+
+
+// --------------------
+// Data code
+// --------------------
+
+public let MAX_WARE_COUNT = 99999  // Is limited to allow tuple to be converted into a single int
+let MAX_WARE_TYPES = 9999  // Is limited to allow tuple to be converted into a single int
+
+public enum WareType
+	WOOD
+	STONE
+	METAL
+	FOOD
+	IRON_ORE
+	COAL
+	WOODEN_BOARDS
+	WOODEN_STICKS
+	STRAW
+
+function WareType.toString() returns string
+	switch this
+		case WOOD
+			return "wood"
+		case STONE
+			return "stone"
+		case METAL
+			return "metal"
+		case FOOD
+			return "food"
+		case IRON_ORE
+			return "iron ore"
+		case COAL
+			return "coal"
+		case WOODEN_BOARDS
+			return "wooden boards"
+		case WOODEN_STICKS
+			return "wooden sticks"
+		case STRAW
+			return "straw"
+		default
+			return "undefined ware"
+
+function WareType.getIconPath() returns string
+	switch this
+		case WOOD
+			return Icons.bTNBundleOfLumber
+		case STONE
+			return "Icons\\BTNINV_Stone_12.blp"
+		case METAL
+			return Icons.bTNHumanArmorUpOne
+		case FOOD
+			return Icons.bTNMonsterLure
+		case WOODEN_BOARDS
+			return Icons.bTNHumanLumberUpgrade2
+		case WOODEN_STICKS
+			return Icons.bTNHumanLumberUpgrade1
+		case STRAW
+			return "Icons\\BTNStrawBunch.blp"
+		default
+			return null
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public tuple ware(WareType wareType, int count)
+
+public function wareToIndex(ware w) returns int
+	let wareTypeInt = w.wareType castTo int
+	if w.count < 1 or w.count > MAX_WARE_COUNT
+		error("Ware count (" + w.count.toString() + ") isn't allowed to be smaller than 1 or bigger than " + MAX_WARE_COUNT.toString())
+	else if wareTypeInt < 0 or wareTypeInt > MAX_WARE_TYPES
+		error("Ware type (" + wareTypeInt.toString() + ") isn't allowed to be smaller than 0 or bigger than " + MAX_WARE_TYPES.toString())
+	return w.count + wareTypeInt * (MAX_WARE_COUNT + 1)
+
+public function wareFromIndex(int index) returns ware
+	let count = index mod (MAX_WARE_COUNT + 1)
+	let wareType = ((index - count) div (MAX_WARE_COUNT + 1)) castTo WareType
+	return ware(wareType, count)
+
+public function ware.hasSameType(ware otherWare) returns bool
+	return (this.wareType == otherWare.wareType)
+
+public function ware.toString(bool upperCase) returns string
+	if upperCase
+		return this.wareType.toString().firstUpper()
+	else
+		return this.wareType.toString()
+
+public function ware.getIconPath() returns string
+	return this.wareType.getIconPath()
+
+public function ware.changedCopy(int countChange) returns ware
+	return ware(this.wareType, this.count + countChange)
+public function ware.changedCopy(WareType newWareType) returns ware
+	return ware(newWareType, this.count)
+public function ware.changedCopy(WareType newWareType, int countChange) returns ware
+	return ware(newWareType, this.count + countChange)
+
+public function Wares.isEqual(Wares waresCompare) returns bool
+	for iWare in this
+		var has = false
+		for jWare in waresCompare
+			if jWare.hasSameType(iWare)
+				if jWare.count == iWare.count
+					has = true
+					break
+				else
+					return false
+		if has == false
+			return false
+	return true
+
+public class Wares
+	protected LinkedList<ware> wareList
+
+	construct()
+		this.wareList = new LinkedList<ware>()
+	construct(Wares wares)
+		this.wareList = new LinkedList<ware>(wares.wareList)
+
+	ondestroy
+		destroy wareList
+
+	/** Returns an iterator that iterates over the wares in the list. */
+	function iterator() returns LLIterator<ware>
+		return wareList.iterator()
+
+	/** Returns if the list has no wares. */
+	function isEmpty() returns bool
+		return wareList.isEmpty()
+
+	/** Returns the last ware of the list. */
+	function getLast() returns ware
+		return wareList.peek()
+
+	/** Returns amount of different ware types in the list. */
+	function getAmountOfTypes() returns int
+		return wareList.size()
+
+	/** Returns count of given ware type in the list. */
+	function getCount(WareType wt) returns int
+		for iWare in wareList
+			if iWare.wareType == wt
+				return iWare.count
+		return 0
+	/** Returns count of given wares in the list. */
+	function getCount(Wares wares) returns int
+		var wareCount = 0
+		for iWare in wares
+			wareCount += min(getCount(iWare.wareType), iWare.count)
+		return wareCount
+
+	/** Returns if the list has the given ware. */
+	function has(ware w) returns bool
+		return getCount(w.wareType) >= w.count
+	/** Returns if the list has the given wares. */
+	function has(Wares wares) returns bool
+		for iWare in wares
+			if has(iWare) == false
+				return false
+		return true
+
+	/** Returns if the list has any of the given ware. */
+	function hasAny(ware w) returns bool
+		return getCount(w.wareType) > 0
+	/** Returns if the list has any wares of given target wares. */
+	function hasAny(Wares targetWares) returns bool
+		for iWare in wareList
+			if targetWares.getCount(iWare.wareType) > 0
+				return true
+		return false
+
+	/** Add given wares to the list. */
+	function add(ware w)
+		// Adjust ware:
+		for iWare in wareList
+			if iWare.hasSameType(w)
+				wareList.replace(iWare, iWare.changedCopy(w.count))
+				return
+		// Add new ware if none exists of that type yet:
+		wareList.add(w)
+	/** Add given wares to the list. */
+	function add(Wares wares)
+		for iWare in wares
+			add(iWare)
+
+	/** Remove given ware from the list. */
+	function remove(ware w)
+		for iWare in wareList
+			if iWare.hasSameType(w)
+				// Check and adjust ware:
+				if iWare.count <= w.count
+					wareList.remove(iWare)
+				else
+					wareList.replace(iWare, iWare.changedCopy(-w.count))
+	/** Remove given wares from the list. */
+	function remove(Wares wares)
+		for iWare in wares
+			remove(iWare)
+
+	/** Remove as many as available of given ware from the list and return how many were removed. */
+	function removeAny(ware w) returns int
+		for iWare in wareList
+			if iWare.hasSameType(w)
+				// Check and adjust ware:
+				let removedWareCount = min(iWare.count, w.count)
+				if iWare.count <= removedWareCount
+					wareList.remove(iWare)
+				else
+					wareList.replace(iWare, iWare.changedCopy(-removedWareCount))
+				return removedWareCount
+		return 0
+	/** Remove as many as available of given wares from the list and return how many were removed. */
+	function removeAny(Wares wares) returns int
+		var removedWareCount = 0
+		for iWare in wares
+			removedWareCount += removeAny(iWare)
+		return removedWareCount
+
+	/** Clears the wares list. */
+	function clear()
+		wareList.clear()
+
+
+// --------------------
+// Test code
+// --------------------
+
+@Test public function testWares_AddAndRemove()
+	testWares_AddAndRemove(false)
+public function testWares_AddAndRemove(bool isInGameTest)
+	let testName = setTestName("testWares_AddAndRemove", isInGameTest)
+	// Create new wares list and check content:
+	let waresA = new Wares()
+	waresA.isEmpty().assertTrue(testName)
+	waresA.getAmountOfTypes().assertEquals(testName, 0)
+	// Add wares and check content:
+	waresA.add(ware(WareType.FOOD, 2))
+	waresA.add(ware(WareType.STONE, 2))
+	waresA.add(ware(WareType.STRAW, 1))
+	waresA.add(ware(WareType.FOOD, 1))
+	waresA.isEmpty().assertFalse(testName)
+	waresA.getAmountOfTypes().assertEquals(testName, 3)
+	waresA.getCount(WareType.FOOD).assertEquals(testName, 3)
+	(waresA.getLast().wareType == WareType.STRAW).assertTrue(testName)
+	waresA.has(ware(WareType.STONE, 3)).assertFalse(testName)
+	waresA.has(ware(WareType.STONE, 2)).assertTrue(testName)
+	// Remove wares and check content:
+	waresA.remove(ware(WareType.FOOD, 2))
+	waresA.remove(ware(WareType.STONE, 2))
+	waresA.getAmountOfTypes().assertEquals(testName, 2)
+	waresA.getCount(WareType.FOOD).assertEquals(testName, 1)
+	// Create another storage and check content:
+	let waresB = new Wares()
+	waresB.isEmpty().assertTrue(testName)
+	waresB.getAmountOfTypes().assertEquals(testName, 0)
+	// Add wares and check content:
+	let waresC = new Wares()
+	waresC.add(ware(WareType.FOOD, 2))
+	waresC.add(ware(WareType.STONE, 3))
+	waresC.add(ware(WareType.STRAW, 1))
+	waresC.add(ware(WareType.WOOD, 6))
+	waresB.hasAny(waresC).assertFalse(testName)
+	waresB.hasAny(waresA).assertFalse(testName)
+	waresB.add(waresC)
+	waresB.isEmpty().assertFalse(testName)
+	waresB.getAmountOfTypes().assertEquals(testName, 4)
+	waresB.has(waresC).assertTrue(testName)
+	waresB.hasAny(waresA).assertTrue(testName)
+	// Remove wares and check content:
+	let waresD = new Wares()
+	waresD.add(ware(WareType.FOOD, 3))
+	waresD.add(ware(WareType.WOOD, 1))
+	waresB.remove(waresD)
+	waresB.isEmpty().assertFalse(testName)
+	waresB.getAmountOfTypes().assertEquals(testName, 3)
+	waresB.getCount(WareType.FOOD).assertEquals(testName, 0)
+	waresB.getCount(WareType.WOOD).assertEquals(testName, 5)
+	waresB.has(waresD).assertFalse(testName)
+	waresB.hasAny(waresD).assertTrue(testName)
+	testFinish(testName)
+	// Destroy class objects:
+	destroy waresA
+	destroy waresB
+	destroy waresC
+	destroy waresD

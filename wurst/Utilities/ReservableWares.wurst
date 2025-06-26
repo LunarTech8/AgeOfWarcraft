@@ -1,0 +1,34 @@
+/*-------------------------------------------------------------
+// Version number:
+1.0.0
+
+// Description:
+Extension of the Wares class that adds an extra ware list for reserved wares.
+
+// Changelog:
+- 1.0.0:
+Initial version.
+-------------------------------------------------------------*/
+package ReservableWares
+import Wares
+
+
+// --------------------
+// Functional code
+// --------------------
+
+public class ReservableWares extends Wares
+	protected Wares reservedWares
+
+	construct()
+		super()
+		this.reservedWares = new Wares()
+	construct(Wares wares, Wares reservedWares)
+		super(wares)
+		this.reservedWares = new Wares(reservedWares)
+	construct(ReservableWares reservableWares)
+		super(reservableWares)
+		this.reservedWares = new Wares(reservableWares.reservedWares)
+
+	ondestroy
+		destroy reservedWares

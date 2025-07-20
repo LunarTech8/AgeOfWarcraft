@@ -95,8 +95,8 @@ public class Gatherplace extends Workplace
 	function getStoredProductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let products = getProducts()
-		for iWare in products
-			amount = min(amount, storage.getCount(iWare.wareType) div iWare.count)
+		for ware in products
+			amount = min(amount, storage.getCount(ware.wareType) div ware.count)
 		destroy products
 		return amount
 
@@ -104,9 +104,9 @@ public class Gatherplace extends Workplace
 		let wares = new Wares()
 		let allowedTypeIds = getAllowedTargetTypeIds()
 		for targetId in allowedTypeIds
-			for iWare in getDefaultInitWares(targetId)
-				if wares.hasAny(iWare) == false
-					wares.add(ware(iWare.wareType, 1))
+			for ware in getDefaultInitWares(targetId)
+				if wares.hasAny(ware) == false
+					wares.add(ware(ware.wareType, 1))
 		destroy allowedTypeIds
 		return wares
 
@@ -168,22 +168,22 @@ public class Gatherplace extends Workplace
 		if takeWares
 			// Look for wares in gatherplace:
 			let wares = new Wares(storage)
-			for iWare in wares
-				let wareCount = min(storage.getCount(iWare.wareType), source.getFreeCapacity())
+			for ware in wares
+				let wareCount = min(storage.getCount(ware.wareType), source.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					storage.remove(ware(iWare.wareType, wareCount))
-					source.add(ware(iWare.wareType, wareCount))
+					storage.remove(ware(ware.wareType, wareCount))
+					source.add(ware(ware.wareType, wareCount))
 			destroy wares
 		else
 			// Look for products in source storage:
 			let products = getProducts()
-			for iWare in products
-				let wareCount = min(source.getCount(iWare.wareType), storage.getFreeCapacity())
+			for ware in products
+				let wareCount = min(source.getCount(ware.wareType), storage.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					source.remove(ware(iWare.wareType, wareCount))
-					storage.add(ware(iWare.wareType, wareCount))
+					source.remove(ware(ware.wareType, wareCount))
+					storage.add(ware(ware.wareType, wareCount))
 			destroy products
 
 

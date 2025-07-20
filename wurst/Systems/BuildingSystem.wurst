@@ -20,6 +20,7 @@ import ConstantData
 import MultiboardPrioritySystem
 import UtilityFunctions
 import Wares
+import ReservableWares
 import Storage
 import PersonData
 import SettlementSystem
@@ -133,8 +134,8 @@ function getRequiredWorkPower(int buildingUnitId) returns real
 	return 0.
 
 /** Returns the required wares of the given building type. */
-function getRequiredWares(int buildingUnitId) returns Wares
-	let wares = new Wares()
+function getRequiredWares(int buildingUnitId) returns ReservableWares
+	let wares = new ReservableWares()
 	switch buildingUnitId
 		case UnitIdsCustom.AoW.peasantHouse
 			wares.add(ware(WareType.WOOD, 4))
@@ -233,14 +234,14 @@ function getScaling(int buildingUnitId) returns real
 let BUILDING_SITE_MAP = new IterableUnitHashMap<BuildingSite>(null)
 
 public class BuildingSite extends Workplace
-	private Wares requiredResources
+	private ReservableWares requiredResources
 	private real fullHP
 	private real workProgressCurrent
 	private real workProgressFinished
 	private real workPower
 	private int upgradeProgress
 
-	construct(unit building, real fullHP, Wares requiredResources)
+	construct(unit building, real fullHP, ReservableWares requiredResources)
 		super(building)
 		this.requiredResources = requiredResources
 		this.fullHP = fullHP
@@ -255,15 +256,15 @@ public class BuildingSite extends Workplace
 			ResetUnitAnimation(worker)
 			worker.removeAbility(BuffIdsCustom.building)
 
-	private static function checkCarrierForRequiredResources(unit carrier, Wares requiredResources) returns bool
+	private static function checkCarrierForRequiredResources(unit carrier, ReservableWares requiredResources) returns bool
 		var hasAnyRequiredResources = false
-		if requiredResources.isEmpty() == false
+		if requiredResources.hasUnreserved()
 			let carrierStorage = carrier.getStorage()
 			if carrierStorage != null
-				hasAnyRequiredResources = (requiredResources.removeAny(carrierStorage) > 0)
+				hasAnyRequiredResources = (requiredResources.reserveAny(carrierStorage, carrierStorage) > 0)
 		return hasAnyRequiredResources
 
-	function getRequiredResources() returns Wares
+	function getRequiredResources() returns ReservableWares
 		return requiredResources
 
 	function getWorkProgressPercentage() returns real
@@ -352,21 +353,19 @@ public class BuildingSite extends Workplace
 	Start with given prio workers who aren't checked for their order status. */
 	function callOverIdleWareCarriers(group prioWorkers)
 		let owner = user.getOwner()
-		let leftRequiredResources = new Wares(this.requiredResources)
 		// Check prioritised workers:
 		for carrier in prioWorkers
-			if carrier.getOwner() == owner and checkCarrierForRequiredResources(carrier, leftRequiredResources)
+			if carrier.getOwner() == owner and checkCarrierForRequiredResources(carrier, requiredResources)
 				carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
-		if leftRequiredResources.isEmpty() == false
+		if requiredResources.hasUnreserved()
 			// Look for idle workers or moving workers:
 			callOverIdleWareCarriers_Workers.enumUnitsInRange(user.getPos(), MAX_NEAR_BY_RANGE, null)
 			callOverIdleWareCarriers_Workers.removeGroup(prioWorkers)
 			let sortedWorkers = callOverIdleWareCarriers_Workers.asList().sortByDistance(user.getPos())
 			for carrier in sortedWorkers
-				if carrier.getOwner() == owner and carrier.isType(UNIT_TYPE_STRUCTURE) == false and (carrier.hasOrder() == false or carrier.hasOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, leftRequiredResources)
+				if carrier.getOwner() == owner and carrier.isType(UNIT_TYPE_STRUCTURE) == false and (carrier.hasOrder() == false or carrier.hasOrder(OrderIds.move)) and checkCarrierForRequiredResources(carrier, requiredResources)
 					carrier.issueTargetAbilityOrder(AbilityIdsCustom.transferWares, user, true)
 			destroy sortedWorkers
-		destroy leftRequiredResources
 
 	/** Searches a work task for the given worker. Returns if a task could be found. */
 	override function findWorkOrder(unit worker) returns bool
@@ -380,22 +379,21 @@ public class BuildingSite extends Workplace
 	/** Transfers required wares from source storage to this building site.
 	Returns a list of all wares that are still missing. */
 	override function transferWares(Storage source, bool _takeWares)
-		let leftRequiredWares = new Wares()
-		// Look through all required wares:
-		for ware in requiredResources
-			var count = source.getCount(ware.wareType)
-			if count < ware.count
-				// Note down still missing wares:
-				leftRequiredWares.add(ware(ware.wareType, ware.count - count))
-			else
-				// Limit taken wares to required amount:
-				count = ware.count
-			if count > 0
-				// Remove taken wares from source:
-				source.remove(ware(ware.wareType, count))
-		// Update still required wares:
-		destroy requiredResources
-		requiredResources = leftRequiredWares
+		let reservedWares = requiredResources.tryGetReserved(source)
+		if reservedWares != null
+			// Remove reserved wares from source and update required wares:
+			source.remove(reservedWares)
+			requiredResources.removeReserved(source)
+		else
+			// Look through all unreserved required wares:
+			let unreservedWares = requiredResources.getUnreserved()
+			for ware in unreservedWares
+				let transferableCount = min(source.getCount(ware.wareType), ware.count)
+				if transferableCount > 0
+					// Remove transferable wares from source and update required wares:
+					source.remove(ware(ware.wareType, transferableCount))
+					requiredResources.remove(ware(ware.wareType, transferableCount))
+			destroy unreservedWares
 
 
 let addBuildingSite_SelectedUnits = CreateGroup()
@@ -501,6 +499,7 @@ public function multiboard.trySetObjectInfoMultiboard(BuildingSite object) retur
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
 		for ware in requiredWares
 			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
+		// TODO: add reserved wares or only show unreserved wares
 	return true
 
 init

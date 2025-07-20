@@ -91,9 +91,9 @@
 // 			ware.increaseCount(-excessWareCount)
 // 		usedCapacity += ware.getCount()
 // 		// Adjust storage wares:
-// 		for iWare in wares
-// 			if iWare.hasSameType(ware)
-// 				iWare.increaseCount(ware.getCount())
+// 		for ware in wares
+// 			if ware.hasSameType(ware)
+// 				ware.increaseCount(ware.getCount())
 // 				return excessWareCount
 // 		wares.add(ware)
 // 		return excessWareCount
@@ -103,12 +103,12 @@
 // 	private function removeWare(Ware ware) returns int
 // 		// Adjust storage wares:
 // 		var wareCount = ware.getCount()
-// 		for iWare in wares
-// 			if iWare.hasSameType(ware)
-// 				var shortage = iWare.decreaseCount(wareCount, true)
+// 		for ware in wares
+// 			if ware.hasSameType(ware)
+// 				var shortage = ware.decreaseCount(wareCount, true)
 // 				// Check and adjust storage capacity:
 // 				if shortage <= 0
-// 					wares.remove(iWare)
+// 					wares.remove(ware)
 // 					usedCapacity -= wareCount - shortage
 // 				else
 // 					usedCapacity -= wareCount

@@ -11,6 +11,8 @@ Initial version.
 -------------------------------------------------------------*/
 package ReservableWares
 import Wares
+import ErrorHandling
+import HashMap
 
 
 // --------------------
@@ -18,17 +20,76 @@ import Wares
 // --------------------
 
 public class ReservableWares extends Wares
-	protected Wares reservedWares
+	protected let reservedWaresMap = new IterableMap<Wares, Wares>
 
 	construct()
 		super()
-		this.reservedWares = new Wares()
-	construct(Wares wares, Wares reservedWares)
+	construct(Wares wares)
 		super(wares)
-		this.reservedWares = new Wares(reservedWares)
 	construct(ReservableWares reservableWares)
 		super(reservableWares)
-		this.reservedWares = new Wares(reservableWares.reservedWares)
+		for source in reservableWares.reservedWaresMap
+			reservedWaresMap.put(source, reservableWares.reservedWaresMap.get(source))
 
 	ondestroy
-		destroy reservedWares
+		destroy reservedWaresMap
+
+	/** Returns if the wares count substracted by all reserved wares is bigger than zero. */
+	function hasUnreserved() returns bool
+		var unreservedCount = getCount()
+		for source in reservedWaresMap
+			unreservedCount -= reservedWaresMap.get(source).getCount()
+		return (unreservedCount > 0)
+
+	/** Returns a copy of the wares substracted by all reserved wares. */
+	function getUnreserved() returns Wares
+		let unreservedWares = new Wares(this)
+		for source in reservedWaresMap
+			unreservedWares.remove(reservedWaresMap.get(source))
+		return unreservedWares
+
+	/** Returns a copy of the reserved wares for given source. Returns null if none are reserved. */
+	function tryGetReserved(Wares source) returns Wares
+		if reservedWaresMap.has(source)
+			return reservedWaresMap.get(source)
+		else
+			return null
+
+	// TODO: check if this is needed
+	// /** Set given wares as the reserved wares for given source. */
+	// function reserve(Wares source, Wares wares)
+	// 	if this.reservedWaresMap.has(source)
+	// 		error("Source already has reserved wares")
+	// 	let unreservedWares = getUnreserved()
+	// 	if unreservedWares.has(wares) == false
+	// 		error("Not enough unreserved wares to reserve given wares")
+	// 	destroy unreservedWares
+	// 	this.reservedWaresMap.put(source, wares)
+
+	/** Reserve as many as available of given wares from the list for given source and return how many were reserved. */
+	function reserveAny(Wares source, Wares wares) returns int
+		if this.reservedWaresMap.has(source)
+			error("Source already has reserved wares")
+		var reservedWareCount = 0
+		let reservedWares = new Wares()
+		let unreservedWares = getUnreserved()
+		for ware in wares
+			let reservableCount = min(unreservedWares.getCount(ware.wareType), ware.count)
+			if reservableCount > 0
+				reservedWares.add(ware(ware.wareType, reservableCount))
+				reservedWareCount += reservableCount
+		destroy unreservedWares
+		if reservedWareCount > 0
+			this.reservedWaresMap.put(source, reservedWares)
+		else
+			destroy reservedWares
+		return reservedWareCount
+
+	/** Remove the reserved wares and reservation for given source. */
+	function removeReserved(Wares source)
+		remove(reservedWaresMap.get(source))
+		reservedWaresMap.remove(source)
+
+	/** Remove reservation for given source. */
+	function removeRerservation(Wares source)
+		reservedWaresMap.remove(source)

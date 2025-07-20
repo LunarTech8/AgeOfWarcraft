@@ -78,12 +78,12 @@ public class Depository extends Workplace
 			let targetEducts = targetWorkshop.getEducts()
 			let targetWares = targetWorkshop.getWares()
 			let workerStorage = worker.getStorage()
-			for iWare in targetEducts
-				let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetWares.getCount(iWare.wareType), storage.getCount(iWare.wareType), workerStorage.getFreeCapacity())
+			for ware in targetEducts
+				let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - targetWares.getCount(ware.wareType), storage.getCount(ware.wareType), workerStorage.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					storage.remove(ware(iWare.wareType, wareCount))
-					workerStorage.add(ware(iWare.wareType, wareCount))
+					storage.remove(ware(ware.wareType, wareCount))
+					workerStorage.add(ware(ware.wareType, wareCount))
 			destroy targetEducts
 			worker.setOrder(AbilityIdsCustom.transferWares, target)
 			return true
@@ -99,12 +99,12 @@ public class Depository extends Workplace
 	override function transferWares(Storage source, bool _takeWares)
 		// Look for wares in source storage:
 		let wares = new Wares(source)
-		for iWare in wares
-			let wareCount = min(iWare.count, storage.getFreeCapacity())
+		for ware in wares
+			let wareCount = min(ware.count, storage.getFreeCapacity())
 			if wareCount > 0
 				// Transfer ware:
-				source.remove(ware(iWare.wareType, wareCount))
-				storage.add(ware(iWare.wareType, wareCount))
+				source.remove(ware(ware.wareType, wareCount))
+				storage.add(ware(ware.wareType, wareCount))
 		destroy wares
 
 

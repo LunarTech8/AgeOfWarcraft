@@ -133,8 +133,8 @@ public class Workshop extends Workplace
 		if wares.has(educts)
 			// Check if there is enough free space for the products:
 			let products = getProducts()
-			for iWare in products
-				if wares.getCount(iWare.wareType) > iWare.count * (MAX_STORABLE_PRODUCTS - 1)
+			for ware in products
+				if wares.getCount(ware.wareType) > ware.count * (MAX_STORABLE_PRODUCTS - 1)
 					// Too many products:
 					destroy products
 					return false
@@ -166,16 +166,16 @@ public class Workshop extends Workplace
 	function getStoredEductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let educts = getEducts()
-		for iWare in educts
-			amount = min(amount, wares.getCount(iWare.wareType) div iWare.count)
+		for ware in educts
+			amount = min(amount, wares.getCount(ware.wareType) div ware.count)
 		destroy educts
 		return amount
 
 	function getStoredProductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let products = getProducts()
-		for iWare in products
-			amount = min(amount, wares.getCount(iWare.wareType) div iWare.count)
+		for ware in products
+			amount = min(amount, wares.getCount(ware.wareType) div ware.count)
 		destroy products
 		return amount
 
@@ -252,13 +252,13 @@ public class Workshop extends Workplace
 				let targetEducts = targetWorkshop.getEducts()
 				let targetWares = targetWorkshop.getWares()
 				let workerStorage = worker.getStorage()
-				for iWare in targetEducts
-					if products.hasAny(iWare)
-						let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - targetWares.getCount(iWare.wareType), wares.getCount(iWare.wareType), workerStorage.getFreeCapacity())
+				for ware in targetEducts
+					if products.hasAny(ware)
+						let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - targetWares.getCount(ware.wareType), wares.getCount(ware.wareType), workerStorage.getFreeCapacity())
 						if wareCount > 0
 							// Transfer ware:
-							wares.remove(ware(iWare.wareType, wareCount))
-							workerStorage.add(ware(iWare.wareType, wareCount))
+							wares.remove(ware(ware.wareType, wareCount))
+							workerStorage.add(ware(ware.wareType, wareCount))
 				destroy products
 				destroy targetEducts
 				// Order ware transfer:
@@ -279,22 +279,22 @@ public class Workshop extends Workplace
 	override function transferWares(Storage source, bool takeProducts)
 		// Look for educts in source:
 		let educts = getEducts()
-		for iWare in educts
-			let wareCount = min(iWare.count * MAX_STORABLE_EDUCTS - wares.getCount(iWare.wareType), source.getCount(iWare.wareType))
+		for ware in educts
+			let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - wares.getCount(ware.wareType), source.getCount(ware.wareType))
 			if wareCount > 0
 				// Transfer ware:
-				source.remove(ware(iWare.wareType, wareCount))
-				wares.add(ware(iWare.wareType, wareCount))
+				source.remove(ware(ware.wareType, wareCount))
+				wares.add(ware(ware.wareType, wareCount))
 		destroy educts
 		// Look for products in workshop:
 		if takeProducts
 			let products = getProducts()
-			for iWare in products
-				let wareCount = min(wares.getCount(iWare.wareType), source.getFreeCapacity())
+			for ware in products
+				let wareCount = min(wares.getCount(ware.wareType), source.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					wares.remove(ware(iWare.wareType, wareCount))
-					source.add(ware(iWare.wareType, wareCount))
+					wares.remove(ware(ware.wareType, wareCount))
+					source.add(ware(ware.wareType, wareCount))
 			destroy products
 
 

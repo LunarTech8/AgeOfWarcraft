@@ -44,27 +44,27 @@ public class Storage extends Wares
 		super.add(w)
 
 	override function add(Wares wares)
-		for iWare in wares
-			add(iWare)  // Use capacity based method
+		for ware in wares
+			add(ware)  // Use capacity based method
 
 	override function remove(ware w)
-		for iWare in wareList
-			if iWare.hasSameType(w)
+		for ware in wareList
+			if ware.hasSameType(w)
 				// Check and adjust ware:
-				if iWare.count < w.count
+				if ware.count < w.count
 					error("Can not remove given ware from storage because ware count is to low")
-				else if iWare.count == w.count
-					wareList.remove(iWare)
+				else if ware.count == w.count
+					wareList.remove(ware)
 				else
-					wareList.replace(iWare, iWare.changedCopy(-w.count))
+					wareList.replace(ware, ware.changedCopy(-w.count))
 				// Adjust capacity:
 				usedCapacity -= w.count
 				return
 		error("Can not remove given ware from storage because ware type is not available")
 
 	override function remove(Wares wares)
-		for iWare in wares
-			remove(iWare)  // Use capacity based method
+		for ware in wares
+			remove(ware)  // Use capacity based method
 
 	/** Transfers as many wares as possible from this storage to target storage.
 	Returns the amount of wares that couldn't be transfered. */

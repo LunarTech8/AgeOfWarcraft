@@ -149,20 +149,20 @@ function unit.harvest(entity target) returns bool
 	let wares = resource.harvest(this.getUnitId())
 	if wares != null
 		// Transfere wares:
-		for iWare in wares
+		for ware in wares
 			// Check resource count:
-			let resourceWareCount = resource.getCount(iWare.wareType)
+			let resourceWareCount = resource.getCount(ware.wareType)
 			let freeCapacity = storage.getFreeCapacity()
 			if resourceWareCount > 0 and freeCapacity > 0
 				// Limit by resource count:
-				if resourceWareCount < iWare.count
-					iWare.count = resourceWareCount
+				if resourceWareCount < ware.count
+					ware.count = resourceWareCount
 				// Limit by storage free capacity:
-				if freeCapacity < iWare.count
-					iWare.count = freeCapacity
+				if freeCapacity < ware.count
+					ware.count = freeCapacity
 				// Add ware to storage and remove from resource:
-				storage.add(iWare)
-				resource.remove(iWare)
+				storage.add(ware)
+				resource.remove(ware)
 		destroy wares
 		// Check for resource depletion:
 		if resource.checkForDepletionKill()

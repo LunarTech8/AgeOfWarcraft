@@ -48,7 +48,21 @@ public class ReservableWares extends Wares
 			unreservedWares.remove(reservedWaresMap.get(source))
 		return unreservedWares
 
-	/** Returns a copy of the reserved wares for given source. Returns null if none are reserved. */
+	/** Returns a copy of all reserved wares. */
+	function getReserved() returns Wares
+		let reservedWares = new Wares()
+		for source in reservedWaresMap
+			reservedWares.add(reservedWaresMap.get(source))
+		return reservedWares
+
+	/** Returns the count of given ware type for all reserved wares. */
+	function getReservedCount(WareType wt) returns int
+		var reservedCount = 0
+		for source in reservedWaresMap
+			reservedCount += reservedWaresMap.get(source).getCount(wt)
+		return reservedCount
+
+	/** Returns the reserved wares for given source. Returns null if none are reserved. */
 	function tryGetReserved(Wares source) returns Wares
 		if reservedWaresMap.has(source)
 			return reservedWaresMap.get(source)

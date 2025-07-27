@@ -494,12 +494,11 @@ public function multiboard.trySetObjectInfoMultiboard(BuildingSite object) retur
 	if workPower > 0.
 		this.addMultiboardLine("Build time left: " + (object.getWorkProgressLeft() / workPower).toInt().toString() + "s", BUILD_TIME_LEFT_ICON_PATH)
 	let requiredWares = object.getRequiredResources()
-	let amountOfWareTypes = requiredWares.getAmountOfTypes()
-	if amountOfWareTypes > 0
+	if requiredWares.getAmountOfTypes() > 0
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
 		for ware in requiredWares
-			this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
-		// TODO: add reserved wares or only show unreserved wares
+			let reservedCount = requiredWares.getReservedCount(ware.wareType)
+			this.addMultiboardLine(ware.count.toString() + (reservedCount > 0 ? " (-" + reservedCount.toString() + ") " : " ") + ware.toString(true), ware.getIconPath())
 	return true
 
 init

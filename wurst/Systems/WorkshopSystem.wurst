@@ -110,7 +110,7 @@ function getWorkshopProducts(int workshopUnitId, int productionVariant) returns 
 let WORKSHOP_MAP = new IterableUnitHashMap<Workshop>(null)
 
 public class Workshop extends Workplace
-	private Wares wares
+	private Wares wares  // TODO: replace with ReservableWares
 	private int productionVariant
 	private real workProgressCurrent
 	private real workProgressFinished
@@ -387,6 +387,7 @@ public function multiboard.trySetObjectInfoMultiboard(Workshop object) returns b
 	for ware in products
 		this.addMultiboardLine(ware.count.toString() + " " + ware.toString(true), ware.getIconPath())
 	destroy products
+	// TODO: also show stored wares with reserved counts (additions and subtractions)
 	return true
 
 init

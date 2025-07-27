@@ -22,7 +22,9 @@ Work status:
 
 !!!>>- Improve storage system by adding reserved wares (that already are planned to be picked up by a unit and thus shouldn't be available for other lookups)
 	- This should solve that eg. not all workers from a workshop go to take wares from same target gatherplace
-	- Replace Wares in WorkshopSystem and Storage with ReservableWares
+	- Replace Wares in WorkshopSystem and Storage (and the systems that use it) with ReservableWares
+	- Show reserved wares behind current ware count in parentheses with a plus for incoming additions and a minus for outgoing subtractions
+	- Transfer wares command should reserve wares when cast
 !!>- Replace wares of Workpshop with an expanded class (SpecializedStorage vs GeneralStorage) that allows for max count of each allowed ware instead of max number of educts and products
 !!>- Check if it wouldn't be better to not use the tuple ware but just the type and count
 !!>- Replace MAX_AUTO_ORDER_RANGE with taking in all buildings of same settlement

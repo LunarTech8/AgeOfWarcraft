@@ -76,7 +76,7 @@ public class Depository extends Workplace
 			// Give needed educts to worker:
 			let targetWorkshop = target.toWorkshop()
 			let targetEducts = targetWorkshop.getEducts()
-			let targetWares = targetWorkshop.getWares()
+			let targetWares = targetWorkshop.getStoredWares()
 			let workerStorage = worker.getStorage()
 			for ware in targetEducts
 				let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - targetWares.getCount(ware.wareType), storage.getCount(ware.wareType), workerStorage.getFreeCapacity())

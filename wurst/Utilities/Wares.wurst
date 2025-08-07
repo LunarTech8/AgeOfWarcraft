@@ -135,6 +135,9 @@ public class Wares
 
 	construct()
 		this.wareList = new LinkedList<ware>()
+	construct(ware w)
+		this.wareList = new LinkedList<ware>()
+		wareList.add(w)
 	construct(Wares wares)
 		this.wareList = new LinkedList<ware>(wares.wareList)
 

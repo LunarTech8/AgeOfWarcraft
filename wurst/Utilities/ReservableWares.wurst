@@ -20,7 +20,8 @@ import HashMap
 // --------------------
 
 public class ReservableWares extends Wares
-	protected let reservedWaresMap = new IterableMap<Wares, Wares>
+	protected let reservedOutboundWaresMap = new IterableMap<Wares, Wares>
+	protected let reservedInboundWaresMap = new IterableMap<Wares, Wares>  // TODO: maybe remove inbound and instead have them only as reserved outbound at the source -> but then the inbound reservation would be hard to identify
 
 	construct()
 		super()
@@ -28,62 +29,94 @@ public class ReservableWares extends Wares
 		super(wares)
 	construct(ReservableWares reservableWares)
 		super(reservableWares)
-		for source in reservableWares.reservedWaresMap
-			reservedWaresMap.put(source, reservableWares.reservedWaresMap.get(source))
+		for source in reservableWares.reservedOutboundWaresMap
+			reservedOutboundWaresMap.put(source, reservableWares.reservedOutboundWaresMap.get(source))
+		for source in reservableWares.reservedInboundWaresMap
+			reservedInboundWaresMap.put(source, reservableWares.reservedInboundWaresMap.get(source))
 
 	ondestroy
-		destroy reservedWaresMap
+		destroy reservedOutboundWaresMap
+		destroy reservedInboundWaresMap
 
-	/** Returns if the wares count substracted by all reserved wares is bigger than zero. */
+	/** Returns if the wares count substracted by all reserved outbound wares is bigger than zero. */
 	function hasUnreserved() returns bool
 		var unreservedCount = getCount()
-		for source in reservedWaresMap
-			unreservedCount -= reservedWaresMap.get(source).getCount()
+		for source in reservedOutboundWaresMap
+			unreservedCount -= reservedOutboundWaresMap.get(source).getCount()
 		return (unreservedCount > 0)
 
-	/** Returns a copy of the wares substracted by all reserved wares. */
+	/** Returns a copy of the wares substracted by all reserved outbound wares. */
 	function getUnreserved() returns Wares
 		let unreservedWares = new Wares(this)
-		for source in reservedWaresMap
-			unreservedWares.remove(reservedWaresMap.get(source))
+		for source in reservedOutboundWaresMap
+			unreservedWares.remove(reservedOutboundWaresMap.get(source))
 		return unreservedWares
 
-	/** Returns a copy of all reserved wares. */
-	function getReserved() returns Wares
+	/** Returns the count of given ware type substracted by all reserved outbound wares. */
+	function getUnreservedCount(WareType wt) returns int
+		var unreservedCount = getCount(wt)
+		for source in reservedOutboundWaresMap
+			unreservedCount -= reservedOutboundWaresMap.get(source).getCount(wt)
+		return unreservedCount
+
+	/** Returns a copy of all reserved outbound wares. */
+	function getReservedOutbound() returns Wares
 		let reservedWares = new Wares()
-		for source in reservedWaresMap
-			reservedWares.add(reservedWaresMap.get(source))
+		for source in reservedOutboundWaresMap
+			reservedWares.add(reservedOutboundWaresMap.get(source))
 		return reservedWares
 
-	/** Returns the count of given ware type for all reserved wares. */
-	function getReservedCount(WareType wt) returns int
+	/** Returns the count of given ware type for all reserved outbound wares. */
+	function getReservedOutboundCount(WareType wt) returns int
 		var reservedCount = 0
-		for source in reservedWaresMap
-			reservedCount += reservedWaresMap.get(source).getCount(wt)
+		for source in reservedOutboundWaresMap
+			reservedCount += reservedOutboundWaresMap.get(source).getCount(wt)
 		return reservedCount
 
-	/** Returns the reserved wares for given source. Returns null if none are reserved. */
-	function tryGetReserved(Wares source) returns Wares
-		if reservedWaresMap.has(source)
-			return reservedWaresMap.get(source)
+	/** Returns the count of given ware type for all reserved inbound wares. */
+	function getReservedInboundCount(WareType wt) returns int
+		var reservedCount = 0
+		for source in reservedInboundWaresMap
+			reservedCount += reservedInboundWaresMap.get(source).getCount(wt)
+		return reservedCount
+
+	/** Returns the reserved outbound wares for given source. Returns null if none are reserved. */
+	function tryGetReservedOutbound(Wares source) returns Wares
+		if reservedOutboundWaresMap.has(source)
+			return reservedOutboundWaresMap.get(source)
 		else
 			return null
 
-	// TODO: check if this is needed
-	// /** Set given wares as the reserved wares for given source. */
-	// function reserve(Wares source, Wares wares)
-	// 	if this.reservedWaresMap.has(source)
-	// 		error("Source already has reserved wares")
-	// 	let unreservedWares = getUnreserved()
-	// 	if unreservedWares.has(wares) == false
-	// 		error("Not enough unreserved wares to reserve given wares")
-	// 	destroy unreservedWares
-	// 	this.reservedWaresMap.put(source, wares)
+	/** Add given wares to the reserved outbound wares for given source. */
+	function reserveOutbound(Wares source, Wares wares)
+		let unreservedWares = getUnreserved()
+		if unreservedWares.has(wares) == false
+			error("Not enough unreserved wares to reserve given wares")
+		destroy unreservedWares
+		if this.reservedOutboundWaresMap.has(source)
+			let currentWares = reservedOutboundWaresMap.get(source)
+			wares.add(currentWares)
+			destroy currentWares
+		this.reservedOutboundWaresMap.put(source, wares)
+	/** Add given ware to the reserved outbound wares for given source. */
+	function reserveOutbound(Wares source, ware w)
+		reserveOutbound(source, new Wares(w))
 
-	/** Reserve as many as available of given wares from the list for given source and return how many were reserved. */
-	function reserveAny(Wares source, Wares wares) returns int
-		if this.reservedWaresMap.has(source)
-			error("Source already has reserved wares")
+	/** Add given wares to the reserved inbound wares for given source. */
+	function reserveInbound(Wares source, Wares wares)
+		if this.reservedInboundWaresMap.has(source)
+			let currentWares = reservedInboundWaresMap.get(source)
+			wares.add(currentWares)
+			destroy currentWares
+		this.reservedInboundWaresMap.put(source, wares)
+	/** Add given ware to the reserved inbound wares for given source. */
+	function reserveInbound(Wares source, ware w)
+		reserveInbound(source, new Wares(w))
+
+	/** Reserve as many as available of given wares from the list for given source and return how many were reserved outbound. */
+	function reserveOutboundAny(Wares source, Wares wares) returns int
+		if this.reservedOutboundWaresMap.has(source)
+			error("Source already has reserved wares")  // TODO: implement as add instead
 		var reservedWareCount = 0
 		let reservedWares = new Wares()
 		let unreservedWares = getUnreserved()
@@ -94,16 +127,16 @@ public class ReservableWares extends Wares
 				reservedWareCount += reservableCount
 		destroy unreservedWares
 		if reservedWareCount > 0
-			this.reservedWaresMap.put(source, reservedWares)
+			this.reservedOutboundWaresMap.put(source, reservedWares)
 		else
 			destroy reservedWares
 		return reservedWareCount
 
-	/** Remove the reserved wares and reservation for given source. */
-	function removeReserved(Wares source)
-		remove(reservedWaresMap.get(source))
-		reservedWaresMap.remove(source)
+	/** Remove the reserved outbound wares and outbound reservation for given source. */
+	function removeReservedOutbound(Wares source)
+		remove(reservedOutboundWaresMap.get(source))
+		reservedOutboundWaresMap.remove(source)
 
-	/** Remove reservation for given source. */
-	function removeRerservation(Wares source)
-		reservedWaresMap.remove(source)
+	/** Remove outbound reservation for given source. */
+	function removeOutboundRerservation(Wares source)
+		reservedOutboundWaresMap.remove(source)

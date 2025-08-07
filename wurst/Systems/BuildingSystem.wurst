@@ -134,8 +134,8 @@ function getRequiredWorkPower(int buildingUnitId) returns real
 	return 0.
 
 /** Returns the required wares of the given building type. */
-function getRequiredWares(int buildingUnitId) returns ReservableWares
-	let wares = new ReservableWares()
+function getRequiredWares(int buildingUnitId) returns Wares
+	let wares = new Wares()
 	switch buildingUnitId
 		case UnitIdsCustom.AoW.peasantHouse
 			wares.add(ware(WareType.WOOD, 4))
@@ -241,9 +241,9 @@ public class BuildingSite extends Workplace
 	private real workPower
 	private int upgradeProgress
 
-	construct(unit building, real fullHP, ReservableWares requiredResources)
+	construct(unit building, real fullHP, Wares requiredResources)
 		super(building)
-		this.requiredResources = requiredResources
+		this.requiredResources = new ReservableWares(requiredResources)
 		this.fullHP = fullHP
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(building.getUnitId())
@@ -261,7 +261,7 @@ public class BuildingSite extends Workplace
 		if requiredResources.hasUnreserved()
 			let carrierStorage = carrier.getStorage()
 			if carrierStorage != null
-				hasAnyRequiredResources = (requiredResources.reserveAny(carrierStorage, carrierStorage) > 0)
+				hasAnyRequiredResources = (requiredResources.reserveOutboundAny(carrierStorage, carrierStorage) > 0)
 		return hasAnyRequiredResources
 
 	function getRequiredResources() returns ReservableWares
@@ -379,11 +379,11 @@ public class BuildingSite extends Workplace
 	/** Transfers required wares from source storage to this building site.
 	Returns a list of all wares that are still missing. */
 	override function transferWares(Storage source, bool _takeWares)
-		let reservedWares = requiredResources.tryGetReserved(source)
+		let reservedWares = requiredResources.tryGetReservedOutbound(source)
 		if reservedWares != null
 			// Remove reserved wares from source and update required wares:
 			source.remove(reservedWares)
-			requiredResources.removeReserved(source)
+			requiredResources.removeReservedOutbound(source)
 		else
 			// Look through all unreserved required wares:
 			let unreservedWares = requiredResources.getUnreserved()
@@ -405,7 +405,9 @@ function unit.addBuildingSite()
 		IssueImmediateOrderById(buildingGround, targetUnitId.getUnitTypeId())  // Upgrade building ground to target building type
 		buildingGround.setScale(getScaling(targetUnitId))
 		buildingGround.setMaxHP(max(1, (fullHP * BUILDING_START_HP_PERCENTAGE).toInt()))
-		let buildingSite = new BuildingSite(buildingGround, fullHP, getRequiredWares(targetUnitId))
+		let requiredWares = getRequiredWares(targetUnitId)
+		let buildingSite = new BuildingSite(buildingGround, fullHP, requiredWares)
+		destroy requiredWares
 		BUILDING_SITE_MAP.put(buildingGround, buildingSite)
 		addBuildingSite_SelectedUnits.enumUnitsSelected(this.getOwner(), null)
 		if buildingSite.getRequiredResources().isEmpty()
@@ -497,7 +499,7 @@ public function multiboard.trySetObjectInfoMultiboard(BuildingSite object) retur
 	if requiredWares.getAmountOfTypes() > 0
 		this.addMultiboardLine("Required wares:", SUB_HEADLINE_ICON_PATH)
 		for ware in requiredWares
-			let reservedCount = requiredWares.getReservedCount(ware.wareType)
+			let reservedCount = requiredWares.getReservedOutboundCount(ware.wareType)
 			this.addMultiboardLine(ware.count.toString() + (reservedCount > 0 ? " (-" + reservedCount.toString() + ") " : " ") + ware.toString(true), ware.getIconPath())
 	return true
 

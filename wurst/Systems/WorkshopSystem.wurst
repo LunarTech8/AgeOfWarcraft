@@ -20,6 +20,7 @@ import ClosureTimers
 import Icons
 import RegisterEvents
 import Wares
+import ReservableWares
 import Storage
 import PersonData
 import Orders
@@ -110,7 +111,7 @@ function getWorkshopProducts(int workshopUnitId, int productionVariant) returns 
 let WORKSHOP_MAP = new IterableUnitHashMap<Workshop>(null)
 
 public class Workshop extends Workplace
-	private Wares wares  // TODO: replace with ReservableWares
+	private ReservableWares storedWares
 	private int productionVariant
 	private real workProgressCurrent
 	private real workProgressFinished
@@ -118,29 +119,29 @@ public class Workshop extends Workplace
 
 	construct(unit building)
 		super(building)
-		wares = new Wares()
+		storedWares = new ReservableWares()
 		productionVariant = 1
 		workProgressCurrent = 0.
 		workProgressFinished = getRequiredWorkPower(building.getUnitId(), productionVariant)
 		workPower = 0.
 
 	ondestroy
-		destroy wares
+		destroy storedWares
 
 	private function startProduction() returns bool
 		// Check if there are enough educts:
 		let educts = getEducts()
-		if wares.has(educts)
+		if storedWares.has(educts)
 			// Check if there is enough free space for the products:
 			let products = getProducts()
 			for ware in products
-				if wares.getCount(ware.wareType) > ware.count * (MAX_STORABLE_PRODUCTS - 1)
+				if storedWares.getCount(ware.wareType) > ware.count * (MAX_STORABLE_PRODUCTS - 1)
 					// Too many products:
 					destroy products
 					return false
 			destroy products
 			// Start production:
-			wares.remove(educts)
+			storedWares.remove(educts)
 			destroy educts
 			return true
 		else
@@ -154,20 +155,20 @@ public class Workshop extends Workplace
 			workProgressCurrent = 0.
 			// Regain educts:
 			let educts = getEducts()
-			wares.add(educts)
+			storedWares.add(educts)
 			destroy educts
 
 	function isProducing() returns bool
 		return workProgressCurrent > 0.
 
-	function getWares() returns Wares
-		return wares
+	function getStoredWares() returns ReservableWares
+		return storedWares
 
 	function getStoredEductsCount() returns int
 		var amount = MAX_WARE_COUNT
 		let educts = getEducts()
 		for ware in educts
-			amount = min(amount, wares.getCount(ware.wareType) div ware.count)
+			amount = min(amount, storedWares.getCount(ware.wareType) div ware.count)
 		destroy educts
 		return amount
 
@@ -175,7 +176,7 @@ public class Workshop extends Workplace
 		var amount = MAX_WARE_COUNT
 		let products = getProducts()
 		for ware in products
-			amount = min(amount, wares.getCount(ware.wareType) div ware.count)
+			amount = min(amount, storedWares.getCount(ware.wareType) div ware.count)
 		destroy products
 		return amount
 
@@ -213,7 +214,7 @@ public class Workshop extends Workplace
 			if workProgressCurrent >= workProgressFinished
 				// Finish production:
 				let products = getProducts()
-				wares.add(products)
+				storedWares.add(products)
 				destroy products
 				// Directly start with next production if possible:
 				if startProduction()
@@ -246,19 +247,19 @@ public class Workshop extends Workplace
 		if getStoredProductsCount() >= MAX_STORABLE_PRODUCTS
 			let target = this.findNextWorkshopInNeedOfProducts()
 			if target != null
-				// Give needed products to worker:
+				// Give needed products to worker and reserve them in target workshop:
 				let products = getProducts()
 				let targetWorkshop = target.toWorkshop()
 				let targetEducts = targetWorkshop.getEducts()
-				let targetWares = targetWorkshop.getWares()
+				let targetWares = targetWorkshop.getStoredWares()
 				let workerStorage = worker.getStorage()
 				for ware in targetEducts
 					if products.hasAny(ware)
-						let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - targetWares.getCount(ware.wareType), wares.getCount(ware.wareType), workerStorage.getFreeCapacity())
+						let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - targetWares.getUnreservedCount(ware.wareType), storedWares.getUnreservedCount(ware.wareType), workerStorage.getFreeCapacity())
 						if wareCount > 0
-							// Transfer ware:
-							wares.remove(ware(ware.wareType, wareCount))
+							storedWares.remove(ware(ware.wareType, wareCount))
 							workerStorage.add(ware(ware.wareType, wareCount))
+							targetWorkshop.storedWares.reserveInbound(workerStorage, ware(ware.wareType, wareCount))
 				destroy products
 				destroy targetEducts
 				// Order ware transfer:
@@ -268,6 +269,19 @@ public class Workshop extends Workplace
 		if getStoredEductsCount() == 0
 			let target = this.findNextWorkplaceWithEducts()
 			if target != null
+				// Reserve needed educts in target workshop:
+				let educts = getEducts()
+				let targetWorkshop = target.toWorkshop()
+				let targetProducts = targetWorkshop.getProducts()
+				let targetWares = targetWorkshop.getStoredWares()
+				let workerStorage = worker.getStorage()
+				for ware in targetProducts
+					if educts.hasAny(ware)
+						let wareCount = min(targetWares.getUnreservedCount(ware.wareType), educts.getCount(ware.wareType) * MAX_STORABLE_EDUCTS - storedWares.getReservedInboundCount(ware.wareType), workerStorage.getFreeCapacity())
+						if wareCount > 0
+							targetWorkshop.storedWares.reserveOutbound(workerStorage, ware(ware.wareType, wareCount))
+				destroy educts
+				destroy targetProducts
 				// Order ware transfer:
 				worker.setOrder(AbilityIdsCustom.transferWares, target)
 				return true
@@ -280,20 +294,20 @@ public class Workshop extends Workplace
 		// Look for educts in source:
 		let educts = getEducts()
 		for ware in educts
-			let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - wares.getCount(ware.wareType), source.getCount(ware.wareType))
+			let wareCount = min(ware.count * MAX_STORABLE_EDUCTS - storedWares.getCount(ware.wareType), source.getCount(ware.wareType))
 			if wareCount > 0
 				// Transfer ware:
 				source.remove(ware(ware.wareType, wareCount))
-				wares.add(ware(ware.wareType, wareCount))
+				storedWares.add(ware(ware.wareType, wareCount))
 		destroy educts
 		// Look for products in workshop:
 		if takeProducts
 			let products = getProducts()
 			for ware in products
-				let wareCount = min(wares.getCount(ware.wareType), source.getFreeCapacity())
+				let wareCount = min(storedWares.getCount(ware.wareType), source.getFreeCapacity())
 				if wareCount > 0
 					// Transfer ware:
-					wares.remove(ware(ware.wareType, wareCount))
+					storedWares.remove(ware(ware.wareType, wareCount))
 					source.add(ware(ware.wareType, wareCount))
 			destroy products
 
@@ -413,7 +427,7 @@ public function testWorkshopSystem_Workers(vec2 testCentre)
 	// Create workshop:
 	let unitA = createWorkshopBuilding(Settings.USER_PLAYER, UnitIdsCustom.AoW.lumberMill, testCentre, angle(0))
 	let workshopA = unitA.toWorkshop()
-	workshopA.getWares().add(ware(WareType.WOODEN_BOARDS, 4))
+	workshopA.getStoredWares().add(ware(WareType.WOODEN_BOARDS, 4))
 	workshopA.getStoredProductsCount().assertEquals(testName, 2)
 	workshopA.getStoredEductsCount().assertEquals(testName, 0)
 	assertNotNull(testName, workshopA)
@@ -509,7 +523,7 @@ public function testWorkshopSystem_Production(vec2 testCentre)
 	// Add educts:
 	waresA.clear()
 	waresA.add(ware(WareType.WOOD, 7))
-	workshopA.getWares().add(waresA)
+	workshopA.getStoredWares().add(waresA)
 	workshopA.getStoredEductsCount().assertEquals(testName, 2)
 	workshopA.getStoredProductsCount().assertEquals(testName, 0)
 	doAfter(2.) () ->
